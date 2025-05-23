@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +27,25 @@ const Index = () => {
       });
       setEmail("");
     }
+  };
+
+  // SouLVE Logo Component
+  const SouLVELogo = ({ size = "large" }: { size?: "small" | "large" }) => {
+    const isLarge = size === "large";
+    return (
+      <div className="flex items-center space-x-3">
+        {/* Heart-shaped S Logo */}
+        <div className={`bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center ${isLarge ? 'w-16 h-16' : 'w-8 h-8'}`}>
+          <div className={`text-white font-bold ${isLarge ? 'text-2xl' : 'text-lg'}`} style={{ fontFamily: 'Arial, sans-serif' }}>
+            S
+          </div>
+        </div>
+        <div className="text-left">
+          <h1 className={`font-bold text-white ${isLarge ? 'text-4xl md:text-5xl' : 'text-xl'}`}>SouLVE</h1>
+          <p className={`text-teal-100 tracking-wide font-medium ${isLarge ? 'text-lg' : 'text-sm'}`}>SOCIAL FEED TO SOCIAL NEED</p>
+        </div>
+      </div>
+    );
   };
 
   const features = [
@@ -105,17 +123,9 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center animate-fade-in">
-            {/* Logo placeholder - will be replaced with actual logo */}
+            {/* Updated SouLVE Logo */}
             <div className="flex justify-center items-center mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-gradient-to-br from-white/20 to-white/10 rounded-full flex items-center justify-center backdrop-blur">
-                  <Heart className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-left">
-                  <h1 className="text-4xl md:text-5xl font-bold text-white">SouLVE</h1>
-                  <p className="text-lg text-teal-100 tracking-wide">SOCIAL FEED TO SOCIAL NEED</p>
-                </div>
-              </div>
+              <SouLVELogo size="large" />
             </div>
             
             <p className="text-xl md:text-2xl mb-4 max-w-4xl mx-auto leading-relaxed">
@@ -250,12 +260,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Heart className="w-6 h-6 text-teal-400" />
-                <h3 className="text-xl font-bold">SouLVE</h3>
+                <SouLVELogo size="small" />
               </div>
-              <p className="text-gray-400 mb-2">
-                Social Feed to Social Need
-              </p>
               <p className="text-gray-400 text-sm">
                 Bridging the human gap AI cannot reach through trust-based community connections.
               </p>
