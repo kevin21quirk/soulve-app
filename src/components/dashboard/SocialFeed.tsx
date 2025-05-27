@@ -3,7 +3,7 @@ import React, { useMemo, useCallback } from "react";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import FeedFilters from "./FeedFilters";
 import CreatePost from "./CreatePost";
-import SearchBar from "./SearchBar";
+import EnhancedSearchBar from "./search/EnhancedSearchBar";
 import PostSkeleton from "./PostSkeleton";
 import FeedPostCard from "./FeedPostCard";
 import { useSocialFeed } from "@/hooks/useSocialFeed";
@@ -88,7 +88,7 @@ const SocialFeed = React.memo(() => {
             postCounts={postCounts}
           />
           
-          <SearchBar 
+          <EnhancedSearchBar 
             onSearch={handleSearchChange}
             placeholder="Search posts, authors, locations..."
             className="w-full md:w-80"

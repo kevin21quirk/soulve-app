@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Bell, Keyboard, Search, Users, UserPlus, Activity } from "lucide-react";
-import SearchBar from "./SearchBar";
+import EnhancedSearchBar from "./search/EnhancedSearchBar";
 import RealTimeActivity from "./RealTimeActivity";
 import NotificationCenter from "./NotificationCenter";
 import KeyboardShortcuts from "./KeyboardShortcuts";
@@ -62,11 +62,12 @@ const DashboardHeader = ({
                   Search
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-4">
-                <SearchBar 
+              <PopoverContent className="w-96 p-4">
+                <EnhancedSearchBar 
                   onSearch={handleGlobalSearch}
                   placeholder="Search posts, people, locations..."
                   className="w-full"
+                  showTrending={true}
                 />
               </PopoverContent>
             </Popover>
