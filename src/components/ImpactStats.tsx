@@ -20,16 +20,16 @@ const ImpactStats = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-white/95 backdrop-blur shadow-xl border-0 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <CardContent className="p-6 text-center">
-              <div className={`inline-flex p-3 rounded-full ${stat.color} mb-4`}>
-                <stat.icon className="h-6 w-6 text-white" />
+          <Card key={index} className="bg-white/95 backdrop-blur-lg shadow-2xl border-0 hover:shadow-3xl transition-all duration-300 hover:-translate-y-2 rounded-2xl">
+            <CardContent className="p-8 text-center">
+              <div className={`inline-flex p-4 rounded-full ${stat.color} mb-6 shadow-lg`}>
+                <stat.icon className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</h3>
-              <p className="text-gray-600 font-medium">{stat.label}</p>
+              <h3 className="text-4xl font-bold text-gray-900 mb-3">{stat.value}</h3>
+              <p className="text-gray-600 font-medium text-lg">{stat.label}</p>
             </CardContent>
           </Card>
         ))}

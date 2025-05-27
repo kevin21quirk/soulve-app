@@ -10,7 +10,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <HeroSection />
-      <ImpactStats />
+      <div className="pb-16">
+        <ImpactStats />
+      </div>
       <FeaturesSection />
       <UserTypesSection />
       <NewsletterSection />
