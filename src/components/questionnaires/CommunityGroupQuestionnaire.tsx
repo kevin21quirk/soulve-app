@@ -30,6 +30,14 @@ const CommunityGroupQuestionnaire = () => {
     },
     partnershipInterest: "",
     supportNeeds: [],
+    growthGoals: "",
+    successMeasurement: "",
+    collaborationInterest: [],
+    resourceNeeds: [],
+    digitalTools: [],
+    barriers: "",
+    communityImpact: "",
+    futureVision: "",
     contactName: "",
     contactPosition: "",
     contactEmail: "",
@@ -158,7 +166,11 @@ const CommunityGroupQuestionnaire = () => {
                 "Funding/resources",
                 "Venue booking",
                 "Volunteer coordination",
-                "Community outreach"
+                "Community outreach",
+                "Leadership development",
+                "Time management",
+                "Technology adoption",
+                "Measuring impact"
               ].map((challenge) => (
                 <div key={challenge} className="flex items-center space-x-2">
                   <Checkbox
@@ -189,7 +201,11 @@ const CommunityGroupQuestionnaire = () => {
                 "Cultural celebrations",
                 "Sports activities",
                 "Volunteer projects",
-                "Advocacy campaigns"
+                "Advocacy campaigns",
+                "Networking events",
+                "Family activities",
+                "Skill-sharing sessions",
+                "Support groups"
               ].map((eventType) => (
                 <div key={eventType} className="flex items-center space-x-2">
                   <Checkbox
@@ -235,10 +251,20 @@ const CommunityGroupQuestionnaire = () => {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="barriers">What barriers prevent your group from achieving its goals? *</Label>
+            <Textarea
+              id="barriers"
+              value={formData.barriers}
+              onChange={(e) => setFormData(prev => ({ ...prev, barriers: e.target.value }))}
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Communication</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Communication & Technology</h3>
           
           <div className="space-y-2">
             <Label>How do you currently communicate with members? (Select all that apply)</Label>
@@ -251,7 +277,11 @@ const CommunityGroupQuestionnaire = () => {
                 "Website updates",
                 "In-person meetings",
                 "Text messaging",
-                "Community notice boards"
+                "Community notice boards",
+                "Mobile apps",
+                "Video calls",
+                "Printed materials",
+                "Word of mouth"
               ].map((method) => (
                 <div key={method} className="flex items-center space-x-2">
                   <Checkbox
@@ -266,6 +296,155 @@ const CommunityGroupQuestionnaire = () => {
                     }}
                   />
                   <Label htmlFor={method}>{method}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What digital tools does your group currently use? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Facebook groups",
+                "Instagram",
+                "Twitter/X",
+                "LinkedIn",
+                "Discord",
+                "Slack",
+                "Zoom",
+                "Microsoft Teams",
+                "Google Workspace",
+                "Event management platforms",
+                "Survey tools",
+                "Project management apps"
+              ].map((tool) => (
+                <div key={tool} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={tool}
+                    checked={formData.digitalTools.includes(tool)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, digitalTools: [...prev.digitalTools, tool] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, digitalTools: prev.digitalTools.filter(item => item !== tool) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={tool}>{tool}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Growth & Impact</h3>
+          
+          <div className="space-y-2">
+            <Label htmlFor="growthGoals">What are your group's growth goals for the next 2 years? *</Label>
+            <Textarea
+              id="growthGoals"
+              value={formData.growthGoals}
+              onChange={(e) => setFormData(prev => ({ ...prev, growthGoals: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="successMeasurement">How do you measure success in your community work? *</Label>
+            <Textarea
+              id="successMeasurement"
+              value={formData.successMeasurement}
+              onChange={(e) => setFormData(prev => ({ ...prev, successMeasurement: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="communityImpact">Describe the impact your group has had on the community *</Label>
+            <Textarea
+              id="communityImpact"
+              value={formData.communityImpact}
+              onChange={(e) => setFormData(prev => ({ ...prev, communityImpact: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="futureVision">What is your vision for your community group's future? *</Label>
+            <Textarea
+              id="futureVision"
+              value={formData.futureVision}
+              onChange={(e) => setFormData(prev => ({ ...prev, futureVision: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Collaboration & Resources</h3>
+          
+          <div className="space-y-2">
+            <Label>What types of collaboration would interest your group? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Joint events with other groups",
+                "Resource sharing",
+                "Skill exchanges",
+                "Volunteer sharing",
+                "Advocacy partnerships",
+                "Funding collaborations",
+                "Knowledge sharing",
+                "Mentorship programs"
+              ].map((collaboration) => (
+                <div key={collaboration} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={collaboration}
+                    checked={formData.collaborationInterest.includes(collaboration)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, collaborationInterest: [...prev.collaborationInterest, collaboration] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, collaborationInterest: prev.collaborationInterest.filter(item => item !== collaboration) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={collaboration}>{collaboration}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What resources would be most valuable to your group? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Funding opportunities",
+                "Volunteer recruitment",
+                "Event planning support",
+                "Marketing assistance",
+                "Legal guidance",
+                "Technology training",
+                "Leadership development",
+                "Networking opportunities",
+                "Administrative support",
+                "Venue access",
+                "Equipment sharing",
+                "Professional services"
+              ].map((resource) => (
+                <div key={resource} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={resource}
+                    checked={formData.resourceNeeds.includes(resource)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, resourceNeeds: [...prev.resourceNeeds, resource] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, resourceNeeds: prev.resourceNeeds.filter(item => item !== resource) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={resource}>{resource}</Label>
                 </div>
               ))}
             </div>
@@ -333,7 +512,11 @@ const CommunityGroupQuestionnaire = () => {
                 "Volunteer coordination",
                 "Community outreach support",
                 "Resource sharing networks",
-                "Leadership development"
+                "Leadership development",
+                "Technology training",
+                "Grant writing assistance",
+                "Legal guidance",
+                "Marketing support"
               ].map((support) => (
                 <div key={support} className="flex items-center space-x-2">
                   <Checkbox

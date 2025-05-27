@@ -11,26 +11,43 @@ import QuestionnaireLayout from "./QuestionnaireLayout";
 const ReligiousGroupQuestionnaire = () => {
   const [formData, setFormData] = useState({
     email: "",
-    organisationName: "",
+    organizationName: "",
     religiousTradition: "",
-    congregationSize: "",
-    establishedYear: "",
-    communityPrograms: [],
-    outreachActivities: [],
-    volunteerManagement: "",
+    yearEstablished: "",
+    membershipSize: "",
+    communityServicesOffered: [],
     currentChallenges: [],
+    outreachPrograms: [],
+    volunteerManagement: "",
     communicationMethods: [],
-    impactMeasurement: "",
+    interfaithCollaboration: "",
+    youthPrograms: [],
+    seniorPrograms: [],
+    socialJusticeInitiatives: [],
     platformFeatures: {
-      volunteerCoordination: "",
-      programManagement: "",
       communityOutreach: "",
+      eventManagement: "",
+      volunteerCoordination: "",
+      interfaithNetworking: "",
       resourceSharing: "",
-      impactTracking: "",
-      interfaithCollaboration: ""
+      impactTracking: ""
     },
     partnershipInterest: "",
     supportNeeds: [],
+    spiritualCareServices: [],
+    educationalPrograms: [],
+    communitySupport: "",
+    diversityInclusion: "",
+    environmentalStewardship: [],
+    crisisResponse: "",
+    culturalActivities: [],
+    healthWellnessPrograms: [],
+    economicSupport: [],
+    advocacyAreas: [],
+    leadershipDevelopment: "",
+    missionAlignment: "",
+    communityNeeds: "",
+    futureGoals: "",
     contactName: "",
     contactPosition: "",
     contactEmail: "",
@@ -44,8 +61,8 @@ const ReligiousGroupQuestionnaire = () => {
 
   return (
     <QuestionnaireLayout 
-      title="Religious Group Registration"
-      description="Help us understand your religious group's community outreach and how SouLVE can support your mission"
+      title="Religious Organization Registration"
+      description="Help us understand your religious organization's community work and how SouLVE can support your mission"
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE</h4>
@@ -53,13 +70,13 @@ const ReligiousGroupQuestionnaire = () => {
           We're building a social impact platform that combines social networking with verified community support and integrated crowdfunding.
         </p>
         <p className="text-gray-600 mb-6">
-          Our platform is designed to support your religious group's community outreach by providing tools to coordinate volunteers, manage programs, and measure impact.
+          Our platform recognizes the vital role religious organizations play in community support and aims to amplify your positive impact through enhanced coordination and resource sharing.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Organization Information</h3>
           
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
@@ -73,17 +90,17 @@ const ReligiousGroupQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="organisationName">Organisation Name *</Label>
+            <Label htmlFor="organizationName">Organization Name *</Label>
             <Input
-              id="organisationName"
-              value={formData.organisationName}
-              onChange={(e) => setFormData(prev => ({ ...prev, organisationName: e.target.value }))}
+              id="organizationName"
+              value={formData.organizationName}
+              onChange={(e) => setFormData(prev => ({ ...prev, organizationName: e.target.value }))}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="religiousTradition">Religious Tradition *</Label>
+            <Label htmlFor="religiousTradition">Religious Tradition/Denomination *</Label>
             <Input
               id="religiousTradition"
               value={formData.religiousTradition}
@@ -93,62 +110,111 @@ const ReligiousGroupQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>Congregation/Community Size *</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, congregationSize: value }))}>
+            <Label htmlFor="yearEstablished">Year Established *</Label>
+            <Input
+              id="yearEstablished"
+              type="number"
+              value={formData.yearEstablished}
+              onChange={(e) => setFormData(prev => ({ ...prev, yearEstablished: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Membership/Congregation Size *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, membershipSize: value }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Select size" />
+                <SelectValue placeholder="Select membership size" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="under-50">Under 50 people</SelectItem>
-                <SelectItem value="50-150">50-150 people</SelectItem>
-                <SelectItem value="150-500">150-500 people</SelectItem>
-                <SelectItem value="500-1000">500-1000 people</SelectItem>
-                <SelectItem value="over-1000">Over 1000 people</SelectItem>
+                <SelectItem value="under-50">Under 50 members</SelectItem>
+                <SelectItem value="50-150">50-150 members</SelectItem>
+                <SelectItem value="151-500">151-500 members</SelectItem>
+                <SelectItem value="501-1000">501-1000 members</SelectItem>
+                <SelectItem value="over-1000">Over 1000 members</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="establishedYear">Year Established *</Label>
-            <Input
-              id="establishedYear"
-              type="number"
-              value={formData.establishedYear}
-              onChange={(e) => setFormData(prev => ({ ...prev, establishedYear: e.target.value }))}
+            <Label htmlFor="missionAlignment">How does community service align with your organization's mission? *</Label>
+            <Textarea
+              id="missionAlignment"
+              value={formData.missionAlignment}
+              onChange={(e) => setFormData(prev => ({ ...prev, missionAlignment: e.target.value }))}
               required
             />
           </div>
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Community Programs & Outreach</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Community Services & Programs</h3>
           
           <div className="space-y-2">
-            <Label>What community programs do you currently run? (Select all that apply) *</Label>
+            <Label>What community services does your organization currently offer? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                "Food Programs",
-                "Homeless Support",
-                "Youth Ministry",
-                "Elderly Care",
-                "Community Events",
-                "Educational Programs",
-                "Counseling Services",
-                "Disaster Relief",
-                "Prison Ministry",
-                "Healthcare Support",
-                "Family Support",
-                "Addiction Recovery"
+                "Food bank/pantry",
+                "Homeless shelter/support",
+                "Youth programs",
+                "Senior care",
+                "Counseling services",
+                "Educational programs",
+                "Healthcare services",
+                "Disaster relief",
+                "Addiction support",
+                "Community meals",
+                "Clothing distribution",
+                "Financial assistance",
+                "Immigration support",
+                "Job training",
+                "Childcare services",
+                "Mental health support"
+              ].map((service) => (
+                <div key={service} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={service}
+                    checked={formData.communityServicesOffered.includes(service)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, communityServicesOffered: [...prev.communityServicesOffered, service] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, communityServicesOffered: prev.communityServicesOffered.filter(item => item !== service) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={service}>{service}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What outreach programs do you operate? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Community evangelism",
+                "Social justice advocacy",
+                "Environmental stewardship",
+                "Prison ministry",
+                "Hospital visitation",
+                "Street ministry",
+                "Campus ministry",
+                "Workplace chaplaincy",
+                "Crisis intervention",
+                "Grief counseling",
+                "Marriage/family support",
+                "Community organizing"
               ].map((program) => (
                 <div key={program} className="flex items-center space-x-2">
                   <Checkbox
                     id={program}
-                    checked={formData.communityPrograms.includes(program)}
+                    checked={formData.outreachPrograms.includes(program)}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setFormData(prev => ({ ...prev, communityPrograms: [...prev.communityPrograms, program] }));
+                        setFormData(prev => ({ ...prev, outreachPrograms: [...prev.outreachPrograms, program] }));
                       } else {
-                        setFormData(prev => ({ ...prev, communityPrograms: prev.communityPrograms.filter(item => item !== program) }));
+                        setFormData(prev => ({ ...prev, outreachPrograms: prev.outreachPrograms.filter(item => item !== program) }));
                       }
                     }}
                   />
@@ -159,27 +225,140 @@ const ReligiousGroupQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>What outreach activities do you engage in? (Select all that apply)</Label>
+            <Label>What youth programs do you offer? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                "Community partnerships",
-                "Interfaith dialogue",
-                "Public events",
-                "Social justice advocacy",
-                "Environmental stewardship",
-                "Cultural celebrations",
-                "Educational workshops",
-                "Health initiatives"
+                "Sunday school/religious education",
+                "Youth groups",
+                "Summer camps",
+                "Mentoring programs",
+                "Sports activities",
+                "Music/arts programs",
+                "Community service projects",
+                "Leadership development",
+                "Scholarship programs",
+                "After-school programs",
+                "Teen counseling",
+                "Career guidance"
+              ].map((program) => (
+                <div key={program} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={program}
+                    checked={formData.youthPrograms.includes(program)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, youthPrograms: [...prev.youthPrograms, program] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, youthPrograms: prev.youthPrograms.filter(item => item !== program) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={program}>{program}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What programs do you offer for seniors? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Senior fellowship groups",
+                "Meals on wheels",
+                "Transportation services",
+                "Health and wellness programs",
+                "Social activities",
+                "Home visits",
+                "Technology training",
+                "Intergenerational programs",
+                "Caregiver support",
+                "Memory care activities",
+                "Financial planning assistance",
+                "End-of-life support"
+              ].map((program) => (
+                <div key={program} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={program}
+                    checked={formData.seniorPrograms.includes(program)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, seniorPrograms: [...prev.seniorPrograms, program] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, seniorPrograms: prev.seniorPrograms.filter(item => item !== program) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={program}>{program}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Social Justice & Community Action</h3>
+          
+          <div className="space-y-2">
+            <Label>What social justice initiatives is your organization involved in? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Racial justice",
+                "Economic justice",
+                "Environmental justice",
+                "Immigration advocacy",
+                "LGBTQ+ inclusion",
+                "Gender equality",
+                "Disability rights",
+                "Criminal justice reform",
+                "Housing advocacy",
+                "Healthcare access",
+                "Education equity",
+                "Human trafficking prevention"
+              ].map((initiative) => (
+                <div key={initiative} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={initiative}
+                    checked={formData.socialJusticeInitiatives.includes(initiative)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, socialJusticeInitiatives: [...prev.socialJusticeInitiatives, initiative] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, socialJusticeInitiatives: prev.socialJusticeInitiatives.filter(item => item !== initiative) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={initiative}>{initiative}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What environmental stewardship activities do you participate in? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Community gardens",
+                "Recycling programs",
+                "Energy conservation",
+                "Climate action advocacy",
+                "Sustainable practices",
+                "Environmental education",
+                "Clean-up initiatives",
+                "Tree planting",
+                "Water conservation",
+                "Green building practices",
+                "Carbon footprint reduction",
+                "Wildlife protection"
               ].map((activity) => (
                 <div key={activity} className="flex items-center space-x-2">
                   <Checkbox
                     id={activity}
-                    checked={formData.outreachActivities.includes(activity)}
+                    checked={formData.environmentalStewardship.includes(activity)}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setFormData(prev => ({ ...prev, outreachActivities: [...prev.outreachActivities, activity] }));
+                        setFormData(prev => ({ ...prev, environmentalStewardship: [...prev.environmentalStewardship, activity] }));
                       } else {
-                        setFormData(prev => ({ ...prev, outreachActivities: prev.outreachActivities.filter(item => item !== activity) }));
+                        setFormData(prev => ({ ...prev, environmentalStewardship: prev.environmentalStewardship.filter(item => item !== activity) }));
                       }
                     }}
                   />
@@ -190,41 +369,206 @@ const ReligiousGroupQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="volunteerManagement">How do you currently manage volunteers? *</Label>
-            <Textarea
-              id="volunteerManagement"
-              value={formData.volunteerManagement}
-              onChange={(e) => setFormData(prev => ({ ...prev, volunteerManagement: e.target.value }))}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="impactMeasurement">How do you measure your community impact? *</Label>
-            <Textarea
-              id="impactMeasurement"
-              value={formData.impactMeasurement}
-              onChange={(e) => setFormData(prev => ({ ...prev, impactMeasurement: e.target.value }))}
-              required
-            />
+            <Label>In what advocacy areas is your organization active? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Peace and non-violence",
+                "Poverty alleviation",
+                "Religious freedom",
+                "Human rights",
+                "Healthcare reform",
+                "Education policy",
+                "Immigration policy",
+                "Criminal justice",
+                "Mental health awareness",
+                "Substance abuse prevention",
+                "Family support",
+                "Community development"
+              ].map((area) => (
+                <div key={area} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={area}
+                    checked={formData.advocacyAreas.includes(area)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, advocacyAreas: [...prev.advocacyAreas, area] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, advocacyAreas: prev.advocacyAreas.filter(item => item !== area) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={area}>{area}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Current Challenges</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Specialized Services</h3>
           
           <div className="space-y-2">
-            <Label>What are your biggest operational challenges? (Select all that apply)</Label>
+            <Label>What spiritual care services do you provide? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                "Volunteer coordination",
-                "Resource allocation",
-                "Community engagement",
-                "Program funding",
+                "Pastoral counseling",
+                "Spiritual direction",
+                "Chaplaincy services",
+                "Grief counseling",
+                "Marriage counseling",
+                "Family therapy",
+                "Crisis intervention",
+                "Prayer ministry",
+                "Healing services",
+                "Meditation/contemplation",
+                "Retreat programs",
+                "Spiritual education"
+              ].map((service) => (
+                <div key={service} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={service}
+                    checked={formData.spiritualCareServices.includes(service)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, spiritualCareServices: [...prev.spiritualCareServices, service] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, spiritualCareServices: prev.spiritualCareServices.filter(item => item !== service) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={service}>{service}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What educational programs do you offer? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Religious education classes",
+                "Adult education",
+                "Literacy programs",
+                "Language classes",
+                "Computer skills training",
+                "Financial literacy",
+                "Parenting classes",
+                "Life skills training",
+                "GED preparation",
+                "College preparation",
+                "Vocational training",
+                "Professional development"
+              ].map((program) => (
+                <div key={program} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={program}
+                    checked={formData.educationalPrograms.includes(program)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, educationalPrograms: [...prev.educationalPrograms, program] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, educationalPrograms: prev.educationalPrograms.filter(item => item !== program) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={program}>{program}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What health and wellness programs do you provide? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Health screenings",
+                "Mental health support",
+                "Addiction recovery programs",
+                "Fitness classes",
+                "Nutrition education",
+                "Health education",
+                "Support groups",
+                "Wellness workshops",
+                "Stress management",
+                "Chronic disease support",
+                "Preventive care education",
+                "Alternative healing practices"
+              ].map((program) => (
+                <div key={program} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={program}
+                    checked={formData.healthWellnessPrograms.includes(program)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, healthWellnessPrograms: [...prev.healthWellnessPrograms, program] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, healthWellnessPrograms: prev.healthWellnessPrograms.filter(item => item !== program) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={program}>{program}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What economic support do you provide to the community? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Emergency financial assistance",
+                "Microfinance programs",
+                "Job placement services",
+                "Entrepreneurship support",
+                "Financial counseling",
+                "Affordable housing initiatives",
+                "Credit building programs",
+                "Debt counseling",
+                "Small business support",
+                "Economic development projects",
+                "Community investment",
+                "Fair trade initiatives"
+              ].map((support) => (
+                <div key={support} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={support}
+                    checked={formData.economicSupport.includes(support)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, economicSupport: [...prev.economicSupport, support] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, economicSupport: prev.economicSupport.filter(item => item !== support) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={support}>{support}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Operations & Challenges</h3>
+          
+          <div className="space-y-2">
+            <Label>What are your organization's biggest challenges? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Volunteer recruitment",
+                "Volunteer retention",
+                "Funding/resources",
+                "Community outreach",
+                "Interfaith collaboration",
+                "Youth engagement",
+                "Senior care needs",
+                "Technology adoption",
                 "Administrative burden",
-                "Outreach effectiveness",
-                "Inter-community collaboration",
-                "Technology limitations"
+                "Facility maintenance",
+                "Program sustainability",
+                "Leadership development",
+                "Communication coordination",
+                "Impact measurement"
               ].map((challenge) => (
                 <div key={challenge} className="flex items-center space-x-2">
                   <Checkbox
@@ -243,23 +587,33 @@ const ReligiousGroupQuestionnaire = () => {
               ))}
             </div>
           </div>
-        </div>
 
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Communication</h3>
-          
           <div className="space-y-2">
-            <Label>How do you currently communicate with your community? (Select all that apply)</Label>
+            <Label htmlFor="volunteerManagement">How do you currently manage volunteers? *</Label>
+            <Textarea
+              id="volunteerManagement"
+              value={formData.volunteerManagement}
+              onChange={(e) => setFormData(prev => ({ ...prev, volunteerManagement: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>How do you communicate with your congregation and community? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
                 "Weekly bulletins",
                 "Email newsletters",
-                "Social media",
                 "Website updates",
-                "Community meetings",
-                "Personal visits",
+                "Social media",
                 "Phone calls",
-                "Text messaging"
+                "Text messaging",
+                "Community boards",
+                "Direct mail",
+                "Mobile apps",
+                "Video announcements",
+                "Radio/podcast",
+                "Print materials"
               ].map((method) => (
                 <div key={method} className="flex items-center space-x-2">
                   <Checkbox
@@ -278,18 +632,131 @@ const ReligiousGroupQuestionnaire = () => {
               ))}
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="interfaithCollaboration">Describe your experience with interfaith collaboration *</Label>
+            <Textarea
+              id="interfaithCollaboration"
+              value={formData.interfaithCollaboration}
+              onChange={(e) => setFormData(prev => ({ ...prev, interfaithCollaboration: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="crisisResponse">How does your organization respond to community crises? *</Label>
+            <Textarea
+              id="crisisResponse"
+              value={formData.crisisResponse}
+              onChange={(e) => setFormData(prev => ({ ...prev, crisisResponse: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Community & Culture</h3>
+          
+          <div className="space-y-2">
+            <Label>What cultural activities does your organization host? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Religious festivals",
+                "Cultural celebrations",
+                "Music concerts",
+                "Art exhibitions",
+                "Theater productions",
+                "Food festivals",
+                "Cultural education",
+                "Heritage preservation",
+                "Language preservation",
+                "Traditional crafts",
+                "Storytelling events",
+                "Dance performances"
+              ].map((activity) => (
+                <div key={activity} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={activity}
+                    checked={formData.culturalActivities.includes(activity)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, culturalActivities: [...prev.culturalActivities, activity] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, culturalActivities: prev.culturalActivities.filter(item => item !== activity) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={activity}>{activity}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="communitySupport">How does your organization support community building? *</Label>
+            <Textarea
+              id="communitySupport"
+              value={formData.communitySupport}
+              onChange={(e) => setFormData(prev => ({ ...prev, communitySupport: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="diversityInclusion">How does your organization promote diversity and inclusion? *</Label>
+            <Textarea
+              id="diversityInclusion"
+              value={formData.diversityInclusion}
+              onChange={(e) => setFormData(prev => ({ ...prev, diversityInclusion: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="leadershipDevelopment">How do you develop leaders within your organization and community? *</Label>
+            <Textarea
+              id="leadershipDevelopment"
+              value={formData.leadershipDevelopment}
+              onChange={(e) => setFormData(prev => ({ ...prev, leadershipDevelopment: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Future Vision & Goals</h3>
+          
+          <div className="space-y-2">
+            <Label htmlFor="communityNeeds">What are the most pressing needs in your community? *</Label>
+            <Textarea
+              id="communityNeeds"
+              value={formData.communityNeeds}
+              onChange={(e) => setFormData(prev => ({ ...prev, communityNeeds: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="futureGoals">What are your organization's goals for the next 3-5 years? *</Label>
+            <Textarea
+              id="futureGoals"
+              value={formData.futureGoals}
+              onChange={(e) => setFormData(prev => ({ ...prev, futureGoals: e.target.value }))}
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">SouLVE Platform Features - How valuable would these be? (1-5 scale)</h3>
           
           {[
-            { key: "volunteerCoordination", label: "Volunteer coordination system (organize and schedule community volunteers)" },
-            { key: "programManagement", label: "Program management tools (organize and track community programs)" },
-            { key: "communityOutreach", label: "Community outreach platform (connect with broader community)" },
-            { key: "resourceSharing", label: "Resource sharing network (share resources with other organizations)" },
-            { key: "impactTracking", label: "Impact tracking dashboard (measure and report community impact)" },
-            { key: "interfaithCollaboration", label: "Interfaith collaboration tools (partner with other religious groups)" }
+            { key: "communityOutreach", label: "Community outreach coordination tools" },
+            { key: "eventManagement", label: "Religious and community event management system" },
+            { key: "volunteerCoordination", label: "Volunteer coordination and scheduling platform" },
+            { key: "interfaithNetworking", label: "Interfaith networking and collaboration tools" },
+            { key: "resourceSharing", label: "Resource sharing with other religious organizations" },
+            { key: "impactTracking", label: "Community impact tracking and reporting" }
           ].map((feature) => (
             <div key={feature.key} className="space-y-2">
               <Label>{feature.label} *</Label>
@@ -316,7 +783,7 @@ const ReligiousGroupQuestionnaire = () => {
           <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Partnership & Support</h3>
           
           <div className="space-y-2">
-            <Label>Would your religious group be interested in partnering with SouLVE? *</Label>
+            <Label>Would your organization be interested in partnering with SouLVE? *</Label>
             <Select onValueChange={(value) => setFormData(prev => ({ ...prev, partnershipInterest: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
@@ -334,14 +801,20 @@ const ReligiousGroupQuestionnaire = () => {
             <Label>What support would your organization need most? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                "Volunteer management training",
-                "Program coordination tools",
-                "Community engagement strategies",
+                "Volunteer coordination",
+                "Community outreach",
+                "Event planning",
                 "Technology training",
-                "Impact measurement guidance",
-                "Interfaith collaboration support",
+                "Grant writing assistance",
+                "Interfaith dialogue facilitation",
+                "Youth program development",
+                "Senior care resources",
+                "Crisis response planning",
+                "Leadership development",
+                "Communication strategies",
+                "Impact measurement",
                 "Resource sharing networks",
-                "Administrative assistance"
+                "Professional development"
               ].map((support) => (
                 <div key={support} className="flex items-center space-x-2">
                   <Checkbox

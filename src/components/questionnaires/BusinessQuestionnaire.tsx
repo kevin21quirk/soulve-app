@@ -32,6 +32,20 @@ const BusinessQuestionnaire = () => {
     investmentInterest: "",
     partnershipType: "",
     supportNeeds: [],
+    sustainabilityInitiatives: [],
+    stakeholderEngagement: "",
+    impactMeasurement: "",
+    csrReporting: "",
+    employeeVolunteeringPrograms: "",
+    communityPartnershipExperience: "",
+    brandValues: "",
+    socialImpactGoals: "",
+    innovationInterest: "",
+    technologyAdoption: "",
+    marketingApproach: "",
+    competitiveDifferentiation: "",
+    customerEngagement: "",
+    futureVision: "",
     contactName: "",
     contactPosition: "",
     contactEmail: "",
@@ -118,6 +132,16 @@ const BusinessQuestionnaire = () => {
               required
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="brandValues">What are your company's core values and mission? *</Label>
+            <Textarea
+              id="brandValues"
+              value={formData.brandValues}
+              onChange={(e) => setFormData(prev => ({ ...prev, brandValues: e.target.value }))}
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -138,7 +162,11 @@ const BusinessQuestionnaire = () => {
                 "Youth Development",
                 "Health & Wellness",
                 "Diversity & Inclusion",
-                "Social Enterprises"
+                "Social Enterprises",
+                "Mentoring Programs",
+                "Pro Bono Services",
+                "Community Infrastructure",
+                "Research & Development for Good"
               ].map((program) => (
                 <div key={program} className="flex items-center space-x-2">
                   <Checkbox
@@ -169,7 +197,11 @@ const BusinessQuestionnaire = () => {
                 "Educational workshops",
                 "Mentoring programs",
                 "Resource sharing",
-                "Pro bono services"
+                "Pro bono services",
+                "Community advisory boards",
+                "Local hiring initiatives",
+                "Supply chain partnerships",
+                "Innovation challenges"
               ].map((involvement) => (
                 <div key={involvement} className="flex items-center space-x-2">
                   <Checkbox
@@ -187,6 +219,26 @@ const BusinessQuestionnaire = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="employeeVolunteeringPrograms">Describe your current employee volunteering programs *</Label>
+            <Textarea
+              id="employeeVolunteeringPrograms"
+              value={formData.employeeVolunteeringPrograms}
+              onChange={(e) => setFormData(prev => ({ ...prev, employeeVolunteeringPrograms: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="communityPartnershipExperience">What has been your experience with community partnerships? *</Label>
+            <Textarea
+              id="communityPartnershipExperience"
+              value={formData.communityPartnershipExperience}
+              onChange={(e) => setFormData(prev => ({ ...prev, communityPartnershipExperience: e.target.value }))}
+              required
+            />
           </div>
 
           <div className="space-y-2">
@@ -216,7 +268,11 @@ const BusinessQuestionnaire = () => {
                 "Budget allocation",
                 "Identifying opportunities",
                 "Communication/reporting",
-                "Stakeholder alignment"
+                "Stakeholder alignment",
+                "Compliance requirements",
+                "ROI demonstration",
+                "Long-term sustainability",
+                "Cultural integration"
               ].map((challenge) => (
                 <div key={challenge} className="flex items-center space-x-2">
                   <Checkbox
@@ -248,7 +304,76 @@ const BusinessQuestionnaire = () => {
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Partnership Goals</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Sustainability & Impact</h3>
+          
+          <div className="space-y-2">
+            <Label>What sustainability initiatives does your business have? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Carbon neutral/net zero goals",
+                "Sustainable supply chain",
+                "Waste reduction programs",
+                "Renewable energy use",
+                "Sustainable packaging",
+                "Water conservation",
+                "Biodiversity protection",
+                "Circular economy practices",
+                "Sustainable transportation",
+                "Green building practices",
+                "Sustainable product design",
+                "Environmental reporting"
+              ].map((initiative) => (
+                <div key={initiative} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={initiative}
+                    checked={formData.sustainabilityInitiatives.includes(initiative)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, sustainabilityInitiatives: [...prev.sustainabilityInitiatives, initiative] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, sustainabilityInitiatives: prev.sustainabilityInitiatives.filter(item => item !== initiative) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={initiative}>{initiative}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="impactMeasurement">How do you currently measure your social and environmental impact? *</Label>
+            <Textarea
+              id="impactMeasurement"
+              value={formData.impactMeasurement}
+              onChange={(e) => setFormData(prev => ({ ...prev, impactMeasurement: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="csrReporting">What CSR reporting frameworks do you use? *</Label>
+            <Textarea
+              id="csrReporting"
+              value={formData.csrReporting}
+              onChange={(e) => setFormData(prev => ({ ...prev, csrReporting: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="socialImpactGoals">What are your social impact goals for the next 3 years? *</Label>
+            <Textarea
+              id="socialImpactGoals"
+              value={formData.socialImpactGoals}
+              onChange={(e) => setFormData(prev => ({ ...prev, socialImpactGoals: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Partnership Goals & Strategy</h3>
           
           <div className="space-y-2">
             <Label>What are your main goals for community partnerships? (Select all that apply)</Label>
@@ -261,7 +386,11 @@ const BusinessQuestionnaire = () => {
                 "Stakeholder relations",
                 "Innovation opportunities",
                 "Talent attraction/retention",
-                "Market expansion"
+                "Market expansion",
+                "Risk management",
+                "Regulatory compliance",
+                "Competitive advantage",
+                "Long-term sustainability"
               ].map((goal) => (
                 <div key={goal} className="flex items-center space-x-2">
                   <Checkbox
@@ -279,6 +408,80 @@ const BusinessQuestionnaire = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stakeholderEngagement">How do you engage with stakeholders on social impact? *</Label>
+            <Textarea
+              id="stakeholderEngagement"
+              value={formData.stakeholderEngagement}
+              onChange={(e) => setFormData(prev => ({ ...prev, stakeholderEngagement: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="customerEngagement">How do you engage customers in your social impact initiatives? *</Label>
+            <Textarea
+              id="customerEngagement"
+              value={formData.customerEngagement}
+              onChange={(e) => setFormData(prev => ({ ...prev, customerEngagement: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="competitiveDifferentiation">How does social impact differentiate you from competitors? *</Label>
+            <Textarea
+              id="competitiveDifferentiation"
+              value={formData.competitiveDifferentiation}
+              onChange={(e) => setFormData(prev => ({ ...prev, competitiveDifferentiation: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Innovation & Technology</h3>
+          
+          <div className="space-y-2">
+            <Label htmlFor="innovationInterest">What role does innovation play in your social impact strategy? *</Label>
+            <Textarea
+              id="innovationInterest"
+              value={formData.innovationInterest}
+              onChange={(e) => setFormData(prev => ({ ...prev, innovationInterest: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="technologyAdoption">How does your business currently use technology for social good? *</Label>
+            <Textarea
+              id="technologyAdoption"
+              value={formData.technologyAdoption}
+              onChange={(e) => setFormData(prev => ({ ...prev, technologyAdoption: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="marketingApproach">How do you communicate your social impact to the market? *</Label>
+            <Textarea
+              id="marketingApproach"
+              value={formData.marketingApproach}
+              onChange={(e) => setFormData(prev => ({ ...prev, marketingApproach: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="futureVision">What is your vision for your business's social impact in 5 years? *</Label>
+            <Textarea
+              id="futureVision"
+              value={formData.futureVision}
+              onChange={(e) => setFormData(prev => ({ ...prev, futureVision: e.target.value }))}
+              required
+            />
           </div>
         </div>
 
@@ -344,6 +547,8 @@ const BusinessQuestionnaire = () => {
                 <SelectItem value="technology">Technology Integration</SelectItem>
                 <SelectItem value="investment">Investment Opportunity</SelectItem>
                 <SelectItem value="pilot">Pilot Program</SelectItem>
+                <SelectItem value="co-development">Co-development</SelectItem>
+                <SelectItem value="licensing">Licensing Agreement</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -359,7 +564,11 @@ const BusinessQuestionnaire = () => {
                 "Reporting and analytics",
                 "Brand integration guidance",
                 "Training and onboarding",
-                "Custom feature development"
+                "Custom feature development",
+                "Stakeholder communication",
+                "Compliance support",
+                "Innovation partnerships",
+                "Market research"
               ].map((support) => (
                 <div key={support} className="flex items-center space-x-2">
                   <Checkbox
