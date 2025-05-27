@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Users2, Heart, TrendingUp, Crown } from "lucide-react";
+import { Users, UserPlus, Users2, Heart, TrendingUp, Crown, Search, Filter, BarChart3 } from "lucide-react";
 import { useConnections } from "@/hooks/useConnections";
 import PendingRequests from "./PendingRequests";
 import ConnectedPeople from "./ConnectedPeople";
@@ -11,9 +11,16 @@ import CampaignsSection from "./connections/CampaignsSection";
 import PeopleYouMayKnow from "./connections/PeopleYouMayKnow";
 import CommunityChampions from "./connections/CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
+import NetworkSearch from "./connections/NetworkSearch";
+import NetworkAnalytics from "./connections/NetworkAnalytics";
+import ConnectionInsights from "./connections/ConnectionInsights";
+import { Button } from "@/components/ui/button";
 
 const EnhancedConnections = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  
   const {
     pendingRequests,
     connectedPeople,
@@ -38,10 +45,48 @@ const EnhancedConnections = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Network</h2>
-        <p className="text-gray-600">Build trust and connections within your community</p>
+      <div className="flex items-center justify-between">
+        <div className="text-center flex-1">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Network</h2>
+          <p className="text-gray-600">Build trust and connections within your community</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSearch(!showSearch)}
+            className="flex items-center space-x-2"
+          >
+            <Search className="h-4 w-4" />
+            <span>Search</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            className="flex items-center space-x-2"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span>Analytics</span>
+          </Button>
+        </div>
       </div>
+
+      {showSearch && (
+        <NetworkSearch
+          connections={connectedPeople}
+          suggestedConnections={suggestedConnections}
+          onClose={() => setShowSearch(false)}
+        />
+      )}
+
+      {showAnalytics && (
+        <NetworkAnalytics
+          connectedPeople={connectedPeople}
+          myGroups={myGroups}
+          onClose={() => setShowAnalytics(false)}
+        />
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
@@ -78,6 +123,11 @@ const EnhancedConnections = () => {
             groupsJoined={myGroups.length}
             campaignsActive={campaigns.filter(c => c.isParticipating).length}
             weeklyGrowth={12}
+          />
+
+          <ConnectionInsights
+            connectedPeople={connectedPeople}
+            suggestedConnections={suggestedConnections}
           />
 
           {pendingRequests.length > 0 && (
