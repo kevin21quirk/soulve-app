@@ -7,8 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Save, X, Camera, MapPin, Mail, Phone, Calendar, Star } from "lucide-react";
+import { Edit, Save, X, Camera, MapPin, Mail, Phone, Calendar, Star, Upload, Video, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface MediaFile {
+  id: string;
+  file: File;
+  type: 'image' | 'video';
+  preview: string;
+  size: number;
+}
 
 interface UserProfileData {
   id: string;
@@ -18,6 +26,8 @@ interface UserProfileData {
   location: string;
   bio: string;
   avatar: string;
+  banner: string;
+  bannerType: 'image' | 'video' | null;
   joinDate: string;
   trustScore: number;
   helpCount: number;
@@ -36,6 +46,8 @@ const UserProfile = () => {
     location: "San Francisco, CA",
     bio: "Community helper passionate about making a difference. I enjoy helping with moving, tutoring, and pet care. Always happy to lend a hand!",
     avatar: "",
+    banner: "",
+    bannerType: null,
     joinDate: "Jan 2024",
     trustScore: 95,
     helpCount: 47,
@@ -44,6 +56,7 @@ const UserProfile = () => {
   });
 
   const [editData, setEditData] = useState<UserProfileData>(profileData);
+  const [bannerFile, setBannerFile] = useState<MediaFile | null>(null);
 
   const handleEdit = () => {
     setEditData(profileData);
@@ -51,8 +64,16 @@ const UserProfile = () => {
   };
 
   const handleSave = () => {
-    setProfileData(editData);
+    let updatedData = { ...editData };
+    
+    if (bannerFile) {
+      updatedData.banner = bannerFile.preview;
+      updatedData.bannerType = bannerFile.type;
+    }
+    
+    setProfileData(updatedData);
     setIsEditing(false);
+    setBannerFile(null);
     toast({
       title: "Profile updated!",
       description: "Your profile has been successfully updated.",
@@ -61,6 +82,7 @@ const UserProfile = () => {
 
   const handleCancel = () => {
     setEditData(profileData);
+    setBannerFile(null);
     setIsEditing(false);
   };
 
@@ -77,6 +99,54 @@ const UserProfile = () => {
     const interests = value.split(',').map(interest => interest.trim()).filter(interest => interest.length > 0);
     setEditData(prev => ({ ...prev, interests }));
   };
+
+  const handleBannerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSizeBytes) {
+      toast({
+        title: "File too large",
+        description: "Banner file must be less than 10MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (!isImage && !isVideo) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image or video file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const mediaFile: MediaFile = {
+      id: Date.now().toString(),
+      file,
+      type: isImage ? 'image' : 'video',
+      preview: URL.createObjectURL(file),
+      size: file.size
+    };
+
+    setBannerFile(mediaFile);
+  };
+
+  const removeBanner = () => {
+    if (bannerFile) {
+      URL.revokeObjectURL(bannerFile.preview);
+      setBannerFile(null);
+    }
+    setEditData(prev => ({ ...prev, banner: '', bannerType: null }));
+  };
+
+  const displayBanner = bannerFile ? bannerFile.preview : editData.banner;
+  const displayBannerType = bannerFile ? bannerFile.type : editData.bannerType;
 
   if (isEditing) {
     return (
@@ -97,6 +167,80 @@ const UserProfile = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Banner Upload Section */}
+          <div className="space-y-4">
+            <Label>Profile Banner</Label>
+            <div className="relative h-48 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
+              {displayBanner ? (
+                <div className="relative w-full h-full">
+                  {displayBannerType === 'image' ? (
+                    <img
+                      src={displayBanner}
+                      alt="Profile banner"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={displayBanner}
+                      className="w-full h-full object-cover"
+                      muted
+                      loop
+                      autoPlay
+                    />
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeBanner}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="flex justify-center space-x-2 mb-2">
+                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                      <Video className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-gray-500 mb-2">Upload a banner image or video</p>
+                    <label htmlFor="banner-upload">
+                      <Button type="button" variant="outline" size="sm" asChild>
+                        <span className="cursor-pointer">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Choose File
+                        </span>
+                      </label>
+                    </label>
+                  </div>
+                </div>
+              )}
+              {displayBanner && (
+                <div className="absolute bottom-2 left-2">
+                  <label htmlFor="banner-upload">
+                    <Button type="button" variant="secondary" size="sm" asChild>
+                      <span className="cursor-pointer">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Change Banner
+                      </span>
+                    </label>
+                  </div>
+                )}
+            </div>
+            <input
+              id="banner-upload"
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleBannerUpload}
+              className="hidden"
+            />
+            <p className="text-xs text-gray-500">
+              Recommended: 1200x300px or larger. Max file size: 10MB. Supports images and videos.
+            </p>
+          </div>
+
           {/* Profile Picture Section */}
           <div className="flex items-center space-x-4">
             <Avatar className="h-20 w-20">
@@ -148,7 +292,6 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Bio */}
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea
@@ -160,7 +303,6 @@ const UserProfile = () => {
             />
           </div>
 
-          {/* Skills and Interests */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="skills">Skills (comma-separated)</Label>
@@ -198,6 +340,27 @@ const UserProfile = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Banner Section */}
+        {profileData.banner && (
+          <div className="relative h-48 rounded-lg overflow-hidden">
+            {profileData.bannerType === 'image' ? (
+              <img
+                src={profileData.banner}
+                alt="Profile banner"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <video
+                src={profileData.banner}
+                className="w-full h-full object-cover"
+                muted
+                loop
+                autoPlay
+              />
+            )}
+          </div>
+        )}
+
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
           <Avatar className="h-24 w-24">
@@ -247,13 +410,11 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Bio */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">About</h3>
           <p className="text-gray-700 leading-relaxed">{profileData.bio}</p>
         </div>
 
-        {/* Skills */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Skills</h3>
           <div className="flex flex-wrap gap-2">
@@ -265,7 +426,6 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Interests */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Interests</h3>
           <div className="flex flex-wrap gap-2">
