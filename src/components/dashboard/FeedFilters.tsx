@@ -1,0 +1,43 @@
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+interface FeedFiltersProps {
+  activeFilter: string;
+  onFilterChange: (filter: string) => void;
+  postCounts: {
+    all: number;
+    "help-needed": number;
+    "help-offered": number;
+    "success-story": number;
+  };
+}
+
+const FeedFilters = ({ activeFilter, onFilterChange, postCounts }: FeedFiltersProps) => {
+  const filters = [
+    { key: "all", label: "All Posts", count: postCounts.all },
+    { key: "help-needed", label: "Help Needed", count: postCounts["help-needed"] },
+    { key: "help-offered", label: "Help Offered", count: postCounts["help-offered"] },
+    { key: "success-story", label: "Success Stories", count: postCounts["success-story"] }
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-6">
+      {filters.map((filter) => (
+        <Button
+          key={filter.key}
+          variant={activeFilter === filter.key ? "default" : "outline"}
+          onClick={() => onFilterChange(filter.key)}
+          className="flex items-center space-x-2"
+        >
+          <span>{filter.label}</span>
+          <Badge variant="secondary" className="ml-1">
+            {filter.count}
+          </Badge>
+        </Button>
+      ))}
+    </div>
+  );
+};
+
+export default FeedFilters;
