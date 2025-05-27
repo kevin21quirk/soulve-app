@@ -35,6 +35,9 @@ const StandardUserQuestionnaire = () => {
     longTermVision: "",
     barriers: "",
     supportNeeds: [],
+    interests: [],
+    timeAvailability: "",
+    volunteerMotivation: "",
     platformFeatures: {
       opportunityMatching: "",
       socialNetworking: "",
@@ -58,6 +61,16 @@ const StandardUserQuestionnaire = () => {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+  };
+
+  const handlePlatformFeatureChange = (key: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      platformFeatures: {
+        ...prev.platformFeatures,
+        [key]: value
+      }
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -93,9 +106,9 @@ const StandardUserQuestionnaire = () => {
         <PersonalDetailsSection data={formData} onChange={handleChange} />
         <InterestsAvailabilitySection data={formData} onChange={handleChange} />
         <PlatformFeaturesSection 
-          data={formData.platformFeatures} 
-          onChange={handleChange}
           features={platformFeatures}
+          values={formData.platformFeatures}
+          onChange={handlePlatformFeatureChange}
         />
 
         <div className="text-center pt-6">

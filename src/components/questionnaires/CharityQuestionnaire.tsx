@@ -43,6 +43,16 @@ const CharityQuestionnaire = () => {
     }
   };
 
+  const handlePlatformFeatureChange = (key: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      platformFeatures: {
+        ...prev.platformFeatures,
+        [key]: value
+      }
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Charity Questionnaire data:", formData);
@@ -76,9 +86,9 @@ const CharityQuestionnaire = () => {
         <CharityDetailsSection data={formData} onChange={handleChange} />
         <OperationsNeedsSection data={formData} onChange={handleChange} />
         <PlatformFeaturesSection 
-          data={formData.platformFeatures} 
-          onChange={handleChange}
           features={platformFeatures}
+          values={formData.platformFeatures}
+          onChange={handlePlatformFeatureChange}
         />
 
         <div className="text-center pt-6">
