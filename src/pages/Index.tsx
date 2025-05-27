@@ -34,17 +34,13 @@ const Index = () => {
     const isLarge = size === "large";
     
     if (isLarge) {
-      // Use full logo for large version with increased size and transparent background
+      // Use full logo for large version with increased size
       return (
         <div className="flex items-center justify-center">
           <img 
             src="/lovable-uploads/277d412c-6e36-4592-bb09-13ca866e9d79.png" 
             alt="SouLVE - Social Feed to Social Need" 
             className="h-32 w-auto bg-transparent"
-            style={{ 
-              filter: 'brightness(0) invert(1)',
-              mixBlendMode: 'screen'
-            }}
           />
         </div>
       );
