@@ -1,34 +1,12 @@
-
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Bell, 
-  Check, 
-  X, 
-  Heart, 
-  MessageSquare, 
-  UserPlus, 
-  Users, 
-  Star,
-  Filter,
-  Settings,
-  MoreHorizontal,
-  ThumbsUp,
-  Share2,
-  Bookmark,
-  Calendar,
-  MapPin,
-  TrendingUp,
-  Eye,
-  Clock,
-  CheckCircle,
-  AlertCircle
-} from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import NotificationHeader from "./notifications/NotificationHeader";
+import NotificationFilters from "./notifications/NotificationFilters";
+import NotificationTabs from "./notifications/NotificationTabs";
+import NotificationItem from "./notifications/NotificationItem";
+import NotificationStats from "./notifications/NotificationStats";
+import EmptyNotifications from "./notifications/EmptyNotifications";
 
 interface Notification {
   id: string;
@@ -138,45 +116,6 @@ const NotificationCenter = () => {
     }
   ]);
 
-  const getNotificationIcon = (type: string, priority: string) => {
-    const iconClass = priority === "high" ? "text-red-500" : priority === "medium" ? "text-orange-500" : "text-gray-500";
-    
-    switch (type) {
-      case "like": return <Heart className={`h-4 w-4 ${iconClass}`} />;
-      case "comment": return <MessageSquare className={`h-4 w-4 ${iconClass}`} />;
-      case "connection": return <UserPlus className={`h-4 w-4 ${iconClass}`} />;
-      case "help_request": return <Users className={`h-4 w-4 ${iconClass}`} />;
-      case "achievement": return <Star className="h-4 w-4 text-yellow-500" />;
-      case "mention": return <Bell className={`h-4 w-4 ${iconClass}`} />;
-      case "share": return <Share2 className={`h-4 w-4 ${iconClass}`} />;
-      case "follow": return <UserPlus className={`h-4 w-4 ${iconClass}`} />;
-      case "group_invite": return <Users className={`h-4 w-4 ${iconClass}`} />;
-      case "event": return <Calendar className={`h-4 w-4 ${iconClass}`} />;
-      case "system": return <AlertCircle className={`h-4 w-4 ${iconClass}`} />;
-      default: return <Bell className={`h-4 w-4 ${iconClass}`} />;
-    }
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case "high": return <Badge variant="destructive" className="h-2 w-2 p-0 rounded-full" />;
-      case "medium": return <Badge className="h-2 w-2 p-0 rounded-full bg-orange-500" />;
-      case "low": return <Badge variant="secondary" className="h-2 w-2 p-0 rounded-full" />;
-      default: return null;
-    }
-  };
-
-  const getNotificationBackground = (notification: Notification) => {
-    if (!notification.read) {
-      switch (notification.priority) {
-        case "high": return "bg-red-50 border-l-4 border-l-red-500";
-        case "medium": return "bg-orange-50 border-l-4 border-l-orange-500";
-        default: return "bg-blue-50 border-l-4 border-l-blue-500";
-      }
-    }
-    return "bg-white hover:bg-gray-50";
-  };
-
   const groupedNotifications = useMemo(() => {
     const grouped = notifications.reduce((acc, notification) => {
       const key = `${notification.type}_${notification.userName || 'system'}`;
@@ -214,7 +153,6 @@ const NotificationCenter = () => {
         }
       });
 
-    // Sort notifications
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case "priority":
@@ -293,220 +231,48 @@ const NotificationCenter = () => {
   return (
     <Card className="w-96 max-h-[600px] overflow-hidden">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <Bell className="h-5 w-5" />
-            <span>Notifications</span>
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs">
-                {unreadCount}
-              </Badge>
-            )}
-            {highPriorityCount > 0 && (
-              <Badge className="bg-red-500 text-white text-xs px-2">
-                {highPriorityCount} urgent
-              </Badge>
-            )}
-          </CardTitle>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="h-8 w-8 p-0"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            {unreadCount > 0 && (
-              <Button onClick={markAllAsRead} variant="ghost" size="sm">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Mark all read
-              </Button>
-            )}
-          </div>
-        </div>
+        <NotificationHeader
+          unreadCount={unreadCount}
+          highPriorityCount={highPriorityCount}
+          showFilters={showFilters}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          onMarkAllAsRead={markAllAsRead}
+        />
 
         {showFilters && (
-          <div className="flex items-center space-x-2 pt-2">
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-xs border rounded px-2 py-1"
-            >
-              <option value="newest">Newest first</option>
-              <option value="priority">Priority</option>
-              <option value="unread">Unread first</option>
-            </select>
-          </div>
+          <NotificationFilters
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 w-full h-8">
-            <TabsTrigger value="all" className="text-xs">
-              All ({getTabCount("all")})
-            </TabsTrigger>
-            <TabsTrigger value="social" className="text-xs">
-              Social ({getTabCount("social")})
-            </TabsTrigger>
-            <TabsTrigger value="connections" className="text-xs">
-              Network ({getTabCount("connections")})
-            </TabsTrigger>
-            <TabsTrigger value="activities" className="text-xs">
-              Events ({getTabCount("activities")})
-            </TabsTrigger>
-            <TabsTrigger value="unread" className="text-xs">
-              Unread ({getTabCount("unread")})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <NotificationTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          getTabCount={getTabCount}
+        />
       </CardHeader>
       
       <CardContent className="p-0">
         <div className="max-h-96 overflow-y-auto">
           {filteredNotifications.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              <Bell className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-              <p>No notifications in this category</p>
-              <p className="text-xs mt-1">You're all caught up!</p>
-            </div>
+            <EmptyNotifications />
           ) : (
             <div className="space-y-1">
               {filteredNotifications.map((notification) => (
-                <div
+                <NotificationItem
                   key={notification.id}
-                  className={`p-4 border-b border-gray-100 transition-all duration-200 ${getNotificationBackground(notification)}`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className="relative">
-                        {notification.avatar || notification.userName ? (
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={notification.avatar} />
-                            <AvatarFallback className="text-xs">
-                              {notification.userName?.split(' ').map(n => n[0]).join('') || 'SY'}
-                            </AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="p-2 rounded-full bg-gray-100">
-                            {getNotificationIcon(notification.type, notification.priority)}
-                          </div>
-                        )}
-                        <div className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-sm">
-                          {getNotificationIcon(notification.type, notification.priority)}
-                        </div>
-                        {!notification.read && (
-                          <div className="absolute -top-1 -left-1">
-                            {getPriorityBadge(notification.priority)}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
-                            {notification.title}
-                          </h4>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-3 w-3 text-gray-400" />
-                            <span className="text-xs text-gray-400">{notification.timestamp}</span>
-                          </div>
-                        </div>
-                        
-                        <p className="text-sm text-gray-600 mb-2">
-                          {notification.description}
-                        </p>
-
-                        {notification.actionRequired && (
-                          <div className="flex items-center space-x-2 mt-3">
-                            <Button
-                              size="sm"
-                              onClick={() => handleNotificationAction(notification, "accept")}
-                              className="h-7 px-3 text-xs"
-                            >
-                              {notification.type === "connection" ? "Accept" : "Join"}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleNotificationAction(notification, "decline")}
-                              className="h-7 px-3 text-xs"
-                            >
-                              {notification.type === "connection" ? "Decline" : "Ignore"}
-                            </Button>
-                          </div>
-                        )}
-
-                        {!notification.actionRequired && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleNotificationAction(notification, "view")}
-                            className="h-6 px-2 text-xs mt-2"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-1 ml-2">
-                      {!notification.read && (
-                        <Button
-                          onClick={() => markAsRead(notification.id)}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                        >
-                          <Check className="h-3 w-3" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                      >
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        onClick={() => dismissNotification(notification.id)}
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                  notification={notification}
+                  onMarkAsRead={markAsRead}
+                  onDismiss={dismissNotification}
+                  onAction={handleNotificationAction}
+                />
               ))}
             </div>
           )}
         </div>
 
-        <div className="p-3 border-t bg-gray-50">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>
-              {unreadCount > 0 ? `${unreadCount} unread` : "All caught up!"}
-            </span>
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                <Settings className="h-3 w-3 mr-1" />
-                Settings
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                View All
-              </Button>
-            </div>
-          </div>
-        </div>
+        <NotificationStats unreadCount={unreadCount} />
       </CardContent>
     </Card>
   );
