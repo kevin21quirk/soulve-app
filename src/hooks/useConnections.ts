@@ -3,6 +3,7 @@ import { useConnectionsManager } from "./useConnectionsManager";
 import { useGroupsManager } from "./useGroupsManager";
 import { useCampaignsManager } from "./useCampaignsManager";
 import { usePeopleYouMayKnow } from "./usePeopleYouMayKnow";
+import { useChampions } from "./useChampions";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 
 export const useConnections = () => {
@@ -36,6 +37,12 @@ export const useConnections = () => {
     handleDismissPerson,
   } = usePeopleYouMayKnow();
 
+  const {
+    champions,
+    followedChampions,
+    handleFollowChampion,
+  } = useChampions();
+
   return {
     connections,
     pendingRequests,
@@ -46,6 +53,8 @@ export const useConnections = () => {
     suggestedGroups,
     campaigns,
     peopleYouMayKnow,
+    champions,
+    followedChampions,
     handleAcceptConnection,
     handleDeclineConnection,
     handleSendRequest,
@@ -55,6 +64,7 @@ export const useConnections = () => {
     handleLeaveCampaign,
     handleSendPersonRequest,
     handleDismissPerson,
+    handleFollowChampion,
     getTrustScoreColor,
   };
 };

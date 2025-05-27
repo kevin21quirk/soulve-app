@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Users2, Heart, TrendingUp } from "lucide-react";
+import { Users, UserPlus, Users2, Heart, TrendingUp, Crown } from "lucide-react";
 import { useConnections } from "@/hooks/useConnections";
 import PendingRequests from "./PendingRequests";
 import ConnectedPeople from "./ConnectedPeople";
@@ -9,6 +9,7 @@ import SuggestedConnections from "./SuggestedConnections";
 import GroupsSection from "./connections/GroupsSection";
 import CampaignsSection from "./connections/CampaignsSection";
 import PeopleYouMayKnow from "./connections/PeopleYouMayKnow";
+import CommunityChampions from "./connections/CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
 
 const EnhancedConnections = () => {
@@ -21,6 +22,7 @@ const EnhancedConnections = () => {
     suggestedGroups,
     campaigns,
     peopleYouMayKnow,
+    champions,
     handleAcceptConnection,
     handleDeclineConnection,
     handleSendRequest,
@@ -30,6 +32,7 @@ const EnhancedConnections = () => {
     handleLeaveCampaign,
     handleSendPersonRequest,
     handleDismissPerson,
+    handleFollowChampion,
     getTrustScoreColor,
   } = useConnections();
 
@@ -41,7 +44,7 @@ const EnhancedConnections = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center space-x-2">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
@@ -61,6 +64,10 @@ const EnhancedConnections = () => {
           <TabsTrigger value="discover" className="flex items-center space-x-2">
             <UserPlus className="h-4 w-4" />
             <span className="hidden sm:inline">Discover</span>
+          </TabsTrigger>
+          <TabsTrigger value="champions" className="flex items-center space-x-2">
+            <Crown className="h-4 w-4" />
+            <span className="hidden sm:inline">Champions</span>
           </TabsTrigger>
         </TabsList>
 
@@ -135,6 +142,13 @@ const EnhancedConnections = () => {
             people={peopleYouMayKnow}
             onSendRequest={handleSendPersonRequest}
             onDismiss={handleDismissPerson}
+          />
+        </TabsContent>
+
+        <TabsContent value="champions" className="space-y-6">
+          <CommunityChampions
+            champions={champions}
+            onFollowChampion={handleFollowChampion}
           />
         </TabsContent>
       </Tabs>
