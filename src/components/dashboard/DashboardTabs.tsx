@@ -1,15 +1,16 @@
-
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Upload, UserPlus, Send, Brain, BarChart3, Shield } from "lucide-react";
-import SocialFeed from "./SocialFeed";
-import ContentUpload from "./ContentUpload";
+import { Badge } from "@/components/ui/badge";
+import EnhancedSocialFeed from "./EnhancedSocialFeed";
+import EnhancedAnalyticsDashboard from "./EnhancedAnalyticsDashboard";
 import EnhancedConnections from "./EnhancedConnections";
 import EnhancedMessaging from "./EnhancedMessaging";
 import SmartRecommendations from "./SmartRecommendations";
 import GamificationPanel from "./GamificationPanel";
-import AnalyticsDashboard from "./AnalyticsDashboard";
 import TrustFootprint from "./TrustFootprint";
-import { mockTrustFootprint } from "@/data/mockTrustFootprint";
+import { useRealTimeNotifications, NotificationPanel } from "@/components/ui/real-time-notifications";
+import { useIsMobile } from "@/components/ui/mobile-optimized";
+import { useScreenReader } from "@/hooks/useAccessibility";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -17,73 +18,146 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ activeTab, setActiveTab }: DashboardTabsProps) => {
+  const { notifications, unreadCount, markAsRead, markAllAsRead, removeNotification } = useRealTimeNotifications();
+  const { announce } = useScreenReader();
+  const isMobile = useIsMobile();
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    announce(`Switched to ${value} tab`);
+  };
+
+  const tabs = [
+    { id: "feed", label: "Community Feed", component: EnhancedSocialFeed },
+    { id: "analytics", label: "Analytics", component: EnhancedAnalyticsDashboard },
+    { id: "connections", label: "Connections", component: EnhancedConnections },
+    { id: "messaging", label: "Messages", component: EnhancedMessaging, badge: 3 },
+    { id: "recommendations", label: "Recommendations", component: SmartRecommendations },
+    { id: "gamification", label: "Achievements", component: GamificationPanel },
+    { id: "trust", label: "Trust", component: TrustFootprint },
+  ];
+
+  if (isMobile) {
+    // Mobile tab layout
+    return (
+      <div className="pb-20"> {/* Account for mobile action bar */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <div className="sticky top-0 z-40 bg-white border-b">
+            <TabsList className="w-full justify-start overflow-x-auto">
+              {tabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="relative whitespace-nowrap"
+                  aria-label={`${tab.label} tab${tab.badge ? ` with ${tab.badge} notifications` : ''}`}
+                >
+                  {tab.label}
+                  {tab.badge && (
+                    <Badge 
+                      variant="destructive" 
+                      className="ml-2 h-5 w-5 rounded-full p-0 text-xs"
+                      aria-hidden="true"
+                    >
+                      {tab.badge}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              ))}
+              {unreadCount > 0 && (
+                <TabsTrigger
+                  value="notifications"
+                  className="relative"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                >
+                  Notifications
+                  <Badge variant="destructive" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                    {unreadCount}
+                  </Badge>
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </div>
+
+          <div className="p-4">
+            {tabs.map((tab) => (
+              <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                <tab.component />
+              </TabsContent>
+            ))}
+
+            {showNotifications && (
+              <div className="mt-4">
+                <NotificationPanel
+                  notifications={notifications}
+                  onMarkAsRead={markAsRead}
+                  onMarkAllAsRead={markAllAsRead}
+                  onRemove={removeNotification}
+                />
+              </div>
+            )}
+          </div>
+        </Tabs>
+      </div>
+    );
+  }
+
+  // Desktop tab layout
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-      <TabsList className="grid w-full grid-cols-7 bg-white/80 backdrop-blur">
-        <TabsTrigger value="feed" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <MessageSquare className="h-4 w-4" />
-          <span>Feed</span>
-        </TabsTrigger>
-        <TabsTrigger value="upload" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <Upload className="h-4 w-4" />
-          <span>Share Need</span>
-        </TabsTrigger>
-        <TabsTrigger value="connections" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <UserPlus className="h-4 w-4" />
-          <span>Connections</span>
-        </TabsTrigger>
-        <TabsTrigger value="messages" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <Send className="h-4 w-4" />
-          <span>Messages</span>
-        </TabsTrigger>
-        <TabsTrigger value="trust" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <Shield className="h-4 w-4" />
-          <span>Trust</span>
-        </TabsTrigger>
-        <TabsTrigger value="insights" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <Brain className="h-4 w-4" />
-          <span>AI Insights</span>
-        </TabsTrigger>
-        <TabsTrigger value="analytics" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
-          <BarChart3 className="h-4 w-4" />
-          <span>Analytics</span>
-        </TabsTrigger>
-      </TabsList>
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+      <div className="flex items-center justify-between mb-6">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="relative"
+              aria-label={`${tab.label} tab${tab.badge ? ` with ${tab.badge} notifications` : ''}`}
+            >
+              {tab.label}
+              {tab.badge && (
+                <Badge 
+                  variant="destructive" 
+                  className="ml-2 h-5 w-5 rounded-full p-0 text-xs"
+                  aria-hidden="true"
+                >
+                  {tab.badge}
+                </Badge>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <TabsContent value="feed" className="animate-fade-in">
-        <SocialFeed />
-      </TabsContent>
+        {unreadCount > 0 && (
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative p-2 text-gray-600 hover:text-gray-900"
+            aria-label={`${unreadCount} unread notifications`}
+          >
+            <span className="text-sm">Notifications</span>
+            <Badge variant="destructive" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+              {unreadCount}
+            </Badge>
+          </button>
+        )}
+      </div>
 
-      <TabsContent value="upload" className="animate-fade-in">
-        <ContentUpload />
-      </TabsContent>
-
-      <TabsContent value="connections" className="animate-fade-in">
-        <EnhancedConnections />
-      </TabsContent>
-
-      <TabsContent value="messages" className="animate-fade-in">
-        <EnhancedMessaging />
-      </TabsContent>
-
-      <TabsContent value="trust" className="animate-fade-in">
-        <TrustFootprint trustFootprint={mockTrustFootprint} />
-      </TabsContent>
-
-      <TabsContent value="insights" className="animate-fade-in">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <SmartRecommendations />
-          </div>
-          <div className="space-y-6">
-            <GamificationPanel />
-          </div>
+      {showNotifications && (
+        <div className="mb-6">
+          <NotificationPanel
+            notifications={notifications}
+            onMarkAsRead={markAsRead}
+            onMarkAllAsRead={markAllAsRead}
+            onRemove={removeNotification}
+          />
         </div>
-      </TabsContent>
+      )}
 
-      <TabsContent value="analytics" className="animate-fade-in">
-        <AnalyticsDashboard />
-      </TabsContent>
+      {tabs.map((tab) => (
+        <TabsContent key={tab.id} value={tab.id}>
+          <tab.component />
+        </TabsContent>
+      ))}
     </Tabs>
   );
 };
