@@ -179,6 +179,10 @@ const FeedPostCard = ({
             onReaction={onReaction}
             onAddComment={onAddComment}
             onLikeComment={onLikeComment}
+            onCommentReaction={(postId, commentId, reactionType) => {
+              // This will be handled by the parent component
+              console.log('Comment reaction:', { postId, commentId, reactionType });
+            }}
           />
         </div>
       </CardContent>

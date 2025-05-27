@@ -122,6 +122,7 @@ export const usePostInteractions = (
       timestamp: "Just now",
       likes: 0,
       isLiked: false,
+      reactions: [], // Initialize with empty reactions array
     };
 
     setPosts(prevPosts => 
@@ -168,6 +169,80 @@ export const usePostInteractions = (
     );
   };
 
+  const handleCommentReaction = (postId: string, commentId: string, reactionType: string) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id !== postId) return post;
+        
+        const updateCommentReactions = (comments: Comment[]): Comment[] => {
+          return comments.map(comment => {
+            if (comment.id === commentId) {
+              const reactions = comment.reactions || [];
+              const existingReaction = reactions.find(r => r.type === reactionType);
+              const userHasReacted = reactions.some(r => r.hasReacted);
+              
+              let updatedReactions;
+              
+              if (userHasReacted) {
+                // Remove user's previous reaction and add new one
+                updatedReactions = reactions.map(r => 
+                  r.hasReacted 
+                    ? { ...r, hasReacted: false, count: Math.max(0, r.count - 1) }
+                    : r
+                );
+                
+                if (existingReaction) {
+                  updatedReactions = updatedReactions.map(r =>
+                    r.type === reactionType 
+                      ? { ...r, hasReacted: true, count: r.count + 1 }
+                      : r
+                  );
+                } else {
+                  updatedReactions.push({ 
+                    type: reactionType, 
+                    emoji: getReactionEmoji(reactionType), 
+                    count: 1, 
+                    hasReacted: true 
+                  });
+                }
+              } else {
+                // Add new reaction
+                if (existingReaction) {
+                  updatedReactions = reactions.map(r =>
+                    r.type === reactionType 
+                      ? { ...r, hasReacted: true, count: r.count + 1 }
+                      : r
+                  );
+                } else {
+                  updatedReactions = [...reactions, { 
+                    type: reactionType, 
+                    emoji: getReactionEmoji(reactionType), 
+                    count: 1, 
+                    hasReacted: true 
+                  }];
+                }
+              }
+              
+              return { ...comment, reactions: updatedReactions };
+            }
+            if (comment.replies) {
+              return {
+                ...comment,
+                replies: updateCommentReactions(comment.replies)
+              };
+            }
+            return comment;
+          });
+        };
+        
+        return {
+          ...post,
+          comments: updateCommentReactions(post.comments || [])
+        };
+      })
+    );
+  };
+
   const handleRespond = (postId: string) => {
     toast({
       title: "Response sent!",
@@ -195,5 +270,6 @@ export const usePostInteractions = (
     handleReaction,
     handleAddComment,
     handleLikeComment,
+    handleCommentReaction,
   };
 };

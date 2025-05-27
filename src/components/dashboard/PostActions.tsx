@@ -16,6 +16,7 @@ interface PostActionsProps {
   onReaction: (postId: string, reactionType: string) => void;
   onAddComment: (postId: string, content: string) => void;
   onLikeComment: (postId: string, commentId: string) => void;
+  onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
 }
 
 const PostActions = ({ 
@@ -26,7 +27,8 @@ const PostActions = ({
   onBookmark,
   onReaction,
   onAddComment,
-  onLikeComment
+  onLikeComment,
+  onCommentReaction
 }: PostActionsProps) => {
   const [showComments, setShowComments] = useState(false);
 
@@ -122,6 +124,7 @@ const PostActions = ({
           post={post}
           onAddComment={onAddComment}
           onLikeComment={onLikeComment}
+          onCommentReaction={onCommentReaction}
         />
       )}
     </div>

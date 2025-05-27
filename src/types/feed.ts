@@ -1,4 +1,3 @@
-
 export interface MediaItem {
   id: string;
   type: 'image' | 'video';
@@ -15,6 +14,7 @@ export interface Comment {
   likes: number;
   isLiked: boolean;
   replies?: Comment[];
+  reactions?: Reaction[];
 }
 
 export interface Reaction {

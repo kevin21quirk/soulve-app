@@ -25,6 +25,7 @@ const SocialFeed = React.memo(() => {
     handleReaction,
     handleAddComment,
     handleLikeComment,
+    handleCommentReaction,
     getPostCounts,
   } = useSocialFeed();
   
@@ -108,6 +109,7 @@ const SocialFeed = React.memo(() => {
               onReaction={handleReaction}
               onAddComment={handleAddComment}
               onLikeComment={handleLikeComment}
+              onCommentReaction={handleCommentReaction}
             />
           ))}
         </div>

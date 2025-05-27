@@ -7,14 +7,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, Send, Heart, MoreVertical } from "lucide-react";
 import { Comment, FeedPost } from "@/types/feed";
 import { useToast } from "@/hooks/use-toast";
+import PostReactions from "./PostReactions";
 
 interface PostCommentsProps {
   post: FeedPost;
   onAddComment: (postId: string, content: string) => void;
   onLikeComment: (postId: string, commentId: string) => void;
+  onReaction?: (postId: string, reactionType: string) => void;
+  onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
 }
 
-const PostComments = ({ post, onAddComment, onLikeComment }: PostCommentsProps) => {
+const PostComments = ({ 
+  post, 
+  onAddComment, 
+  onLikeComment, 
+  onReaction,
+  onCommentReaction 
+}: PostCommentsProps) => {
   const { toast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -30,6 +39,12 @@ const PostComments = ({ post, onAddComment, onLikeComment }: PostCommentsProps) 
       title: "Comment added!",
       description: "Your comment has been posted.",
     });
+  };
+
+  const handleCommentReaction = (commentId: string, reactionType: string) => {
+    if (onCommentReaction) {
+      onCommentReaction(post.id, commentId, reactionType);
+    }
   };
 
   const CommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
@@ -49,15 +64,31 @@ const PostComments = ({ post, onAddComment, onLikeComment }: PostCommentsProps) 
           </CardContent>
         </Card>
         <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 p-0 text-xs"
-            onClick={() => onLikeComment(post.id, comment.id)}
-          >
-            <Heart className={`h-3 w-3 mr-1 ${comment.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-            {comment.likes > 0 && comment.likes}
-          </Button>
+          {/* Enhanced Reactions for Comments */}
+          {onCommentReaction && (
+            <PostReactions 
+              post={{
+                ...comment,
+                id: comment.id,
+                reactions: comment.reactions || []
+              } as any}
+              onReaction={(_, reactionType) => handleCommentReaction(comment.id, reactionType)}
+            />
+          )}
+          
+          {/* Traditional Like Button (fallback) */}
+          {!onCommentReaction && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 p-0 text-xs"
+              onClick={() => onLikeComment(post.id, comment.id)}
+            >
+              <Heart className={`h-3 w-3 mr-1 ${comment.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+              {comment.likes > 0 && comment.likes}
+            </Button>
+          )}
+          
           <Button
             variant="ghost"
             size="sm"

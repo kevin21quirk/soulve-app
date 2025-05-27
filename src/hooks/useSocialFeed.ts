@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FeedPost } from "@/types/feed";
 import { mockPosts } from "@/data/mockPosts";
@@ -30,6 +29,7 @@ import { usePostCreation } from "./usePostCreation";
  * @returns {Function} returns.handleReaction - Handler for post reactions
  * @returns {Function} returns.handleAddComment - Handler for adding comments
  * @returns {Function} returns.handleLikeComment - Handler for liking comments
+ * @returns {Function} returns.handleCommentReaction - Handler for comment reactions
  * @returns {Function} returns.getPostCounts - Function to get post counts by category
  * 
  * @example
@@ -61,6 +61,7 @@ export const useSocialFeed = () => {
     handleReaction,
     handleAddComment,
     handleLikeComment,
+    handleCommentReaction,
   } = usePostInteractions(posts, setPosts);
 
   const {
@@ -84,6 +85,7 @@ export const useSocialFeed = () => {
     handleReaction,
     handleAddComment,
     handleLikeComment,
+    handleCommentReaction,
     getPostCounts,
   };
 };
