@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MessageSquare, Upload, UserPlus, Users, Send, Bell, Keyboard, Search } from "lucide-react";
+import { MessageSquare, Upload, UserPlus, Users, Send, Bell, Keyboard, Search, Brain, Activity, BarChart3 } from "lucide-react";
 import SocialFeed from "@/components/dashboard/SocialFeed";
 import ContentUpload from "@/components/dashboard/ContentUpload";
 import EnhancedConnections from "@/components/dashboard/EnhancedConnections";
@@ -12,6 +12,10 @@ import EnhancedMessaging from "@/components/dashboard/EnhancedMessaging";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import KeyboardShortcuts from "@/components/dashboard/KeyboardShortcuts";
 import SearchBar from "@/components/dashboard/SearchBar";
+import RealTimeActivity from "@/components/dashboard/RealTimeActivity";
+import GamificationPanel from "@/components/dashboard/GamificationPanel";
+import SmartRecommendations from "@/components/dashboard/SmartRecommendations";
+import AnalyticsDashboard from "@/components/dashboard/AnalyticsDashboard";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +25,7 @@ const Dashboard = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
   const { toast } = useToast();
 
   // Keyboard shortcuts configuration
@@ -51,11 +56,18 @@ const Dashboard = () => {
       description: 'Open connections'
     },
     {
+      key: 'a',
+      ctrlKey: true,
+      action: () => setActiveTab('analytics'),
+      description: 'Open analytics'
+    },
+    {
       key: 'Escape',
       action: () => {
         setShowSearch(false);
         setShowNotifications(false);
         setShowShortcuts(false);
+        setShowActivity(false);
       },
       description: 'Close modals'
     },
@@ -113,6 +125,18 @@ const Dashboard = () => {
                   </PopoverContent>
                 </Popover>
 
+                {/* Real-time Activity */}
+                <Popover open={showActivity} onOpenChange={setShowActivity}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <Activity className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0">
+                    <RealTimeActivity />
+                  </PopoverContent>
+                </Popover>
+
                 {/* Notifications */}
                 <Popover open={showNotifications} onOpenChange={setShowNotifications}>
                   <PopoverTrigger asChild>
@@ -156,7 +180,7 @@ const Dashboard = () => {
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur">
+            <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur">
               <TabsTrigger value="feed" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
                 <MessageSquare className="h-4 w-4" />
                 <span>Feed</span>
@@ -172,6 +196,14 @@ const Dashboard = () => {
               <TabsTrigger value="messages" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
                 <Send className="h-4 w-4" />
                 <span>Messages</span>
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
+                <Brain className="h-4 w-4" />
+                <span>AI Insights</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
+                <BarChart3 className="h-4 w-4" />
+                <span>Analytics</span>
               </TabsTrigger>
             </TabsList>
 
@@ -189,6 +221,21 @@ const Dashboard = () => {
 
             <TabsContent value="messages" className="animate-fade-in">
               <EnhancedMessaging />
+            </TabsContent>
+
+            <TabsContent value="insights" className="animate-fade-in">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <SmartRecommendations />
+                </div>
+                <div className="space-y-6">
+                  <GamificationPanel />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="animate-fade-in">
+              <AnalyticsDashboard />
             </TabsContent>
           </Tabs>
         </div>
