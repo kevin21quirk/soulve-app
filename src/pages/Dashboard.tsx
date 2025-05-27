@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, Upload, UserPlus, Users, Send } from "lucide-react";
 import SocialFeed from "@/components/dashboard/SocialFeed";
 import ContentUpload from "@/components/dashboard/ContentUpload";
-import ConnectionRequests from "@/components/dashboard/ConnectionRequests";
-import MessagingSystem from "@/components/dashboard/MessagingSystem";
+import EnhancedConnections from "@/components/dashboard/EnhancedConnections";
+import EnhancedMessaging from "@/components/dashboard/EnhancedMessaging";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("feed");
@@ -71,11 +71,11 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="connections">
-            <ConnectionRequests />
+            <EnhancedConnections />
           </TabsContent>
 
           <TabsContent value="messages">
-            <MessagingSystem />
+            <EnhancedMessaging />
           </TabsContent>
         </Tabs>
       </div>

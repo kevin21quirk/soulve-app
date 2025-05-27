@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare, Users, Send, Heart, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FeedFilters from "./FeedFilters";
+import CreatePost from "./CreatePost";
 
 interface FeedPost {
   id: string;
@@ -91,6 +92,10 @@ const SocialFeed = () => {
     }
   ]);
 
+  const handlePostCreated = (newPost: FeedPost) => {
+    setPosts(prevPosts => [newPost, ...prevPosts]);
+  };
+
   const handleLike = (postId: string) => {
     setPosts(prevPosts => 
       prevPosts.map(post => 
@@ -154,6 +159,8 @@ const SocialFeed = () => {
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Feed</h2>
         <p className="text-gray-600">See what your community needs and how you can help</p>
       </div>
+
+      <CreatePost onPostCreated={handlePostCreated} />
 
       <FeedFilters 
         activeFilter={activeFilter}
