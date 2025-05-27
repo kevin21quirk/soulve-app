@@ -65,32 +65,38 @@ export const analyticsDataSchema = z.object({
   })),
 });
 
-// Type-safe validation functions
-export const validateFeedPost = (data: unknown) => {
+// Import types for proper typing
+import type { FeedPost } from '@/types/feed';
+import type { ConnectionRequest } from '@/types/connections';
+import type { Message } from '@/types/messaging';
+import type { ImpactMetric, HelpActivityData, EngagementData, CategoryData } from '@/types/analytics';
+
+// Type-safe validation functions with proper return types
+export const validateFeedPost = (data: unknown): FeedPost => {
   const result = feedPostSchema.safeParse(data);
   if (!result.success) {
     console.error('Feed post validation failed:', result.error);
     throw new Error('Invalid feed post data');
   }
-  return result.data;
+  return result.data as FeedPost;
 };
 
-export const validateConnectionRequest = (data: unknown) => {
+export const validateConnectionRequest = (data: unknown): ConnectionRequest => {
   const result = connectionRequestSchema.safeParse(data);
   if (!result.success) {
     console.error('Connection request validation failed:', result.error);
     throw new Error('Invalid connection request data');
   }
-  return result.data;
+  return result.data as ConnectionRequest;
 };
 
-export const validateMessage = (data: unknown) => {
+export const validateMessage = (data: unknown): Message => {
   const result = messageSchema.safeParse(data);
   if (!result.success) {
     console.error('Message validation failed:', result.error);
     throw new Error('Invalid message data');
   }
-  return result.data;
+  return result.data as Message;
 };
 
 export const validateAnalyticsData = (data: unknown) => {
@@ -99,7 +105,12 @@ export const validateAnalyticsData = (data: unknown) => {
     console.error('Analytics data validation failed:', result.error);
     throw new Error('Invalid analytics data');
   }
-  return result.data;
+  return {
+    helpActivityData: result.data.helpActivityData as HelpActivityData[],
+    engagementData: result.data.engagementData as EngagementData[],
+    categoryData: result.data.categoryData as CategoryData[],
+    impactMetrics: result.data.impactMetrics as ImpactMetric[],
+  };
 };
 
 // Data Sanitization
