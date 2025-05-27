@@ -10,7 +10,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
     return (
       <div className="flex items-center justify-center w-full">
         <img 
-          src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
+          src="/lovable-uploads/c062ea76-0576-4ea9-99d1-092d17f82981.png" 
           alt="SouLVE - Social Feed to Social Need" 
           className="w-full h-[32rem] object-contain"
         />
@@ -20,7 +20,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
     return (
       <div className="flex items-center space-x-2">
         <img 
-          src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
+          src="/lovable-uploads/c062ea76-0576-4ea9-99d1-092d17f82981.png" 
           alt="SouLVE Icon" 
           className="h-8 w-8"
         />
