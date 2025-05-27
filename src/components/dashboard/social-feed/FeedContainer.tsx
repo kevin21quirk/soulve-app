@@ -26,6 +26,10 @@ const FeedContainer = React.memo(() => {
     handleLike,
     handleShare,
     handleRespond,
+    handleBookmark,
+    handleReaction,
+    handleAddComment,
+    handleLikeComment,
     getPostCounts,
   } = useSocialFeed();
   
@@ -73,6 +77,10 @@ const FeedContainer = React.memo(() => {
         onLike={handleLike}
         onShare={handleShare}
         onRespond={handleRespond}
+        onBookmark={handleBookmark}
+        onReaction={handleReaction}
+        onAddComment={handleAddComment}
+        onLikeComment={handleLikeComment}
         onRefresh={handleRefresh}
         isMobile={isMobile}
       />

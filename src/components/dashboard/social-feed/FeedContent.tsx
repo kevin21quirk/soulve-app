@@ -6,7 +6,7 @@ import { useDebounce, useLazyLoading } from "@/hooks/usePerformanceOptimization"
 import PostSkeleton from "../PostSkeleton";
 import FeedPostCard from "../FeedPostCard";
 import { LoadingSpinner } from "@/components/ui/skeleton-variants";
-import { Share, Heart, MessageSquare } from "lucide-react";
+import { Share, Heart, MessageSquare, Bookmark } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 
 interface FeedContentProps {
@@ -16,6 +16,10 @@ interface FeedContentProps {
   onLike: (postId: string) => void;
   onShare: (postId: string) => void;
   onRespond: (postId: string) => void;
+  onBookmark: (postId: string) => void;
+  onReaction: (postId: string, reactionType: string) => void;
+  onAddComment: (postId: string, content: string) => void;
+  onLikeComment: (postId: string, commentId: string) => void;
   onRefresh: () => Promise<void>;
   isMobile: boolean;
 }
@@ -31,6 +35,10 @@ const FeedContent: React.FC<FeedContentProps> = ({
   onLike,
   onShare,
   onRespond,
+  onBookmark,
+  onReaction,
+  onAddComment,
+  onLikeComment,
   onRefresh,
   isMobile,
 }) => {
@@ -61,11 +69,20 @@ const FeedContent: React.FC<FeedContentProps> = ({
       },
     },
     {
-      label: "Respond",
+      label: "Bookmark",
+      icon: Bookmark,
+      onClick: () => {
+        if (posts[0]) {
+          onBookmark(posts[0].id);
+        }
+      },
+    },
+    {
+      label: "Comment",
       icon: MessageSquare,
       onClick: () => {
         if (posts[0]) {
-          onRespond(posts[0].id);
+          onAddComment(posts[0].id, "Great post!");
         }
       },
     },
@@ -110,6 +127,10 @@ const FeedContent: React.FC<FeedContentProps> = ({
             onLike={onLike}
             onShare={onShare}
             onRespond={onRespond}
+            onBookmark={onBookmark}
+            onReaction={onReaction}
+            onAddComment={onAddComment}
+            onLikeComment={onLikeComment}
           />
         </div>
       ))}

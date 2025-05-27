@@ -26,6 +26,10 @@ import { usePostCreation } from "./usePostCreation";
  * @returns {Function} returns.handleLike - Handler for post likes
  * @returns {Function} returns.handleShare - Handler for post sharing
  * @returns {Function} returns.handleRespond - Handler for post responses
+ * @returns {Function} returns.handleBookmark - Handler for post bookmarking
+ * @returns {Function} returns.handleReaction - Handler for post reactions
+ * @returns {Function} returns.handleAddComment - Handler for adding comments
+ * @returns {Function} returns.handleLikeComment - Handler for liking comments
  * @returns {Function} returns.getPostCounts - Function to get post counts by category
  * 
  * @example
@@ -33,7 +37,8 @@ import { usePostCreation } from "./usePostCreation";
  *   filteredPosts,
  *   activeFilter,
  *   setActiveFilter,
- *   handleLike
+ *   handleLike,
+ *   handleReaction
  * } = useSocialFeed();
  */
 export const useSocialFeed = () => {
@@ -52,6 +57,10 @@ export const useSocialFeed = () => {
     handleLike,
     handleShare,
     handleRespond,
+    handleBookmark,
+    handleReaction,
+    handleAddComment,
+    handleLikeComment,
   } = usePostInteractions(posts, setPosts);
 
   const {
@@ -71,6 +80,10 @@ export const useSocialFeed = () => {
     handleLike,
     handleShare,
     handleRespond,
+    handleBookmark,
+    handleReaction,
+    handleAddComment,
+    handleLikeComment,
     getPostCounts,
   };
 };
