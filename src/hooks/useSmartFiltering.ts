@@ -6,6 +6,12 @@ export const useSmartFiltering = (filteredPosts: FeedPost[], activeTab: string) 
   const getSmartFilteredPosts = useMemo(() => {
     let posts = filteredPosts;
     
+    console.log("Smart filtering debug:", {
+      inputPosts: posts.length,
+      activeTab,
+      posts: posts.map(p => ({ id: p.id, title: p.title, category: p.category, urgency: p.urgency }))
+    });
+    
     switch (activeTab) {
       case "for-you":
         // AI-curated feed based on user interests and engagement
@@ -16,11 +22,15 @@ export const useSmartFiltering = (filteredPosts: FeedPost[], activeTab: string) 
         });
       
       case "urgent":
-        return posts.filter(p => p.urgency === "high" || p.urgency === "urgent");
+        const urgentPosts = posts.filter(p => p.urgency === "high" || p.urgency === "urgent");
+        console.log("Urgent posts filtered:", urgentPosts.length);
+        return urgentPosts;
       
       case "nearby":
         // Filter by location proximity (mock implementation)
-        return posts.filter(p => p.location.includes("London") || p.location.includes("Downtown"));
+        const nearbyPosts = posts.filter(p => p.location.includes("London") || p.location.includes("Downtown"));
+        console.log("Nearby posts filtered:", nearbyPosts.length);
+        return nearbyPosts;
       
       case "trending":
         return posts.sort((a, b) => {
@@ -32,10 +42,21 @@ export const useSmartFiltering = (filteredPosts: FeedPost[], activeTab: string) 
           return bTrending - aTrending;
         });
       
+      case "following":
+        // For now, return all posts since we don't have a following system implemented
+        console.log("Following tab - returning all posts");
+        return posts;
+      
       default:
+        console.log("Default case - returning all posts");
         return posts;
     }
   }, [filteredPosts, activeTab]);
+
+  console.log("Smart filtering result:", {
+    activeTab,
+    outputPosts: getSmartFilteredPosts.length
+  });
 
   return getSmartFilteredPosts;
 };

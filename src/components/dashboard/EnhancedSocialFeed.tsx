@@ -33,6 +33,7 @@ const EnhancedSocialFeed = () => {
     handleLikeComment,
     handleCommentReaction,
     getPostCounts,
+    posts, // Add posts to debug
   } = useSocialFeed();
 
   const smartFilteredPosts = useSmartFiltering(filteredPosts, activeTab);
@@ -40,6 +41,17 @@ const EnhancedSocialFeed = () => {
   
   // Calculate urgent posts count
   const urgentPostsCount = filteredPosts.filter(p => p.urgency === "high" || p.urgency === "urgent").length;
+
+  // Debug logging
+  console.log("EnhancedSocialFeed Debug:", {
+    totalPosts: posts.length,
+    filteredPosts: filteredPosts.length,
+    smartFilteredPosts: smartFilteredPosts.length,
+    activeTab,
+    activeFilter,
+    searchQuery,
+    isLoading
+  });
 
   return (
     <div className="space-y-6">
