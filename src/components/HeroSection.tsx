@@ -1,0 +1,40 @@
+
+import { Button } from "@/components/ui/button";
+import { Heart, Users } from "lucide-react";
+import SouLVELogo from "./SouLVELogo";
+
+const HeroSection = () => {
+  return (
+    <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 text-white">
+      <div className="absolute inset-0 bg-black/20"></div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center animate-fade-in">
+          <div className="flex justify-center items-center mb-6">
+            <SouLVELogo size="large" />
+          </div>
+          
+          <p className="text-xl md:text-2xl mb-4 max-w-4xl mx-auto leading-relaxed">
+            The social media platform that bridges the human gap AI cannot reach
+          </p>
+          <p className="text-lg mb-8 max-w-3xl mx-auto text-cyan-100">
+            Connect people who need help with those who can provide it. Build trust, track impact, and transform your community one connection at a time.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-200" asChild>
+              <a href="/dashboard">
+                <Heart className="mr-2 h-5 w-5" />
+                Try SouLVE Demo
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-200">
+              <Users className="mr-2 h-5 w-5" />
+              Become a Soulver
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HeroSection;
