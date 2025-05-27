@@ -1,6 +1,6 @@
 
 import React from "react";
-import { PullToRefresh, MobileActionBar } from "@/components/ui/mobile-optimized";
+import { PullToRefresh, MobileActionBar } from "@/components/ui/mobile";
 import { useKeyboardNavigation } from "@/hooks/useAccessibility";
 import { useDebounce, useLazyLoading } from "@/hooks/usePerformanceOptimization";
 import PostSkeleton from "../PostSkeleton";

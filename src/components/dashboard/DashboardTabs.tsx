@@ -10,7 +10,7 @@ import SmartRecommendations from "./SmartRecommendations";
 import GamificationPanel from "./GamificationPanel";
 import TrustFootprint from "./TrustFootprint";
 import { useRealTimeNotifications, NotificationPanel } from "@/components/ui/real-time-notifications";
-import { useIsMobile } from "@/components/ui/mobile-optimized";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useScreenReader } from "@/hooks/useAccessibility";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 

@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
-import FeedFilters as OriginalFeedFilters from "../FeedFilters";
+import FeedFilters from "../FeedFilters";
 import SearchBar from "../SearchBar";
-import { MobileSearchFilter } from "@/components/ui/mobile-optimized";
+import { MobileSearchFilter } from "@/components/ui/mobile";
 
 interface FeedFiltersProps {
   activeFilter: string;
@@ -17,7 +16,7 @@ interface FeedFiltersProps {
  * Filters and search component for the social feed
  * Handles both mobile and desktop layouts
  */
-const FeedFilters: React.FC<FeedFiltersProps> = ({
+const SocialFeedFilters: React.FC<FeedFiltersProps> = ({
   activeFilter,
   onFilterChange,
   searchQuery,
@@ -47,7 +46,7 @@ const FeedFilters: React.FC<FeedFiltersProps> = ({
         {showMobileFilters && (
           <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setShowMobileFilters(false)}>
             <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg p-4">
-              <OriginalFeedFilters 
+              <FeedFilters 
                 activeFilter={activeFilter}
                 onFilterChange={handleFilterChange}
                 postCounts={postCounts}
@@ -61,7 +60,7 @@ const FeedFilters: React.FC<FeedFiltersProps> = ({
 
   return (
     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-      <OriginalFeedFilters 
+      <FeedFilters 
         activeFilter={activeFilter}
         onFilterChange={handleFilterChange}
         postCounts={postCounts}
@@ -76,4 +75,4 @@ const FeedFilters: React.FC<FeedFiltersProps> = ({
   );
 };
 
-export default FeedFilters;
+export default SocialFeedFilters;

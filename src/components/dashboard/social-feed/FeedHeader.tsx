@@ -1,7 +1,6 @@
-
 import React from "react";
 import CreatePost from "../CreatePost";
-import { useIsMobile } from "@/components/ui/mobile-optimized";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FeedHeaderProps {
   onPostCreated: (post: any) => void;
