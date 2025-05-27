@@ -29,9 +29,11 @@ const HeroSection = () => {
                 Try SouLVE Demo
               </a>
             </Button>
-            <Button size="lg" className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl">
-              <Users className="mr-3 h-6 w-6" />
-              Become a Soulver
+            <Button size="lg" className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
+              <a href="/register">
+                <Users className="mr-3 h-6 w-6" />
+                Become a Soulver
+              </a>
             </Button>
           </div>
         </div>
