@@ -1,6 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Upload, UserPlus, Send, Brain, BarChart3 } from "lucide-react";
+import { MessageSquare, Upload, UserPlus, Send, Brain, BarChart3, Shield } from "lucide-react";
 import SocialFeed from "./SocialFeed";
 import ContentUpload from "./ContentUpload";
 import EnhancedConnections from "./EnhancedConnections";
@@ -8,6 +8,8 @@ import EnhancedMessaging from "./EnhancedMessaging";
 import SmartRecommendations from "./SmartRecommendations";
 import GamificationPanel from "./GamificationPanel";
 import AnalyticsDashboard from "./AnalyticsDashboard";
+import TrustFootprint from "./TrustFootprint";
+import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -17,7 +19,7 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ activeTab, setActiveTab }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-      <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur">
+      <TabsList className="grid w-full grid-cols-7 bg-white/80 backdrop-blur">
         <TabsTrigger value="feed" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
           <MessageSquare className="h-4 w-4" />
           <span>Feed</span>
@@ -33,6 +35,10 @@ const DashboardTabs = ({ activeTab, setActiveTab }: DashboardTabsProps) => {
         <TabsTrigger value="messages" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
           <Send className="h-4 w-4" />
           <span>Messages</span>
+        </TabsTrigger>
+        <TabsTrigger value="trust" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
+          <Shield className="h-4 w-4" />
+          <span>Trust</span>
         </TabsTrigger>
         <TabsTrigger value="insights" className="flex items-center space-x-2 transition-all data-[state=active]:scale-105">
           <Brain className="h-4 w-4" />
@@ -58,6 +64,10 @@ const DashboardTabs = ({ activeTab, setActiveTab }: DashboardTabsProps) => {
 
       <TabsContent value="messages" className="animate-fade-in">
         <EnhancedMessaging />
+      </TabsContent>
+
+      <TabsContent value="trust" className="animate-fade-in">
+        <TrustFootprint trustFootprint={mockTrustFootprint} />
       </TabsContent>
 
       <TabsContent value="insights" className="animate-fade-in">
