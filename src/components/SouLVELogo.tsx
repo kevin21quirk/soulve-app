@@ -8,12 +8,11 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
   
   if (isLarge) {
     return (
-      <div className="flex items-center justify-center bg-transparent">
+      <div className="flex items-center justify-center">
         <img 
-          src="/lovable-uploads/277d412c-6e36-4592-bb09-13ca866e9d79.png" 
+          src="/lovable-uploads/53d273ee-32cd-476f-ae09-3ba4733b6611.png" 
           alt="SouLVE - Social Feed to Social Need" 
           className="h-48 w-auto"
-          style={{ background: 'transparent' }}
         />
       </div>
     );
