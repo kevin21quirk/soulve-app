@@ -32,20 +32,33 @@ const Index = () => {
   // SouLVE Logo Component
   const SouLVELogo = ({ size = "large" }: { size?: "small" | "large" }) => {
     const isLarge = size === "large";
-    return (
-      <div className="flex items-center space-x-3">
-        {/* Heart-shaped S Logo */}
-        <div className={`bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center ${isLarge ? 'w-16 h-16' : 'w-8 h-8'}`}>
-          <div className={`text-white font-bold ${isLarge ? 'text-2xl' : 'text-lg'}`} style={{ fontFamily: 'Arial, sans-serif' }}>
-            S
+    
+    if (isLarge) {
+      // Use full logo for large version
+      return (
+        <div className="flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/277d412c-6e36-4592-bb09-13ca866e9d79.png" 
+            alt="SouLVE - Social Feed to Social Need" 
+            className="h-20 w-auto"
+          />
+        </div>
+      );
+    } else {
+      // Use icon only for small version
+      return (
+        <div className="flex items-center space-x-2">
+          <img 
+            src="/lovable-uploads/25feaabf-2868-4cfc-a034-77054efffb53.png" 
+            alt="SouLVE Icon" 
+            className="h-8 w-8"
+          />
+          <div className="text-left">
+            <h3 className="text-lg font-bold text-white">SouLVE</h3>
           </div>
         </div>
-        <div className="text-left">
-          <h1 className={`font-bold text-white ${isLarge ? 'text-4xl md:text-5xl' : 'text-xl'}`}>SouLVE</h1>
-          <p className={`text-teal-100 tracking-wide font-medium ${isLarge ? 'text-lg' : 'text-sm'}`}>SOCIAL FEED TO SOCIAL NEED</p>
-        </div>
-      </div>
-    );
+      );
+    }
   };
 
   const features = [
