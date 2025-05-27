@@ -1,17 +1,26 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageSquare, Send, Heart, MoreVertical } from "lucide-react";
+import { MessageSquare, Send, Heart } from "lucide-react";
 import { Comment, FeedPost } from "@/types/feed";
 import { useToast } from "@/hooks/use-toast";
 import PostReactions from "./PostReactions";
 import AutoCommentSuggestions from "./AutoCommentSuggestions";
+import UserTagging from "./tagging/UserTagging";
+import TaggedText from "./tagging/TaggedText";
+
+interface TaggedUser {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+}
 
 interface PostCommentsProps {
   post: FeedPost;
-  onAddComment: (postId: string, content: string) => void;
+  onAddComment: (postId: string, content: string, taggedUsers?: TaggedUser[]) => void;
   onLikeComment: (postId: string, commentId: string) => void;
   onReaction?: (postId: string, reactionType: string) => void;
   onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
@@ -27,28 +36,43 @@ const PostComments = ({
   const { toast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [commentTaggedUsers, setCommentTaggedUsers] = useState<TaggedUser[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
     
-    onAddComment(post.id, newComment);
+    onAddComment(post.id, newComment, commentTaggedUsers);
     setNewComment("");
+    setCommentTaggedUsers([]);
     
     toast({
       title: "Comment added!",
-      description: "Your comment has been posted.",
+      description: `Your comment has been posted${commentTaggedUsers.length > 0 ? ` and ${commentTaggedUsers.length} user(s) have been tagged` : ''}.`,
     });
   };
 
   const handleAutoCommentSelect = (comment: string) => {
     setNewComment(comment);
+    setCommentTaggedUsers([]);
   };
 
   const handleCommentReaction = (commentId: string, reactionType: string) => {
     if (onCommentReaction) {
       onCommentReaction(post.id, commentId, reactionType);
     }
+  };
+
+  const handleCommentChange = (value: string, users: TaggedUser[]) => {
+    setNewComment(value);
+    setCommentTaggedUsers(users);
+  };
+
+  const handleUserClick = (username: string) => {
+    toast({
+      title: "User Profile",
+      description: `Clicked on @${username}`,
+    });
   };
 
   const CommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
@@ -64,7 +88,11 @@ const PostComments = ({
               <span className="font-medium text-sm">{comment.author}</span>
               <span className="text-xs text-gray-500">{comment.timestamp}</span>
             </div>
-            <p className="text-sm text-gray-700">{comment.content}</p>
+            <TaggedText 
+              text={comment.content} 
+              className="text-sm text-gray-700"
+              onUserClick={handleUserClick}
+            />
           </CardContent>
         </Card>
         <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
@@ -137,13 +165,19 @@ const PostComments = ({
               <AvatarFallback>You</AvatarFallback>
             </Avatar>
             <div className="flex-1 flex space-x-2">
-              <Input
-                placeholder="Write a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmitComment()}
-                className="flex-1"
-              />
+              <div className="flex-1">
+                <UserTagging
+                  value={newComment}
+                  onChange={handleCommentChange}
+                  placeholder="Write a comment... (Type @ to tag someone)"
+                  className="flex-1"
+                />
+                {commentTaggedUsers.length > 0 && (
+                  <div className="mt-1 text-xs text-blue-600">
+                    Tagging: {commentTaggedUsers.map(u => `@${u.username}`).join(', ')}
+                  </div>
+                )}
+              </div>
               <Button onClick={handleSubmitComment} size="sm">
                 <Send className="h-4 w-4" />
               </Button>

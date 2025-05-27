@@ -151,6 +151,23 @@ const FeedPostCard = ({
       <CardContent>
         <p className="text-gray-700 mb-4">{post.description}</p>
         
+        {/* Tagged Users */}
+        {(post as any).taggedUsers && (post as any).taggedUsers.length > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <div className="text-sm font-medium text-blue-800 mb-2">Tagged:</div>
+            <div className="flex flex-wrap gap-2">
+              {(post as any).taggedUsers.map((user: any, index: number) => (
+                <span 
+                  key={index} 
+                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full cursor-pointer hover:bg-blue-200 transition-colors"
+                >
+                  @{user.username}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
         {/* Post Metadata */}
         {(feelingConfig || (post.tags && post.tags.length > 0)) && (
           <div className="flex flex-wrap gap-2 mb-4">

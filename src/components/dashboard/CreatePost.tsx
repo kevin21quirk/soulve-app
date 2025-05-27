@@ -1,14 +1,22 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MediaUpload from "./MediaUpload";
 import PostOptions from "./PostOptions";
+import UserTagging from "./tagging/UserTagging";
 import { PostFormData } from "./CreatePostTypes";
 import { MediaFile } from "./media-upload/MediaUploadTypes";
+
+interface TaggedUser {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+}
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;
@@ -18,6 +26,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+  const [taggedUsers, setTaggedUsers] = useState<TaggedUser[]>([]);
   const [formData, setFormData] = useState<PostFormData>({
     title: "",
     description: "",
@@ -60,6 +69,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       visibility: formData.visibility,
       allowComments: formData.allowComments,
       allowSharing: formData.allowSharing,
+      taggedUsers: taggedUsers,
       media: mediaFiles.map(file => ({
         id: file.id,
         type: file.type,
@@ -84,11 +94,12 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       allowSharing: true,
     });
     setMediaFiles([]);
+    setTaggedUsers([]);
     setIsExpanded(false);
     
     toast({
       title: "Post created!",
-      description: "Your post has been shared with the community.",
+      description: `Your post has been shared with the community${taggedUsers.length > 0 ? ` and ${taggedUsers.length} user(s) have been tagged` : ''}.`,
     });
   };
 
@@ -100,13 +111,22 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     setMediaFiles(files);
   };
 
+  const handleTitleChange = (value: string, users: TaggedUser[]) => {
+    handleInputChange("title", value);
+    setTaggedUsers(users);
+  };
+
+  const handleDescriptionChange = (value: string, users: TaggedUser[]) => {
+    handleInputChange("description", value);
+    setTaggedUsers(users);
+  };
+
   if (!isExpanded) {
     return (
       <Card className="mb-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setIsExpanded(true)}>
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 text-gray-500">
-            <Plus className="h-5 w-5" />
-            <span>Share something with your community...</span>
+            <span>Share something with your community... (Type @ to tag someone)</span>
           </div>
         </CardContent>
       </Card>
@@ -126,21 +146,20 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Input
-              placeholder="What's the title of your post?"
+            <UserTagging
               value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-              required
+              onChange={handleTitleChange}
+              placeholder="What's the title of your post? (Type @ to tag someone)"
             />
           </div>
 
           <div>
-            <Textarea
-              placeholder="Describe what you need or want to offer..."
+            <UserTagging
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={handleDescriptionChange}
+              placeholder="Describe what you need or want to offer... (Type @ to tag someone)"
+              multiline
               rows={3}
-              required
             />
           </div>
 
@@ -151,6 +170,20 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               onChange={(e) => handleInputChange("location", e.target.value)}
             />
           </div>
+
+          {/* Show tagged users */}
+          {taggedUsers.length > 0 && (
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <div className="text-sm font-medium text-blue-800 mb-2">Tagged users:</div>
+              <div className="flex flex-wrap gap-2">
+                {taggedUsers.map((user, index) => (
+                  <span key={index} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                    @{user.username}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Media Upload Section */}
           <MediaUpload

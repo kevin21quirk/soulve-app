@@ -6,6 +6,13 @@ export interface MediaItem {
   filename: string;
 }
 
+export interface TaggedUser {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+}
+
 export interface Comment {
   id: string;
   author: string;
@@ -16,6 +23,7 @@ export interface Comment {
   isLiked: boolean;
   replies?: Comment[];
   reactions?: Reaction[];
+  taggedUsers?: TaggedUser[];
 }
 
 export interface Reaction {
@@ -47,4 +55,5 @@ export interface FeedPost {
   feeling?: string;
   tags?: string[];
   visibility?: 'public' | 'friends' | 'private';
+  taggedUsers?: TaggedUser[];
 }
