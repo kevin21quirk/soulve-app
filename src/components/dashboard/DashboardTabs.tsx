@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import TrustFootprint from "./TrustFootprint";
 import { useRealTimeNotifications, NotificationPanel } from "@/components/ui/real-time-notifications";
 import { useIsMobile } from "@/components/ui/mobile-optimized";
 import { useScreenReader } from "@/hooks/useAccessibility";
+import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -35,7 +37,7 @@ const DashboardTabs = ({ activeTab, setActiveTab }: DashboardTabsProps) => {
     { id: "messaging", label: "Messages", component: EnhancedMessaging, badge: 3 },
     { id: "recommendations", label: "Recommendations", component: SmartRecommendations },
     { id: "gamification", label: "Achievements", component: GamificationPanel },
-    { id: "trust", label: "Trust", component: TrustFootprint },
+    { id: "trust", label: "Trust", component: () => <TrustFootprint trustFootprint={mockTrustFootprint} /> },
   ];
 
   if (isMobile) {

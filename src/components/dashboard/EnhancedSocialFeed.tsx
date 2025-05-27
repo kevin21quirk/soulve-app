@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import FeedFilters from "./FeedFilters";
@@ -16,7 +15,7 @@ import {
   PullToRefresh,
   useIsMobile 
 } from "@/components/ui/mobile-optimized";
-import { PostSkeleton } from "@/components/dashboard/PostSkeleton";
+import PostSkeleton from "@/components/dashboard/PostSkeleton";
 import { ErrorState, NetworkStatus } from "@/components/ui/error-states";
 import { LoadingSpinner } from "@/components/ui/skeleton-variants";
 import { Share, Heart, MessageSquare } from "lucide-react";
