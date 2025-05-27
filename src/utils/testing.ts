@@ -125,7 +125,7 @@ export const performanceTests = {
   measureRenderTime: async (renderFn: () => void): Promise<number> => {
     const start = performance.now();
     renderFn();
-    await new Promise(resolve => setTimeout(resolve, 0)); // Wait for render
+    await new Promise(resolve => setTimeout(resolve, 0));
     return performance.now() - start;
   },
 
