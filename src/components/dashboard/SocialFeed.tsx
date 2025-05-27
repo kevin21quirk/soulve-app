@@ -1,4 +1,5 @@
 
+import React, { useMemo, useCallback } from "react";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import FeedFilters from "./FeedFilters";
 import CreatePost from "./CreatePost";
@@ -6,8 +7,9 @@ import SearchBar from "./SearchBar";
 import PostSkeleton from "./PostSkeleton";
 import FeedPostCard from "./FeedPostCard";
 import { useSocialFeed } from "@/hooks/useSocialFeed";
+import { useErrorHandler } from "@/contexts/ErrorContext";
 
-const SocialFeed = () => {
+const SocialFeed = React.memo(() => {
   const {
     filteredPosts,
     activeFilter,
@@ -21,6 +23,48 @@ const SocialFeed = () => {
     handleRespond,
     getPostCounts,
   } = useSocialFeed();
+  
+  const { reportError } = useErrorHandler();
+
+  const postCounts = useMemo(() => getPostCounts(), [getPostCounts]);
+
+  const handleFilterChange = useCallback((filter: string) => {
+    try {
+      setActiveFilter(filter);
+    } catch (error) {
+      reportError(error as Error, "filter change");
+    }
+  }, [setActiveFilter, reportError]);
+
+  const handleSearchChange = useCallback((query: string) => {
+    try {
+      setSearchQuery(query);
+    } catch (error) {
+      reportError(error as Error, "search");
+    }
+  }, [setSearchQuery, reportError]);
+
+  const renderSkeletons = useMemo(() => (
+    <div className="space-y-4">
+      {[1, 2].map((i) => <PostSkeleton key={i} />)}
+    </div>
+  ), []);
+
+  const renderEmptyState = useMemo(() => (
+    <div className="text-center py-12 animate-fade-in">
+      {searchQuery ? (
+        <>
+          <p className="text-gray-500 text-lg">No posts found matching "{searchQuery}"</p>
+          <p className="text-gray-400">Try adjusting your search terms or filter.</p>
+        </>
+      ) : (
+        <>
+          <p className="text-gray-500 text-lg">No posts found for this category.</p>
+          <p className="text-gray-400">Try selecting a different filter above.</p>
+        </>
+      )}
+    </div>
+  ), [searchQuery]);
 
   return (
     <ErrorBoundary>
@@ -35,23 +79,19 @@ const SocialFeed = () => {
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <FeedFilters 
             activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            postCounts={getPostCounts()}
+            onFilterChange={handleFilterChange}
+            postCounts={postCounts}
           />
           
           <SearchBar 
-            onSearch={setSearchQuery}
+            onSearch={handleSearchChange}
             placeholder="Search posts, authors, locations..."
             className="w-full md:w-80"
           />
         </div>
 
         <div className="space-y-4">
-          {isLoading && (
-            <div className="space-y-4">
-              {[1, 2].map((i) => <PostSkeleton key={i} />)}
-            </div>
-          )}
+          {isLoading && renderSkeletons}
 
           {!isLoading && filteredPosts.map((post) => (
             <FeedPostCard
@@ -64,24 +104,12 @@ const SocialFeed = () => {
           ))}
         </div>
 
-        {!isLoading && filteredPosts.length === 0 && (
-          <div className="text-center py-12 animate-fade-in">
-            {searchQuery ? (
-              <>
-                <p className="text-gray-500 text-lg">No posts found matching "{searchQuery}"</p>
-                <p className="text-gray-400">Try adjusting your search terms or filter.</p>
-              </>
-            ) : (
-              <>
-                <p className="text-gray-500 text-lg">No posts found for this category.</p>
-                <p className="text-gray-400">Try selecting a different filter above.</p>
-              </>
-            )}
-          </div>
-        )}
+        {!isLoading && filteredPosts.length === 0 && renderEmptyState}
       </div>
     </ErrorBoundary>
   );
-};
+});
+
+SocialFeed.displayName = "SocialFeed";
 
 export default SocialFeed;
