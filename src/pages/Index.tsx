@@ -40,7 +40,7 @@ const Index = () => {
           <img 
             src="/lovable-uploads/277d412c-6e36-4592-bb09-13ca866e9d79.png" 
             alt="SouLVE - Social Feed to Social Need" 
-            className="h-40 w-auto bg-transparent"
+            className="h-48 w-auto bg-transparent"
           />
         </div>
       );
@@ -134,10 +134,10 @@ const Index = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center animate-fade-in">
             {/* Updated SouLVE Logo */}
-            <div className="flex justify-center items-center mb-8">
+            <div className="flex justify-center items-center mb-6">
               <SouLVELogo size="large" />
             </div>
             
