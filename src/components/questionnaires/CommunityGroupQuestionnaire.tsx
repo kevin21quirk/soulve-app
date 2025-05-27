@@ -1,12 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import QuestionnaireLayout from "./QuestionnaireLayout";
+import BasicInfoSection from "./community-group/BasicInfoSection";
+import ActivitiesChallengesSection from "./community-group/ActivitiesChallengesSection";
+import PlatformFeaturesSection from "./shared/PlatformFeaturesSection";
 
 const CommunityGroupQuestionnaire = () => {
   const [formData, setFormData] = useState({
@@ -44,10 +41,30 @@ const CommunityGroupQuestionnaire = () => {
     contactPhone: ""
   });
 
+  const handleInputChange = (field: string, value: string | string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePlatformFeatureChange = (key: string, value: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      platformFeatures: { ...prev.platformFeatures, [key]: value }
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Community Group Questionnaire data:", formData);
   };
+
+  const platformFeatures = [
+    { key: "eventManagement", label: "Event management system (organize and promote community events)" },
+    { key: "memberCommunication", label: "Member communication tools (coordinate and update your community)" },
+    { key: "resourceSharing", label: "Resource sharing platform (share tools, knowledge, and resources)" },
+    { key: "collaborationTools", label: "Collaboration tools (work together on community projects)" },
+    { key: "communityBuilding", label: "Community building features (connect members with similar interests)" },
+    { key: "volunteerCoordination", label: "Volunteer coordination system (organize and manage volunteers)" }
+  ];
 
   return (
     <QuestionnaireLayout 
@@ -65,203 +82,33 @@ const CommunityGroupQuestionnaire = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              required
-            />
-          </div>
+        <BasicInfoSection 
+          data={{
+            email: formData.email,
+            groupName: formData.groupName,
+            yearEstablished: formData.yearEstablished,
+            memberCount: formData.memberCount,
+            focusAreas: formData.focusAreas
+          }}
+          onChange={handleInputChange}
+        />
 
-          <div className="space-y-2">
-            <Label htmlFor="groupName">Community Group Name *</Label>
-            <Input
-              id="groupName"
-              value={formData.groupName}
-              onChange={(e) => setFormData(prev => ({ ...prev, groupName: e.target.value }))}
-              required
-            />
-          </div>
+        <ActivitiesChallengesSection
+          data={{
+            currentChallenges: formData.currentChallenges,
+            eventTypes: formData.eventTypes,
+            memberEngagement: formData.memberEngagement,
+            eventFrequency: formData.eventFrequency,
+            barriers: formData.barriers
+          }}
+          onChange={handleInputChange}
+        />
 
-          <div className="space-y-2">
-            <Label htmlFor="yearEstablished">Year Established *</Label>
-            <Input
-              id="yearEstablished"
-              type="number"
-              value={formData.yearEstablished}
-              onChange={(e) => setFormData(prev => ({ ...prev, yearEstablished: e.target.value }))}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Member Count *</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, memberCount: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select member count" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1-10">1-10 members</SelectItem>
-                <SelectItem value="11-25">11-25 members</SelectItem>
-                <SelectItem value="26-50">26-50 members</SelectItem>
-                <SelectItem value="51-100">51-100 members</SelectItem>
-                <SelectItem value="100+">100+ members</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>What areas does your community group focus on? (Select all that apply) *</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                "Neighbourhood Improvement",
-                "Social Events",
-                "Environmental Action",
-                "Cultural Activities",
-                "Education & Learning",
-                "Health & Wellness",
-                "Youth Programs",
-                "Senior Support",
-                "Community Safety",
-                "Arts & Culture",
-                "Sports & Recreation",
-                "Advocacy & Awareness"
-              ].map((area) => (
-                <div key={area} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={area}
-                    checked={formData.focusAreas.includes(area)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({ ...prev, focusAreas: [...prev.focusAreas, area] }));
-                      } else {
-                        setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.filter(item => item !== area) }));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={area}>{area}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Current Activities & Challenges</h3>
-          
-          <div className="space-y-2">
-            <Label>What are your biggest challenges? (Select all that apply) *</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                "Member recruitment",
-                "Member retention",
-                "Event planning",
-                "Communication coordination",
-                "Funding/resources",
-                "Venue booking",
-                "Volunteer coordination",
-                "Community outreach",
-                "Leadership development",
-                "Time management",
-                "Technology adoption",
-                "Measuring impact"
-              ].map((challenge) => (
-                <div key={challenge} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={challenge}
-                    checked={formData.currentChallenges.includes(challenge)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({ ...prev, currentChallenges: [...prev.currentChallenges, challenge] }));
-                      } else {
-                        setFormData(prev => ({ ...prev, currentChallenges: prev.currentChallenges.filter(item => item !== challenge) }));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={challenge}>{challenge}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>What types of events/activities do you organize? (Select all that apply)</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                "Social gatherings",
-                "Educational workshops",
-                "Community clean-ups",
-                "Fundraising events",
-                "Cultural celebrations",
-                "Sports activities",
-                "Volunteer projects",
-                "Advocacy campaigns",
-                "Networking events",
-                "Family activities",
-                "Skill-sharing sessions",
-                "Support groups"
-              ].map((eventType) => (
-                <div key={eventType} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={eventType}
-                    checked={formData.eventTypes.includes(eventType)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({ ...prev, eventTypes: [...prev.eventTypes, eventType] }));
-                      } else {
-                        setFormData(prev => ({ ...prev, eventTypes: prev.eventTypes.filter(item => item !== eventType) }));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={eventType}>{eventType}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="memberEngagement">How do you currently engage with members? *</Label>
-            <Textarea
-              id="memberEngagement"
-              value={formData.memberEngagement}
-              onChange={(e) => setFormData(prev => ({ ...prev, memberEngagement: e.target.value }))}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>How often do you organize events/activities? *</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, eventFrequency: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="annually">Annually</SelectItem>
-                <SelectItem value="ad-hoc">As needed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="barriers">What barriers prevent your group from achieving its goals? *</Label>
-            <Textarea
-              id="barriers"
-              value={formData.barriers}
-              onChange={(e) => setFormData(prev => ({ ...prev, barriers: e.target.value }))}
-              required
-            />
-          </div>
-        </div>
+        <PlatformFeaturesSection
+          features={platformFeatures}
+          values={formData.platformFeatures}
+          onChange={handlePlatformFeatureChange}
+        />
 
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Communication & Technology</h3>
