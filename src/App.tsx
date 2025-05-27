@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ProfileRegistration from "./pages/ProfileRegistration";
 import NotFound from "./pages/NotFound";
+import StandardUserQuestionnaire from "./components/questionnaires/StandardUserQuestionnaire";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/register" element={<ProfileRegistration />} />
+            <Route path="/questionnaire/standard-user" element={<StandardUserQuestionnaire />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
