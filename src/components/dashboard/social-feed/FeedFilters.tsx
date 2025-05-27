@@ -1,14 +1,22 @@
+
 import React, { useState } from "react";
 import FeedFilters from "../FeedFilters";
 import SearchBar from "../SearchBar";
 import { MobileSearchFilter } from "@/components/ui/mobile";
+
+interface PostCounts {
+  all: number;
+  "help-needed": number;
+  "help-offered": number;
+  "success-story": number;
+}
 
 interface FeedFiltersProps {
   activeFilter: string;
   onFilterChange: (filter: string) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  postCounts: Record<string, number>;
+  postCounts: PostCounts;
   isMobile: boolean;
 }
 

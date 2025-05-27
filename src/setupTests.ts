@@ -8,11 +8,18 @@ import { performanceMonitor } from './utils/performance';
 
 // Mock IntersectionObserver for lazy loading tests
 global.IntersectionObserver = class IntersectionObserver {
+  root: Element | null = null;
+  rootMargin: string = '';
+  thresholds: ReadonlyArray<number> = [];
+  
   constructor() {}
   observe() {}
   unobserve() {}
   disconnect() {}
-};
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+} as any;
 
 // Mock ResizeObserver for responsive tests
 global.ResizeObserver = class ResizeObserver {
@@ -24,10 +31,12 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock PerformanceObserver for performance tests
 global.PerformanceObserver = class PerformanceObserver {
+  static supportedEntryTypes: readonly string[] = ['navigation', 'resource'];
+  
   constructor() {}
   observe() {}
   disconnect() {}
-};
+} as any;
 
 // Mock crypto for security utilities
 if (!global.crypto) {

@@ -11,6 +11,11 @@ interface PerformanceMetric {
   timestamp: number;
 }
 
+// Global gtag function type declaration
+declare global {
+  function gtag(...args: any[]): void;
+}
+
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
   private observers: PerformanceObserver[] = [];
@@ -72,8 +77,8 @@ class PerformanceMonitor {
     this.metrics.push(metric);
     
     // Report to analytics if available
-    if (typeof gtag !== 'undefined') {
-      gtag('event', name, {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as any).gtag('event', name, {
         event_category: 'Performance',
         value: Math.round(value),
       });
