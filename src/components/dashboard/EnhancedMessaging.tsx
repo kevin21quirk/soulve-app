@@ -1,7 +1,7 @@
 
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
-import { useMessaging } from "@/hooks/useMessaging";
+import { useEnhancedMessaging } from "@/hooks/useEnhancedMessaging";
 
 const EnhancedMessaging = () => {
   const {
@@ -12,8 +12,18 @@ const EnhancedMessaging = () => {
     conversations,
     messages,
     selectedConv,
+    filters,
+    setFilters,
+    showParticipants,
+    setShowParticipants,
+    replyingTo,
+    setReplyingTo,
     handleSendMessage,
-  } = useMessaging();
+    handleReactToMessage,
+    handleTogglePin,
+    handleToggleMute,
+    handleArchiveConversation,
+  } = useEnhancedMessaging();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
@@ -21,6 +31,11 @@ const EnhancedMessaging = () => {
         conversations={conversations}
         selectedConversation={selectedConversation}
         onSelectConversation={setSelectedConversation}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onTogglePin={handleTogglePin}
+        onToggleMute={handleToggleMute}
+        onArchiveConversation={handleArchiveConversation}
       />
       
       <MessageThread
@@ -29,6 +44,11 @@ const EnhancedMessaging = () => {
         newMessage={newMessage}
         setNewMessage={setNewMessage}
         onSendMessage={handleSendMessage}
+        showParticipants={showParticipants}
+        setShowParticipants={setShowParticipants}
+        replyingTo={replyingTo}
+        setReplyingTo={setReplyingTo}
+        onReactToMessage={handleReactToMessage}
       />
     </div>
   );
