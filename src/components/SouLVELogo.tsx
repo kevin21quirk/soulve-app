@@ -1,5 +1,6 @@
 
 
+
 interface SouLVELogoProps {
   size?: "small" | "large";
 }
@@ -11,7 +12,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
     return (
       <div className="flex items-center justify-center w-full">
         <img 
-          src="/lovable-uploads/06cc5886-0762-4188-98c7-b3dc24fc4e38.png" 
+          src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
           alt="SouLVE - Social Feed to Social Need" 
           className="w-full max-w-7xl h-48 object-contain"
         />
@@ -21,7 +22,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
     return (
       <div className="flex items-center space-x-2">
         <img 
-          src="/lovable-uploads/06cc5886-0762-4188-98c7-b3dc24fc4e38.png" 
+          src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
           alt="SouLVE Icon" 
           className="h-8 w-8"
         />
@@ -34,3 +35,4 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
 };
 
 export default SouLVELogo;
+
