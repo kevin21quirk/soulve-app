@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X, Settings } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MediaUpload from "./MediaUpload";
 import PostOptions from "./PostOptions";
@@ -17,7 +17,6 @@ interface CreatePostProps {
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [formData, setFormData] = useState<PostFormData>({
     title: "",
@@ -86,7 +85,6 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     });
     setMediaFiles([]);
     setIsExpanded(false);
-    setShowOptions(false);
     
     toast({
       title: "Post created!",
@@ -120,23 +118,13 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Create New Post</CardTitle>
-          <div className="flex space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setShowOptions(!showOptions)}
-              className={showOptions ? "bg-blue-50 text-blue-600" : ""}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Input
               placeholder="What's the title of your post?"
@@ -171,15 +159,13 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
             maxFileSize={10}
           />
 
-          {/* Advanced Options */}
-          {showOptions && (
-            <PostOptions
-              formData={formData}
-              onFormDataChange={handleInputChange}
-            />
-          )}
+          {/* Post Options - Always Visible */}
+          <PostOptions
+            formData={formData}
+            onFormDataChange={handleInputChange}
+          />
 
-          <div className="flex justify-end space-x-2 pt-2">
+          <div className="flex justify-end space-x-2 pt-4 border-t">
             <Button type="button" variant="outline" onClick={() => setIsExpanded(false)}>
               Cancel
             </Button>

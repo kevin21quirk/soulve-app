@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Clock, Globe, Users, Lock, X } from "lucide-react";
+import { CalendarIcon, Globe, Users, Lock, X } from "lucide-react";
 import { format } from "date-fns";
 import { FEELINGS, URGENCY_LEVELS, POST_CATEGORIES, PostFormData } from "./CreatePostTypes";
 
@@ -44,9 +44,7 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
   };
 
   return (
-    <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-      <h4 className="font-medium text-gray-900">Post Options</h4>
-      
+    <div className="space-y-6">
       {/* Category and Urgency */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -99,6 +97,7 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
               size="sm"
               onClick={() => onFormDataChange('feeling', feeling.value)}
               className="flex items-center space-x-1"
+              type="button"
             >
               <span>{feeling.emoji}</span>
               <span className="text-xs">{feeling.label}</span>
@@ -123,10 +122,10 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
             placeholder="Add a tag..."
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && addTag()}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
             className="flex-1"
           />
-          <Button onClick={addTag} size="sm" variant="outline">Add</Button>
+          <Button onClick={addTag} size="sm" variant="outline" type="button">Add</Button>
         </div>
       </div>
 
@@ -191,7 +190,7 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
         {showSchedule && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-left font-normal">
+              <Button variant="outline" className="w-full justify-start text-left font-normal" type="button">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {formData.scheduledFor ? format(formData.scheduledFor, "PPP") : "Pick a date"}
               </Button>
@@ -208,9 +207,9 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
         )}
       </div>
 
-      {/* Display selected urgency and feeling */}
-      {(formData.urgency !== 'low' || formData.feeling) && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t">
+      {/* Display selected options as summary */}
+      {(formData.urgency !== 'low' || formData.feeling || formData.tags.length > 0) && (
+        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
           {formData.urgency !== 'low' && (
             <Badge className={getUrgencyConfig().color}>
               {getUrgencyConfig().icon} {getUrgencyConfig().label}
@@ -223,8 +222,13 @@ const PostOptions = ({ formData, onFormDataChange }: PostOptionsProps) => {
           )}
           <Badge variant="outline" className="flex items-center space-x-1">
             {getVisibilityIcon()}
-            <span>{formData.visibility}</span>
+            <span className="capitalize">{formData.visibility}</span>
           </Badge>
+          {formData.tags.length > 0 && (
+            <Badge variant="outline">
+              {formData.tags.length} tag{formData.tags.length !== 1 ? 's' : ''}
+            </Badge>
+          )}
         </div>
       )}
     </div>
