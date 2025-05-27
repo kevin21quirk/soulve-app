@@ -8,6 +8,7 @@ import { ErrorProvider } from "@/contexts/ErrorContext";
 import { queryClient } from "@/services/api";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import ProfileRegistration from "./pages/ProfileRegistration";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -20,6 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/register" element={<ProfileRegistration />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
