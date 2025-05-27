@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Bell, Keyboard, Search, Users, UserPlus, Activity } from "lucide-react";
@@ -17,6 +16,7 @@ interface DashboardHeaderProps {
   setShowShortcuts: (show: boolean) => void;
   showActivity: boolean;
   setShowActivity: (show: boolean) => void;
+  onNavigateToTab: (tab: string) => void;
 }
 
 const DashboardHeader = ({
@@ -28,6 +28,7 @@ const DashboardHeader = ({
   setShowShortcuts,
   showActivity,
   setShowActivity,
+  onNavigateToTab,
 }: DashboardHeaderProps) => {
   const { toast } = useToast();
 
@@ -39,6 +40,22 @@ const DashboardHeader = ({
       });
       console.log("Global search:", query);
     }
+  };
+
+  const handleMyNetworkClick = () => {
+    onNavigateToTab("connections");
+    toast({
+      title: "Navigating to My Network",
+      description: "Explore your connections and build new relationships.",
+    });
+  };
+
+  const handleHelpSomeoneClick = () => {
+    onNavigateToTab("help-center");
+    toast({
+      title: "Opening Help Center",
+      description: "Find comprehensive ways to support your community.",
+    });
   };
 
   return (
@@ -108,11 +125,20 @@ const DashboardHeader = ({
               </PopoverContent>
             </Popover>
 
-            <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hover:scale-105 transition-transform"
+              onClick={handleMyNetworkClick}
+            >
               <Users className="h-4 w-4 mr-2" />
               My Network
             </Button>
-            <Button size="sm" className="hover:scale-105 transition-transform">
+            <Button 
+              size="sm" 
+              className="hover:scale-105 transition-transform"
+              onClick={handleHelpSomeoneClick}
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Help Someone
             </Button>
