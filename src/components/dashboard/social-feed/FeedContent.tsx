@@ -1,0 +1,142 @@
+
+import React from "react";
+import { PullToRefresh, MobileActionBar } from "@/components/ui/mobile-optimized";
+import { useKeyboardNavigation } from "@/hooks/useAccessibility";
+import { useDebounce, useLazyLoading } from "@/hooks/usePerformanceOptimization";
+import PostSkeleton from "../PostSkeleton";
+import FeedPostCard from "../FeedPostCard";
+import { LoadingSpinner } from "@/components/ui/skeleton-variants";
+import { Share, Heart, MessageSquare } from "lucide-react";
+import { FeedPost } from "@/types/feed";
+
+interface FeedContentProps {
+  posts: FeedPost[];
+  isLoading: boolean;
+  searchQuery: string;
+  onLike: (postId: string) => void;
+  onShare: (postId: string) => void;
+  onRespond: (postId: string) => void;
+  onRefresh: () => Promise<void>;
+  isMobile: boolean;
+}
+
+/**
+ * Main content area for the social feed
+ * Handles post display, loading states, and interactions
+ */
+const FeedContent: React.FC<FeedContentProps> = ({
+  posts,
+  isLoading,
+  searchQuery,
+  onLike,
+  onShare,
+  onRespond,
+  onRefresh,
+  isMobile,
+}) => {
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { ref: loadMoreRef, isIntersecting } = useLazyLoading();
+  const { activeIndex } = useKeyboardNavigation(posts, (index) => {
+    const post = posts[index];
+    // Announce to screen readers
+  });
+
+  const mobileActions = isMobile ? [
+    {
+      label: "Like",
+      icon: Heart,
+      onClick: () => {
+        if (posts[0]) {
+          onLike(posts[0].id);
+        }
+      },
+    },
+    {
+      label: "Share",
+      icon: Share,
+      onClick: () => {
+        if (posts[0]) {
+          onShare(posts[0].id);
+        }
+      },
+    },
+    {
+      label: "Respond",
+      icon: MessageSquare,
+      onClick: () => {
+        if (posts[0]) {
+          onRespond(posts[0].id);
+        }
+      },
+    },
+  ] : [];
+
+  const renderEmptyState = () => (
+    <div className="text-center py-12 animate-fade-in">
+      {debouncedSearchQuery ? (
+        <>
+          <p className="text-gray-500 text-lg">No posts found matching "{debouncedSearchQuery}"</p>
+          <p className="text-gray-400">Try adjusting your search terms or filter.</p>
+        </>
+      ) : (
+        <>
+          <p className="text-gray-500 text-lg">No posts found for this category.</p>
+          <p className="text-gray-400">Try selecting a different filter above.</p>
+        </>
+      )}
+    </div>
+  );
+
+  const content = (
+    <div className="space-y-4">
+      {isLoading && (
+        <div className="space-y-4">
+          {[1, 2].map((i) => <PostSkeleton key={i} />)}
+        </div>
+      )}
+
+      {!isLoading && posts.map((post, index) => (
+        <div
+          key={post.id}
+          className={`transition-all duration-200 ${
+            activeIndex === index ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
+          }`}
+          tabIndex={0}
+          role="article"
+          aria-label={`Post by ${post.author}: ${post.title}`}
+        >
+          <FeedPostCard
+            post={post}
+            onLike={onLike}
+            onShare={onShare}
+            onRespond={onRespond}
+          />
+        </div>
+      ))}
+
+      {!isLoading && posts.length > 0 && (
+        <div ref={loadMoreRef} className="flex justify-center py-4">
+          {isIntersecting && <LoadingSpinner />}
+        </div>
+      )}
+
+      {!isLoading && posts.length === 0 && renderEmptyState()}
+    </div>
+  );
+
+  return (
+    <>
+      {isMobile ? (
+        <PullToRefresh onRefresh={onRefresh}>
+          {content}
+        </PullToRefresh>
+      ) : (
+        content
+      )}
+      
+      <MobileActionBar actions={mobileActions} />
+    </>
+  );
+};
+
+export default FeedContent;
