@@ -9,6 +9,8 @@ import UserProfileBanner from "./UserProfileBanner";
 import UserProfileHeader from "./UserProfileHeader";
 import UserProfileEditForm from "./UserProfileEditForm";
 import UserProfileDisplay from "./UserProfileDisplay";
+import ImpactFootprint from "./ImpactFootprint";
+import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 const UserProfile = () => {
   const { toast } = useToast();
@@ -162,31 +164,39 @@ const UserProfile = () => {
   }
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl">Profile</CardTitle>
-          <Button onClick={handleEdit} variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Profile
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <UserProfileBanner
-          banner={profileData.banner}
-          bannerType={profileData.bannerType}
-          bannerFile={null}
-          onBannerUpload={() => {}}
-          onRemoveBanner={() => {}}
-          isEditing={false}
-        />
-        
-        <UserProfileHeader profileData={profileData} isEditing={false} />
-        
-        <UserProfileDisplay profileData={profileData} />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">Profile</CardTitle>
+            <Button onClick={handleEdit} variant="outline" size="sm">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <UserProfileBanner
+            banner={profileData.banner}
+            bannerType={profileData.bannerType}
+            bannerFile={null}
+            onBannerUpload={() => {}}
+            onRemoveBanner={() => {}}
+            isEditing={false}
+          />
+          
+          <UserProfileHeader profileData={profileData} isEditing={false} />
+          
+          <UserProfileDisplay profileData={profileData} />
+        </CardContent>
+      </Card>
+      
+      {/* Impact Footprint Section */}
+      <ImpactFootprint 
+        activities={mockTrustFootprint.activities}
+        userName={profileData.name}
+      />
+    </div>
   );
 };
 
