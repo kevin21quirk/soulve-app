@@ -65,41 +65,41 @@ export const analyticsDataSchema = z.object({
   })),
 });
 
-// Validation Functions
+// Type-safe validation functions
 export const validateFeedPost = (data: unknown) => {
-  try {
-    return feedPostSchema.parse(data);
-  } catch (error) {
-    console.error('Feed post validation failed:', error);
+  const result = feedPostSchema.safeParse(data);
+  if (!result.success) {
+    console.error('Feed post validation failed:', result.error);
     throw new Error('Invalid feed post data');
   }
+  return result.data;
 };
 
 export const validateConnectionRequest = (data: unknown) => {
-  try {
-    return connectionRequestSchema.parse(data);
-  } catch (error) {
-    console.error('Connection request validation failed:', error);
+  const result = connectionRequestSchema.safeParse(data);
+  if (!result.success) {
+    console.error('Connection request validation failed:', result.error);
     throw new Error('Invalid connection request data');
   }
+  return result.data;
 };
 
 export const validateMessage = (data: unknown) => {
-  try {
-    return messageSchema.parse(data);
-  } catch (error) {
-    console.error('Message validation failed:', error);
+  const result = messageSchema.safeParse(data);
+  if (!result.success) {
+    console.error('Message validation failed:', result.error);
     throw new Error('Invalid message data');
   }
+  return result.data;
 };
 
 export const validateAnalyticsData = (data: unknown) => {
-  try {
-    return analyticsDataSchema.parse(data);
-  } catch (error) {
-    console.error('Analytics data validation failed:', error);
+  const result = analyticsDataSchema.safeParse(data);
+  if (!result.success) {
+    console.error('Analytics data validation failed:', result.error);
     throw new Error('Invalid analytics data');
   }
+  return result.data;
 };
 
 // Data Sanitization

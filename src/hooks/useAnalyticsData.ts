@@ -12,7 +12,7 @@ export const useAnalyticsData = () => {
     console.error('Analytics data error:', error);
   }
 
-  // Return the data in the expected format, with fallbacks
+  // Return the data in the expected format, with proper fallbacks
   return {
     helpActivityData: data?.helpActivityData || [],
     engagementData: data?.engagementData || [],

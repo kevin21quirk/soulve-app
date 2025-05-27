@@ -27,11 +27,11 @@ export const useFeedPosts = () => {
       try {
         // Try to fetch from API first
         const data = await apiClient.get<FeedPost[]>('/posts');
-        return data.map(validateFeedPost);
+        return data.map(post => validateFeedPost(post));
       } catch (error) {
         console.log('API unavailable, using mock data');
         // Fallback to mock data
-        return mockPosts.map(validateFeedPost);
+        return mockPosts.map(post => validateFeedPost(post));
       }
     },
     staleTime: 2 * 60 * 1000, // 2 minutes for frequently updated content
@@ -44,10 +44,10 @@ export const useConnections = () => {
     queryFn: async (): Promise<ConnectionRequest[]> => {
       try {
         const data = await apiClient.get<ConnectionRequest[]>('/connections');
-        return data.map(validateConnectionRequest);
+        return data.map(connection => validateConnectionRequest(connection));
       } catch (error) {
         console.log('API unavailable, using mock data');
-        return mockConnections.map(validateConnectionRequest);
+        return mockConnections.map(connection => validateConnectionRequest(connection));
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -76,10 +76,10 @@ export const useMessages = (conversationId: string) => {
     queryFn: async (): Promise<Message[]> => {
       try {
         const data = await apiClient.get<Message[]>(`/conversations/${conversationId}/messages`);
-        return data.map(validateMessage);
+        return data.map(message => validateMessage(message));
       } catch (error) {
         console.log('API unavailable, using mock data');
-        return mockMessages.map(validateMessage);
+        return mockMessages.map(message => validateMessage(message));
       }
     },
     enabled: !!conversationId,
