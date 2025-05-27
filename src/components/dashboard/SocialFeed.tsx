@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,6 +6,9 @@ import { MessageSquare, Users, Send, Heart, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FeedFilters from "./FeedFilters";
 import CreatePost from "./CreatePost";
+import SearchBar from "./SearchBar";
+import PostSkeleton from "./PostSkeleton";
+import ErrorBoundary from "@/components/ui/error-boundary";
 
 interface FeedPost {
   id: string;
@@ -24,6 +27,8 @@ interface FeedPost {
 const SocialFeed = () => {
   const { toast } = useToast();
   const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState<FeedPost[]>([
     {
       id: "1",
@@ -93,7 +98,16 @@ const SocialFeed = () => {
   ]);
 
   const handlePostCreated = (newPost: FeedPost) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
+    setIsLoading(true);
+    // Simulate network delay
+    setTimeout(() => {
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+      setIsLoading(false);
+      toast({
+        title: "Post published!",
+        description: "Your post is now live in the community feed.",
+      });
+    }, 800);
   };
 
   const handleLike = (postId: string) => {
@@ -124,9 +138,22 @@ const SocialFeed = () => {
     });
   };
 
-  const filteredPosts = activeFilter === "all" 
-    ? posts 
-    : posts.filter(post => post.category === activeFilter);
+  const filteredPosts = useMemo(() => {
+    let filtered = activeFilter === "all" 
+      ? posts 
+      : posts.filter(post => post.category === activeFilter);
+
+    if (searchQuery) {
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.location.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return filtered;
+  }, [posts, activeFilter, searchQuery]);
 
   const getPostCounts = () => ({
     all: posts.length,
@@ -154,103 +181,128 @@ const SocialFeed = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Feed</h2>
-        <p className="text-gray-600">See what your community needs and how you can help</p>
-      </div>
+    <ErrorBoundary>
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Feed</h2>
+          <p className="text-gray-600">See what your community needs and how you can help</p>
+        </div>
 
-      <CreatePost onPostCreated={handlePostCreated} />
+        <CreatePost onPostCreated={handlePostCreated} />
 
-      <FeedFilters 
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-        postCounts={getPostCounts()}
-      />
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <FeedFilters 
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            postCounts={getPostCounts()}
+          />
+          
+          <SearchBar 
+            onSearch={setSearchQuery}
+            placeholder="Search posts, authors, locations..."
+            className="w-full md:w-80"
+          />
+        </div>
 
-      <div className="space-y-4">
-        {filteredPosts.map((post) => (
-          <Card key={post.id} className={`border-l-4 ${getCategoryColor(post.category)} hover:shadow-lg transition-shadow`}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarImage src={post.avatar} />
-                    <AvatarFallback>{post.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-lg">{post.title}</CardTitle>
-                    <CardDescription className="flex items-center space-x-2">
-                      <span>{post.author}</span>
-                      <span>•</span>
-                      <span>{post.timestamp}</span>
-                      <span>•</span>
-                      <span>{post.location}</span>
-                    </CardDescription>
+        <div className="space-y-4">
+          {isLoading && (
+            <div className="space-y-4">
+              {[1, 2].map((i) => <PostSkeleton key={i} />)}
+            </div>
+          )}
+
+          {!isLoading && filteredPosts.map((post) => (
+            <Card key={post.id} className={`border-l-4 ${getCategoryColor(post.category)} hover:shadow-lg transition-all duration-200 hover:scale-[1.01]`}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="hover:scale-110 transition-transform">
+                      <AvatarImage src={post.avatar} />
+                      <AvatarFallback>{post.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-lg hover:text-blue-600 transition-colors cursor-pointer">{post.title}</CardTitle>
+                      <CardDescription className="flex items-center space-x-2">
+                        <span>{post.author}</span>
+                        <span>•</span>
+                        <span>{post.timestamp}</span>
+                        <span>•</span>
+                        <span>{post.location}</span>
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-white border">
+                    {getCategoryLabel(post.category)}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 mb-4">{post.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <span className="flex items-center space-x-1">
+                      <MessageSquare className="h-4 w-4" />
+                      <span>{post.responses} responses</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <Heart className="h-4 w-4" />
+                      <span>{post.likes} likes</span>
+                    </span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleLike(post.id)}
+                      className={`transition-all duration-200 ${post.isLiked ? "text-red-500 border-red-200 bg-red-50" : "hover:scale-105"}`}
+                    >
+                      <Heart className={`h-4 w-4 mr-2 ${post.isLiked ? "fill-red-500" : ""}`} />
+                      {post.isLiked ? "Liked" : "Like"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleShare(post.id)} className="hover:scale-105 transition-transform">
+                      <Share className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Comment
+                    </Button>
+                    {post.category === "help-needed" && (
+                      <Button size="sm" onClick={() => handleRespond(post.id)} className="hover:scale-105 transition-transform">
+                        <Send className="h-4 w-4 mr-2" />
+                        Offer Help
+                      </Button>
+                    )}
+                    {post.category === "help-offered" && (
+                      <Button size="sm" onClick={() => handleRespond(post.id)} className="hover:scale-105 transition-transform">
+                        <Users className="h-4 w-4 mr-2" />
+                        Request Help
+                      </Button>
+                    )}
                   </div>
                 </div>
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-white border">
-                  {getCategoryLabel(post.category)}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 mb-4">{post.description}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="flex items-center space-x-1">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>{post.responses} responses</span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <Heart className="h-4 w-4" />
-                    <span>{post.likes} likes</span>
-                  </span>
-                </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleLike(post.id)}
-                    className={post.isLiked ? "text-red-500 border-red-200" : ""}
-                  >
-                    <Heart className={`h-4 w-4 mr-2 ${post.isLiked ? "fill-red-500" : ""}`} />
-                    {post.isLiked ? "Liked" : "Like"}
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleShare(post.id)}>
-                    <Share className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Comment
-                  </Button>
-                  {post.category === "help-needed" && (
-                    <Button size="sm" onClick={() => handleRespond(post.id)}>
-                      <Send className="h-4 w-4 mr-2" />
-                      Offer Help
-                    </Button>
-                  )}
-                  {post.category === "help-offered" && (
-                    <Button size="sm" onClick={() => handleRespond(post.id)}>
-                      <Users className="h-4 w-4 mr-2" />
-                      Request Help
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredPosts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No posts found for this category.</p>
-          <p className="text-gray-400">Try selecting a different filter above.</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
-    </div>
+
+        {!isLoading && filteredPosts.length === 0 && (
+          <div className="text-center py-12 animate-fade-in">
+            {searchQuery ? (
+              <>
+                <p className="text-gray-500 text-lg">No posts found matching "{searchQuery}"</p>
+                <p className="text-gray-400">Try adjusting your search terms or filter.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-500 text-lg">No posts found for this category.</p>
+                <p className="text-gray-400">Try selecting a different filter above.</p>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 };
 
