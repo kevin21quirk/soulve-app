@@ -3,15 +3,80 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Upload, UserPlus, Users, Send } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MessageSquare, Upload, UserPlus, Users, Send, Bell, Keyboard, Search } from "lucide-react";
 import SocialFeed from "@/components/dashboard/SocialFeed";
 import ContentUpload from "@/components/dashboard/ContentUpload";
 import EnhancedConnections from "@/components/dashboard/EnhancedConnections";
 import EnhancedMessaging from "@/components/dashboard/EnhancedMessaging";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
+import KeyboardShortcuts from "@/components/dashboard/KeyboardShortcuts";
+import SearchBar from "@/components/dashboard/SearchBar";
 import ErrorBoundary from "@/components/ui/error-boundary";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("feed");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const { toast } = useToast();
+
+  // Keyboard shortcuts configuration
+  const shortcuts = [
+    {
+      key: 'k',
+      ctrlKey: true,
+      action: () => setShowSearch(true),
+      description: 'Open search'
+    },
+    {
+      key: 'n',
+      ctrlKey: true,
+      action: () => setActiveTab('upload'),
+      description: 'Create new post'
+    },
+    {
+      key: 'm',
+      ctrlKey: true,
+      action: () => setActiveTab('messages'),
+      description: 'Open messages'
+    },
+    {
+      key: 'c',
+      ctrlKey: true,
+      shiftKey: true,
+      action: () => setActiveTab('connections'),
+      description: 'Open connections'
+    },
+    {
+      key: 'Escape',
+      action: () => {
+        setShowSearch(false);
+        setShowNotifications(false);
+        setShowShortcuts(false);
+      },
+      description: 'Close modals'
+    },
+    {
+      key: '?',
+      action: () => setShowShortcuts(true),
+      description: 'Show shortcuts'
+    }
+  ];
+
+  useKeyboardShortcuts(shortcuts);
+
+  const handleGlobalSearch = (query: string) => {
+    if (query) {
+      toast({
+        title: "Searching...",
+        description: `Looking for "${query}" across all content.`,
+      });
+      console.log("Global search:", query);
+    }
+  };
 
   return (
     <ErrorBoundary>
@@ -28,7 +93,53 @@ const Dashboard = () => {
                 />
                 <h1 className="text-2xl font-bold text-gray-900">SouLVE</h1>
               </div>
+              
+              {/* Enhanced Header Controls */}
               <div className="flex items-center space-x-4">
+                {/* Global Search */}
+                <Popover open={showSearch} onOpenChange={setShowSearch}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <Search className="h-4 w-4 mr-2" />
+                      Search
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-4">
+                    <SearchBar 
+                      onSearch={handleGlobalSearch}
+                      placeholder="Search posts, people, locations..."
+                      className="w-full"
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {/* Notifications */}
+                <Popover open={showNotifications} onOpenChange={setShowNotifications}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform relative">
+                      <Bell className="h-4 w-4" />
+                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">3</span>
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-96 p-0">
+                    <NotificationCenter />
+                  </PopoverContent>
+                </Popover>
+
+                {/* Keyboard Shortcuts */}
+                <Popover open={showShortcuts} onOpenChange={setShowShortcuts}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <Keyboard className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-96 p-0">
+                    <KeyboardShortcuts />
+                  </PopoverContent>
+                </Popover>
+
                 <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
                   <Users className="h-4 w-4 mr-2" />
                   My Network
