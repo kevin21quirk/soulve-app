@@ -8,9 +8,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import MediaUpload from "./MediaUpload";
+
+interface MediaFile {
+  id: string;
+  file: File;
+  type: 'image' | 'video';
+  preview: string;
+  size: number;
+}
 
 const ContentUpload = () => {
   const { toast } = useToast();
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -24,7 +34,7 @@ const ContentUpload = () => {
     e.preventDefault();
     toast({
       title: "Post shared successfully!",
-      description: "Your request has been posted to the community feed.",
+      description: `Your request has been posted to the community feed${mediaFiles.length > 0 ? ` with ${mediaFiles.length} media file(s)` : ''}.`,
     });
     setFormData({
       title: "",
@@ -34,10 +44,15 @@ const ContentUpload = () => {
       urgency: "",
       contactMethod: ""
     });
+    setMediaFiles([]);
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMediaChange = (files: MediaFile[]) => {
+    setMediaFiles(files);
   };
 
   return (
@@ -79,6 +94,16 @@ const ContentUpload = () => {
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 rows={4}
                 required
+              />
+            </div>
+
+            {/* Media Upload Section */}
+            <div className="space-y-2">
+              <Label>Add Photos or Videos</Label>
+              <MediaUpload
+                onMediaChange={handleMediaChange}
+                maxFiles={5}
+                maxFileSize={10}
               />
             </div>
 

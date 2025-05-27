@@ -1,4 +1,11 @@
 
+export interface MediaItem {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  filename: string;
+}
+
 export interface FeedPost {
   id: string;
   author: string;
@@ -11,4 +18,5 @@ export interface FeedPost {
   responses: number;
   likes: number;
   isLiked: boolean;
+  media?: MediaItem[];
 }

@@ -8,6 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import MediaUpload from "./MediaUpload";
+
+interface MediaFile {
+  id: string;
+  file: File;
+  type: 'image' | 'video';
+  preview: string;
+  size: number;
+}
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;
@@ -16,6 +25,7 @@ interface CreatePostProps {
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -45,11 +55,18 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       location: formData.location || "Your area",
       responses: 0,
       likes: 0,
-      isLiked: false
+      isLiked: false,
+      media: mediaFiles.map(file => ({
+        id: file.id,
+        type: file.type,
+        url: file.preview,
+        filename: file.file.name
+      }))
     };
 
     onPostCreated(newPost);
     setFormData({ title: "", description: "", category: "", location: "" });
+    setMediaFiles([]);
     setIsExpanded(false);
     
     toast({
@@ -60,6 +77,10 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMediaChange = (files: MediaFile[]) => {
+    setMediaFiles(files);
   };
 
   if (!isExpanded) {
@@ -105,6 +126,13 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               required
             />
           </div>
+
+          {/* Media Upload Section */}
+          <MediaUpload
+            onMediaChange={handleMediaChange}
+            maxFiles={5}
+            maxFileSize={10}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
