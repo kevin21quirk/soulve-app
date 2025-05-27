@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,8 @@ import { Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MediaUpload from "./MediaUpload";
 import PostOptions from "./PostOptions";
-import { MediaFile, PostFormData } from "./CreatePostTypes";
+import { PostFormData } from "./CreatePostTypes";
+import { MediaFile } from "./media-upload/MediaUploadTypes";
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;

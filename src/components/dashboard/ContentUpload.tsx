@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,14 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MediaUpload from "./MediaUpload";
-
-interface MediaFile {
-  id: string;
-  file: File;
-  type: 'image' | 'video';
-  preview: string;
-  size: number;
-}
+import { MediaFile } from "./media-upload/MediaUploadTypes";
 
 const ContentUpload = () => {
   const { toast } = useToast();
