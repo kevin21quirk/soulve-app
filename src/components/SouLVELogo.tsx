@@ -12,7 +12,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
         <img 
           src="/lovable-uploads/277d412c-6e36-4592-bb09-13ca866e9d79.png" 
           alt="SouLVE - Social Feed to Social Need" 
-          className="h-48 w-auto bg-transparent"
+          className="h-48 w-auto"
         />
       </div>
     );
