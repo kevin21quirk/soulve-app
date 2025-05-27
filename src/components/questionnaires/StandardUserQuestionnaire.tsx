@@ -32,7 +32,8 @@ const StandardUserQuestionnaire = () => {
     interestedFeatures: [],
     encouragement: "",
     concerns: "",
-    mostValuable: ""
+    mostValuable: "",
+    additionalComments: ""
   });
 
   const handleInputChange = (field: string, value: any) => {
@@ -64,7 +65,7 @@ const StandardUserQuestionnaire = () => {
           <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
           
           <div className="space-y-2">
-            <Label htmlFor="name">What name would you like to use on SouLVE?</Label>
+            <Label htmlFor="name">What name would you like to use on SouLVE? *</Label>
             <Input
               id="name"
               value={formData.name}
@@ -74,7 +75,7 @@ const StandardUserQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="neighbourhood">Which neighbourhood or area do you live in?</Label>
+            <Label htmlFor="neighbourhood">Which neighbourhood or area do you live in? *</Label>
             <Input
               id="neighbourhood"
               value={formData.neighbourhood}
@@ -84,7 +85,7 @@ const StandardUserQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>How did you hear about SouLVE?</Label>
+            <Label>How did you hear about SouLVE? *</Label>
             <Select onValueChange={(value) => handleInputChange("howHeard", value)} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
@@ -113,14 +114,19 @@ const StandardUserQuestionnaire = () => {
           <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Your Interests</h3>
           
           <div className="space-y-2">
-            <Label>What types of community activities interest you? (Select all that apply)</Label>
+            <Label>What types of community activities interest you? (Select all that apply) *</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
                 "Local events",
                 "Neighbourhood projects", 
                 "Social gatherings",
                 "Skill sharing",
-                "Support groups"
+                "Support groups",
+                "Environmental projects",
+                "Cultural activities",
+                "Sports and fitness",
+                "Educational workshops",
+                "Volunteering opportunities"
               ].map((interest) => (
                 <div key={interest} className="flex items-center space-x-2">
                   <Checkbox
@@ -135,7 +141,7 @@ const StandardUserQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>How connected do you feel to your local community?</Label>
+            <Label>How connected do you feel to your local community? *</Label>
             <Select onValueChange={(value) => handleInputChange("communityConnection", value)} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
@@ -164,7 +170,8 @@ const StandardUserQuestionnaire = () => {
                 "Technology help",
                 "Childcare or pet sitting",
                 "Companionship or conversation",
-                "Advice or information"
+                "Advice or information",
+                "Emergency support"
               ].map((help) => (
                 <div key={help} className="flex items-center space-x-2">
                   <Checkbox
@@ -210,7 +217,208 @@ const StandardUserQuestionnaire = () => {
           </div>
         </div>
 
-        {/* Additional sections would continue here following the same pattern */}
+        {/* Help You Can Offer */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Help You Can Offer</h3>
+          
+          <div className="space-y-2">
+            <Label>What types of help could you offer to others? (Select all that apply)</Label>
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                "Household tasks",
+                "Transportation assistance",
+                "Shopping or errands",
+                "Technology help",
+                "Childcare or pet sitting",
+                "Companionship or conversation",
+                "Professional advice",
+                "Teaching or tutoring",
+                "Emergency support"
+              ].map((help) => (
+                <div key={help} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={help}
+                    checked={formData.helpOffered.includes(help)}
+                    onCheckedChange={(checked) => handleCheckboxChange("helpOffered", help, checked as boolean)}
+                  />
+                  <Label htmlFor={help}>{help}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="skills">What skills or expertise do you have that might be helpful to others?</Label>
+            <Textarea
+              id="skills"
+              value={formData.skills}
+              onChange={(e) => handleInputChange("skills", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>How much time per month could you dedicate to helping others?</Label>
+            <Select onValueChange={(value) => handleInputChange("timeAvailable", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time availability" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1-3-hours">1-3 hours per month</SelectItem>
+                <SelectItem value="4-8-hours">4-8 hours per month</SelectItem>
+                <SelectItem value="9-15-hours">9-15 hours per month</SelectItem>
+                <SelectItem value="15+-hours">15+ hours per month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Platform Features */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Platform Features</h3>
+          
+          <div className="space-y-2">
+            <Label>How would you prefer to be notified about help requests or opportunities?</Label>
+            <Select onValueChange={(value) => handleInputChange("notificationPreference", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select notification preference" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="immediate">Immediate notifications</SelectItem>
+                <SelectItem value="daily">Daily digest</SelectItem>
+                <SelectItem value="weekly">Weekly summary</SelectItem>
+                <SelectItem value="manual">I'll check manually</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>When are you typically available to help?</Label>
+            <Select onValueChange={(value) => handleInputChange("helpTiming", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select availability" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="weekday-mornings">Weekday mornings</SelectItem>
+                <SelectItem value="weekday-afternoons">Weekday afternoons</SelectItem>
+                <SelectItem value="weekday-evenings">Weekday evenings</SelectItem>
+                <SelectItem value="weekends">Weekends</SelectItem>
+                <SelectItem value="flexible">Flexible/varies</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>How important is identity verification for people offering help?</Label>
+            <Select onValueChange={(value) => handleInputChange("verificationImportance", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select importance level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="extremely-important">Extremely important</SelectItem>
+                <SelectItem value="very-important">Very important</SelectItem>
+                <SelectItem value="somewhat-important">Somewhat important</SelectItem>
+                <SelectItem value="not-important">Not particularly important</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Would you be willing to go through identity verification yourself?</Label>
+            <Select onValueChange={(value) => handleInputChange("identityVerification", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select willingness" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="yes-immediately">Yes, immediately</SelectItem>
+                <SelectItem value="yes-eventually">Yes, but not right away</SelectItem>
+                <SelectItem value="maybe">Maybe, depending on requirements</SelectItem>
+                <SelectItem value="no">No, I prefer to remain anonymous</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Platform Usage */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Platform Usage</h3>
+          
+          <div className="space-y-2">
+            <Label>How do you think you'd primarily use SouLVE?</Label>
+            <Select onValueChange={(value) => handleInputChange("platformUsage", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select primary usage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mainly-receiving">Mainly receiving help</SelectItem>
+                <SelectItem value="mainly-giving">Mainly giving help</SelectItem>
+                <SelectItem value="equal-both">Equal mix of both</SelectItem>
+                <SelectItem value="community-connection">Mainly for community connection</SelectItem>
+                <SelectItem value="not-sure">Not sure yet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Which features would interest you most? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Help requests and offers",
+                "Community events",
+                "Local recommendations",
+                "Skill sharing",
+                "Social networking",
+                "Local news and updates",
+                "Group discussions",
+                "Resource sharing"
+              ].map((feature) => (
+                <div key={feature} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={feature}
+                    checked={formData.interestedFeatures.includes(feature)}
+                    onCheckedChange={(checked) => handleCheckboxChange("interestedFeatures", feature, checked as boolean)}
+                  />
+                  <Label htmlFor={feature}>{feature}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="encouragement">What would encourage you to be more active in helping others in your community?</Label>
+            <Textarea
+              id="encouragement"
+              value={formData.encouragement}
+              onChange={(e) => handleInputChange("encouragement", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="concerns">Do you have any concerns about using a community help platform?</Label>
+            <Textarea
+              id="concerns"
+              value={formData.concerns}
+              onChange={(e) => handleInputChange("concerns", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="mostValuable">What would be the most valuable aspect of SouLVE for you?</Label>
+            <Textarea
+              id="mostValuable"
+              value={formData.mostValuable}
+              onChange={(e) => handleInputChange("mostValuable", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="additionalComments">Any additional comments or suggestions?</Label>
+            <Textarea
+              id="additionalComments"
+              value={formData.additionalComments}
+              onChange={(e) => handleInputChange("additionalComments", e.target.value)}
+            />
+          </div>
+        </div>
 
         <div className="text-center pt-6">
           <Button

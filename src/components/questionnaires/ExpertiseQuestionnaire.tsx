@@ -14,14 +14,26 @@ const ExpertiseQuestionnaire = () => {
     name: "",
     professionalTitle: "",
     organisation: "",
+    location: "",
     expertiseAreas: [],
     experience: "",
     credentials: "",
     availabilityType: "",
     consultingAreas: [],
-    platformFeatures: {},
+    previousVolunteering: "",
+    platformFeatures: {
+      expertMatching: "",
+      projectManagement: "",
+      knowledgeSharing: "",
+      mentorshipPrograms: "",
+      skillsAssessment: "",
+      impactTracking: ""
+    },
     contentInterest: "",
     supportNeeds: [],
+    timeCommitment: "",
+    workingStyle: "",
+    motivations: "",
     contactPhone: ""
   });
 
@@ -91,6 +103,29 @@ const ExpertiseQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="location">Location/Region *</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contactPhone">Phone Number (optional)</Label>
+            <Input
+              id="contactPhone"
+              value={formData.contactPhone}
+              onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Expertise & Experience</h3>
+          
+          <div className="space-y-2">
             <Label>Areas of Expertise (Select all that apply) *</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -105,7 +140,9 @@ const ExpertiseQuestionnaire = () => {
                 "Fundraising",
                 "Board Governance",
                 "Program Evaluation",
-                "Public Relations"
+                "Public Relations",
+                "Design & Creative",
+                "Data Analysis"
               ].map((area) => (
                 <div key={area} className="flex items-center space-x-2">
                   <Checkbox
@@ -138,6 +175,201 @@ const ExpertiseQuestionnaire = () => {
                 <SelectItem value="15+">15+ years</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="credentials">Relevant qualifications, certifications, or credentials *</Label>
+            <Textarea
+              id="credentials"
+              value={formData.credentials}
+              onChange={(e) => setFormData(prev => ({ ...prev, credentials: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="previousVolunteering">Describe any previous volunteer or pro bono work experience *</Label>
+            <Textarea
+              id="previousVolunteering"
+              value={formData.previousVolunteering}
+              onChange={(e) => setFormData(prev => ({ ...prev, previousVolunteering: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Availability & Working Preferences</h3>
+          
+          <div className="space-y-2">
+            <Label htmlFor="availabilityType">What type of support can you provide? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, availabilityType: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select availability type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="one-off-consultations">One-off consultations</SelectItem>
+                <SelectItem value="short-term-projects">Short-term projects (1-3 months)</SelectItem>
+                <SelectItem value="ongoing-mentoring">Ongoing mentoring/advisory</SelectItem>
+                <SelectItem value="emergency-support">Emergency/crisis support</SelectItem>
+                <SelectItem value="all-types">All of the above</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>In which areas would you be most interested in providing consulting? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Organizational development",
+                "Financial planning and management",
+                "Marketing and branding",
+                "Technology implementation",
+                "Legal compliance",
+                "Fundraising strategies",
+                "Program development",
+                "Staff training and development",
+                "Board development",
+                "Crisis management"
+              ].map((area) => (
+                <div key={area} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={area}
+                    checked={formData.consultingAreas.includes(area)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, consultingAreas: [...prev.consultingAreas, area] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, consultingAreas: prev.consultingAreas.filter(item => item !== area) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={area}>{area}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>How much time per month can you typically dedicate to volunteer consulting? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, timeCommitment: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time commitment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1-5-hours">1-5 hours per month</SelectItem>
+                <SelectItem value="6-10-hours">6-10 hours per month</SelectItem>
+                <SelectItem value="11-20-hours">11-20 hours per month</SelectItem>
+                <SelectItem value="20+-hours">20+ hours per month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What is your preferred working style? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, workingStyle: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select working style" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="remote-only">Remote only</SelectItem>
+                <SelectItem value="in-person-only">In-person only</SelectItem>
+                <SelectItem value="hybrid">Hybrid (both remote and in-person)</SelectItem>
+                <SelectItem value="flexible">Flexible, depending on the project</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="motivations">What motivates you to volunteer your professional expertise? *</Label>
+            <Textarea
+              id="motivations"
+              value={formData.motivations}
+              onChange={(e) => setFormData(prev => ({ ...prev, motivations: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">SouLVE Platform Features - How valuable would these be? (1-5 scale)</h3>
+          
+          {[
+            { key: "expertMatching", label: "Expert matching system (connect with organizations needing your specific skills)" },
+            { key: "projectManagement", label: "Project management tools (track and manage your volunteer consulting projects)" },
+            { key: "knowledgeSharing", label: "Knowledge sharing platform (share expertise through resources and content)" },
+            { key: "mentorshipPrograms", label: "Mentorship programs (provide ongoing guidance to organization leaders)" },
+            { key: "skillsAssessment", label: "Skills assessment and verification system" },
+            { key: "impactTracking", label: "Impact tracking (measure the difference your expertise makes)" }
+          ].map((feature) => (
+            <div key={feature.key} className="space-y-2">
+              <Label>{feature.label} *</Label>
+              <Select onValueChange={(value) => setFormData(prev => ({ 
+                ...prev, 
+                platformFeatures: { ...prev.platformFeatures, [feature.key]: value }
+              }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select rating (1-5)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 - Not valuable</SelectItem>
+                  <SelectItem value="2">2 - Slightly valuable</SelectItem>
+                  <SelectItem value="3">3 - Moderately valuable</SelectItem>
+                  <SelectItem value="4">4 - Very valuable</SelectItem>
+                  <SelectItem value="5">5 - Extremely valuable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Content & Knowledge Sharing</h3>
+          
+          <div className="space-y-2">
+            <Label>Would you be interested in creating educational content for the platform? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, contentInterest: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select interest level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="very-interested">Very interested</SelectItem>
+                <SelectItem value="somewhat-interested">Somewhat interested</SelectItem>
+                <SelectItem value="maybe">Maybe, depending on the topic</SelectItem>
+                <SelectItem value="not-interested">Not interested at this time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What support would you need as a volunteer expert? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Clear project briefs",
+                "Regular check-ins with organizations",
+                "Technical platform support",
+                "Recognition for contributions",
+                "Networking with other experts",
+                "Training on nonprofit sector",
+                "Feedback and impact reports",
+                "Professional development opportunities"
+              ].map((support) => (
+                <div key={support} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={support}
+                    checked={formData.supportNeeds.includes(support)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, supportNeeds: [...prev.supportNeeds, support] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, supportNeeds: prev.supportNeeds.filter(item => item !== support) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={support}>{support}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

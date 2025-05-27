@@ -14,11 +14,23 @@ const BusinessQuestionnaire = () => {
     businessName: "",
     industry: "",
     businessSize: "",
+    location: "",
     csrPrograms: [],
     communityInvolvement: [],
+    csrBudget: "",
+    csrChallenges: [],
+    employeeEngagement: "",
     partnershipGoals: [],
-    platformFeatures: {},
+    platformFeatures: {
+      csrTracking: "",
+      employeeVolunteering: "",
+      communityPartnerships: "",
+      impactMeasurement: "",
+      brandAlignment: "",
+      stakeholderEngagement: ""
+    },
     investmentInterest: "",
+    partnershipType: "",
     supportNeeds: [],
     contactName: "",
     contactPosition: "",
@@ -48,7 +60,7 @@ const BusinessQuestionnaire = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Business Information</h3>
           
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
@@ -72,6 +84,46 @@ const BusinessQuestionnaire = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="industry">Industry/Sector *</Label>
+            <Input
+              id="industry"
+              value={formData.industry}
+              onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Business Size *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessSize: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select business size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="startup">Startup (1-10 employees)</SelectItem>
+                <SelectItem value="small">Small (11-50 employees)</SelectItem>
+                <SelectItem value="medium">Medium (51-250 employees)</SelectItem>
+                <SelectItem value="large">Large (251-1000 employees)</SelectItem>
+                <SelectItem value="enterprise">Enterprise (1000+ employees)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location">Primary Location/Region *</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Current CSR & Community Involvement</h3>
+          
+          <div className="space-y-2">
             <Label>What CSR or community programs does your business currently support? (Select all that apply)</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -84,7 +136,9 @@ const BusinessQuestionnaire = () => {
                 "Skills-based Volunteering",
                 "Disaster Relief",
                 "Youth Development",
-                "Health & Wellness"
+                "Health & Wellness",
+                "Diversity & Inclusion",
+                "Social Enterprises"
               ].map((program) => (
                 <div key={program} className="flex items-center space-x-2">
                   <Checkbox
@@ -101,6 +155,267 @@ const BusinessQuestionnaire = () => {
                   <Label htmlFor={program}>{program}</Label>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>How does your business currently engage with the community? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Direct partnerships with charities",
+                "Employee volunteer programs",
+                "Community event sponsorship",
+                "Local business collaboration",
+                "Educational workshops",
+                "Mentoring programs",
+                "Resource sharing",
+                "Pro bono services"
+              ].map((involvement) => (
+                <div key={involvement} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={involvement}
+                    checked={formData.communityInvolvement.includes(involvement)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, communityInvolvement: [...prev.communityInvolvement, involvement] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, communityInvolvement: prev.communityInvolvement.filter(item => item !== involvement) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={involvement}>{involvement}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What is your approximate annual CSR/community investment budget? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, csrBudget: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select budget range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="under-5k">Under £5,000</SelectItem>
+                <SelectItem value="5k-25k">£5,000 - £25,000</SelectItem>
+                <SelectItem value="25k-100k">£25,000 - £100,000</SelectItem>
+                <SelectItem value="100k-500k">£100,000 - £500,000</SelectItem>
+                <SelectItem value="over-500k">Over £500,000</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What are your biggest CSR challenges? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Finding authentic partnerships",
+                "Measuring impact",
+                "Employee engagement",
+                "Time management",
+                "Budget allocation",
+                "Identifying opportunities",
+                "Communication/reporting",
+                "Stakeholder alignment"
+              ].map((challenge) => (
+                <div key={challenge} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={challenge}
+                    checked={formData.csrChallenges.includes(challenge)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, csrChallenges: [...prev.csrChallenges, challenge] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, csrChallenges: prev.csrChallenges.filter(item => item !== challenge) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={challenge}>{challenge}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="employeeEngagement">How do your employees currently engage in community activities? *</Label>
+            <Textarea
+              id="employeeEngagement"
+              value={formData.employeeEngagement}
+              onChange={(e) => setFormData(prev => ({ ...prev, employeeEngagement: e.target.value }))}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Partnership Goals</h3>
+          
+          <div className="space-y-2">
+            <Label>What are your main goals for community partnerships? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Brand reputation enhancement",
+                "Employee engagement",
+                "Community impact measurement",
+                "Customer loyalty building",
+                "Stakeholder relations",
+                "Innovation opportunities",
+                "Talent attraction/retention",
+                "Market expansion"
+              ].map((goal) => (
+                <div key={goal} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={goal}
+                    checked={formData.partnershipGoals.includes(goal)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, partnershipGoals: [...prev.partnershipGoals, goal] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, partnershipGoals: prev.partnershipGoals.filter(item => item !== goal) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={goal}>{goal}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">SouLVE Platform Features - How valuable would these be? (1-5 scale)</h3>
+          
+          {[
+            { key: "csrTracking", label: "CSR activity tracking and reporting dashboard" },
+            { key: "employeeVolunteering", label: "Employee volunteering coordination system" },
+            { key: "communityPartnerships", label: "Verified community partnership matching" },
+            { key: "impactMeasurement", label: "Real-time impact measurement and analytics" },
+            { key: "brandAlignment", label: "Brand values alignment verification" },
+            { key: "stakeholderEngagement", label: "Stakeholder engagement and communication tools" }
+          ].map((feature) => (
+            <div key={feature.key} className="space-y-2">
+              <Label>{feature.label} *</Label>
+              <Select onValueChange={(value) => setFormData(prev => ({ 
+                ...prev, 
+                platformFeatures: { ...prev.platformFeatures, [feature.key]: value }
+              }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select rating (1-5)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 - Not valuable</SelectItem>
+                  <SelectItem value="2">2 - Slightly valuable</SelectItem>
+                  <SelectItem value="3">3 - Moderately valuable</SelectItem>
+                  <SelectItem value="4">4 - Very valuable</SelectItem>
+                  <SelectItem value="5">5 - Extremely valuable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Investment & Partnership Interest</h3>
+          
+          <div className="space-y-2">
+            <Label>Would you be interested in investment opportunities with SouLVE? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, investmentInterest: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select interest level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="very-interested">Very interested</SelectItem>
+                <SelectItem value="somewhat-interested">Somewhat interested</SelectItem>
+                <SelectItem value="need-more-info">Need more information</SelectItem>
+                <SelectItem value="not-interested">Not interested at this time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What type of partnership would interest you most? *</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, partnershipType: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select partnership type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="strategic">Strategic Partnership</SelectItem>
+                <SelectItem value="sponsorship">Sponsorship</SelectItem>
+                <SelectItem value="technology">Technology Integration</SelectItem>
+                <SelectItem value="investment">Investment Opportunity</SelectItem>
+                <SelectItem value="pilot">Pilot Program</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What support would your business need most? (Select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "CSR strategy development",
+                "Impact measurement tools",
+                "Employee engagement programs",
+                "Community partnership facilitation",
+                "Reporting and analytics",
+                "Brand integration guidance",
+                "Training and onboarding",
+                "Custom feature development"
+              ].map((support) => (
+                <div key={support} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={support}
+                    checked={formData.supportNeeds.includes(support)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({ ...prev, supportNeeds: [...prev.supportNeeds, support] }));
+                      } else {
+                        setFormData(prev => ({ ...prev, supportNeeds: prev.supportNeeds.filter(item => item !== support) }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={support}>{support}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">Contact Information (optional)</h3>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="contactName">Contact Name</Label>
+              <Input
+                id="contactName"
+                value={formData.contactName}
+                onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contactPosition">Position/Title</Label>
+              <Input
+                id="contactPosition"
+                value={formData.contactPosition}
+                onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contactEmail">Contact Email</Label>
+              <Input
+                id="contactEmail"
+                type="email"
+                value={formData.contactEmail}
+                onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contactPhone">Phone Number</Label>
+              <Input
+                id="contactPhone"
+                value={formData.contactPhone}
+                onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+              />
             </div>
           </div>
         </div>
