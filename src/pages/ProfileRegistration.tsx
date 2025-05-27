@@ -30,11 +30,11 @@ const ProfileRegistration = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUserTypeChange = (selectedUserType: string) => {
+    setUserType(selectedUserType);
     
-    // Navigate to the appropriate questionnaire based on user type
-    switch (userType) {
+    // Navigate immediately when user type is selected
+    switch (selectedUserType) {
       case "standard":
         navigate("/questionnaire/standard-user");
         break;
@@ -62,9 +62,16 @@ const ProfileRegistration = () => {
       case "expertise":
         navigate("/questionnaire/expertise");
         break;
-      default:
-        console.log("Please select a user type");
-        return;
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // This is now only used if someone manually submits the form
+    if (!userType) {
+      console.log("Please select a user type");
+      return;
     }
     
     // Store the basic registration data (you might want to use localStorage or a context)
@@ -87,7 +94,7 @@ const ProfileRegistration = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-8">
-              <UserTypeSection userType={userType} setUserType={setUserType} />
+              <UserTypeSection userType={userType} setUserType={handleUserTypeChange} />
               
               <PersonalInfoSection 
                 formData={formData} 
