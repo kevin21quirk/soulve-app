@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { MessageSquare, Send, Heart, MoreVertical } from "lucide-react";
 import { Comment, FeedPost } from "@/types/feed";
 import { useToast } from "@/hooks/use-toast";
 import PostReactions from "./PostReactions";
+import AutoCommentSuggestions from "./AutoCommentSuggestions";
 
 interface PostCommentsProps {
   post: FeedPost;
@@ -39,6 +39,10 @@ const PostComments = ({
       title: "Comment added!",
       description: "Your comment has been posted.",
     });
+  };
+
+  const handleAutoCommentSelect = (comment: string) => {
+    setNewComment(comment);
   };
 
   const handleCommentReaction = (commentId: string, reactionType: string) => {
@@ -121,6 +125,12 @@ const PostComments = ({
 
       {showComments && (
         <div className="mt-4 border-t pt-4">
+          {/* Auto Comment Suggestions */}
+          <AutoCommentSuggestions 
+            onSelectComment={handleAutoCommentSelect}
+            category={post.category}
+          />
+
           {/* Add Comment */}
           <div className="flex space-x-3 mb-4">
             <Avatar className="h-8 w-8">

@@ -12,6 +12,7 @@ interface PostReactionsProps {
 const reactionTypes = [
   { type: 'like', emoji: '👍', label: 'Like' },
   { type: 'love', emoji: '❤️', label: 'Love' },
+  { type: 'support', emoji: '🤝', label: 'Support' },
   { type: 'laugh', emoji: '😂', label: 'Laugh' },
   { type: 'wow', emoji: '😮', label: 'Wow' },
   { type: 'sad', emoji: '😢', label: 'Sad' },
@@ -64,6 +65,7 @@ const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
                 size="sm"
                 className="h-10 w-10 p-0 rounded-full hover:scale-125 transition-transform"
                 onClick={() => handleReaction(reaction.type)}
+                title={reaction.label}
               >
                 <span className="text-xl">{reaction.emoji}</span>
               </Button>

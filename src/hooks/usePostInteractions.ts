@@ -254,6 +254,7 @@ export const usePostInteractions = (
     const emojiMap: { [key: string]: string } = {
       'like': '👍',
       'love': '❤️',
+      'support': '🤝',
       'laugh': '😂',
       'wow': '😮',
       'sad': '😢',

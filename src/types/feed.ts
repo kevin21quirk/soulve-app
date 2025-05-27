@@ -1,3 +1,4 @@
+
 export interface MediaItem {
   id: string;
   type: 'image' | 'video';
@@ -18,7 +19,7 @@ export interface Comment {
 }
 
 export interface Reaction {
-  type: 'like' | 'love' | 'laugh' | 'angry' | 'sad' | 'wow';
+  type: 'like' | 'love' | 'support' | 'laugh' | 'angry' | 'sad' | 'wow';
   emoji: string;
   count: number;
   hasReacted: boolean;

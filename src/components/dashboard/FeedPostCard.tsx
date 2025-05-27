@@ -17,6 +17,7 @@ interface FeedPostCardProps {
   onReaction: (postId: string, reactionType: string) => void;
   onAddComment: (postId: string, content: string) => void;
   onLikeComment: (postId: string, commentId: string) => void;
+  onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
 }
 
 const FeedPostCard = ({ 
