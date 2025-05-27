@@ -4,19 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MediaUpload from "./MediaUpload";
-
-interface MediaFile {
-  id: string;
-  file: File;
-  type: 'image' | 'video';
-  preview: string;
-  size: number;
-}
+import PostOptions from "./PostOptions";
+import { MediaFile, PostFormData } from "./CreatePostTypes";
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;
@@ -25,12 +17,19 @@ interface CreatePostProps {
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PostFormData>({
     title: "",
     description: "",
     category: "",
-    location: ""
+    location: "",
+    urgency: "low",
+    feeling: "",
+    tags: [],
+    visibility: "public",
+    allowComments: true,
+    allowSharing: true,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,11 +50,17 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       title: formData.title,
       description: formData.description,
       category: formData.category as "help-needed" | "help-offered" | "success-story",
-      timestamp: "Just now",
+      timestamp: formData.scheduledFor ? `Scheduled for ${formData.scheduledFor.toLocaleDateString()}` : "Just now",
       location: formData.location || "Your area",
       responses: 0,
       likes: 0,
       isLiked: false,
+      urgency: formData.urgency,
+      feeling: formData.feeling,
+      tags: formData.tags,
+      visibility: formData.visibility,
+      allowComments: formData.allowComments,
+      allowSharing: formData.allowSharing,
       media: mediaFiles.map(file => ({
         id: file.id,
         type: file.type,
@@ -65,9 +70,23 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     };
 
     onPostCreated(newPost);
-    setFormData({ title: "", description: "", category: "", location: "" });
+    
+    // Reset form
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      location: "",
+      urgency: "low",
+      feeling: "",
+      tags: [],
+      visibility: "public",
+      allowComments: true,
+      allowSharing: true,
+    });
     setMediaFiles([]);
     setIsExpanded(false);
+    setShowOptions(false);
     
     toast({
       title: "Post created!",
@@ -75,7 +94,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     });
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof PostFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -101,9 +120,19 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Create New Post</CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowOptions(!showOptions)}
+              className={showOptions ? "bg-blue-50 text-blue-600" : ""}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -127,25 +156,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
             />
           </div>
 
-          {/* Media Upload Section */}
-          <MediaUpload
-            onMediaChange={handleMediaChange}
-            maxFiles={5}
-            maxFileSize={10}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category *" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="help-needed">Help Needed</SelectItem>
-                <SelectItem value="help-offered">Help Offered</SelectItem>
-                <SelectItem value="success-story">Success Story</SelectItem>
-              </SelectContent>
-            </Select>
-
+          <div>
             <Input
               placeholder="Location (optional)"
               value={formData.location}
@@ -153,12 +164,27 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
             />
           </div>
 
+          {/* Media Upload Section */}
+          <MediaUpload
+            onMediaChange={handleMediaChange}
+            maxFiles={5}
+            maxFileSize={10}
+          />
+
+          {/* Advanced Options */}
+          {showOptions && (
+            <PostOptions
+              formData={formData}
+              onFormDataChange={handleInputChange}
+            />
+          )}
+
           <div className="flex justify-end space-x-2 pt-2">
             <Button type="button" variant="outline" onClick={() => setIsExpanded(false)}>
               Cancel
             </Button>
             <Button type="submit">
-              Share Post
+              {formData.scheduledFor ? "Schedule Post" : "Share Post"}
             </Button>
           </div>
         </form>
