@@ -1,0 +1,40 @@
+
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Campaign } from "@/types/connections";
+import { mockCampaigns } from "@/data/mockConnections";
+
+export const useCampaignsManager = () => {
+  const { toast } = useToast();
+  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
+
+  const handleJoinCampaign = (campaignId: string) => {
+    setCampaigns(prev =>
+      prev.map(campaign =>
+        campaign.id === campaignId ? { ...campaign, isParticipating: true, participantCount: campaign.participantCount + 1 } : campaign
+      )
+    );
+    toast({
+      title: "Joined campaign!",
+      description: "You're now participating in this campaign.",
+    });
+  };
+
+  const handleLeaveCampaign = (campaignId: string) => {
+    setCampaigns(prev =>
+      prev.map(campaign =>
+        campaign.id === campaignId ? { ...campaign, isParticipating: false, participantCount: campaign.participantCount - 1 } : campaign
+      )
+    );
+    toast({
+      title: "Left campaign",
+      description: "You're no longer participating in this campaign.",
+    });
+  };
+
+  return {
+    campaigns,
+    handleJoinCampaign,
+    handleLeaveCampaign,
+  };
+};
