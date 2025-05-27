@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ProfileRegistrationHeader from "@/components/profile-registration/ProfileRegistrationHeader";
 import UserTypeSection from "@/components/profile-registration/UserTypeSection";
@@ -10,6 +11,7 @@ import TermsAgreementSection from "@/components/profile-registration/TermsAgreem
 import SubmitSection from "@/components/profile-registration/SubmitSection";
 
 const ProfileRegistration = () => {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -30,9 +32,44 @@ const ProfileRegistration = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Navigate to the appropriate questionnaire based on user type
+    switch (userType) {
+      case "standard":
+        navigate("/questionnaire/standard-user");
+        break;
+      case "charity":
+        navigate("/questionnaire/charity");
+        break;
+      case "community-group":
+        navigate("/questionnaire/community-group");
+        break;
+      case "religious-group":
+        navigate("/questionnaire/religious-group");
+        break;
+      case "business":
+        navigate("/questionnaire/business");
+        break;
+      case "social-group":
+        navigate("/questionnaire/social-group");
+        break;
+      case "ambassador":
+        navigate("/questionnaire/ambassador");
+        break;
+      case "partnerships":
+        navigate("/questionnaire/partnerships");
+        break;
+      case "expertise":
+        navigate("/questionnaire/expertise");
+        break;
+      default:
+        console.log("Please select a user type");
+        return;
+    }
+    
+    // Store the basic registration data (you might want to use localStorage or a context)
     console.log("Registration data:", formData);
     console.log("User type:", userType);
-    // Here you would typically send the data to your backend
   };
 
   return (
