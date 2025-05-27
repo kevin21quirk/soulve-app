@@ -1,93 +1,75 @@
 
-import React from "react";
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, ArrowUp } from "lucide-react";
 import { useSocialFeed } from "@/hooks/useSocialFeed";
-import { useErrorHandler } from "@/contexts/ErrorContext";
-import { useScreenReader } from "@/hooks/useAccessibility";
-import { useRealTimeNotifications } from "@/components/ui/real-time-notifications";
-import { useIsMobile } from "@/components/ui/mobile-optimized";
-import FeedHeader from "./FeedHeader";
-import FeedFilters from "./FeedFilters";
-import FeedContent from "./FeedContent";
-import { ErrorState } from "@/components/ui/error-states";
 
-/**
- * Main container component for the social feed
- * Manages state and coordinates between child components
- */
-const FeedContainer = React.memo(() => {
-  const {
-    filteredPosts,
-    activeFilter,
-    setActiveFilter,
-    searchQuery,
-    setSearchQuery,
-    isLoading,
-    handlePostCreated,
-    handleLike,
-    handleShare,
-    handleRespond,
-    handleBookmark,
-    handleReaction,
-    handleAddComment,
-    handleLikeComment,
-    getPostCounts,
-  } = useSocialFeed();
-  
-  const { reportError } = useErrorHandler();
-  const { announce } = useScreenReader();
-  const { addNotification } = useRealTimeNotifications();
-  const isMobile = useIsMobile();
+interface FeedContainerProps {
+  children: React.ReactNode;
+}
+
+const FeedContainer = ({ children }: FeedContainerProps) => {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      announce("Feed refreshed");
-      addNotification({
-        type: "help",
-        title: "Feed Updated",
-        message: "Your feed has been refreshed with the latest posts",
-      });
-    } catch (error) {
-      reportError(error as Error, "feed refresh");
-    }
+    setIsRefreshing(true);
+    // Simulate refresh delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsRefreshing(false);
+    window.location.reload();
   };
 
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
-    announce(`Filter changed to ${filter}`);
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Show scroll to top button when user scrolls down
+  useState(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  });
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <FeedHeader onPostCreated={handlePostCreated} />
-      
-      <FeedFilters
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        postCounts={getPostCounts()}
-        isMobile={isMobile}
-      />
+    <div className="relative">
+      {/* Refresh Button */}
+      <div className="fixed top-20 right-6 z-50">
+        <Button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          size="sm"
+          variant="outline"
+          className="bg-white shadow-lg border-gray-200"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
+        </Button>
+      </div>
 
-      <FeedContent
-        posts={filteredPosts}
-        isLoading={isLoading}
-        searchQuery={searchQuery}
-        onLike={handleLike}
-        onShare={handleShare}
-        onRespond={handleRespond}
-        onBookmark={handleBookmark}
-        onReaction={handleReaction}
-        onAddComment={handleAddComment}
-        onLikeComment={handleLikeComment}
-        onRefresh={handleRefresh}
-        isMobile={isMobile}
-      />
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            onClick={scrollToTop}
+            size="sm"
+            className="rounded-full p-3 shadow-lg"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Feed Content */}
+      <div className="space-y-6">
+        {children}
+      </div>
     </div>
   );
-});
-
-FeedContainer.displayName = "FeedContainer";
+};
 
 export default FeedContainer;
