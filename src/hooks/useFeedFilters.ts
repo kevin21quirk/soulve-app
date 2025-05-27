@@ -28,6 +28,10 @@ export const useFeedFilters = (posts: FeedPost[]) => {
     "help-needed": posts.filter(p => p.category === "help-needed").length,
     "help-offered": posts.filter(p => p.category === "help-offered").length,
     "success-story": posts.filter(p => p.category === "success-story").length,
+    urgent: posts.filter(p => p.urgency === "high" || p.urgency === "urgent").length,
+    helpNeeded: posts.filter(p => p.category === "help-needed").length,
+    helpOffered: posts.filter(p => p.category === "help-offered").length,
+    successStory: posts.filter(p => p.category === "success-story").length,
   });
 
   return {

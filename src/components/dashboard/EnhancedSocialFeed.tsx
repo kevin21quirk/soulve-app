@@ -66,7 +66,7 @@ const EnhancedSocialFeed = () => {
         });
       
       case "urgent":
-        return posts.filter(p => p.urgency === "high" || p.urgency === "emergency");
+        return posts.filter(p => p.urgency === "high" || p.urgency === "urgent");
       
       case "nearby":
         // Filter by location proximity (mock implementation)
@@ -89,6 +89,9 @@ const EnhancedSocialFeed = () => {
 
   const smartFilteredPosts = getSmartFilteredPosts();
   const postCounts = getPostCounts();
+  
+  // Calculate urgent posts count
+  const urgentPostsCount = filteredPosts.filter(p => p.urgency === "high" || p.urgency === "urgent").length;
 
   return (
     <div className="space-y-6">
@@ -96,7 +99,7 @@ const EnhancedSocialFeed = () => {
         onSearch={() => setShowSearch(!showSearch)}
         onFilter={() => setShowFilters(!showFilters)}
         totalPosts={filteredPosts.length}
-        urgentPosts={postCounts.urgent}
+        urgentPosts={urgentPostsCount}
       />
 
       {showSearch && (
@@ -171,7 +174,7 @@ const EnhancedSocialFeed = () => {
             {activeTab === "urgent" && (
               <Badge variant="destructive" className="flex items-center space-x-1">
                 <Zap className="h-3 w-3" />
-                <span>{postCounts.urgent} urgent</span>
+                <span>{urgentPostsCount} urgent</span>
               </Badge>
             )}
           </div>

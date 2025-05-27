@@ -52,7 +52,7 @@ const FeedContent = ({
 
   return (
     <div className="space-y-6">
-      {posts.map((post, index) => (
+      {posts.map((post) => (
         <FeedPostCard
           key={post.id}
           post={post}
@@ -64,7 +64,6 @@ const FeedContent = ({
           onAddComment={onAddComment}
           onLikeComment={onLikeComment}
           onCommentReaction={onCommentReaction}
-          priority={index < 3} // Optimize loading for first 3 posts
         />
       ))}
     </div>
