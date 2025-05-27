@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Achievement } from "@/types/gamification";
@@ -7,7 +8,8 @@ import QuickStatsGrid from "./QuickStatsGrid";
 import AchievementsList from "./AchievementsList";
 import LeaderboardCard from "./LeaderboardCard";
 import SeasonalChallengesCard from "./SeasonalChallengesCard";
-import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges } from "@/data/mockPointsData";
+import PointsTransactionHistory from "./PointsTransactionHistory";
+import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges, mockPointTransactions } from "@/data/mockPointsData";
 
 const GamificationPanel = () => {
   const { toast } = useToast();
@@ -120,6 +122,7 @@ const GamificationPanel = () => {
         <LeaderboardCard leaderboard={mockLeaderboard} timeframe="all-time" />
         <SeasonalChallengesCard challenges={mockSeasonalChallenges} />
       </div>
+      <PointsTransactionHistory transactions={mockPointTransactions} />
       <AchievementsList achievements={achievements} onClaimReward={claimReward} />
     </div>
   );
