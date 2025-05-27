@@ -1,4 +1,5 @@
 
+
 interface SouLVELogoProps {
   size?: "small" | "large";
 }
@@ -33,3 +34,4 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
 };
 
 export default SouLVELogo;
+
