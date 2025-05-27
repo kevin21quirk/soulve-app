@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import SouLVELogo from "@/components/SouLVELogo";
 
 const ProfileRegistration = () => {
+  const [userType, setUserType] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -32,8 +33,21 @@ const ProfileRegistration = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Registration data:", formData);
+    console.log("User type:", userType);
     // Here you would typically send the data to your backend
   };
+
+  const userTypeOptions = [
+    { value: "standard", label: "Standard User" },
+    { value: "charity", label: "Charity" },
+    { value: "community-group", label: "Community Group" },
+    { value: "religious-group", label: "Religious Group" },
+    { value: "business", label: "Business" },
+    { value: "social-group", label: "Social Group" },
+    { value: "ambassador", label: "Ambassador" },
+    { value: "partnerships", label: "Partnerships" },
+    { value: "expertise", label: "Expertise" }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
@@ -66,6 +80,30 @@ const ProfileRegistration = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-8">
+              {/* User Type Selection */}
+              <div className="space-y-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <User className="h-6 w-6 text-teal-600" />
+                  <h3 className="text-xl font-semibold text-gray-900">User Type</h3>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="userType" className="text-gray-700">What best describes you or your organization?</Label>
+                  <Select onValueChange={setUserType} required>
+                    <SelectTrigger className="border-gray-300 focus:border-teal-500">
+                      <SelectValue placeholder="Select your user type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {userTypeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               {/* Personal Information */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-3 mb-4">
@@ -223,7 +261,7 @@ const ProfileRegistration = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={!formData.agreeToTerms}
+                  disabled={!formData.agreeToTerms || !userType}
                   className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-12 py-4 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
                   Complete Registration
