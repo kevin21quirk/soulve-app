@@ -212,7 +212,7 @@ const UserProfile = () => {
                           <Upload className="h-4 w-4 mr-2" />
                           Choose File
                         </span>
-                      </label>
+                      </Button>
                     </label>
                   </div>
                 </div>
@@ -225,9 +225,10 @@ const UserProfile = () => {
                         <Camera className="h-4 w-4 mr-2" />
                         Change Banner
                       </span>
-                    </label>
-                  </div>
-                )}
+                    </Button>
+                  </label>
+                </div>
+              )}
             </div>
             <input
               id="banner-upload"
