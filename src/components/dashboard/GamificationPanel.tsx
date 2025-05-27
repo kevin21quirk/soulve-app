@@ -1,22 +1,16 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Achievement, UserStats } from "@/types/gamification";
-import UserStatsCard from "./UserStatsCard";
+import { Achievement } from "@/types/gamification";
+import EnhancedUserStatsCard from "./EnhancedUserStatsCard";
+import PointsBreakdownCard from "./PointsBreakdownCard";
 import QuickStatsGrid from "./QuickStatsGrid";
 import AchievementsList from "./AchievementsList";
+import { mockEnhancedUserStats, mockPointBreakdown } from "@/data/mockPointsData";
 
 const GamificationPanel = () => {
   const { toast } = useToast();
-  const [userStats] = useState<UserStats>({
-    totalPoints: 1250,
-    level: 5,
-    nextLevelPoints: 1500,
-    helpedCount: 23,
-    connectionsCount: 42,
-    postsCount: 15,
-    likesReceived: 156
-  });
+  const [userStats] = useState(mockEnhancedUserStats);
 
   const [achievements, setAchievements] = useState<Achievement[]>([
     {
@@ -55,12 +49,12 @@ const GamificationPanel = () => {
     {
       id: "4",
       title: "Trusted Helper",
-      description: "Reach 95% trust score",
+      description: "Reach Trusted Helper status",
       icon: "⭐",
       points: 300,
       unlocked: true,
-      progress: 95,
-      maxProgress: 95,
+      progress: 1,
+      maxProgress: 1,
       rarity: "epic"
     },
     {
@@ -73,6 +67,28 @@ const GamificationPanel = () => {
       progress: 42,
       maxProgress: 100,
       rarity: "legendary"
+    },
+    {
+      id: "6",
+      title: "Emergency Hero",
+      description: "Complete 5 emergency help requests",
+      icon: "🚨",
+      points: 500,
+      unlocked: false,
+      progress: 1,
+      maxProgress: 5,
+      rarity: "epic"
+    },
+    {
+      id: "7",
+      title: "Generous Giver",
+      description: "Donate £500 total",
+      icon: "💝",
+      points: 200,
+      unlocked: false,
+      progress: 350,
+      maxProgress: 500,
+      rarity: "rare"
     }
   ]);
 
@@ -94,8 +110,11 @@ const GamificationPanel = () => {
 
   return (
     <div className="space-y-6">
-      <UserStatsCard userStats={userStats} />
-      <QuickStatsGrid userStats={userStats} achievements={achievements} />
+      <EnhancedUserStatsCard userStats={userStats} />
+      <div className="grid md:grid-cols-2 gap-6">
+        <PointsBreakdownCard breakdown={mockPointBreakdown} totalPoints={userStats.totalPoints} />
+        <QuickStatsGrid userStats={userStats} achievements={achievements} />
+      </div>
       <AchievementsList achievements={achievements} onClaimReward={claimReward} />
     </div>
   );
