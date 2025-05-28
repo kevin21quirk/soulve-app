@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -158,8 +159,8 @@ const UserProfileTabs = ({
         </CardHeader>
         <CardContent className="space-y-6">
           <UserProfileBanner
-            banner={editData.banner}
-            bannerType={editData.bannerType}
+            banner={bannerFile ? bannerFile.preview : editData.banner}
+            bannerType={bannerFile ? bannerFile.type : editData.bannerType}
             bannerFile={bannerFile}
             onBannerUpload={handleBannerUpload}
             onRemoveBanner={handleRemoveBanner}

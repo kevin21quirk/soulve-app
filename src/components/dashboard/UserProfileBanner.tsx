@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { X, Camera, Upload, Video, Image as ImageIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { MediaFile } from "./UserProfileTypes";
 
 interface UserProfileBannerProps {
@@ -25,6 +24,8 @@ const UserProfileBanner = ({
   const displayBanner = bannerFile ? bannerFile.preview : banner;
   const displayBannerType = bannerFile ? bannerFile.type : bannerType;
 
+  console.log('Banner debug:', { banner, bannerType, displayBanner, displayBannerType, isEditing });
+
   if (isEditing) {
     return (
       <div className="space-y-4">
@@ -38,7 +39,7 @@ const UserProfileBanner = ({
                   alt="Profile banner"
                   className="w-full h-full object-cover"
                 />
-              ) : (
+              ) : displayBannerType === 'video' ? (
                 <video
                   src={displayBanner}
                   className="w-full h-full object-cover"
@@ -46,7 +47,7 @@ const UserProfileBanner = ({
                   loop
                   autoPlay
                 />
-              )}
+              ) : null}
               <Button
                 type="button"
                 variant="destructive"
@@ -103,23 +104,30 @@ const UserProfileBanner = ({
     );
   }
 
-  if (!banner) return null;
+  // Display mode - show banner if it exists
+  if (!banner) {
+    return (
+      <div className="h-32 rounded-lg bg-gradient-to-r from-teal-100 to-blue-100 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">No banner uploaded</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-48 rounded-lg overflow-hidden">
-      {bannerType === 'image' ? (
-        <img
-          src={banner}
-          alt="Profile banner"
-          className="w-full h-full object-cover"
-        />
-      ) : (
+      {bannerType === 'video' ? (
         <video
           src={banner}
           className="w-full h-full object-cover"
           muted
           loop
           autoPlay
+        />
+      ) : (
+        <img
+          src={banner}
+          alt="Profile banner"
+          className="w-full h-full object-cover"
         />
       )}
     </div>
