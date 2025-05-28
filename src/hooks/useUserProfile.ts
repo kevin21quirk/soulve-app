@@ -4,6 +4,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 
+// Define the profile type we expect from the database
+interface DatabaseProfile {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  location?: string;
+  bio?: string;
+  avatar_url?: string;
+  banner_url?: string;
+  skills?: string[];
+  interests?: string[];
+  website?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+}
+
 export const useUserProfile = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<UserProfileData | null>(null);
@@ -20,8 +39,8 @@ export const useUserProfile = () => {
       try {
         setLoading(true);
         
-        // Fetch profile data from the profiles table
-        const { data: profile, error: profileError } = await supabase
+        // Fetch profile data from the profiles table with type assertion
+        const { data: profile, error: profileError } = await (supabase as any)
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -92,8 +111,8 @@ export const useUserProfile = () => {
     if (!user) return;
 
     try {
-      // Update the profiles table
-      const { error } = await supabase
+      // Update the profiles table with type assertion
+      const { error } = await (supabase as any)
         .from('profiles')
         .upsert({
           id: user.id,
