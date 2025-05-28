@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Brain } from "lucide-react";
 import { Recommendation } from "@/types/recommendations";
-import { getRecommendationIcon, getConfidenceColor } from "@/utils/recommendationUtils";
+import { getRecommendationIcon, getConfidenceColour } from "@/utils/recommendationUtils";
 
 interface RecommendationCardProps {
   recommendation: Recommendation;
@@ -22,7 +22,7 @@ const RecommendationCard = ({ recommendation, onAction }: RecommendationCardProp
             <p className="text-sm text-gray-600">{recommendation.description}</p>
           </div>
         </div>
-        <Badge className={`text-xs ${getConfidenceColor(recommendation.confidence)}`}>
+        <Badge className={`text-xs ${getConfidenceColour(recommendation.confidence)}`}>
           {recommendation.confidence}% match
         </Badge>
       </div>
