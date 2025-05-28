@@ -27,16 +27,6 @@ export const useUserProfile = (): UseUserProfileReturn => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          
-          // If the table doesn't exist, create a default profile from user data
-          if (profileError.code === '42P01') {
-            console.log('Profiles table does not exist, using user data for profile');
-            const defaultProfile = createDefaultProfile(user);
-            setProfileData(defaultProfile);
-            setLoading(false);
-            return;
-          }
-          
           setError(profileError.message);
           return;
         }
@@ -66,14 +56,6 @@ export const useUserProfile = (): UseUserProfileReturn => {
 
       if (error) {
         console.error('Error updating profile:', error);
-        
-        // If table doesn't exist, just update local state
-        if (error.code === '42P01') {
-          console.log('Profiles table does not exist, updating local state only');
-          setProfileData(updatedData);
-          return;
-        }
-        
         throw error;
       }
 

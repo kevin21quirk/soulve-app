@@ -4,11 +4,11 @@ import { DatabaseProfile } from './types';
 
 export const fetchUserProfile = async (userId: string): Promise<{ data: DatabaseProfile | null; error: any }> => {
   try {
-    const { data: profile, error: profileError } = await (supabase as any)
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .maybeSingle() as { data: DatabaseProfile | null; error: any };
+      .maybeSingle();
 
     return { data: profile, error: profileError };
   } catch (error) {
@@ -19,7 +19,7 @@ export const fetchUserProfile = async (userId: string): Promise<{ data: Database
 
 export const upsertUserProfile = async (profileData: any): Promise<{ error: any }> => {
   try {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('profiles')
       .upsert(profileData);
 
