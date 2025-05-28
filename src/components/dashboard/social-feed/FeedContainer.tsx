@@ -44,9 +44,9 @@ const FeedContainer = ({ children }: FeedContainerProps) => {
           disabled={isRefreshing}
           size="sm"
           variant="outline"
-          className="bg-white shadow-lg border-gray-200"
+          className="bg-white shadow-lg border-teal-200 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 hover:border-teal-300"
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 mr-2 text-teal-600 ${isRefreshing ? 'animate-spin' : ''}`} />
           {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
@@ -57,7 +57,7 @@ const FeedContainer = ({ children }: FeedContainerProps) => {
           <Button
             onClick={scrollToTop}
             size="sm"
-            className="rounded-full p-3 shadow-lg"
+            className="rounded-full p-3 shadow-lg bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700"
           >
             <ArrowUp className="h-4 w-4" />
           </Button>

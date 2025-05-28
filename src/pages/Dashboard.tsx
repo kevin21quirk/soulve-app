@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50/30 via-white to-blue-50/30">
         <DashboardHeader
           showSearch={showSearch}
           setShowSearch={setShowSearch}

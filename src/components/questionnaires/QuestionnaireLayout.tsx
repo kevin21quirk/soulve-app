@@ -17,7 +17,7 @@ const QuestionnaireLayout = ({ title, description, children }: QuestionnaireLayo
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/register" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+          <Link to="/register" className="inline-flex items-center text-white hover:text-teal-100 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Registration
           </Link>
@@ -33,7 +33,7 @@ const QuestionnaireLayout = ({ title, description, children }: QuestionnaireLayo
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Card className="shadow-2xl border-0">
+        <Card className="shadow-2xl border-0 border-t-4 border-t-gradient-to-r border-t-teal-600">
           <CardContent className="p-8">
             {children}
           </CardContent>

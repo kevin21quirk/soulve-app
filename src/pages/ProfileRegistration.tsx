@@ -84,9 +84,9 @@ const ProfileRegistration = () => {
       <ProfileRegistrationHeader />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="text-center pb-8">
-            <CardTitle className="text-3xl text-gray-900 mb-4">Create Your Soulver Profile</CardTitle>
+        <Card className="shadow-2xl border-0 border-t-4 border-t-teal-500">
+          <CardHeader className="text-center pb-8 bg-gradient-to-r from-teal-50/50 to-blue-50/50">
+            <CardTitle className="text-3xl bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-4">Create Your Soulver Profile</CardTitle>
             <CardDescription className="text-lg text-gray-600">
               Tell us about yourself so we can connect you with the right opportunities to help your community
             </CardDescription>
