@@ -15,7 +15,7 @@ const ProfileRegistrationHeader = () => {
           <SouLVELogo size="small" />
         </div>
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Become a Soulver</h1>
+          <h1 className="text-4xl font-bold mb-4">Be the soul-ution</h1>
           <p className="text-xl text-teal-100">Join our community of changemakers and start making a difference today</p>
         </div>
       </div>
