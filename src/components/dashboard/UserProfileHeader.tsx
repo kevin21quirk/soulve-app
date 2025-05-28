@@ -5,6 +5,8 @@ import { MapPin, Calendar, Users, Award, TrendingUp } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 import AvatarUpload from "./AvatarUpload";
+import VerificationBadges from "./verification/VerificationBadges";
+import { useVerifications } from "@/hooks/useVerifications";
 
 interface UserProfileHeaderProps {
   profileData: UserProfileData;
@@ -19,6 +21,8 @@ const UserProfileHeader = ({
   onViewPointsDetails,
   onAvatarUpdate 
 }: UserProfileHeaderProps) => {
+  const { verifications, trustScore } = useVerifications();
+
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
       <AvatarUpload
@@ -43,16 +47,19 @@ const UserProfileHeader = ({
           </div>
         </div>
         
+        {/* Verification Badges */}
+        <VerificationBadges verifications={verifications} size="sm" />
+        
         <div className="flex flex-wrap gap-3">
           <Button
             variant="outline"
             size="sm"
-            className={`${getTrustScoreColor(profileData.trustScore)} cursor-pointer hover:scale-105 transition-transform`}
+            className={`${getTrustScoreColor(trustScore || profileData.trustScore)} cursor-pointer hover:scale-105 transition-transform`}
             onClick={onViewPointsDetails}
             disabled={isEditing}
           >
             <Award className="h-4 w-4 mr-1" />
-            {profileData.trustScore}% Trust Score
+            {trustScore || profileData.trustScore}% Trust Score
             {!isEditing && <TrendingUp className="h-3 w-3 ml-1" />}
           </Button>
           

@@ -6,6 +6,7 @@ import { UserProfileData } from "./UserProfileTypes";
 import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
+import VerificationPanel from "./verification/VerificationPanel";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 const UserProfile = () => {
@@ -65,11 +66,19 @@ const UserProfile = () => {
 
   return (
     <div className="space-y-6">
-      <UserProfileTabs
-        profileData={profileData}
-        onProfileUpdate={handleProfileUpdate}
-        onViewPointsDetails={handleViewPointsDetails}
-      />
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <UserProfileTabs
+            profileData={profileData}
+            onProfileUpdate={handleProfileUpdate}
+            onViewPointsDetails={handleViewPointsDetails}
+          />
+        </div>
+        
+        <div className="space-y-6">
+          <VerificationPanel />
+        </div>
+      </div>
       
       <ImpactFootprint 
         activities={mockTrustFootprint.activities}
