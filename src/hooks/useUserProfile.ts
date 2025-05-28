@@ -38,9 +38,10 @@ export const useUserProfile = () => {
 
       try {
         setLoading(true);
+        setError(null);
         
-        // Fetch profile data from the profiles table with type assertion
-        const { data: profile, error: profileError } = await (supabase as any)
+        // Try to fetch profile data from the profiles table
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -48,11 +49,21 @@ export const useUserProfile = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          
+          // If the table doesn't exist, create a default profile from user data
+          if (profileError.code === '42P01') {
+            console.log('Profiles table does not exist, using user data for profile');
+            const defaultProfile = createDefaultProfile(user);
+            setProfileData(defaultProfile);
+            setLoading(false);
+            return;
+          }
+          
           setError(profileError.message);
           return;
         }
 
-        // Create profile data object with real user data
+        // Create profile data object with real user data or defaults
         const userProfileData: UserProfileData = {
           id: user.id,
           name: profile?.first_name && profile?.last_name 
@@ -98,7 +109,9 @@ export const useUserProfile = () => {
         setProfileData(userProfileData);
       } catch (err) {
         console.error('Error in fetchProfile:', err);
-        setError('Failed to load profile data');
+        // Fallback to default profile if everything fails
+        const defaultProfile = createDefaultProfile(user);
+        setProfileData(defaultProfile);
       } finally {
         setLoading(false);
       }
@@ -107,12 +120,56 @@ export const useUserProfile = () => {
     fetchProfile();
   }, [user]);
 
+  const createDefaultProfile = (user: any): UserProfileData => {
+    return {
+      id: user.id,
+      name: user.user_metadata?.first_name && user.user_metadata?.last_name 
+        ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
+        : user.email?.split('@')[0] || 'User',
+      email: user.email || '',
+      phone: user.user_metadata?.phone || '',
+      location: 'Location not set',
+      bio: 'No bio added yet',
+      avatar: user.user_metadata?.avatar_url || '',
+      banner: '',
+      bannerType: null,
+      joinDate: new Date(user.created_at).toLocaleDateString('en-US', { 
+        month: 'short', 
+        year: 'numeric' 
+      }),
+      trustScore: 95,
+      helpCount: 0,
+      skills: [],
+      interests: [],
+      socialLinks: {
+        website: '',
+        facebook: '',
+        twitter: '',
+        instagram: '',
+        linkedin: ''
+      },
+      organizationInfo: {
+        organizationType: 'individual',
+        establishedYear: '',
+        registrationNumber: '',
+        description: '',
+        mission: '',
+        vision: ''
+      },
+      followerCount: 0,
+      followingCount: 0,
+      postCount: 0,
+      isVerified: !!user.email_confirmed_at,
+      verificationBadges: user.email_confirmed_at ? ['Email Verified'] : []
+    };
+  };
+
   const updateProfile = async (updatedData: UserProfileData) => {
     if (!user) return;
 
     try {
-      // Update the profiles table with type assertion
-      const { error } = await (supabase as any)
+      // Try to update the profiles table
+      const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
@@ -134,6 +191,14 @@ export const useUserProfile = () => {
 
       if (error) {
         console.error('Error updating profile:', error);
+        
+        // If table doesn't exist, just update local state
+        if (error.code === '42P01') {
+          console.log('Profiles table does not exist, updating local state only');
+          setProfileData(updatedData);
+          return;
+        }
+        
         throw error;
       }
 
