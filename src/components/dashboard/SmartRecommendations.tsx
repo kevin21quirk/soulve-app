@@ -26,7 +26,7 @@ const SmartRecommendations = () => {
           </Button>
         </div>
         <CardDescription className="text-sm text-purple-700">
-          Personalized suggestions based on your activity
+          Personalised suggestions based on your activity
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
@@ -41,7 +41,7 @@ const SmartRecommendations = () => {
         </div>
         
         {recommendations.length > 4 && (
-          <div className="text-center mt-3 pt-3 border-t border-purple-200">
+          <div className="text-centre mt-3 pt-3 border-t border-purple-200">
             <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-50">
               View All Recommendations
               <ChevronRight className="h-3 w-3 ml-1" />

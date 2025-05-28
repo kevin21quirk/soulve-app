@@ -64,12 +64,12 @@ const CommunityGroupQuestionnaire = () => {
   };
 
   const platformFeatures = [
-    { key: "eventManagement", label: "Event management system (organize and promote community events)" },
+    { key: "eventManagement", label: "Event management system (organise and promote community events)" },
     { key: "memberCommunication", label: "Member communication tools (coordinate and update your community)" },
     { key: "resourceSharing", label: "Resource sharing platform (share tools, knowledge, and resources)" },
     { key: "collaborationTools", label: "Collaboration tools (work together on community projects)" },
     { key: "communityBuilding", label: "Community building features (connect members with similar interests)" },
-    { key: "volunteerCoordination", label: "Volunteer coordination system (organize and manage volunteers)" }
+    { key: "volunteerCoordination", label: "Volunteer coordination system (organise and manage volunteers)" }
   ];
 
   return (
@@ -79,10 +79,10 @@ const CommunityGroupQuestionnaire = () => {
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE</h4>
-        <p className="text-gray-600 mb-4">
+        <p className="text-grey-600 mb-4">
           We're building a social impact platform that combines social networking with verified community support and integrated crowdfunding.
         </p>
-        <p className="text-gray-600 mb-6">
+        <p className="text-grey-600 mb-6">
           Our platform is designed to support your community group's mission by providing tools to increase engagement, connect members, and make a positive impact.
         </p>
       </div>
@@ -160,7 +160,7 @@ const CommunityGroupQuestionnaire = () => {
           onChange={handleInputChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"

@@ -94,10 +94,10 @@ const StandardUserQuestionnaire = () => {
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE</h4>
-        <p className="text-gray-600 mb-4">
+        <p className="text-grey-600 mb-4">
           We're building a social impact platform that combines social networking with verified community support and integrated crowdfunding.
         </p>
-        <p className="text-gray-600 mb-6">
+        <p className="text-grey-600 mb-6">
           Whether you're looking to volunteer, support causes you care about, or connect with like-minded people in your community, SouLVE is designed to help you make a positive impact.
         </p>
       </div>
@@ -111,7 +111,7 @@ const StandardUserQuestionnaire = () => {
           onChange={handlePlatformFeatureChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"

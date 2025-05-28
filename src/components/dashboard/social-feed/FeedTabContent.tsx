@@ -48,17 +48,17 @@ const FeedTabContent = ({
         return {
           title: "For You",
           icon: Sparkles,
-          color: "purple",
-          description: "Your personalized feed is being prepared! Try connecting with more people or following topics you're interested in.",
+          colour: "purple",
+          description: "Your personalised feed is being prepared! Try connecting with more people or following topics you're interested in.",
           showCreate: true,
           showRecommendations: true,
-          emptyMessage: "Your personalized feed is being prepared! Try connecting with more people or following topics you're interested in."
+          emptyMessage: "Your personalised feed is being prepared! Try connecting with more people or following topics you're interested in."
         };
       case "urgent":
         return {
           title: "Urgent Help Needed",
           icon: Zap,
-          color: "red",
+          colour: "red",
           description: "These requests need immediate attention. Your quick response could make a real difference!",
           emptyMessage: "No urgent requests at the moment. Check back soon or explore other tabs!"
         };
@@ -66,7 +66,7 @@ const FeedTabContent = ({
         return {
           title: "Help Nearby",
           icon: MapPin,
-          color: "blue",
+          colour: "blue",
           description: "Find opportunities to help people in your local area. Building stronger communities starts close to home!",
           emptyMessage: "No local requests found. Try expanding your search radius or check other areas!"
         };
@@ -74,7 +74,7 @@ const FeedTabContent = ({
         return {
           title: "Trending Now",
           icon: TrendingUp,
-          color: "green",
+          colour: "green",
           description: "See what's getting the most attention in your community right now!",
           emptyMessage: "Nothing trending right now. Be the first to start something amazing!"
         };
@@ -82,7 +82,7 @@ const FeedTabContent = ({
         return {
           title: "People You Follow",
           icon: Users,
-          color: "purple",
+          colour: "purple",
           description: "Stay updated with posts from people you've connected with and topics you follow.",
           emptyMessage: "Follow more people to see their posts here. Build your network in the Connections tab!"
         };
@@ -90,8 +90,8 @@ const FeedTabContent = ({
         return {
           title: "For You",
           icon: Sparkles,
-          color: "purple",
-          description: "Your personalized feed is being prepared!",
+          colour: "purple",
+          description: "Your personalised feed is being prepared!",
           emptyMessage: "No posts available."
         };
     }
@@ -104,14 +104,14 @@ const FeedTabContent = ({
       {config.showCreate && <CreatePost onPostCreated={onPostCreated} />}
       {config.showRecommendations && <SmartRecommendations />}
       
-      <Card className={`border-${config.color}-200 bg-${config.color}-50`}>
+      <Card className={`border-${config.colour}-200 bg-${config.colour}-50`}>
         <CardHeader className="pb-3">
-          <CardTitle className={`flex items-center space-x-2 text-${config.color}-800`}>
+          <CardTitle className={`flex items-centre space-x-2 text-${config.colour}-800`}>
             <config.icon className="h-5 w-5" />
             <span>{config.title}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className={`text-sm text-${config.color}-700`}>
+        <CardContent className={`text-sm text-${config.colour}-700`}>
           {config.description}
         </CardContent>
       </Card>

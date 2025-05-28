@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import QuestionnaireLayout from "./QuestionnaireLayout";
@@ -61,17 +62,17 @@ const SocialGroupQuestionnaire = () => {
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">What Is Soulve?</h4>
-        <p className="text-gray-600 mb-4">
+        <p className="text-grey-600 mb-4">
           Soulve is a platform where community members can safely connect, help each other, and support local causes. Our platform features:
         </p>
-        <ul className="text-gray-600 mb-4 list-disc list-inside">
+        <ul className="text-grey-600 mb-4 list-disc list-inside">
           <li>Verified user profiles with trust scores that grow through positive actions</li>
           <li>Integrated donation and crowdfunding</li>
           <li>AI-powered help matching connecting local needs with verified helpers</li>
           <li>Community recognition system for impact and contributions</li>
           <li>Comprehensive tools for organisations to engage supporters</li>
         </ul>
-        <p className="text-gray-600 mb-6">
+        <p className="text-grey-600 mb-6">
           Our platform is designed to support your mission by providing tools to increase engagement, simplify volunteer management, boost fundraising, and measure impact.
         </p>
       </div>
@@ -129,7 +130,7 @@ const SocialGroupQuestionnaire = () => {
           onChange={handleInputChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"

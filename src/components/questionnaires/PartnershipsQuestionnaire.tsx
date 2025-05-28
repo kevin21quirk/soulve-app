@@ -47,7 +47,7 @@ const PartnershipsQuestionnaire = () => {
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE Partnerships</h4>
-        <p className="text-gray-600 mb-6">
+        <p className="text-grey-600 mb-6">
           We're building a platform that combines social networking with verified community support to strengthen local connections. This questionnaire will help us understand how we might work together to create mutual value.
         </p>
       </div>
@@ -83,7 +83,7 @@ const PartnershipsQuestionnaire = () => {
           onChange={handleInputChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"

@@ -64,7 +64,7 @@ const CharityQuestionnaire = () => {
     { key: "impactReporting", label: "Impact measurement and reporting system" },
     { key: "communityBuilding", label: "Community building and supporter networking" },
     { key: "fundingSupport", label: "Fundraising and grant application support" },
-    { key: "partnershipFacilitation", label: "Partnership facilitation with other organizations" }
+    { key: "partnershipFacilitation", label: "Partnership facilitation with other organisations" }
   ];
 
   return (
@@ -74,11 +74,11 @@ const CharityQuestionnaire = () => {
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE</h4>
-        <p className="text-gray-600 mb-4">
+        <p className="text-grey-600 mb-4">
           We're building a social impact platform that combines social networking with verified community support and integrated crowdfunding.
         </p>
-        <p className="text-gray-600 mb-6">
-          Our platform is designed to help charities connect with volunteers, donors, and partner organizations to maximize their positive impact in the community.
+        <p className="text-grey-600 mb-6">
+          Our platform is designed to help charities connect with volunteers, donors, and partner organisations to maximise their positive impact in the community.
         </p>
       </div>
 
@@ -91,7 +91,7 @@ const CharityQuestionnaire = () => {
           onChange={handlePlatformFeatureChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"

@@ -13,13 +13,13 @@ export const getRecommendationIcon = (type: string, className: string = "h-4 w-4
     case "post":
       return <Calendar className={`${className} text-green-600`} />;
     default:
-      return <Target className={`${className} text-gray-600`} />;
+      return <Target className={`${className} text-grey-600`} />;
   }
 };
 
-export const getConfidenceColor = (confidence: number) => {
+export const getConfidenceColour = (confidence: number) => {
   if (confidence >= 90) return "bg-green-100 text-green-800";
   if (confidence >= 75) return "bg-blue-100 text-blue-800";
   if (confidence >= 60) return "bg-yellow-100 text-yellow-800";
-  return "bg-gray-100 text-gray-800";
+  return "bg-grey-100 text-grey-800";
 };

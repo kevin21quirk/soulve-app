@@ -5,11 +5,11 @@ import SouLVELogo from "./SouLVELogo";
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white min-h-screen flex items-center">
+    <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white min-h-screen flex items-centre">
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center animate-fade-in">
-          <div className="flex justify-center items-center mb-8">
+        <div className="text-centre animate-fade-in">
+          <div className="flex justify-centre items-centre mb-8">
             <SouLVELogo size="large" />
           </div>
           
@@ -22,7 +22,7 @@ const HeroSection = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12">
+          <div className="flex flex-col sm:flex-row gap-6 justify-centre items-centre mt-12">
             <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
               <a href="/dashboard">
                 <Heart className="mr-3 h-6 w-6" />

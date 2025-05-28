@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import QuestionnaireLayout from "./QuestionnaireLayout";
@@ -53,10 +54,10 @@ const ExpertiseQuestionnaire = () => {
   };
 
   const platformFeatures = [
-    { key: "expertMatching", label: "Expert matching system (connect with organizations needing your specific skills)" },
+    { key: "expertMatching", label: "Expert matching system (connect with organisations needing your specific skills)" },
     { key: "projectManagement", label: "Project management tools (track and manage your volunteer consulting projects)" },
     { key: "knowledgeSharing", label: "Knowledge sharing platform (share expertise through resources and content)" },
-    { key: "mentorshipPrograms", label: "Mentorship programs (provide ongoing guidance to organization leaders)" },
+    { key: "mentorshipPrograms", label: "Mentorship programmes (provide ongoing guidance to organisation leaders)" },
     { key: "skillsAssessment", label: "Skills assessment and verification system" },
     { key: "impactTracking", label: "Impact tracking (measure the difference your expertise makes)" }
   ];
@@ -64,15 +65,15 @@ const ExpertiseQuestionnaire = () => {
   return (
     <QuestionnaireLayout 
       title="Expertise Network Registration"
-      description="Help us understand your professional expertise and how you can support community organizations"
+      description="Help us understand your professional expertise and how you can support community organisations"
     >
       <div className="prose max-w-none mb-8">
         <h4 className="text-lg font-semibold mb-4">Welcome to SouLVE Expertise Network</h4>
-        <p className="text-gray-600 mb-4">
+        <p className="text-grey-600 mb-4">
           We're building a social impact platform that combines social networking with verified community support and integrated crowdfunding.
         </p>
-        <p className="text-gray-600 mb-6">
-          Our Expertise Network connects skilled professionals with community organizations that need specialized knowledge and support. Your expertise can help make a real difference in strengthening local communities.
+        <p className="text-grey-600 mb-6">
+          Our Expertise Network connects skilled professionals with community organisations that need specialised knowledge and support. Your expertise can help make a real difference in strengthening local communities.
         </p>
       </div>
 
@@ -124,7 +125,7 @@ const ExpertiseQuestionnaire = () => {
           onChange={handleInputChange}
         />
 
-        <div className="text-center pt-6">
+        <div className="text-centre pt-6">
           <Button
             type="submit"
             size="lg"
