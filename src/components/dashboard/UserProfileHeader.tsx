@@ -20,7 +20,7 @@ const UserProfileHeader = ({
   onAvatarUpdate 
 }: UserProfileHeaderProps) => {
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-centre space-y-4 md:space-y-0 md:space-x-6">
+    <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
       <AvatarUpload
         currentAvatar={profileData.avatar}
         userName={profileData.name}
@@ -30,13 +30,13 @@ const UserProfileHeader = ({
       
       <div className="flex-1 space-y-3">
         <div>
-          <h1 className="text-2xl font-bold text-grey-900">{profileData.name}</h1>
-          <div className="flex flex-wrap items-centre gap-4 text-sm text-grey-600 mt-1">
-            <div className="flex items-centre space-x-1">
+          <h1 className="text-2xl font-bold text-gray-900">{profileData.name}</h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mt-1">
+            <div className="flex items-center space-x-1">
               <MapPin className="h-4 w-4" />
               <span>{profileData.location}</span>
             </div>
-            <div className="flex items-centre space-x-1">
+            <div className="flex items-center space-x-1">
               <Calendar className="h-4 w-4" />
               <span>Joined {profileData.joinDate}</span>
             </div>
