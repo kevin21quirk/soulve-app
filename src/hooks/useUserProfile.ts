@@ -40,12 +40,12 @@ export const useUserProfile = () => {
         setLoading(true);
         setError(null);
         
-        // Try to fetch profile data from the profiles table
-        const { data: profile, error: profileError } = await supabase
+        // Try to fetch profile data from the profiles table with type assertion
+        const { data: profile, error: profileError } = await (supabase as any)
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .maybeSingle();
+          .maybeSingle() as { data: DatabaseProfile | null; error: any };
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
@@ -168,8 +168,8 @@ export const useUserProfile = () => {
     if (!user) return;
 
     try {
-      // Try to update the profiles table
-      const { error } = await supabase
+      // Try to update the profiles table with type assertion
+      const { error } = await (supabase as any)
         .from('profiles')
         .upsert({
           id: user.id,
