@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,6 +125,7 @@ const UserProfile = () => {
   };
 
   const handleViewPointsDetails = () => {
+    console.log("Trust score button clicked - showing points details");
     setShowPointsDetails(true);
     toast({
       title: "Points Breakdown",
@@ -180,7 +182,7 @@ const UserProfile = () => {
     <div className="space-y-6">
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
-          <div className="flex items-centre justify-between">
+          <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">Profile</CardTitle>
             <Button onClick={handleEdit} variant="outline" size="sm">
               <Edit className="h-4 w-4 mr-2" />
@@ -218,8 +220,8 @@ const UserProfile = () => {
       {showPointsDetails && (
         <Card className="max-w-4xl mx-auto border-blue-200 bg-blue-50/30">
           <CardHeader>
-            <div className="flex items-centre justify-between">
-              <CardTitle className="flex items-centre space-x-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-blue-600" />
                 <span>Trust Score & Points Breakdown</span>
               </CardTitle>
@@ -237,22 +239,22 @@ const UserProfile = () => {
             <div className="space-y-4">
               <div className="bg-white p-4 rounded-lg">
                 <h3 className="font-semibold text-lg mb-2">Trust Score Breakdown</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-centre">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-600">{profileData.trustScore}%</div>
-                    <div className="text-sm text-grey-600">Overall Trust</div>
+                    <div className="text-sm text-gray-600">Overall Trust</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-blue-600">{profileData.helpCount}</div>
-                    <div className="text-sm text-grey-600">People Helped</div>
+                    <div className="text-sm text-gray-600">People Helped</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-purple-600">525</div>
-                    <div className="text-sm text-grey-600">Total Points</div>
+                    <div className="text-sm text-gray-600">Total Points</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-orange-600">Level 6</div>
-                    <div className="text-sm text-grey-600">Trust Level</div>
+                    <div className="text-sm text-gray-600">Trust Level</div>
                   </div>
                 </div>
               </div>
@@ -284,7 +286,7 @@ const UserProfile = () => {
                 </div>
               </div>
               
-              <div className="text-centre">
+              <div className="text-center">
                 <Button 
                   onClick={() => {
                     setShowPointsDetails(false);
