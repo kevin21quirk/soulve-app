@@ -31,9 +31,26 @@ export const useUserProfile = (): UseUserProfileReturn => {
           return;
         }
 
-        // Create profile data object with real user data or defaults
-        const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
-        setProfileData(userProfileData);
+        // If no profile exists, create a default one from user data
+        if (!profile) {
+          console.log('No profile found, creating default profile');
+          const defaultProfile = createDefaultProfile(user);
+          
+          // Try to create the profile in the database
+          const profileDataForDB = mapUserProfileToDatabase(defaultProfile);
+          const { error: createError } = await upsertUserProfile(profileDataForDB);
+          
+          if (createError) {
+            console.error('Error creating profile:', createError);
+            // Still show the default profile even if DB save fails
+          }
+          
+          setProfileData(defaultProfile);
+        } else {
+          // Create profile data object with real user data
+          const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
+          setProfileData(userProfileData);
+        }
       } catch (err) {
         console.error('Error in loadProfile:', err);
         // Fallback to default profile if everything fails
