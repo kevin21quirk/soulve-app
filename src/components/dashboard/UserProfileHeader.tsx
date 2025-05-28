@@ -1,26 +1,32 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Users, Award, TrendingUp } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
+import AvatarUpload from "./AvatarUpload";
 
 interface UserProfileHeaderProps {
   profileData: UserProfileData;
   isEditing: boolean;
   onViewPointsDetails?: () => void;
+  onAvatarUpdate?: (newAvatarUrl: string) => void;
 }
 
-const UserProfileHeader = ({ profileData, isEditing, onViewPointsDetails }: UserProfileHeaderProps) => {
+const UserProfileHeader = ({ 
+  profileData, 
+  isEditing, 
+  onViewPointsDetails,
+  onAvatarUpdate 
+}: UserProfileHeaderProps) => {
   return (
     <div className="flex flex-col md:flex-row items-start md:items-centre space-y-4 md:space-y-0 md:space-x-6">
-      <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-        <AvatarImage src={profileData.avatar} alt={profileData.name} />
-        <AvatarFallback className="text-2xl">
-          {profileData.name.split(' ').map(n => n[0]).join('')}
-        </AvatarFallback>
-      </Avatar>
+      <AvatarUpload
+        currentAvatar={profileData.avatar}
+        userName={profileData.name}
+        onAvatarUpdate={onAvatarUpdate || (() => {})}
+        isEditing={isEditing}
+      />
       
       <div className="flex-1 space-y-3">
         <div>

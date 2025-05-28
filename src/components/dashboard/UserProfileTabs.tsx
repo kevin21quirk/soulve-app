@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,6 +55,12 @@ const UserProfileTabs = ({
 
   const handleInputChange = (field: keyof UserProfileData, value: string) => {
     setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAvatarUpdate = (newAvatarUrl: string) => {
+    const updatedData = { ...editData, avatar: newAvatarUrl };
+    setEditData(updatedData);
+    onProfileUpdate(updatedData);
   };
 
   const handleSkillsChange = (value: string) => {
@@ -165,6 +170,7 @@ const UserProfileTabs = ({
             profileData={editData} 
             isEditing={true} 
             onViewPointsDetails={onViewPointsDetails}
+            onAvatarUpdate={handleAvatarUpdate}
           />
           
           <UserProfileEditForm
@@ -205,6 +211,7 @@ const UserProfileTabs = ({
           profileData={profileData} 
           isEditing={false}
           onViewPointsDetails={onViewPointsDetails}
+          onAvatarUpdate={() => {}}
         />
         
         <UserProfileDisplay profileData={profileData} />
