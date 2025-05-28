@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,26 @@ const UserProfileTabs = ({
   const handleInterestsChange = (value: string) => {
     const interests = value.split(',').map(interest => interest.trim()).filter(interest => interest.length > 0);
     setEditData(prev => ({ ...prev, interests }));
+  };
+
+  const handleSocialLinksChange = (field: string, value: string) => {
+    setEditData(prev => ({
+      ...prev,
+      socialLinks: {
+        ...prev.socialLinks,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleOrganizationInfoChange = (field: string, value: string) => {
+    setEditData(prev => ({
+      ...prev,
+      organizationInfo: {
+        ...prev.organizationInfo,
+        [field]: value
+      }
+    }));
   };
 
   const handleBannerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,6 +172,8 @@ const UserProfileTabs = ({
             onInputChange={handleInputChange}
             onSkillsChange={handleSkillsChange}
             onInterestsChange={handleInterestsChange}
+            onSocialLinksChange={handleSocialLinksChange}
+            onOrganizationInfoChange={handleOrganizationInfoChange}
           />
         </CardContent>
       </Card>

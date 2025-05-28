@@ -25,7 +25,27 @@ const UserProfile = () => {
     trustScore: 95,
     helpCount: 47,
     skills: ["Moving Help", "Tutoring", "Pet Care", "Gardening"],
-    interests: ["Community Service", "Technology", "Outdoor Activities", "Reading"]
+    interests: ["Community Service", "Technology", "Outdoor Activities", "Reading"],
+    socialLinks: {
+      website: "https://alexjohnson.com",
+      facebook: "https://facebook.com/alexjohnson",
+      twitter: "https://twitter.com/alexjohnson",
+      instagram: "https://instagram.com/alexjohnson",
+      linkedin: "https://linkedin.com/in/alexjohnson"
+    },
+    organizationInfo: {
+      organizationType: "individual",
+      establishedYear: "",
+      registrationNumber: "",
+      description: "",
+      mission: "",
+      vision: ""
+    },
+    followerCount: 1234,
+    followingCount: 567,
+    postCount: 89,
+    isVerified: true,
+    verificationBadges: ["Email Verified", "Phone Verified", "Trusted Helper"]
   });
 
   const handleViewPointsDetails = () => {
