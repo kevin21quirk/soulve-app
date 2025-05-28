@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Bell, Keyboard, Search, Users, UserPlus, Activity } from "lucide-react";
@@ -68,15 +69,15 @@ const DashboardHeader = ({
               alt="SouLVE Icon" 
               className="h-8 w-8 hover:scale-110 transition-transform" 
             />
-            <h1 className="text-2xl font-bold text-gray-900">SouLVE</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">SouLVE</h1>
           </div>
           
           <div className="flex items-center space-x-4">
             <Popover open={showSearch} onOpenChange={setShowSearch}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
-                  <Search className="h-4 w-4 mr-2" />
-                  Search
+                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform border-teal-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50">
+                  <Search className="h-4 w-4 mr-2 text-teal-600" />
+                  <span className="text-teal-700">Search</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-96 p-4">
@@ -91,8 +92,8 @@ const DashboardHeader = ({
 
             <Popover open={showActivity} onOpenChange={setShowActivity}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
-                  <Activity className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform border-teal-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50">
+                  <Activity className="h-4 w-4 text-teal-600" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0">
@@ -102,9 +103,9 @@ const DashboardHeader = ({
 
             <Popover open={showNotifications} onOpenChange={setShowNotifications}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform relative">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full flex items-center justify-center">
+                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform relative border-teal-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50">
+                  <Bell className="h-4 w-4 text-teal-600" />
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs">3</span>
                   </span>
                 </Button>
@@ -116,8 +117,8 @@ const DashboardHeader = ({
 
             <Popover open={showShortcuts} onOpenChange={setShowShortcuts}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
-                  <Keyboard className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="hover:scale-105 transition-transform border-teal-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50">
+                  <Keyboard className="h-4 w-4 text-teal-600" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-96 p-0">
@@ -128,15 +129,15 @@ const DashboardHeader = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="hover:scale-105 transition-transform"
+              className="hover:scale-105 transition-transform border-teal-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50"
               onClick={handleMyNetworkClick}
             >
-              <Users className="h-4 w-4 mr-2" />
-              My Network
+              <Users className="h-4 w-4 mr-2 text-teal-600" />
+              <span className="text-teal-700">My Network</span>
             </Button>
             <Button 
               size="sm" 
-              className="hover:scale-105 transition-transform"
+              className="hover:scale-105 transition-transform bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white shadow-lg"
               onClick={handleHelpSomeoneClick}
             >
               <UserPlus className="h-4 w-4 mr-2" />

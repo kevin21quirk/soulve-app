@@ -25,32 +25,32 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ activeTab = "feed", onTabChange }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-7 mb-6">
-        <TabsTrigger value="feed" className="flex items-center space-x-2">
+      <TabsList className="grid w-full grid-cols-7 mb-6 bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-200">
+        <TabsTrigger value="feed" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <Rss className="h-4 w-4" />
           <span className="hidden sm:inline">Social Feed</span>
         </TabsTrigger>
-        <TabsTrigger value="connections" className="flex items-center space-x-2">
+        <TabsTrigger value="connections" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <Users className="h-4 w-4" />
           <span className="hidden sm:inline">My Network</span>
         </TabsTrigger>
-        <TabsTrigger value="help-center" className="flex items-center space-x-2">
+        <TabsTrigger value="help-center" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <Heart className="h-4 w-4" />
           <span className="hidden sm:inline">Help Center</span>
         </TabsTrigger>
-        <TabsTrigger value="messages" className="flex items-center space-x-2">
+        <TabsTrigger value="messages" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <MessageSquare className="h-4 w-4" />
           <span className="hidden sm:inline">Messages</span>
         </TabsTrigger>
-        <TabsTrigger value="analytics" className="flex items-center space-x-2">
+        <TabsTrigger value="analytics" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <BarChart3 className="h-4 w-4" />
           <span className="hidden sm:inline">Analytics</span>
         </TabsTrigger>
-        <TabsTrigger value="gamification" className="flex items-center space-x-2">
+        <TabsTrigger value="gamification" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <Trophy className="h-4 w-4" />
           <span className="hidden sm:inline">Points</span>
         </TabsTrigger>
-        <TabsTrigger value="profile" className="flex items-center space-x-2">
+        <TabsTrigger value="profile" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Profile</span>
         </TabsTrigger>
