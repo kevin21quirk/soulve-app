@@ -22,7 +22,7 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
         <img 
           src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
           alt="SouLVE Icon" 
-          className="h-16 w-16"
+          className="h-24 w-24"
         />
       </div>
     );
