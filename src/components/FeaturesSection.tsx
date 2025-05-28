@@ -8,37 +8,37 @@ const FeaturesSection = () => {
       title: "Trust Score & Verification",
       description: "Build trust through our comprehensive verification system and earn trust scores based on community impact.",
       icon: Shield,
-      gradient: "from-teal-500 to-cyan-500"
+      gradient: "from-emerald-500 to-teal-500"
     },
     {
       title: "AI-Powered Matching",
       description: "Our intelligent system connects 'Soulvers' with community needs, ensuring the right help reaches the right people.",
       icon: Target,
-      gradient: "from-teal-600 to-blue-500"
+      gradient: "from-blue-500 to-indigo-500"
     },
     {
       title: "Real-Time Impact Tracking",
       description: "See the immediate and long-term impact of your actions with our comprehensive tracking dashboard.",
       icon: TrendingUp,
-      gradient: "from-cyan-500 to-blue-500"
+      gradient: "from-purple-500 to-pink-500"
     },
     {
       title: "Gamified Engagement",
       description: "Earn recognition, unlock achievements, and level up your community impact through our engaging reward system.",
       icon: Star,
-      gradient: "from-teal-500 to-blue-600"
+      gradient: "from-yellow-500 to-orange-500"
     },
     {
       title: "Community Feed",
       description: "Transform your social feed into a powerful tool for social good - see needs, offer help, celebrate impact.",
       icon: MessageCircle,
-      gradient: "from-teal-600 to-cyan-500"
+      gradient: "from-green-500 to-emerald-500"
     },
     {
       title: "Unified Platform",
       description: "One platform for social media, crowdfunding, volunteering, and donations - everything you need to make a difference.",
       icon: Zap,
-      gradient: "from-cyan-500 to-blue-600"
+      gradient: "from-red-500 to-rose-500"
     }
   ];
 
