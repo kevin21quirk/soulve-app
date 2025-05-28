@@ -25,7 +25,8 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // Use type assertion to work around missing table types
+      const { data, error } = await (supabase as any)
         .from('user_verifications')
         .select('*')
         .eq('user_id', user.id)
@@ -47,7 +48,7 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('calculate_trust_score', { user_uuid: user.id });
 
       if (error) throw error;
@@ -63,7 +64,7 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('trust_score_history')
         .select('*')
         .eq('user_id', user.id)
@@ -81,7 +82,7 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_verifications')
         .insert({
           user_id: user.id,
