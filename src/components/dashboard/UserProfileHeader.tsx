@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Users, Award, TrendingUp } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
-import { getTrustScoreColour } from "@/utils/trustScoreUtils";
+import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 
 interface UserProfileHeaderProps {
   profileData: UserProfileData;
@@ -41,7 +41,7 @@ const UserProfileHeader = ({ profileData, isEditing, onViewPointsDetails }: User
           <Button
             variant="outline"
             size="sm"
-            className={`${getTrustScoreColour(profileData.trustScore)} cursor-pointer hover:scale-105 transition-transform`}
+            className={`${getTrustScoreColor(profileData.trustScore)} cursor-pointer hover:scale-105 transition-transform`}
             onClick={onViewPointsDetails}
             disabled={isEditing}
           >
