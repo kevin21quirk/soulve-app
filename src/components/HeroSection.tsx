@@ -23,13 +23,13 @@ const HeroSection = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-centre items-centre mt-12">
-            <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl border-2 border-white hover:border-teal-200" asChild>
+            <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
               <a href="/dashboard">
                 <Heart className="mr-3 h-6 w-6" />
                 Try SouLVE Demo
               </a>
             </Button>
-            <Button size="lg" className="bg-gradient-to-r from-teal-500 to-blue-500 backdrop-blur-sm border-2 border-white text-white hover:from-teal-400 hover:to-blue-400 hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
+            <Button size="lg" className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
               <a href="/register">
                 <Users className="mr-3 h-6 w-6" />
                 Become a Soulver

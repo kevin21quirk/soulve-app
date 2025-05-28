@@ -11,8 +11,8 @@ interface ConnectedPeopleProps {
 const ConnectedPeople = ({ connectedPeople, getTrustScoreColor }: ConnectedPeopleProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent flex items-center">
-        <Users className="h-5 w-5 mr-2 text-teal-600" />
+      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+        <Users className="h-5 w-5 mr-2" />
         Your Connections ({connectedPeople.length})
       </h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

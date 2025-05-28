@@ -31,12 +31,12 @@ const FeedControls = ({
           variant="outline"
           size="sm"
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center space-x-2 border-teal-200 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 hover:border-teal-300"
+          className="flex items-center space-x-2"
         >
-          <Filter className="h-4 w-4 text-teal-600" />
+          <Filter className="h-4 w-4" />
           <span>Filters</span>
           {activeFilter !== "all" && (
-            <Badge variant="secondary" className="ml-1 bg-gradient-to-r from-teal-500 to-blue-500 text-white">1</Badge>
+            <Badge variant="secondary" className="ml-1">1</Badge>
           )}
         </Button>
         
@@ -44,20 +44,20 @@ const FeedControls = ({
           variant="outline"
           size="sm"
           onClick={() => setSortBy(sortBy === "relevance" ? "recent" : "relevance")}
-          className="flex items-center space-x-2 border-teal-200 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 hover:border-teal-300"
+          className="flex items-center space-x-2"
         >
-          <SortAsc className="h-4 w-4 text-teal-600" />
+          <SortAsc className="h-4 w-4" />
           <span>{sortBy === "relevance" ? "Most Relevant" : "Most Recent"}</span>
         </Button>
       </div>
 
       <div className="flex items-center space-x-2 text-sm text-gray-600">
-        <Badge variant="outline" className="flex items-center space-x-1 border-teal-200 text-teal-700">
-          <Target className="h-3 w-3 text-teal-600" />
+        <Badge variant="outline" className="flex items-center space-x-1">
+          <Target className="h-3 w-3" />
           <span>{postsCount} posts</span>
         </Badge>
         {activeTab === "urgent" && (
-          <Badge variant="destructive" className="flex items-center space-x-1 bg-gradient-to-r from-red-500 to-pink-500">
+          <Badge variant="destructive" className="flex items-center space-x-1">
             <Zap className="h-3 w-3" />
             <span>{urgentPostsCount} urgent</span>
           </Badge>

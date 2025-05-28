@@ -23,15 +23,15 @@ const SearchFilters = ({
   setSelectedUrgency
 }: SearchFiltersProps) => {
   return (
-    <Card className="border-teal-200 bg-gradient-to-r from-teal-50/50 to-blue-50/50">
+    <Card>
       <CardContent className="p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-teal-600" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input 
                 placeholder="Search for causes, people, organizations..." 
-                className="pl-10 border-teal-200 focus:border-teal-500 focus:ring-teal-200"
+                className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -39,7 +39,7 @@ const SearchFilters = ({
           </div>
           <div className="flex gap-2">
             <select 
-              className="px-3 py-2 border border-teal-200 rounded-md text-sm focus:border-teal-500 focus:ring-teal-200"
+              className="px-3 py-2 border rounded-md text-sm"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -50,7 +50,7 @@ const SearchFilters = ({
               <option value="social">Social Justice</option>
             </select>
             <select 
-              className="px-3 py-2 border border-teal-200 rounded-md text-sm focus:border-teal-500 focus:ring-teal-200"
+              className="px-3 py-2 border rounded-md text-sm"
               value={selectedUrgency}
               onChange={(e) => setSelectedUrgency(e.target.value)}
             >
@@ -59,8 +59,8 @@ const SearchFilters = ({
               <option value="high">High</option>
               <option value="medium">Medium</option>
             </select>
-            <Button variant="outline" size="sm" className="border-teal-200 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 hover:border-teal-300">
-              <Filter className="h-4 w-4 text-teal-600" />
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4" />
             </Button>
           </div>
         </div>
