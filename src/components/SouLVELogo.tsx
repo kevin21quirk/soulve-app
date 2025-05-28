@@ -18,15 +18,12 @@ const SouLVELogo = ({ size = "large" }: SouLVELogoProps) => {
     );
   } else {
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-center">
         <img 
           src="/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png" 
           alt="SouLVE Icon" 
-          className="h-8 w-8"
+          className="h-16 w-16"
         />
-        <div className="text-left">
-          <h3 className="text-lg font-bold text-white">SouLVE</h3>
-        </div>
       </div>
     );
   }
