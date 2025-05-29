@@ -31,26 +31,23 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       </div>
       
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
-            <Camera className="h-4 w-4 text-green-500" />
-            <span className="text-xs">Photo</span>
+        <div className="flex items-center space-x-1">
+          <Button variant="ghost" size="sm" className="p-2">
+            <Camera className="h-5 w-5 text-green-500" />
           </Button>
           
-          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
-            <MapPin className="h-4 w-4 text-red-500" />
-            <span className="text-xs">Location</span>
+          <Button variant="ghost" size="sm" className="p-2">
+            <MapPin className="h-5 w-5 text-red-500" />
           </Button>
           
-          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
-            <Smile className="h-4 w-4 text-yellow-500" />
-            <span className="text-xs">Feeling</span>
+          <Button variant="ghost" size="sm" className="p-2">
+            <Smile className="h-5 w-5 text-yellow-500" />
           </Button>
         </div>
         
         <Button 
           size="sm"
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-4 py-2 text-sm font-medium flex-shrink-0"
+          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-4 py-2 text-sm font-medium"
         >
           Post
         </Button>
