@@ -56,6 +56,11 @@ const DashboardHeader = ({
     }
   };
 
+  const handleSearchSubmit = (query: string) => {
+    // Handle search functionality here
+    console.log("Search query:", query);
+  };
+
   return (
     <>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -138,25 +143,75 @@ const DashboardHeader = ({
 
       {/* Search Overlay */}
       {showSearch && (
-        <SearchBar onClose={() => setShowSearch(false)} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Search</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSearch(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <SearchBar 
+              onSearch={handleSearchSubmit}
+              placeholder="Search posts, people, groups..."
+            />
+          </div>
+        </div>
       )}
 
       {/* Notification Center */}
       {showNotifications && (
-        <NotificationCenter 
-          onClose={() => setShowNotifications(false)}
-          onNavigateToTab={onNavigateToTab}
-        />
+        <div className="fixed top-16 right-4 z-50">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowNotifications(false)}
+              className="absolute -top-2 -right-2 z-10 h-6 w-6 p-0 rounded-full bg-white shadow-md"
+            >
+              ✕
+            </Button>
+            <NotificationCenter />
+          </div>
+        </div>
       )}
 
       {/* Keyboard Shortcuts */}
       {showShortcuts && (
-        <KeyboardShortcuts onClose={() => setShowShortcuts(false)} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowShortcuts(false)}
+              className="absolute -top-2 -right-2 z-10 h-6 w-6 p-0 rounded-full bg-white shadow-md"
+            >
+              ✕
+            </Button>
+            <KeyboardShortcuts />
+          </div>
+        </div>
       )}
 
       {/* Real-time Activity */}
       {showActivity && (
-        <RealTimeActivity onClose={() => setShowActivity(false)} />
+        <div className="fixed top-16 right-4 z-50">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowActivity(false)}
+              className="absolute -top-2 -right-2 z-10 h-6 w-6 p-0 rounded-full bg-white shadow-md"
+            >
+              ✕
+            </Button>
+            <RealTimeActivity />
+          </div>
+        </div>
       )}
     </>
   );
