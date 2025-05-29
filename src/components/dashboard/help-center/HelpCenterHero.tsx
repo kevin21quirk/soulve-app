@@ -21,20 +21,30 @@ const HelpCenterHero = () => {
     <div className="bg-gradient-to-r from-soulve-blue to-soulve-purple rounded-xl p-6 text-white">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Make a Difference Today</h1>
-          <p className="text-blue-100 mb-4">Discover meaningful ways to support your community and causes you care about</p>
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-soulve-teal to-soulve-blue bg-clip-text text-transparent">
+            Make a Difference Today
+          </h1>
+          <p className="text-blue-100 mb-4 bg-gradient-to-r from-soulve-teal to-soulve-blue bg-clip-text text-transparent">
+            Discover meaningful ways to support your community and causes you care about
+          </p>
           <div className="flex items-center space-x-6 text-sm">
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
-              <span>{impactStats.totalHelped.toLocaleString()} people helped</span>
+              <span className="bg-gradient-to-r from-soulve-teal to-soulve-blue bg-clip-text text-transparent font-semibold">
+                {impactStats.totalHelped.toLocaleString()} people helped
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
-              <span>{impactStats.hoursVolunteered.toLocaleString()} hours volunteered</span>
+              <span className="bg-gradient-to-r from-soulve-teal to-soulve-blue bg-clip-text text-transparent font-semibold">
+                {impactStats.hoursVolunteered.toLocaleString()} hours volunteered
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <DollarSign className="h-4 w-4" />
-              <span>${impactStats.moneyRaised.toLocaleString()} raised</span>
+              <span className="bg-gradient-to-r from-soulve-teal to-soulve-blue bg-clip-text text-transparent font-semibold">
+                ${impactStats.moneyRaised.toLocaleString()} raised
+              </span>
             </div>
           </div>
         </div>
