@@ -9,6 +9,296 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      campaign_invitations: {
+        Row: {
+          campaign_id: string
+          expires_at: string | null
+          id: string
+          invitation_type: string
+          invitee_email: string
+          invitee_id: string | null
+          inviter_id: string
+          message: string | null
+          responded_at: string | null
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          expires_at?: string | null
+          id?: string
+          invitation_type: string
+          invitee_email: string
+          invitee_id?: string | null
+          inviter_id: string
+          message?: string | null
+          responded_at?: string | null
+          sent_at?: string
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          expires_at?: string | null
+          id?: string
+          invitation_type?: string
+          invitee_email?: string
+          invitee_id?: string | null
+          inviter_id?: string
+          message?: string | null
+          responded_at?: string | null
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_invitations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_participants: {
+        Row: {
+          campaign_id: string
+          contribution_amount: number | null
+          contribution_type: string | null
+          id: string
+          is_anonymous: boolean | null
+          joined_at: string
+          message: string | null
+          participant_type: string
+          role: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          contribution_amount?: number | null
+          contribution_type?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          joined_at?: string
+          message?: string | null
+          participant_type: string
+          role?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          contribution_amount?: number | null
+          contribution_type?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          joined_at?: string
+          message?: string | null
+          participant_type?: string
+          role?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_promotions: {
+        Row: {
+          budget_spent: number | null
+          campaign_id: string
+          clicks: number | null
+          conversions: number | null
+          created_at: string
+          end_date: string | null
+          id: string
+          impressions: number | null
+          is_active: boolean | null
+          promotion_type: string
+          start_date: string
+        }
+        Insert: {
+          budget_spent?: number | null
+          campaign_id: string
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          impressions?: number | null
+          is_active?: boolean | null
+          promotion_type: string
+          start_date?: string
+        }
+        Update: {
+          budget_spent?: number | null
+          campaign_id?: string
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          impressions?: number | null
+          is_active?: boolean | null
+          promotion_type?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_promotions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_updates: {
+        Row: {
+          author_id: string
+          campaign_id: string
+          content: string
+          created_at: string
+          id: string
+          is_public: boolean | null
+          media_attachments: Json | null
+          title: string
+          update_type: string
+        }
+        Insert: {
+          author_id: string
+          campaign_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          media_attachments?: Json | null
+          title: string
+          update_type: string
+        }
+        Update: {
+          author_id?: string
+          campaign_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          media_attachments?: Json | null
+          title?: string
+          update_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_updates_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          allow_anonymous_donations: boolean | null
+          category: string
+          created_at: string
+          creator_id: string
+          currency: string | null
+          current_amount: number | null
+          custom_fields: Json | null
+          description: string | null
+          enable_comments: boolean | null
+          enable_updates: boolean | null
+          end_date: string | null
+          featured_image: string | null
+          gallery_images: Json | null
+          goal_amount: number | null
+          goal_type: string
+          id: string
+          location: string | null
+          organization_type: string
+          promotion_budget: number | null
+          social_links: Json | null
+          start_date: string
+          status: string
+          story: string | null
+          tags: string[] | null
+          title: string
+          total_shares: number | null
+          total_views: number | null
+          updated_at: string
+          urgency: string
+          visibility: string
+        }
+        Insert: {
+          allow_anonymous_donations?: boolean | null
+          category: string
+          created_at?: string
+          creator_id: string
+          currency?: string | null
+          current_amount?: number | null
+          custom_fields?: Json | null
+          description?: string | null
+          enable_comments?: boolean | null
+          enable_updates?: boolean | null
+          end_date?: string | null
+          featured_image?: string | null
+          gallery_images?: Json | null
+          goal_amount?: number | null
+          goal_type: string
+          id?: string
+          location?: string | null
+          organization_type: string
+          promotion_budget?: number | null
+          social_links?: Json | null
+          start_date?: string
+          status?: string
+          story?: string | null
+          tags?: string[] | null
+          title: string
+          total_shares?: number | null
+          total_views?: number | null
+          updated_at?: string
+          urgency?: string
+          visibility?: string
+        }
+        Update: {
+          allow_anonymous_donations?: boolean | null
+          category?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string | null
+          current_amount?: number | null
+          custom_fields?: Json | null
+          description?: string | null
+          enable_comments?: boolean | null
+          enable_updates?: boolean | null
+          end_date?: string | null
+          featured_image?: string | null
+          gallery_images?: Json | null
+          goal_amount?: number | null
+          goal_type?: string
+          id?: string
+          location?: string | null
+          organization_type?: string
+          promotion_budget?: number | null
+          social_links?: Json | null
+          start_date?: string
+          status?: string
+          story?: string | null
+          tags?: string[] | null
+          title?: string
+          total_shares?: number | null
+          total_views?: number | null
+          updated_at?: string
+          urgency?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

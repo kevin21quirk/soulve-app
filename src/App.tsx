@@ -21,6 +21,7 @@ import SocialGroupQuestionnaire from "./components/questionnaires/SocialGroupQue
 import AmbassadorQuestionnaire from "./components/questionnaires/AmbassadorQuestionnaire";
 import PartnershipsQuestionnaire from "./components/questionnaires/PartnershipsQuestionnaire";
 import ExpertiseQuestionnaire from "./components/questionnaires/ExpertiseQuestionnaire";
+import CampaignBuilder from "./pages/CampaignBuilder";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -39,6 +40,11 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/register" element={<ProfileRegistration />} />
+              <Route path="/campaign-builder" element={
+                <ProtectedRoute>
+                  <CampaignBuilder />
+                </ProtectedRoute>
+              } />
               <Route path="/questionnaire/standard-user" element={<StandardUserQuestionnaire />} />
               <Route path="/questionnaire/charity" element={<CharityQuestionnaire />} />
               <Route path="/questionnaire/community-group" element={<CommunityGroupQuestionnaire />} />
