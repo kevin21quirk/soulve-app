@@ -1,7 +1,7 @@
 
 import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, MessageSquare, User, Settings, Shield, Trophy } from "lucide-react";
+import { Home, MessageSquare, User, Settings } from "lucide-react";
 
 interface MainTabsListProps {
   activeTab: string;
@@ -29,18 +29,6 @@ const MainTabsList = ({ activeTab, onTabChange }: MainTabsListProps) => {
       description: "Manage your profile and settings"
     },
     {
-      id: "verification",
-      label: "Verification",
-      icon: Shield,
-      description: "Verify your identity and increase your trust score"
-    },
-    {
-      id: "challenges",
-      label: "Challenges & Events",
-      icon: Trophy,
-      description: "Join community challenges and events"
-    },
-    {
       id: "settings",
       label: "Settings",
       icon: Settings,
@@ -49,7 +37,7 @@ const MainTabsList = ({ activeTab, onTabChange }: MainTabsListProps) => {
   ];
 
   return (
-    <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.id}

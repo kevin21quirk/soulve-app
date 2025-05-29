@@ -31,18 +31,6 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         <UserProfile />
       </TabsContent>
 
-      <TabsContent value="verification" className="mt-6">
-        <div className="text-center py-8">
-          <p className="text-gray-600">Verification panel is now integrated into the Profile tab.</p>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="challenges" className="mt-6">
-        <div className="text-center py-8">
-          <p className="text-gray-600">Challenges & Events are now integrated into the Profile tab.</p>
-        </div>
-      </TabsContent>
-
       <TabsContent value="settings" className="mt-6">
         <div className="text-center py-8">
           <p className="text-gray-600">Settings panel coming soon...</p>
