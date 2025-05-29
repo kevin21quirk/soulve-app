@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -153,6 +154,10 @@ const FeedPostCard = ({
             onShare={onShare}
             onRespond={onRespond}
             onBookmark={onBookmark}
+            onReaction={onReaction}
+            onAddComment={onAddComment}
+            onLikeComment={onLikeComment}
+            onCommentReaction={onCommentReaction}
           />
 
           <PostComments

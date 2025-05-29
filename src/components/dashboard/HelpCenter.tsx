@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,8 @@ const HelpCenter = () => {
   const [activeTab, setActiveTab] = useState("discover");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedUrgency, setSelectedUrgency] = useState("all");
   const [pendingFeedPost, setPendingFeedPost] = useState<HelpCenterPost | undefined>();
   
   const { publishHelpCenterToFeed } = useAutoFeedIntegration();
@@ -104,7 +107,17 @@ const HelpCenter = () => {
         </div>
       </div>
 
-      {showFilters && <SearchFilters onClose={() => setShowFilters(false)} />}
+      {showFilters && (
+        <SearchFilters 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedUrgency={selectedUrgency}
+          setSelectedUrgency={setSelectedUrgency}
+          onClose={() => setShowFilters(false)} 
+        />
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -114,7 +127,7 @@ const HelpCenter = () => {
         </TabsList>
 
         <TabsContent value="discover" className="mt-6">
-          <DiscoverTab searchQuery={searchQuery} />
+          <DiscoverTab />
         </TabsContent>
 
         <TabsContent value="my-impact" className="mt-6">

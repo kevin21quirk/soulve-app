@@ -1,29 +1,41 @@
 
 import { useState } from "react";
-import { Search, Filter } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Search, Filter, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface SearchFiltersProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
-  selectedUrgency: string;
-  setSelectedUrgency: (urgency: string) => void;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
+  selectedCategory?: string;
+  setSelectedCategory?: (category: string) => void;
+  selectedUrgency?: string;
+  setSelectedUrgency?: (urgency: string) => void;
+  onClose?: () => void;
 }
 
 const SearchFilters = ({
-  searchQuery,
-  setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
-  selectedUrgency,
-  setSelectedUrgency
+  searchQuery = "",
+  setSearchQuery = () => {},
+  selectedCategory = "all",
+  setSelectedCategory = () => {},
+  selectedUrgency = "all",
+  setSelectedUrgency = () => {},
+  onClose
 }: SearchFiltersProps) => {
   return (
     <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Filters</CardTitle>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </CardHeader>
       <CardContent className="p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">

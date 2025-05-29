@@ -14,10 +14,11 @@ import { createCampaign, type CampaignFormData } from "@/services/campaignServic
 import { Calendar, DollarSign, Globe, Users, Target, Settings, Image, Share2 } from "lucide-react";
 
 interface CampaignFormProps {
-  onSuccess: () => void;
+  onSuccess?: () => void;
+  onCampaignCreated?: (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => void;
 }
 
-const CampaignForm = ({ onSuccess }: CampaignFormProps) => {
+const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
@@ -56,11 +57,20 @@ const CampaignForm = ({ onSuccess }: CampaignFormProps) => {
     setIsSubmitting(true);
     try {
       await createCampaign({ ...data, tags });
+      
+      // Call the auto-feed integration callback if provided
+      if (onCampaignCreated && data.title && data.description && data.category) {
+        onCampaignCreated(data.title, data.description, data.category as 'fundraising' | 'volunteer' | 'awareness' | 'community');
+      }
+      
       toast({
         title: "Campaign Created!",
         description: "Your campaign has been successfully created and is ready to launch.",
       });
-      onSuccess();
+      
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error creating campaign:', error);
       toast({
