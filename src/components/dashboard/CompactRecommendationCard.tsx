@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,8 +89,8 @@ const CompactRecommendationCard = ({ recommendation, onAction }: CompactRecommen
       <Button
         onClick={() => onAction(recommendation)}
         size="sm"
-        className="w-full h-7 text-xs group-hover:bg-purple-600 group-hover:text-white transition-colours"
-        variant="outline"
+        className="w-full h-7 text-xs"
+        variant="gradient"
       >
         {recommendation.actionLabel}
       </Button>
