@@ -17,13 +17,13 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
         soulve: 
-          "border-transparent bg-gradient-to-r from-soulve-teal to-soulve-blue text-white hover:from-soulve-teal/90 hover:to-soulve-blue/90",
+          "border-transparent bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90",
         "soulve-teal":
-          "border-transparent bg-soulve-teal text-white hover:bg-soulve-teal/90",
+          "border-transparent bg-[#0ce4af] text-white hover:bg-[#0ce4af]/90",
         "soulve-blue":
-          "border-transparent bg-soulve-blue text-white hover:bg-soulve-blue/90",
+          "border-transparent bg-[#18a5fe] text-white hover:bg-[#18a5fe]/90",
         "soulve-purple":
-          "border-transparent bg-soulve-purple text-white hover:bg-soulve-purple/90",
+          "border-transparent bg-[#4c3dfb] text-white hover:bg-[#4c3dfb]/90",
       },
     },
     defaultVariants: {
