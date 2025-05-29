@@ -1,274 +1,226 @@
 
 import { 
-  PointTransaction, 
   UserStats, 
-  CommunityImpactStats, 
-  ImpactMilestone, 
+  PointBreakdown, 
+  LeaderboardEntry, 
   SeasonalChallenge, 
-  LeaderboardEntry,
-  PointBreakdown
+  PointTransaction 
 } from "@/types/gamification";
-import { PointsCalculator } from "@/services/pointsService";
 
-// Mock point transactions for the current user
-export const mockPointTransactions: PointTransaction[] = [
+export const mockEnhancedUserStats: UserStats = {
+  totalPoints: 1247,
+  level: 3,
+  nextLevelPoints: 253,
+  helpedCount: 23,
+  connectionsCount: 47,
+  postsCount: 15,
+  likesReceived: 142,
+  trustScore: 85,
+  trustLevel: "trusted_helper"
+};
+
+export const mockPointBreakdown: PointBreakdown[] = [
   {
-    id: "pt_1",
-    userId: "current-user",
-    category: "profile_verification",
-    points: 50,
-    multiplier: 1,
-    basePoints: 50,
-    description: "Completed profile verification",
-    timestamp: "2024-01-20T10:00:00Z",
-    verified: true
+    category: "help_completed",
+    categoryName: "Help Completed",
+    totalPoints: 425,
+    transactionCount: 17,
+    lastActivity: "2024-01-15",
+    icon: "🤝",
+    color: "blue"
   },
   {
-    id: "pt_2",
+    category: "donation",
+    categoryName: "Donations",
+    totalPoints: 280,
+    transactionCount: 28,
+    lastActivity: "2024-01-14",
+    icon: "💰",
+    color: "green"
+  },
+  {
+    category: "profile_verification",
+    categoryName: "Verifications",
+    totalPoints: 225,
+    transactionCount: 15,
+    lastActivity: "2024-01-10",
+    icon: "✅",
+    color: "purple"
+  },
+  {
+    category: "positive_feedback",
+    categoryName: "Positive Feedback",
+    totalPoints: 185,
+    transactionCount: 37,
+    lastActivity: "2024-01-13",
+    icon: "⭐",
+    color: "yellow"
+  },
+  {
+    category: "user_referral",
+    categoryName: "Referrals",
+    totalPoints: 132,
+    transactionCount: 6,
+    lastActivity: "2024-01-08",
+    icon: "👥",
+    color: "pink"
+  }
+];
+
+export const mockLeaderboard: LeaderboardEntry[] = [
+  {
+    userId: "user-1",
+    userName: "Sarah Chen",
+    avatar: "/avatars/sarah.jpg",
+    totalPoints: 2847,
+    trustLevel: "impact_champion",
+    rank: 1,
+    weeklyPoints: 156,
+    monthlyPoints: 642
+  },
+  {
+    userId: "user-2",
+    userName: "Marcus Johnson",
+    avatar: "/avatars/marcus.jpg",
+    totalPoints: 2134,
+    trustLevel: "community_leader",
+    rank: 2,
+    weeklyPoints: 134,
+    monthlyPoints: 521
+  },
+  {
+    userId: "current-user",
+    userName: "Alex Thompson",
+    avatar: "/avatars/alex.jpg",
+    totalPoints: 1247,
+    trustLevel: "trusted_helper",
+    rank: 3,
+    weeklyPoints: 89,
+    monthlyPoints: 387
+  },
+  {
+    userId: "user-4",
+    userName: "Emily Rodriguez",
+    avatar: "/avatars/emily.jpg",
+    totalPoints: 1156,
+    trustLevel: "trusted_helper",
+    rank: 4,
+    weeklyPoints: 76,
+    monthlyPoints: 298
+  },
+  {
+    userId: "user-5",
+    userName: "David Kim",
+    avatar: "/avatars/david.jpg",
+    totalPoints: 892,
+    trustLevel: "verified_helper",
+    rank: 5,
+    weeklyPoints: 67,
+    monthlyPoints: 234
+  }
+];
+
+export const mockSeasonalChallenges: SeasonalChallenge[] = [
+  {
+    id: "winter-helper",
+    title: "Winter Helper Challenge",
+    description: "Help 10 community members this month",
+    startDate: "2024-01-01",
+    endDate: "2024-01-31",
+    pointMultiplier: 1.5,
+    targetCategories: ["help_completed", "emergency_help"],
+    progress: 7,
+    maxProgress: 10,
+    reward: "Special Winter Helper badge + 100 bonus points",
+    active: true
+  },
+  {
+    id: "donation-drive",
+    title: "Community Donation Drive",
+    description: "Make 5 donations to support local causes",
+    startDate: "2024-01-15",
+    endDate: "2024-02-15",
+    pointMultiplier: 2.0,
+    targetCategories: ["donation", "matching_donation"],
+    progress: 3,
+    maxProgress: 5,
+    reward: "Generous Giver badge + 200 bonus points",
+    active: true
+  },
+  {
+    id: "verification-boost",
+    title: "Trust Building Sprint",
+    description: "Complete 3 new verifications",
+    startDate: "2024-01-01",
+    endDate: "2024-03-01",
+    pointMultiplier: 1.25,
+    targetCategories: ["profile_verification"],
+    progress: 2,
+    maxProgress: 3,
+    reward: "Trust Builder badge + Enhanced profile visibility",
+    active: true
+  }
+];
+
+export const mockPointTransactions: PointTransaction[] = [
+  {
+    id: "txn-1",
     userId: "current-user",
     category: "help_completed",
     points: 25,
     multiplier: 1,
     basePoints: 25,
-    description: "Helped with moving furniture",
-    timestamp: "2024-01-22T14:30:00Z",
+    description: "Helped Sarah move to new apartment",
+    timestamp: "2024-01-15T14:30:00Z",
     verified: true,
-    relatedEntityId: "help_req_123"
+    relatedEntityId: "help-req-123"
   },
   {
-    id: "pt_3",
+    id: "txn-2",
     userId: "current-user",
     category: "donation",
-    points: 50,
+    points: 10,
     multiplier: 1,
-    basePoints: 50,
-    description: "Donation of £50",
-    timestamp: "2024-01-25T09:15:00Z",
+    basePoints: 10,
+    description: "Donated £25 to Local Food Bank",
+    timestamp: "2024-01-14T09:15:00Z",
     verified: true,
-    relatedEntityId: "donation_456"
+    relatedEntityId: "donation-456"
   },
   {
-    id: "pt_4",
-    userId: "current-user",
-    category: "group_help",
-    points: 32,
-    multiplier: 1.1,
-    basePoints: 30,
-    description: "Group help event with 3 helpers",
-    timestamp: "2024-02-01T16:00:00Z",
-    verified: true,
-    metadata: { additionalHelpers: 2 }
-  },
-  {
-    id: "pt_5",
-    userId: "current-user",
-    category: "recurring_help",
-    points: 28,
-    multiplier: 1.1,
-    basePoints: 25,
-    description: "Recurring help with consistency bonus (6 consecutive)",
-    timestamp: "2024-02-05T11:00:00Z",
-    verified: true,
-    metadata: { consecutiveHelps: 6 }
-  },
-  {
-    id: "pt_6",
-    userId: "current-user",
-    category: "positive_feedback",
-    points: 15,
-    multiplier: 1,
-    basePoints: 15,
-    description: "Received 5-star rating",
-    timestamp: "2024-02-06T12:30:00Z",
-    verified: true,
-    metadata: { rating: 5 }
-  },
-  {
-    id: "pt_7",
-    userId: "current-user",
-    category: "user_referral",
-    points: 25,
-    multiplier: 1,
-    basePoints: 25,
-    description: "Referred new user who completed verification",
-    timestamp: "2024-02-10T08:45:00Z",
-    verified: true,
-    relatedEntityId: "user_789"
-  },
-  {
-    id: "pt_8",
+    id: "txn-3",
     userId: "current-user",
     category: "emergency_help",
-    points: 100,
-    multiplier: 1,
-    basePoints: 100,
-    description: "Emergency assistance during storm",
-    timestamp: "2024-02-12T18:20:00Z",
-    verified: true,
-    relatedEntityId: "emergency_321"
-  },
-  {
-    id: "pt_9",
-    userId: "current-user",
-    category: "crb_check",
-    points: 100,
-    multiplier: 1,
-    basePoints: 100,
-    description: "CRB check completed",
-    timestamp: "2024-02-15T13:00:00Z",
-    verified: true
-  },
-  {
-    id: "pt_10",
-    userId: "current-user",
-    category: "community_event_organized",
     points: 75,
     multiplier: 1.5,
     basePoints: 50,
-    description: "Organized neighborhood cleanup event",
-    timestamp: "2024-02-18T10:00:00Z",
+    description: "Emergency car repair assistance",
+    timestamp: "2024-01-13T16:45:00Z",
     verified: true,
-    relatedEntityId: "event_555"
-  }
-];
-
-// Calculate total points from transactions
-const totalPoints = mockPointTransactions.reduce((sum, t) => sum + t.points, 0);
-
-// Enhanced user stats with trust integration
-export const mockEnhancedUserStats: UserStats = {
-  totalPoints,
-  level: Math.floor(totalPoints / 100) + 1,
-  nextLevelPoints: (Math.floor(totalPoints / 100) + 1) * 100,
-  helpedCount: 23,
-  connectionsCount: 42,
-  postsCount: 15,
-  likesReceived: 156,
-  trustScore: 95,
-  trustLevel: PointsCalculator.getTrustLevel(totalPoints)
-};
-
-// Mock community impact stats
-export const mockCommunityImpactStats: CommunityImpactStats = {
-  totalCommunityPoints: 125000,
-  totalHelpActions: 1250,
-  totalDonations: 85000,
-  totalVolunteerHours: 3200,
-  activeHelpers: 340,
-  impactMilestones: [
-    {
-      id: "milestone_1",
-      title: "Community Helper",
-      description: "100,000 total community points",
-      targetPoints: 100000,
-      currentPoints: 125000,
-      reward: "Community Helper Badge for all members",
-      unlocked: true
-    },
-    {
-      id: "milestone_2", 
-      title: "Neighborhood Champion",
-      description: "150,000 total community points",
-      targetPoints: 150000,
-      currentPoints: 125000,
-      reward: "Local business partnership discounts",
-      unlocked: false
-    },
-    {
-      id: "milestone_3",
-      title: "Impact Network",
-      description: "250,000 total community points",
-      targetPoints: 250000,
-      currentPoints: 125000,
-      reward: "Regional recognition event",
-      unlocked: false
-    }
-  ]
-};
-
-// Mock seasonal challenges
-export const mockSeasonalChallenges: SeasonalChallenge[] = [
-  {
-    id: "winter_challenge_2024",
-    title: "Winter Warmth Challenge",
-    description: "Help elderly neighbors and make donations during winter months",
-    startDate: "2024-12-01T00:00:00Z",
-    endDate: "2024-02-29T23:59:59Z",
-    pointMultiplier: 1.5,
-    targetCategories: ["help_completed", "donation", "emergency_help"],
-    progress: 75,
-    maxProgress: 100,
-    reward: "Winter Helper Badge + £25 local business voucher",
-    active: true
+    relatedEntityId: "emergency-789"
   },
   {
-    id: "spring_community_2024",
-    title: "Spring Community Building",
-    description: "Organize events and build connections in your community",
-    startDate: "2024-03-01T00:00:00Z",
-    endDate: "2024-05-31T23:59:59Z",
-    pointMultiplier: 2.0,
-    targetCategories: ["community_event_organized", "community_group_created", "user_referral"],
-    progress: 0,
-    maxProgress: 100,
-    reward: "Community Builder Badge + Premium features access",
-    active: false
-  }
-];
-
-// Mock leaderboard data
-export const mockLeaderboard: LeaderboardEntry[] = [
-  {
-    userId: "user_1",
-    userName: "Sarah Mitchell",
-    avatar: "/avatars/sarah.jpg",
-    totalPoints: 2150,
-    trustLevel: "community_leader",
-    rank: 1,
-    weeklyPoints: 180,
-    monthlyPoints: 650
-  },
-  {
+    id: "txn-4",
     userId: "current-user",
-    userName: "Alex Johnson",
-    avatar: "/avatars/alex.jpg",
-    totalPoints: totalPoints,
-    trustLevel: mockEnhancedUserStats.trustLevel,
-    rank: 2,
-    weeklyPoints: 120,
-    monthlyPoints: 420
+    category: "positive_feedback",
+    points: 5,
+    multiplier: 1,
+    basePoints: 5,
+    description: "Received 5-star rating from John",
+    timestamp: "2024-01-13T17:00:00Z",
+    verified: true,
+    relatedEntityId: "feedback-101"
   },
   {
-    userId: "user_3",
-    userName: "Marcus Chen",
-    avatar: "/avatars/marcus.jpg", 
-    totalPoints: 480,
-    trustLevel: "verified_helper",
-    rank: 3,
-    weeklyPoints: 95,
-    monthlyPoints: 280
-  },
-  {
-    userId: "user_4",
-    userName: "Emma Thompson",
-    avatar: "/avatars/emma.jpg",
-    totalPoints: 340,
-    trustLevel: "verified_helper", 
-    rank: 4,
-    weeklyPoints: 60,
-    monthlyPoints: 150
-  },
-  {
-    userId: "user_5",
-    userName: "David Rodriguez",
-    avatar: "/avatars/david.jpg",
-    totalPoints: 280,
-    trustLevel: "verified_helper",
-    rank: 5,
-    weeklyPoints: 45,
-    monthlyPoints: 130
+    id: "txn-5",
+    userId: "current-user",
+    category: "profile_verification",
+    points: 15,
+    multiplier: 1,
+    basePoints: 15,
+    description: "Completed phone verification",
+    timestamp: "2024-01-12T11:30:00Z",
+    verified: true,
+    relatedEntityId: "verification-202"
   }
 ];
-
-// Calculate point breakdown for current user
-export const mockPointBreakdown: PointBreakdown[] = PointsCalculator.calculatePointBreakdown(mockPointTransactions);

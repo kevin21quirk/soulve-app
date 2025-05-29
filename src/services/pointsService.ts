@@ -1,344 +1,192 @@
 
-import { PointCategory, PointTransaction, PointsSystemConfig, TrustLevel, PointBreakdown } from "@/types/gamification";
-
-export const POINTS_CONFIG: PointsSystemConfig = {
-  basePointValues: {
-    help_completed: 25,
-    emergency_help: 100,
-    recurring_help: 25,
-    group_help: 30,
-    donation: 1, // per £1
-    recurring_donation: 1, // per £1 (gets 25% bonus)
-    fundraiser_created: 25,
-    fundraiser_raised: 0.5, // per £1 raised
-    matching_donation: 1, // per £1 (gets 1.5x multiplier)
-    profile_verification: 50,
-    crb_check: 100,
-    verification_anniversary: 25,
-    positive_feedback: 10,
-    user_referral: 25,
-    community_group_created: 50,
-    community_event_organized: 50,
-    ambassador_activity: 75
-  },
-  multipliers: {
-    recurring_bonus: 0.25,
-    consistency_bonus: 0.10,
-    group_help_multiplier: 0.05,
-    matching_donation_multiplier: 1.5,
-    recurring_donation_bonus: 0.25
-  },
-  trustLevels: [
-    {
-      level: "new_user",
-      name: "New User",
-      minPoints: 0,
-      color: "gray",
-      benefits: ["Basic platform access"]
-    },
-    {
-      level: "verified_helper",
-      name: "Verified Helper",
-      minPoints: 100,
-      color: "blue",
-      benefits: ["Profile verification badge", "Priority in help matching"]
-    },
-    {
-      level: "trusted_helper",
-      name: "Trusted Helper", 
-      minPoints: 500,
-      color: "green",
-      benefits: ["Enhanced visibility", "Advanced matching features"]
-    },
-    {
-      level: "community_leader",
-      name: "Community Leader",
-      minPoints: 1000,
-      color: "purple",
-      benefits: ["Leadership badge", "Community event creation", "Mentorship opportunities"]
-    },
-    {
-      level: "impact_champion",
-      name: "Impact Champion",
-      minPoints: 5000,
-      color: "gold",
-      benefits: ["Champion status", "Premium features", "Recognition events", "Special rewards"]
-    }
-  ],
-  cooldownPeriods: {
-    help_completed: 0,
-    emergency_help: 0,
-    recurring_help: 0,
-    group_help: 0,
-    donation: 0,
-    recurring_donation: 0,
-    fundraiser_created: 1440, // 24 hours
-    fundraiser_raised: 0,
-    matching_donation: 0,
-    profile_verification: 0,
-    crb_check: 0,
-    verification_anniversary: 525600, // 1 year
-    positive_feedback: 60, // 1 hour per person
-    user_referral: 0,
-    community_group_created: 1440, // 24 hours
-    community_event_organized: 720, // 12 hours
-    ambassador_activity: 0
-  },
-  verificationThresholds: {
-    large_transaction: 1000,
-    manual_review: 500
-  }
-};
+import { PointCategory, PointTransaction, UserStats, TrustLevel, PointsSystemConfig } from "@/types/gamification";
 
 export class PointsCalculator {
+  private static config: PointsSystemConfig = {
+    basePointValues: {
+      help_completed: 25,
+      emergency_help: 50,
+      recurring_help: 35,
+      group_help: 40,
+      donation: 10,
+      recurring_donation: 15,
+      fundraiser_created: 30,
+      fundraiser_raised: 5,
+      matching_donation: 20,
+      profile_verification: 15,
+      crb_check: 50,
+      verification_anniversary: 10,
+      positive_feedback: 5,
+      user_referral: 20,
+      community_group_created: 40,
+      community_event_organized: 60,
+      ambassador_activity: 30
+    },
+    multipliers: {
+      recurring_bonus: 1.5,
+      consistency_bonus: 1.2,
+      group_help_multiplier: 1.3,
+      matching_donation_multiplier: 2.0,
+      recurring_donation_bonus: 1.4
+    },
+    trustLevels: [
+      {
+        level: "new_user",
+        name: "New User",
+        minPoints: 0,
+        color: "text-gray-500",
+        benefits: ["Basic platform access", "Limited help requests"]
+      },
+      {
+        level: "verified_helper",
+        name: "Verified Helper",
+        minPoints: 100,
+        color: "text-blue-500",
+        benefits: ["Increased limits", "Profile badge", "Priority matching"]
+      },
+      {
+        level: "trusted_helper",
+        name: "Trusted Helper",
+        minPoints: 500,
+        color: "text-green-500",
+        benefits: ["Unlimited requests", "Mentor access", "Advanced features"]
+      },
+      {
+        level: "community_leader",
+        name: "Community Leader",
+        minPoints: 1500,
+        color: "text-purple-500",
+        benefits: ["Moderation tools", "Group creation", "Featured status"]
+      },
+      {
+        level: "impact_champion",
+        name: "Impact Champion",
+        minPoints: 3000,
+        color: "text-yellow-500",
+        benefits: ["All privileges", "Advisory access", "Partnership benefits"]
+      }
+    ],
+    cooldownPeriods: {
+      help_completed: 0,
+      emergency_help: 60,
+      recurring_help: 1440,
+      group_help: 0,
+      donation: 0,
+      recurring_donation: 10080,
+      fundraiser_created: 10080,
+      fundraiser_raised: 0,
+      matching_donation: 0,
+      profile_verification: 0,
+      crb_check: 525600,
+      verification_anniversary: 525600,
+      positive_feedback: 60,
+      user_referral: 1440,
+      community_group_created: 10080,
+      community_event_organized: 1440,
+      ambassador_activity: 1440
+    },
+    verificationThresholds: {
+      email: 50,
+      phone: 150,
+      government_id: 300,
+      organization: 500
+    }
+  };
+
   static calculatePoints(
     category: PointCategory,
-    baseAmount: number = 1,
-    metadata: Record<string, any> = {}
-  ): { points: number; multiplier: number; description: string } {
-    const basePoints = POINTS_CONFIG.basePointValues[category] * baseAmount;
+    metadata?: Record<string, any>
+  ): { points: number; multiplier: number; basePoints: number } {
+    const basePoints = this.config.basePointValues[category] || 0;
     let multiplier = 1;
-    let description = "";
-
+    
+    // Apply multipliers based on category and metadata
     switch (category) {
-      case "help_completed":
-        // Base points for help completion
-        description = `Completed help request`;
+      case 'recurring_help':
+        multiplier = this.config.multipliers.recurring_bonus;
         break;
-
-      case "recurring_help":
-        // Check for consistency bonus (5+ consecutive helps)
-        if (metadata.consecutiveHelps >= 5) {
-          multiplier += POINTS_CONFIG.multipliers.consistency_bonus;
-          description = `Recurring help with consistency bonus (${metadata.consecutiveHelps} consecutive)`;
-        } else {
-          description = `Recurring help assistance`;
-        }
+      case 'group_help':
+        multiplier = this.config.multipliers.group_help_multiplier;
         break;
-
-      case "group_help":
-        // Multiplier for each additional helper
-        const additionalHelpers = metadata.additionalHelpers || 0;
-        multiplier += additionalHelpers * POINTS_CONFIG.multipliers.group_help_multiplier;
-        description = `Group help event with ${additionalHelpers + 1} helpers`;
+      case 'matching_donation':
+        multiplier = this.config.multipliers.matching_donation_multiplier;
         break;
-
-      case "donation":
-        description = `Donation of £${baseAmount}`;
+      case 'recurring_donation':
+        multiplier = this.config.multipliers.recurring_donation_bonus;
         break;
-
-      case "recurring_donation":
-        multiplier += POINTS_CONFIG.multipliers.recurring_donation_bonus;
-        description = `Recurring donation of £${baseAmount} (25% bonus)`;
-        break;
-
-      case "matching_donation":
-        multiplier = POINTS_CONFIG.multipliers.matching_donation_multiplier;
-        description = `Matching donation of £${baseAmount} (1.5x multiplier)`;
-        break;
-
-      case "fundraiser_raised":
-        description = `Fundraiser raised £${baseAmount}`;
-        break;
-
-      case "positive_feedback":
-        // Points based on rating quality (5-15 points)
-        const rating = metadata.rating || 5;
-        const ratingPoints = Math.max(5, Math.min(15, rating * 3));
-        description = `Received ${rating}-star rating`;
-        return {
-          points: ratingPoints,
-          multiplier: 1,
-          description
-        };
-
-      case "user_referral":
-        description = `Referred new user who completed verification`;
-        break;
-
-      case "ambassador_activity":
-        // Custom multiplier for ambassador activities
-        multiplier = metadata.ambassadorMultiplier || 1;
-        description = `Ambassador activity: ${metadata.activityType || 'General'}`;
-        break;
-
-      default:
-        description = this.getCategoryDisplayName(category);
     }
 
-    return {
-      points: Math.round(basePoints * multiplier),
-      multiplier,
-      description
-    };
-  }
+    // Consistency bonus for repeated activities
+    if (metadata?.consecutiveDays && metadata.consecutiveDays >= 7) {
+      multiplier *= this.config.multipliers.consistency_bonus;
+    }
 
-  static getCategoryDisplayName(category: PointCategory): string {
-    const names: Record<PointCategory, string> = {
-      help_completed: "Help Completed",
-      emergency_help: "Emergency Assistance",
-      recurring_help: "Recurring Help",
-      group_help: "Group Help Event",
-      donation: "Donation",
-      recurring_donation: "Recurring Donation",
-      fundraiser_created: "Fundraiser Created",
-      fundraiser_raised: "Fundraiser Success",
-      matching_donation: "Matching Donation",
-      profile_verification: "Profile Verification",
-      crb_check: "CRB Check Completed",
-      verification_anniversary: "Verification Anniversary",
-      positive_feedback: "Positive Feedback",
-      user_referral: "User Referral",
-      community_group_created: "Community Group Created",
-      community_event_organized: "Community Event Organized",
-      ambassador_activity: "Ambassador Activity"
+    const finalPoints = Math.round(basePoints * multiplier);
+    
+    return {
+      points: finalPoints,
+      multiplier,
+      basePoints
     };
-    return names[category] || category;
   }
 
   static getTrustLevel(totalPoints: number): TrustLevel {
-    const levels = POINTS_CONFIG.trustLevels
-      .sort((a, b) => b.minPoints - a.minPoints);
-    
-    for (const level of levels) {
-      if (totalPoints >= level.minPoints) {
-        return level.level;
-      }
-    }
-    
-    return "new_user";
+    const levels = this.config.trustLevels.sort((a, b) => b.minPoints - a.minPoints);
+    return levels.find(level => totalPoints >= level.minPoints)?.level as TrustLevel || "new_user";
   }
 
   static getTrustLevelConfig(level: TrustLevel) {
-    return POINTS_CONFIG.trustLevels.find(l => l.level === level);
+    return this.config.trustLevels.find(l => l.level === level);
   }
 
   static getNextTrustLevel(currentPoints: number): { level: TrustLevel; pointsNeeded: number } | null {
     const currentLevel = this.getTrustLevel(currentPoints);
-    const allLevels = POINTS_CONFIG.trustLevels.sort((a, b) => a.minPoints - b.minPoints);
-    const currentIndex = allLevels.findIndex(l => l.level === currentLevel);
+    const currentIndex = this.config.trustLevels.findIndex(l => l.level === currentLevel);
     
-    if (currentIndex < allLevels.length - 1) {
-      const nextLevel = allLevels[currentIndex + 1];
-      return {
-        level: nextLevel.level,
-        pointsNeeded: nextLevel.minPoints - currentPoints
-      };
+    if (currentIndex === this.config.trustLevels.length - 1) {
+      return null; // Already at max level
     }
     
-    return null;
+    const nextLevel = this.config.trustLevels[currentIndex + 1];
+    return {
+      level: nextLevel.level as TrustLevel,
+      pointsNeeded: nextLevel.minPoints - currentPoints
+    };
   }
 
-  static createPointTransaction(
-    userId: string,
+  static canAwardPoints(
     category: PointCategory,
-    amount: number = 1,
-    metadata: Record<string, any> = {},
-    relatedEntityId?: string
-  ): PointTransaction {
-    const calculation = this.calculatePoints(category, amount, metadata);
+    lastActivity?: Date
+  ): boolean {
+    const cooldownMinutes = this.config.cooldownPeriods[category];
+    
+    if (cooldownMinutes === 0 || !lastActivity) {
+      return true;
+    }
+    
+    const cooldownMs = cooldownMinutes * 60 * 1000;
+    const timeSinceLastActivity = Date.now() - lastActivity.getTime();
+    
+    return timeSinceLastActivity >= cooldownMs;
+  }
+
+  static calculateUserStats(transactions: PointTransaction[]): UserStats {
+    const totalPoints = transactions.reduce((sum, t) => sum + t.points, 0);
+    const trustLevel = this.getTrustLevel(totalPoints);
+    const nextLevel = this.getNextTrustLevel(totalPoints);
     
     return {
-      id: `pt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId,
-      category,
-      points: calculation.points,
-      multiplier: calculation.multiplier,
-      basePoints: POINTS_CONFIG.basePointValues[category] * amount,
-      description: calculation.description,
-      timestamp: new Date().toISOString(),
-      verified: this.shouldAutoVerify(category, calculation.points),
-      relatedEntityId,
-      metadata
+      totalPoints,
+      level: this.config.trustLevels.findIndex(l => l.level === trustLevel) + 1,
+      nextLevelPoints: nextLevel?.pointsNeeded || 0,
+      helpedCount: transactions.filter(t => 
+        ['help_completed', 'emergency_help', 'group_help'].includes(t.category)
+      ).length,
+      connectionsCount: 0, // Would be calculated from connections data
+      postsCount: 0, // Would be calculated from posts data
+      likesReceived: 0, // Would be calculated from likes data
+      trustScore: Math.min(50 + (totalPoints / 50), 100), // Convert points to trust score
+      trustLevel
     };
-  }
-
-  static shouldAutoVerify(category: PointCategory, points: number): boolean {
-    // Auto-verify smaller transactions, require manual review for large ones
-    if (points >= POINTS_CONFIG.verificationThresholds.manual_review) {
-      return false;
-    }
-    
-    // Emergency help and large donations need verification
-    if (category === "emergency_help" || 
-        (category === "donation" && points >= 100)) {
-      return false;
-    }
-    
-    return true;
-  }
-
-  static calculatePointBreakdown(transactions: PointTransaction[]): PointBreakdown[] {
-    const breakdown = new Map<PointCategory, PointBreakdown>();
-    
-    transactions.forEach(transaction => {
-      if (!breakdown.has(transaction.category)) {
-        breakdown.set(transaction.category, {
-          category: transaction.category,
-          categoryName: this.getCategoryDisplayName(transaction.category),
-          totalPoints: 0,
-          transactionCount: 0,
-          icon: this.getCategoryIcon(transaction.category),
-          color: this.getCategoryColor(transaction.category)
-        });
-      }
-      
-      const entry = breakdown.get(transaction.category)!;
-      entry.totalPoints += transaction.points;
-      entry.transactionCount += 1;
-      
-      if (!entry.lastActivity || transaction.timestamp > entry.lastActivity) {
-        entry.lastActivity = transaction.timestamp;
-      }
-    });
-    
-    return Array.from(breakdown.values())
-      .sort((a, b) => b.totalPoints - a.totalPoints);
-  }
-
-  static getCategoryIcon(category: PointCategory): string {
-    const icons: Record<PointCategory, string> = {
-      help_completed: "🤝",
-      emergency_help: "🚨",
-      recurring_help: "🔄",
-      group_help: "👥",
-      donation: "💝",
-      recurring_donation: "💖",
-      fundraiser_created: "🎯",
-      fundraiser_raised: "💰",
-      matching_donation: "🎁",
-      profile_verification: "✅",
-      crb_check: "🛡️",
-      verification_anniversary: "🎂",
-      positive_feedback: "⭐",
-      user_referral: "👋",
-      community_group_created: "🏘️",
-      community_event_organized: "🎉",
-      ambassador_activity: "👑"
-    };
-    return icons[category] || "🎯";
-  }
-
-  static getCategoryColor(category: PointCategory): string {
-    const colors: Record<PointCategory, string> = {
-      help_completed: "blue",
-      emergency_help: "red",
-      recurring_help: "green",
-      group_help: "purple",
-      donation: "pink",
-      recurring_donation: "rose",
-      fundraiser_created: "orange",
-      fundraiser_raised: "yellow",
-      matching_donation: "emerald",
-      profile_verification: "cyan",
-      crb_check: "indigo",
-      verification_anniversary: "violet",
-      positive_feedback: "amber",
-      user_referral: "lime",
-      community_group_created: "teal",
-      community_event_organized: "fuchsia",
-      ambassador_activity: "gold"
-    };
-    return colors[category] || "gray";
   }
 }
