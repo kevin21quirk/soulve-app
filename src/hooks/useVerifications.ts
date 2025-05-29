@@ -15,9 +15,13 @@ export const useVerifications = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('User found, fetching verification data for:', user.id);
       fetchVerifications();
       fetchTrustScore();
       fetchTrustHistory();
+    } else {
+      console.log('No user found');
+      setLoading(false);
     }
   }, [user]);
 
@@ -25,6 +29,8 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching verifications for user:', user.id);
+      
       // Use type assertion to work around missing table types
       const { data, error } = await (supabase as any)
         .from('user_verifications')
@@ -32,15 +38,23 @@ export const useVerifications = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Verifications response:', { data, error });
+
+      if (error) {
+        console.error('Error fetching verifications:', error);
+        throw error;
+      }
+      
       setVerifications(data || []);
     } catch (error) {
-      console.error('Error fetching verifications:', error);
+      console.error('Error in fetchVerifications:', error);
       toast({
         title: "Error",
-        description: "Failed to load verifications",
+        description: "Failed to load verifications. The verification system may not be fully set up yet.",
         variant: "destructive"
       });
+      // Set empty array on error to prevent crashes
+      setVerifications([]);
     }
   };
 
@@ -48,13 +62,23 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
+      console.log('Calculating trust score for user:', user.id);
+      
       const { data, error } = await (supabase as any)
         .rpc('calculate_trust_score', { user_uuid: user.id });
 
-      if (error) throw error;
-      setTrustScore(data || 0);
+      console.log('Trust score response:', { data, error });
+
+      if (error) {
+        console.error('Error calculating trust score:', error);
+        throw error;
+      }
+      
+      setTrustScore(data || 50); // Default score of 50 if no data
     } catch (error) {
-      console.error('Error fetching trust score:', error);
+      console.error('Error in fetchTrustScore:', error);
+      // Set default trust score on error
+      setTrustScore(50);
     } finally {
       setLoading(false);
     }
@@ -64,6 +88,8 @@ export const useVerifications = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching trust history for user:', user.id);
+      
       const { data, error } = await (supabase as any)
         .from('trust_score_history')
         .select('*')
@@ -71,17 +97,34 @@ export const useVerifications = () => {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      console.log('Trust history response:', { data, error });
+
+      if (error) {
+        console.error('Error fetching trust history:', error);
+        throw error;
+      }
+      
       setTrustHistory(data || []);
     } catch (error) {
-      console.error('Error fetching trust history:', error);
+      console.error('Error in fetchTrustHistory:', error);
+      // Set empty array on error
+      setTrustHistory([]);
     }
   };
 
   const requestVerification = async (verificationType: string, verificationData?: any) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to request verification.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
+      console.log('Requesting verification:', { verificationType, userId: user.id });
+      
       const { error } = await (supabase as any)
         .from('user_verifications')
         .insert({
@@ -90,19 +133,25 @@ export const useVerifications = () => {
           verification_data: verificationData
         });
 
-      if (error) throw error;
+      console.log('Verification request response:', { error });
+
+      if (error) {
+        console.error('Error requesting verification:', error);
+        throw error;
+      }
 
       toast({
         title: "Verification Requested",
         description: `Your ${verificationType} verification request has been submitted.`
       });
 
+      // Refresh verifications
       fetchVerifications();
     } catch (error) {
-      console.error('Error requesting verification:', error);
+      console.error('Error in requestVerification:', error);
       toast({
         title: "Error",
-        description: "Failed to request verification",
+        description: "Failed to request verification. Please try again later.",
         variant: "destructive"
       });
     }
@@ -115,6 +164,7 @@ export const useVerifications = () => {
     loading,
     requestVerification,
     refetch: () => {
+      console.log('Refetching all verification data');
       fetchVerifications();
       fetchTrustScore();
       fetchTrustHistory();
