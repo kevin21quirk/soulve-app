@@ -12,11 +12,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Only redirect if we're not loading and there's no user
     if (!loading && !user) {
-      navigate('/auth');
+      console.log('No authenticated user, redirecting to auth');
+      navigate('/auth', { replace: true });
     }
   }, [user, loading, navigate]);
 
+  // Show loading state while auth is initializing
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -28,6 +31,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
+  // Don't render anything if no user (will redirect)
   if (!user) {
     return null;
   }
