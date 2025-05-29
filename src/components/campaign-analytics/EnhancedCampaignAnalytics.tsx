@@ -12,12 +12,18 @@ import {
   Download, 
   RefreshCw,
   Calendar,
-  DollarSign
+  DollarSign,
+  Target,
+  PieChart,
+  LineChart
 } from "lucide-react";
 import { useCampaignAnalytics } from "@/hooks/useCampaignAnalytics";
 import RealTimeMetricsCard from "./RealTimeMetricsCard";
 import DonorJourneyAnalytics from "./DonorJourneyAnalytics";
 import PredictiveInsights from "./PredictiveInsights";
+import DonationTrendsChart from "./DonationTrendsChart";
+import DonorDemographicsChart from "./DonorDemographicsChart";
+import CampaignPerformanceMetrics from "./CampaignPerformanceMetrics";
 import { useToast } from "@/hooks/use-toast";
 
 interface EnhancedCampaignAnalyticsProps {
@@ -46,13 +52,11 @@ const EnhancedCampaignAnalytics = ({
   } = useCampaignAnalytics(campaignId);
 
   const handleExport = () => {
-    // In a real implementation, this would generate and download a comprehensive report
     toast({
       title: "Export Started",
       description: "Your analytics report is being generated and will be downloaded shortly.",
     });
     
-    // Mock export functionality
     console.log("Exporting analytics data:", analyticsData);
   };
 
@@ -195,12 +199,24 @@ const EnhancedCampaignAnalytics = ({
         </Card>
       </div>
 
-      {/* Main Analytics Tabs */}
+      {/* Enhanced Analytics Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center space-x-2">
-            <BarChart3 className="h-4 w-4" />
+            <Target className="h-4 w-4" />
             <span>Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="flex items-center space-x-2">
+            <LineChart className="h-4 w-4" />
+            <span>Trends</span>
+          </TabsTrigger>
+          <TabsTrigger value="demographics" className="flex items-center space-x-2">
+            <PieChart className="h-4 w-4" />
+            <span>Demographics</span>
           </TabsTrigger>
           <TabsTrigger value="donors" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
@@ -210,14 +226,28 @@ const EnhancedCampaignAnalytics = ({
             <TrendingUp className="h-4 w-4" />
             <span>Predictions</span>
           </TabsTrigger>
-          <TabsTrigger value="geographic" className="flex items-center space-x-2">
-            <Globe className="h-4 w-4" />
-            <span>Geographic</span>
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           <RealTimeMetricsCard analytics={analyticsData.analytics} />
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
+          <CampaignPerformanceMetrics 
+            analytics={analyticsData.analytics}
+            goalAmount={goalAmount}
+            currentAmount={currentAmount}
+            daysRemaining={daysRemaining}
+            performanceScore={analyticsData.performanceScore}
+          />
+        </TabsContent>
+
+        <TabsContent value="trends" className="space-y-6">
+          <DonationTrendsChart donations={analyticsData.donations} />
+        </TabsContent>
+
+        <TabsContent value="demographics" className="space-y-6">
+          <DonorDemographicsChart donations={analyticsData.donations} />
         </TabsContent>
 
         <TabsContent value="donors" className="space-y-6">
@@ -232,47 +262,6 @@ const EnhancedCampaignAnalytics = ({
             currentAmount={currentAmount}
             daysRemaining={daysRemaining}
           />
-        </TabsContent>
-
-        <TabsContent value="geographic" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Geographic Impact Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analyticsData.geographicImpact.length > 0 ? (
-                  analyticsData.geographicImpact.map((country, index) => (
-                    <div key={country.countryCode} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Badge variant="outline">#{index + 1}</Badge>
-                        <div>
-                          <div className="font-medium">{country.countryName}</div>
-                          <div className="text-sm text-gray-500">
-                            {country.donorCount} donors • {country.totalViews} views
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">${country.totalDonations.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">
-                          {((country.totalDonations / analyticsData.analytics.donationAmount) * 100).toFixed(1)}% of total
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12">
-                    <Globe className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="font-medium text-gray-600">No geographic data available yet</h3>
-                    <p className="text-gray-500 text-sm">
-                      Geographic data will appear as your campaign receives donations from different regions.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
