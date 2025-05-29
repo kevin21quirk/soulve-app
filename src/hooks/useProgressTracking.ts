@@ -50,7 +50,7 @@ export const useProgressTracking = (userStats: UserStats, transactions: PointTra
       }, 3000);
     });
 
-    return unsubscribe;
+    return unsubscribe; // Fixed: return the cleanup function directly
   }, []);
 
   const calculateAchievementProgress = (

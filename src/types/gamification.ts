@@ -5,7 +5,9 @@ export interface Achievement {
   description: string;
   icon: string;
   points: number;
+  pointsReward: number; // Added missing property
   unlocked: boolean;
+  unlockedAt?: string; // Added missing property
   progress: number;
   maxProgress: number;
   rarity: "common" | "rare" | "epic" | "legendary";
