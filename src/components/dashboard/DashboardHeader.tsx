@@ -1,3 +1,6 @@
+
+import { useNavigate } from "react-router-dom";
+import { Plus, BarChart3, HelpCircle, MessageCircle } from "lucide-react";
 import HeaderLogo from "./header/HeaderLogo";
 import HeaderActions from "./header/HeaderActions";
 import UserSection from "./header/UserSection";
@@ -26,6 +29,8 @@ const DashboardHeader = ({
   setShowActivity,
   onNavigateToTab,
 }: DashboardHeaderProps) => {
+  const navigate = useNavigate();
+
   const handleSearchSubmit = (query: string) => {
     // Handle search functionality here
     console.log("Search query:", query);

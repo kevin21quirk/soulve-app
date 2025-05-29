@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CalendarDateRangePicker } from "@/components/ui/calendar";
 import { CalendarIcon, ChevronDown, Filter, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { FeedFilters } from "./FeedFilters";
+import FeedFilters from "./FeedFilters";
 import CampaignStatsWidget from "./CampaignStatsWidget";
 
 const EnhancedSocialFeed = () => {
@@ -29,10 +29,14 @@ const EnhancedSocialFeed = () => {
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">
           <FeedFilters 
-            filters={filters}
-            onFiltersChange={setFilters}
-            onSearch={setSearchQuery}
-            searchQuery={searchQuery}
+            activeFilter={filters.type}
+            onFilterChange={(filter) => setFilters(prev => ({ ...prev, type: filter }))}
+            postCounts={{
+              all: 25,
+              "help-needed": 8,
+              "help-offered": 12,
+              "success-story": 5
+            }}
           />
         </div>
         <div className="lg:w-80">
