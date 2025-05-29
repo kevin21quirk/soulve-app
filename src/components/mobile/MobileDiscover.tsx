@@ -17,11 +17,25 @@ import {
   Filter,
   Star,
   Clock,
-  Target
+  Target,
+  Navigation,
+  Zap,
+  Activity,
+  BarChart3,
+  Lightbulb
 } from "lucide-react";
 import { useConnections } from "@/hooks/useConnections";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useToast } from "@/hooks/use-toast";
+
+// Import new components
+import LocationBasedDiscovery from "./discover/LocationBasedDiscovery";
+import SkillBasedMatching from "./discover/SkillBasedMatching";
+import InterestBasedRecommendations from "./discover/InterestBasedRecommendations";
+import RealTimeActivityFeed from "./discover/RealTimeActivityFeed";
+import EnhancedConnectionRequests from "./discover/EnhancedConnectionRequests";
+import ConnectionInsights from "./discover/ConnectionInsights";
+import SmartNetworkingFeatures from "./discover/SmartNetworkingFeatures";
 
 const MobileDiscover = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +60,8 @@ const MobileDiscover = () => {
     { id: "people", label: "People", icon: Users },
     { id: "groups", label: "Groups", icon: Users },
     { id: "campaigns", label: "Causes", icon: Heart },
+    { id: "nearby", label: "Nearby", icon: Navigation },
+    { id: "skills", label: "Skills", icon: Zap },
     { id: "trending", label: "Trending", icon: TrendingUp }
   ];
 
@@ -59,6 +75,69 @@ const MobileDiscover = () => {
 
   const handleJoinCampaignAction = (campaignId: string) => {
     handleJoinCampaign(campaignId);
+  };
+
+  const handleAcceptConnection = (id: string, message?: string) => {
+    toast({
+      title: "Connection accepted!",
+      description: message ? "Response sent successfully" : "You're now connected",
+    });
+  };
+
+  const handleDeclineConnection = (id: string) => {
+    toast({
+      title: "Connection declined",
+      description: "The request has been declined",
+    });
+  };
+
+  const handleSendCustomRequest = (id: string, message: string) => {
+    toast({
+      title: "Custom request sent!",
+      description: "Your personalized connection request has been sent",
+    });
+  };
+
+  const handleInterestAction = (id: string, type: string) => {
+    toast({
+      title: `${type === "group" ? "Joined group!" : type === "event" ? "Joined event!" : "Connected!"}`,
+      description: "Action completed successfully",
+    });
+  };
+
+  const handleViewProfile = (userId: string) => {
+    toast({
+      title: "Profile viewed",
+      description: "Opening profile details",
+    });
+  };
+
+  const handleViewDetails = (type: string) => {
+    toast({
+      title: `Opening ${type}`,
+      description: "Loading detailed analytics",
+    });
+  };
+
+  const handleStartConversation = (personId: string, message: string) => {
+    toast({
+      title: "Conversation started!",
+      description: "Your AI-suggested message has been sent",
+    });
+  };
+
+  const handleJoinEvent = (eventId: string) => {
+    toast({
+      title: "Event joined!",
+      description: "You'll receive updates about this networking event",
+    });
+  };
+
+  const handleSetGoal = (goal: string) => {
+    toast({
+      title: "Goal set!",
+      description: `Your networking goal: ${goal}`,
+    });
   };
 
   return (
@@ -104,12 +183,33 @@ const MobileDiscover = () => {
 
       <div className="p-4 space-y-4">
         <Tabs defaultValue="discover" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="discover">Discover</TabsTrigger>
             <TabsTrigger value="connect">Connect</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
           </TabsList>
 
           <TabsContent value="discover" className="space-y-4">
+            {/* Enhanced Connection Requests */}
+            <EnhancedConnectionRequests
+              onAccept={handleAcceptConnection}
+              onDecline={handleDeclineConnection}
+              onSendCustomRequest={handleSendCustomRequest}
+            />
+
+            {/* Location-based Discovery */}
+            {(activeFilter === "all" || activeFilter === "nearby") && (
+              <LocationBasedDiscovery onConnect={handleConnect} />
+            )}
+
+            {/* Skill-based Matching */}
+            {(activeFilter === "all" || activeFilter === "skills") && (
+              <SkillBasedMatching onConnect={handleConnect} />
+            )}
+
+            {/* Interest-based Recommendations */}
+            <InterestBasedRecommendations onAction={handleInterestAction} />
+
             {/* AI Recommendations */}
             <Card>
               <CardHeader className="pb-3">
@@ -141,66 +241,73 @@ const MobileDiscover = () => {
             </Card>
 
             {/* Trending Topics */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                  <span>Trending Now</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {["#CommunityHelp", "#LocalFood", "#SeniorCare", "#TechSupport"].map((tag) => (
-                    <Button key={tag} variant="outline" size="sm" className="justify-start text-xs">
-                      {tag}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {(activeFilter === "all" || activeFilter === "trending") && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center space-x-2 text-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span>Trending Now</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["#CommunityHelp", "#LocalFood", "#SeniorCare", "#TechSupport"].map((tag) => (
+                      <Button key={tag} variant="outline" size="sm" className="justify-start text-xs">
+                        {tag}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Active Campaigns */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <Target className="h-5 w-5 text-red-500" />
-                  <span>Active Causes</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {campaigns.slice(0, 2).map((campaign) => (
-                  <div key={campaign.id} className="p-3 border rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{campaign.title}</h4>
-                        <p className="text-xs text-gray-600 mt-1">{campaign.description}</p>
-                        <div className="flex items-center space-x-2 mt-2">
-                          <Badge variant="outline" className="text-xs">
-                            {campaign.participantCount} joined
-                          </Badge>
-                          <Badge 
-                            variant={campaign.urgency === 'high' ? 'destructive' : 'secondary'} 
-                            className="text-xs"
-                          >
-                            {campaign.urgency} priority
-                          </Badge>
+            {(activeFilter === "all" || activeFilter === "campaigns") && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center space-x-2 text-lg">
+                    <Target className="h-5 w-5 text-red-500" />
+                    <span>Active Causes</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {campaigns.slice(0, 2).map((campaign) => (
+                    <div key={campaign.id} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{campaign.title}</h4>
+                          <p className="text-xs text-gray-600 mt-1">{campaign.description}</p>
+                          <div className="flex items-center space-x-2 mt-2">
+                            <Badge variant="outline" className="text-xs">
+                              {campaign.participantCount} joined
+                            </Badge>
+                            <Badge 
+                              variant={campaign.urgency === 'high' ? 'destructive' : 'secondary'} 
+                              className="text-xs"
+                            >
+                              {campaign.urgency} priority
+                            </Badge>
+                          </div>
                         </div>
+                        <Button 
+                          size="sm" 
+                          variant={campaign.isParticipating ? "outline" : "gradient"}
+                          onClick={() => handleJoinCampaignAction(campaign.id)}
+                        >
+                          {campaign.isParticipating ? "Joined" : "Join"}
+                        </Button>
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant={campaign.isParticipating ? "outline" : "gradient"}
-                        onClick={() => handleJoinCampaignAction(campaign.id)}
-                      >
-                        {campaign.isParticipating ? "Joined" : "Join"}
-                      </Button>
                     </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="connect" className="space-y-4">
+            {/* Real-time Activity Feed */}
+            <RealTimeActivityFeed onViewProfile={handleViewProfile} />
+
             {/* People You May Know */}
             <Card>
               <CardHeader className="pb-3">
@@ -280,6 +387,13 @@ const MobileDiscover = () => {
               </CardContent>
             </Card>
 
+            {/* Smart Networking Features */}
+            <SmartNetworkingFeatures
+              onStartConversation={handleStartConversation}
+              onJoinEvent={handleJoinEvent}
+              onSetGoal={handleSetGoal}
+            />
+
             {/* Suggested Groups */}
             <Card>
               <CardHeader className="pb-3">
@@ -316,6 +430,11 @@ const MobileDiscover = () => {
                 ))}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-4">
+            {/* Connection Insights */}
+            <ConnectionInsights onViewDetails={handleViewDetails} />
           </TabsContent>
         </Tabs>
       </div>
