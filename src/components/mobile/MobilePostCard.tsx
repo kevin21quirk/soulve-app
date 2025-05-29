@@ -119,50 +119,46 @@ const MobilePostCard = ({
       )}
 
       {/* Action Buttons */}
-      <div className="border-t border-gray-100 px-4 py-2">
-        <div className="flex items-center justify-center gap-2">
+      <div className="border-t border-gray-100 px-2 py-1.5">
+        <div className="flex items-center justify-center gap-1">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onLike(post.id)}
-            className={`flex items-center space-x-1 px-2 py-2.5 ${
-              post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+            className={`p-3 rounded-full ${
+              post.isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
             }`}
           >
-            <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
-            <span className="text-sm font-medium">Like</span>
+            <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onRespond(post.id)}
-            className="flex items-center space-x-1 px-2 py-2.5 text-gray-600 hover:text-blue-500"
+            className="p-3 rounded-full text-gray-600 hover:text-blue-500 hover:bg-blue-50"
           >
-            <MessageCircle className="h-4 w-4" />
-            <span className="text-sm font-medium">Respond</span>
+            <MessageCircle className="h-5 w-5" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onShare(post.id)}
-            className="flex items-center space-x-1 px-2 py-2.5 text-gray-600 hover:text-green-500"
+            className="p-3 rounded-full text-gray-600 hover:text-green-500 hover:bg-green-50"
           >
-            <Share2 className="h-4 w-4" />
-            <span className="text-sm font-medium">Share</span>
+            <Share2 className="h-5 w-5" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onBookmark(post.id)}
-            className={`flex items-center space-x-1 px-2 py-2.5 ${
-              post.isBookmarked ? 'text-yellow-500' : 'text-gray-600 hover:text-yellow-500'
+            className={`p-3 rounded-full ${
+              post.isBookmarked ? 'text-yellow-500 bg-yellow-50' : 'text-gray-600 hover:text-yellow-500 hover:bg-yellow-50'
             }`}
           >
-            <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-            <span className="text-sm font-medium">Save</span>
+            <Bookmark className={`h-5 w-5 ${post.isBookmarked ? 'fill-current' : ''}`} />
           </Button>
         </div>
       </div>
