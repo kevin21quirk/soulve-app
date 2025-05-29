@@ -6,7 +6,6 @@ interface PushNotificationConfig {
   badge?: string;
   tag?: string;
   data?: any;
-  actions?: NotificationAction[];
 }
 
 class PushNotificationService {
@@ -67,7 +66,6 @@ class PushNotificationService {
         badge: config.badge || '/badge-72x72.png',
         tag: config.tag,
         data: config.data,
-        actions: config.actions,
         requireInteraction: true,
         vibrate: [200, 100, 200]
       });

@@ -25,6 +25,28 @@ interface EnhancedNotificationCenterProps {
   onClose: () => void;
 }
 
+interface DateRangeFilter {
+  preset: string;
+  from?: Date;
+  to?: Date;
+}
+
+interface AdvancedFilters {
+  dateRange: DateRangeFilter;
+  categories: string[];
+  priority: string[];
+  readStatus: string;
+  amountRange: [number, number];
+  location: string;
+  keywords: string[];
+  source: string[];
+  engagement: {
+    minLikes: number;
+    minComments: number;
+    minShares: number;
+  };
+}
+
 const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCenterProps) => {
   const [activeTab, setActiveTab] = useState("notifications");
   const [showSettings, setShowSettings] = useState(false);
@@ -50,12 +72,12 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
 
   const totalUnreadCount = onlineUnreadCount + offlineNotifications.unreadCount;
 
-  const [advancedFilters, setAdvancedFilters] = useState({
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     dateRange: { preset: "all" },
     categories: [],
     priority: [],
     readStatus: "all",
-    amountRange: [0, 10000] as [number, number],
+    amountRange: [0, 10000],
     location: "",
     keywords: [],
     source: [],
@@ -73,8 +95,9 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
     if (advancedFilters.dateRange.preset !== "all" && advancedFilters.dateRange.from) {
       filtered = filtered.filter(notification => {
         const notificationDate = new Date(notification.timestamp);
-        return notificationDate >= (advancedFilters.dateRange.from || new Date()) &&
-               notificationDate <= (advancedFilters.dateRange.to || new Date());
+        const fromDate = advancedFilters.dateRange.from;
+        const toDate = advancedFilters.dateRange.to || new Date();
+        return fromDate && notificationDate >= fromDate && notificationDate <= toDate;
       });
     }
 
