@@ -8,6 +8,7 @@ import MainTabsList from "./tabs/MainTabsList";
 import DiscoverConnectTab from "./tabs/DiscoverConnectTab";
 import CampaignsTab from "./tabs/CampaignsTab";
 import AnalyticsPointsTab from "./tabs/AnalyticsPointsTab";
+import ChallengesEventsTab from "./tabs/ChallengesEventsTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -17,10 +18,34 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <MainTabsList />
+      <MainTabsList activeTab={activeTab} onTabChange={onTabChange} />
 
       <TabsContent value="feed" className="mt-6">
         <EnhancedSocialFeed />
+      </TabsContent>
+
+      <TabsContent value="help" className="mt-6">
+        <HelpCenter />
+      </TabsContent>
+
+      <TabsContent value="profile" className="mt-6">
+        <UserProfile />
+      </TabsContent>
+
+      <TabsContent value="verification" className="mt-6">
+        <div className="text-center py-8">
+          <p className="text-gray-600">Verification panel coming soon...</p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="challenges" className="mt-6">
+        <ChallengesEventsTab />
+      </TabsContent>
+
+      <TabsContent value="settings" className="mt-6">
+        <div className="text-center py-8">
+          <p className="text-gray-600">Settings panel coming soon...</p>
+        </div>
       </TabsContent>
 
       <TabsContent value="discover-connect" className="mt-6">
@@ -31,20 +56,12 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         <EnhancedMessaging />
       </TabsContent>
 
-      <TabsContent value="help-center" className="mt-6">
-        <HelpCenter />
-      </TabsContent>
-
       <TabsContent value="campaigns" className="mt-6">
         <CampaignsTab />
       </TabsContent>
 
       <TabsContent value="analytics-points" className="mt-6">
         <AnalyticsPointsTab />
-      </TabsContent>
-
-      <TabsContent value="profile" className="mt-6">
-        <UserProfile />
       </TabsContent>
     </Tabs>
   );
