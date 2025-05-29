@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Plus, BarChart3, HelpCircle, MessageCircle } from "lucide-react";
 import HeaderLogo from "./header/HeaderLogo";
@@ -72,6 +71,7 @@ const DashboardHeader = ({
                 setShowActivity={setShowActivity}
                 unreadCount={unreadCount}
                 onNotificationClick={handleNotificationClick}
+                onNavigateToTab={onNavigateToTab}
               />
             ) : (
               <>
