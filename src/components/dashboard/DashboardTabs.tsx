@@ -1,6 +1,6 @@
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import SocialFeed from "./SocialFeed";
+import EnhancedSocialFeed from "./EnhancedSocialFeed";
 import EnhancedMessaging from "./EnhancedMessaging";
 import HelpCenter from "./HelpCenter";
 import UserProfile from "./UserProfile";
@@ -20,7 +20,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
       <MainTabsList />
 
       <TabsContent value="feed" className="mt-6">
-        <SocialFeed />
+        <EnhancedSocialFeed />
       </TabsContent>
 
       <TabsContent value="discover-connect" className="mt-6">
