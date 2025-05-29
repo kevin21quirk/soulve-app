@@ -82,7 +82,11 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
                 <Button size="sm" variant="outline">
                   <MessageCircle className="h-4 w-4" />
                 </Button>
-                <Button size="sm" onClick={() => handleHelpAction("person", person.name)}>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleHelpAction("person", person.name)}
+                  className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
+                >
                   Offer Help
                 </Button>
               </div>
@@ -98,32 +102,28 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
         </CardHeader>
         <CardContent className="space-y-3">
           <Button 
-            className="w-full justify-start" 
-            variant="outline"
+            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all" 
             onClick={() => handleQuickAction("donation")}
           >
             <DollarSign className="h-4 w-4 mr-2" />
             Make a Donation
           </Button>
           <Button 
-            className="w-full justify-start" 
-            variant="outline"
+            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
             onClick={() => handleQuickAction("volunteer")}
           >
             <Clock className="h-4 w-4 mr-2" />
             Volunteer Today
           </Button>
           <Button 
-            className="w-full justify-start" 
-            variant="outline"
+            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
             onClick={() => handleQuickAction("share")}
           >
             <Share2 className="h-4 w-4 mr-2" />
             Share a Cause
           </Button>
           <Button 
-            className="w-full justify-start" 
-            variant="outline"
+            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
             onClick={() => handleQuickAction("events")}
           >
             <Calendar className="h-4 w-4 mr-2" />

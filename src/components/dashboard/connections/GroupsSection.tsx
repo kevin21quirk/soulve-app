@@ -29,7 +29,10 @@ const GroupsSection = ({
             <Search className="h-4 w-4 mr-2" />
             Discover
           </Button>
-          <Button size="sm">
+          <Button 
+            size="sm"
+            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Create Group
           </Button>
@@ -148,7 +151,11 @@ const GroupCard = ({ group, onAction, actionLabel, variant }: GroupCardProps) =>
 
           <Button 
             onClick={() => onAction(group.id)}
-            className="w-full"
+            className={`w-full ${
+              variant === "suggested" 
+                ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all" 
+                : ""
+            }`}
             variant={variant === "joined" ? "outline" : "default"}
             size="sm"
           >

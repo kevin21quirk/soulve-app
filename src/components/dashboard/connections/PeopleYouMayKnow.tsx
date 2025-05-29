@@ -78,7 +78,7 @@ const PeopleYouMayKnow = ({ people, onSendRequest, onDismiss }: PeopleYouMayKnow
                   <Button
                     onClick={() => onSendRequest(person.id)}
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
                   >
                     <UserPlus className="h-4 w-4 mr-1" />
                     Connect

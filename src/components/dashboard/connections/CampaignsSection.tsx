@@ -26,7 +26,10 @@ const CampaignsSection = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Campaigns & Causes</h2>
-        <Button size="sm">
+        <Button 
+          size="sm"
+          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Start Campaign
         </Button>
@@ -181,7 +184,11 @@ const CampaignCard = ({ campaign, onAction, actionLabel, variant }: CampaignCard
 
           <Button 
             onClick={() => onAction(campaign.id)}
-            className="w-full"
+            className={`w-full ${
+              variant === "suggested" 
+                ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all" 
+                : ""
+            }`}
             variant={variant === "active" ? "outline" : "default"}
             size="sm"
           >
