@@ -33,13 +33,7 @@ const UserProfileBanner = ({
         <div className="relative h-48 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
           {displayBanner ? (
             <div className="relative w-full h-full">
-              {displayBannerType === 'image' ? (
-                <img
-                  src={displayBanner}
-                  alt="Profile banner"
-                  className="w-full h-full object-cover"
-                />
-              ) : displayBannerType === 'video' ? (
+              {displayBannerType === 'video' ? (
                 <video
                   src={displayBanner}
                   className="w-full h-full object-cover"
@@ -47,7 +41,13 @@ const UserProfileBanner = ({
                   loop
                   autoPlay
                 />
-              ) : null}
+              ) : (
+                <img
+                  src={displayBanner}
+                  alt="Profile banner"
+                  className="w-full h-full object-cover"
+                />
+              )}
               <Button
                 type="button"
                 variant="destructive"
