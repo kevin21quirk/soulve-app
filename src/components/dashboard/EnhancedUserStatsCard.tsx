@@ -25,17 +25,6 @@ const EnhancedUserStatsCard = ({ userStats }: EnhancedUserStatsCardProps) => {
     }
   };
 
-  const getTrustLevelColor = (level: string) => {
-    switch (level) {
-      case "new_user": return "from-gray-500 to-gray-600";
-      case "verified_helper": return "from-blue-500 to-blue-600";
-      case "trusted_helper": return "from-green-500 to-green-600";
-      case "community_leader": return "from-purple-500 to-purple-600";
-      case "impact_champion": return "from-yellow-500 to-yellow-600";
-      default: return "from-gray-500 to-gray-600";
-    }
-  };
-
   const TrustIcon = getTrustLevelIcon(userStats.trustLevel);
   const progressToNext = nextLevel ? 
     ((userStats.totalPoints - (trustLevelConfig?.minPoints || 0)) / 
@@ -43,7 +32,7 @@ const EnhancedUserStatsCard = ({ userStats }: EnhancedUserStatsCardProps) => {
     : 100;
 
   return (
-    <Card className={`bg-gradient-to-r ${getTrustLevelColor(userStats.trustLevel)} text-white`}>
+    <Card className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
