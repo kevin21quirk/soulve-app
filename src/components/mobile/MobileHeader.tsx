@@ -1,5 +1,5 @@
 
-import { Bell, Search, MessageCircle } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SouLVELogo from "@/components/SouLVELogo";
 
@@ -24,12 +24,6 @@ const MobileHeader = () => {
             <MessageCircle className="h-5 w-5 text-gray-600" />
             <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
               2
-            </span>
-          </Button>
-          <Button variant="ghost" size="sm" className="p-2 relative">
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-              5
             </span>
           </Button>
         </div>

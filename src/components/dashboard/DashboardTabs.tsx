@@ -57,6 +57,14 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
           <TabsContent value="profile" className="mt-0">
             <UserProfile />
           </TabsContent>
+
+          {/* Handle notifications tab for mobile (redirect to activity) */}
+          <TabsContent value="notifications" className="mt-0">
+            <div className="p-4 bg-white rounded-lg">
+              <h2 className="text-lg font-semibold mb-4">Activity & Notifications</h2>
+              <p className="text-gray-600">Your activity feed and notifications will appear here.</p>
+            </div>
+          </TabsContent>
         </MobileLayout>
 
         {/* Mobile Bottom Navigation */}

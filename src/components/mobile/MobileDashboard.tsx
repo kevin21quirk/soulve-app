@@ -22,7 +22,8 @@ const MobileDashboard = () => {
         {activeTab === "feed" && <MobileFeed />}
         {activeTab === "discover" && <div className="p-4">Discover content coming soon...</div>}
         {activeTab === "messaging" && <div className="p-4">Messages coming soon...</div>}
-        {activeTab === "notifications" && <div className="p-4">Notifications coming soon...</div>}
+        {activeTab === "notifications" && <div className="p-4">Activity & Notifications coming soon...</div>}
+        {activeTab === "analytics-points" && <div className="p-4">Trust Score & Analytics coming soon...</div>}
         {activeTab === "profile" && <div className="p-4">Profile coming soon...</div>}
       </main>
 
