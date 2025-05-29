@@ -31,26 +31,26 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       </div>
       
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-gray-600 px-3 py-2">
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
             <Camera className="h-4 w-4 text-green-500" />
-            <span className="text-sm">Photo</span>
+            <span className="text-xs">Photo</span>
           </Button>
           
-          <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-gray-600 px-3 py-2">
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
             <MapPin className="h-4 w-4 text-red-500" />
-            <span className="text-sm">Location</span>
+            <span className="text-xs">Location</span>
           </Button>
           
-          <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-gray-600 px-3 py-2">
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-gray-600 px-2 py-2">
             <Smile className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm">Feeling</span>
+            <span className="text-xs">Feeling</span>
           </Button>
         </div>
         
         <Button 
           size="sm"
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-6 py-2 text-sm font-medium"
+          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-4 py-2 text-sm font-medium flex-shrink-0"
         >
           Post
         </Button>

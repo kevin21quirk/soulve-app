@@ -43,7 +43,7 @@ const MobilePostCard = ({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Post Header */}
-      <div className="flex items-center justify-between p-4 pb-3">
+      <div className="flex items-start justify-between p-4 pb-3">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <Avatar className="h-10 w-10 flex-shrink-0">
             <AvatarImage src={post.avatar} alt={post.author} />
@@ -52,17 +52,17 @@ const MobilePostCard = ({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mb-1">
               <h3 className="font-semibold text-gray-900 text-sm truncate">
                 {post.author}
               </h3>
-              <Badge className={`${getCategoryColor(post.category)} text-xs px-2 py-0.5 border`}>
+              <Badge className={`${getCategoryColor(post.category)} text-xs px-2 py-0.5 border flex-shrink-0`}>
                 {post.category.replace('-', ' ')}
               </Badge>
             </div>
-            <div className="flex items-center space-x-2 text-xs text-gray-500 mt-0.5">
+            <div className="flex items-center space-x-2 text-xs text-gray-500">
               <Clock className="h-3 w-3" />
-              <span>{post.timestamp}</span>
+              <span>{post.timestamp.replace('hours', 'hrs')}</span>
               {post.location && (
                 <>
                   <span>•</span>
@@ -73,7 +73,7 @@ const MobilePostCard = ({
             </div>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="p-1 h-8 w-8 flex-shrink-0">
+        <Button variant="ghost" size="sm" className="p-1 h-6 w-6 flex-shrink-0 -mt-1">
           <MoreHorizontal className="h-4 w-4 text-gray-500" />
         </Button>
       </div>
@@ -120,13 +120,13 @@ const MobilePostCard = ({
       )}
 
       {/* Action Buttons */}
-      <div className="border-t border-gray-100 px-2 py-2">
-        <div className="flex items-center justify-around">
+      <div className="border-t border-gray-100 px-1 py-2">
+        <div className="flex items-center">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onLike(post.id)}
-            className={`flex items-center space-x-2 flex-1 justify-center py-2.5 ${
+            className={`flex items-center space-x-1 flex-1 justify-center py-2.5 ${
               post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
             }`}
           >
@@ -138,7 +138,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onRespond(post.id)}
-            className="flex items-center space-x-2 flex-1 justify-center py-2.5 text-gray-600 hover:text-blue-500"
+            className="flex items-center space-x-1 flex-1 justify-center py-2.5 text-gray-600 hover:text-blue-500"
           >
             <MessageCircle className="h-4 w-4" />
             <span className="text-sm font-medium">Respond</span>
@@ -148,7 +148,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onShare(post.id)}
-            className="flex items-center space-x-2 flex-1 justify-center py-2.5 text-gray-600 hover:text-green-500"
+            className="flex items-center space-x-1 flex-1 justify-center py-2.5 text-gray-600 hover:text-green-500"
           >
             <Share2 className="h-4 w-4" />
             <span className="text-sm font-medium">Share</span>
@@ -158,7 +158,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onBookmark(post.id)}
-            className={`flex items-center space-x-2 flex-1 justify-center py-2.5 ${
+            className={`flex items-center space-x-1 flex-1 justify-center py-2.5 ${
               post.isBookmarked ? 'text-yellow-500' : 'text-gray-600 hover:text-yellow-500'
             }`}
           >
