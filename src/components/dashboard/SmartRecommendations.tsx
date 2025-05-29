@@ -4,37 +4,60 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Brain, ChevronRight } from "lucide-react";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { useIsMobile } from "@/hooks/use-mobile";
 import CompactRecommendationCard from "./CompactRecommendationCard";
 
 const SmartRecommendations = () => {
   const { recommendations, handleRecommendationAction, handleImproveRecommendations } = useRecommendations();
+  const isMobile = useIsMobile();
 
   return (
-    <Card className="bg-gradient-to-r from-[#4c3dfb]/10 to-[#18a5fe]/10 border-[#4c3dfb]/30">
+    <Card className="bg-gradient-to-r from-[#4c3dfb]/10 to-[#18a5fe]/10 border-[#4c3dfb]/30 w-full">
       <CardHeader className="pb-3">
-        <div className="flex items-center space-x-2">
-          <Brain className="h-4 w-4 text-[#4c3dfb]" />
-          <CardTitle className="text-lg text-[#4c3dfb]">Smart Recommendations</CardTitle>
-          <Badge variant="secondary" className="bg-gradient-to-r from-[#4c3dfb] to-[#18a5fe] text-white text-xs">
-            AI
-          </Badge>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleImproveRecommendations} 
-            className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center gap-1 px-2 py-1 h-auto ml-2"
-          >
-            <Brain className="h-3 w-3" />
-            <span className="text-xs">Improve</span>
-          </Button>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Brain className="h-4 w-4 text-[#4c3dfb] flex-shrink-0" />
+              <CardTitle className="text-lg text-[#4c3dfb]">Smart Recommendations</CardTitle>
+              <Badge variant="secondary" className="bg-gradient-to-r from-[#4c3dfb] to-[#18a5fe] text-white text-xs">
+                AI
+              </Badge>
+            </div>
+            {!isMobile && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleImproveRecommendations} 
+                className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center gap-1 px-2 py-1 h-auto"
+              >
+                <Brain className="h-3 w-3" />
+                <span className="text-xs">Improve</span>
+              </Button>
+            )}
+          </div>
+          
+          {isMobile && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleImproveRecommendations} 
+              className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center justify-center gap-2 w-full"
+            >
+              <Brain className="h-4 w-4" />
+              <span className="text-sm">Improve Recommendations</span>
+            </Button>
+          )}
         </div>
+        
         <CardDescription className="text-sm text-[#4c3dfb]/80">
           Personalised suggestions based on your activity
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {recommendations.slice(0, 4).map((recommendation) => (
+        <div className={`grid gap-3 ${
+          isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+        }`}>
+          {recommendations.slice(0, isMobile ? 2 : 4).map((recommendation) => (
             <CompactRecommendationCard
               key={recommendation.id}
               recommendation={recommendation}
@@ -43,7 +66,7 @@ const SmartRecommendations = () => {
           ))}
         </div>
         
-        {recommendations.length > 4 && (
+        {recommendations.length > (isMobile ? 2 : 4) && (
           <div className="text-center mt-3 pt-3 border-t border-[#4c3dfb]/20">
             <Button variant="outline" size="sm" className="text-[#4c3dfb] border-[#4c3dfb]/30 hover:bg-[#4c3dfb]/10">
               View All Recommendations

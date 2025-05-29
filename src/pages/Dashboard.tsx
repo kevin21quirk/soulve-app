@@ -3,6 +3,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import ErrorBoundary from "@/components/ui/error-boundary";
+import { MobileContainer } from "@/components/ui/mobile/mobile-layout";
 import { useDashboardShortcuts } from "@/hooks/useDashboardShortcuts";
 
 const Dashboard = () => {
@@ -40,9 +41,9 @@ const Dashboard = () => {
           onNavigateToTab={handleNavigateToTab}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <MobileContainer className="py-8">
           <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
+        </MobileContainer>
       </div>
     </ErrorBoundary>
   );

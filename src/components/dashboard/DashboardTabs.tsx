@@ -9,6 +9,7 @@ import DiscoverConnectTab from "./tabs/DiscoverConnectTab";
 import CampaignsTab from "./tabs/CampaignsTab";
 import AnalyticsPointsTab from "./tabs/AnalyticsPointsTab";
 import MobileBottomNav from "@/components/ui/mobile/mobile-bottom-nav";
+import { MobileLayout } from "@/components/ui/mobile/mobile-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardTabsProps {
@@ -27,36 +28,36 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
           <MainTabsList />
         </div>
 
-        {/* Tab Content with mobile padding for bottom nav */}
-        <div className={`mt-6 ${isMobile ? "pb-20" : ""}`}>
-          <TabsContent value="feed" className="mt-6">
+        {/* Tab Content with proper mobile layout */}
+        <MobileLayout hasBottomNav={isMobile} className="mt-6">
+          <TabsContent value="feed" className="mt-0">
             <EnhancedSocialFeed />
           </TabsContent>
 
-          <TabsContent value="discover-connect" className="mt-6">
+          <TabsContent value="discover-connect" className="mt-0">
             <DiscoverConnectTab />
           </TabsContent>
 
-          <TabsContent value="messaging" className="mt-6">
+          <TabsContent value="messaging" className="mt-0">
             <EnhancedMessaging />
           </TabsContent>
 
-          <TabsContent value="help-center" className="mt-6">
+          <TabsContent value="help-center" className="mt-0">
             <HelpCenter />
           </TabsContent>
 
-          <TabsContent value="campaigns" className="mt-6">
+          <TabsContent value="campaigns" className="mt-0">
             <CampaignsTab />
           </TabsContent>
 
-          <TabsContent value="analytics-points" className="mt-6">
+          <TabsContent value="analytics-points" className="mt-0">
             <AnalyticsPointsTab />
           </TabsContent>
 
-          <TabsContent value="profile" className="mt-6">
+          <TabsContent value="profile" className="mt-0">
             <UserProfile />
           </TabsContent>
-        </div>
+        </MobileLayout>
 
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
