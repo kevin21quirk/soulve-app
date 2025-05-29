@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-lg border border-teal-200">
               <Target className="h-8 w-8 text-teal-600 mb-3" />
               <h3 className="font-semibold text-teal-900 mb-2">Fundraising Campaigns</h3>
@@ -109,6 +108,20 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
                 className="border-purple-300 text-purple-700 hover:bg-purple-50"
               >
                 Raise Awareness
+              </Button>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
+              <Target className="h-8 w-8 text-orange-600 mb-3" />
+              <h3 className="font-semibold text-orange-900 mb-2">Social Cause Campaigns</h3>
+              <p className="text-sm text-orange-700 mb-4">Drive social change and advocate for important causes</p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/campaign-builder')}
+                className="border-orange-300 text-orange-700 hover:bg-orange-50"
+              >
+                Start Movement
               </Button>
             </div>
           </div>

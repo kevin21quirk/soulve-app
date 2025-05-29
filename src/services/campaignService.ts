@@ -10,7 +10,7 @@ export interface CampaignFormData {
   title: string;
   description: string;
   story: string;
-  category: 'fundraising' | 'volunteer' | 'awareness' | 'community' | 'petition';
+  category: 'fundraising' | 'volunteer' | 'awareness' | 'community' | 'petition' | 'social_cause';
   organization_type: 'charity' | 'business' | 'social_group' | 'community_group' | 'individual';
   goal_type: 'monetary' | 'volunteers' | 'signatures' | 'participants';
   goal_amount?: number;

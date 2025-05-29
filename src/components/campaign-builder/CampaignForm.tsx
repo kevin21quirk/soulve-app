@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,6 +120,7 @@ const CampaignForm = ({ onSuccess }: CampaignFormProps) => {
                         <SelectItem value="awareness">Awareness</SelectItem>
                         <SelectItem value="community">Community</SelectItem>
                         <SelectItem value="petition">Petition</SelectItem>
+                        <SelectItem value="social_cause">Social Cause</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
