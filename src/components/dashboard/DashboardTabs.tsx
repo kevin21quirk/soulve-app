@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -23,12 +22,13 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-6">
+      <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="feed">Feed</TabsTrigger>
         <TabsTrigger value="discover-connect">Discover & Connect</TabsTrigger>
         <TabsTrigger value="messaging">Messages</TabsTrigger>
         <TabsTrigger value="help-center">Help Center</TabsTrigger>
         <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+        <TabsTrigger value="analytics-points">Analytics & Points</TabsTrigger>
         <TabsTrigger value="profile">Profile</TabsTrigger>
       </TabsList>
 
@@ -38,11 +38,9 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
       <TabsContent value="discover-connect" className="mt-6">
         <Tabs defaultValue="recommendations" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="recommendations">Discover</TabsTrigger>
             <TabsTrigger value="connections">Connect</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="points">Points</TabsTrigger>
           </TabsList>
 
           <TabsContent value="recommendations" className="mt-6">
@@ -51,14 +49,6 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
           <TabsContent value="connections" className="mt-6">
             <EnhancedConnections />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="mt-6">
-            <EnhancedAnalyticsDashboard />
-          </TabsContent>
-
-          <TabsContent value="points" className="mt-6">
-            <GamificationPanel />
           </TabsContent>
         </Tabs>
       </TabsContent>
@@ -145,6 +135,23 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
             </div>
           </div>
         </div>
+      </TabsContent>
+
+      <TabsContent value="analytics-points" className="mt-6">
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="points">Points</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analytics" className="mt-6">
+            <EnhancedAnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="points" className="mt-6">
+            <GamificationPanel />
+          </TabsContent>
+        </Tabs>
       </TabsContent>
 
       <TabsContent value="profile" className="mt-6">
