@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, 
   Target, 
-  Feed, 
+  Rss, 
   Users, 
   MessageCircle, 
   HelpCircle, 
@@ -33,7 +34,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="feed" className="flex items-center gap-2">
-          <Feed className="h-4 w-4" />
+          <Rss className="h-4 w-4" />
           <span className="hidden sm:inline">Feed</span>
         </TabsTrigger>
         <TabsTrigger value="discover-connect" className="flex items-center gap-2">
