@@ -8,7 +8,6 @@ import MainTabsList from "./tabs/MainTabsList";
 import DiscoverConnectTab from "./tabs/DiscoverConnectTab";
 import CampaignsTab from "./tabs/CampaignsTab";
 import AnalyticsPointsTab from "./tabs/AnalyticsPointsTab";
-import ChallengesEventsTab from "./tabs/ChallengesEventsTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -34,12 +33,14 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
       <TabsContent value="verification" className="mt-6">
         <div className="text-center py-8">
-          <p className="text-gray-600">Verification panel coming soon...</p>
+          <p className="text-gray-600">Verification panel is now integrated into the Profile tab.</p>
         </div>
       </TabsContent>
 
       <TabsContent value="challenges" className="mt-6">
-        <ChallengesEventsTab />
+        <div className="text-center py-8">
+          <p className="text-gray-600">Challenges & Events are now integrated into the Profile tab.</p>
+        </div>
       </TabsContent>
 
       <TabsContent value="settings" className="mt-6">

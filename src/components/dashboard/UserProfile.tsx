@@ -7,12 +7,16 @@ import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
 import VerificationPanel from "./verification/VerificationPanel";
+import ChallengesEventsPanel from "./ChallengesEventsPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Shield, Trophy } from "lucide-react";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 const UserProfile = () => {
   const { toast } = useToast();
   const { profileData, loading, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
+  const [activeProfileTab, setActiveProfileTab] = useState("profile");
 
   const handleViewPointsDetails = () => {
     console.log("Trust score button clicked - showing points details");
@@ -66,24 +70,49 @@ const UserProfile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <UserProfileTabs
-            profileData={profileData}
-            onProfileUpdate={handleProfileUpdate}
-            onViewPointsDetails={handleViewPointsDetails}
-          />
-        </div>
-        
-        <div className="space-y-6">
+      <Tabs value={activeProfileTab} onValueChange={setActiveProfileTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="profile" className="flex items-center space-x-2">
+            <User className="h-4 w-4" />
+            <span>My Profile</span>
+          </TabsTrigger>
+          <TabsTrigger value="verification" className="flex items-center space-x-2">
+            <Shield className="h-4 w-4" />
+            <span>Verification</span>
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex items-center space-x-2">
+            <Trophy className="h-4 w-4" />
+            <span>Challenges & Events</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="mt-6">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <UserProfileTabs
+                profileData={profileData}
+                onProfileUpdate={handleProfileUpdate}
+                onViewPointsDetails={handleViewPointsDetails}
+              />
+            </div>
+            
+            <div className="space-y-6">
+              <ImpactFootprint 
+                activities={mockTrustFootprint.activities}
+                userName={profileData.name}
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="verification" className="mt-6">
           <VerificationPanel />
-        </div>
-      </div>
-      
-      <ImpactFootprint 
-        activities={mockTrustFootprint.activities}
-        userName={profileData.name}
-      />
+        </TabsContent>
+
+        <TabsContent value="challenges" className="mt-6">
+          <ChallengesEventsPanel />
+        </TabsContent>
+      </Tabs>
 
       <UserProfilePointsDetails
         profileData={profileData}
