@@ -66,8 +66,7 @@ class PushNotificationService {
         badge: config.badge || '/badge-72x72.png',
         tag: config.tag,
         data: config.data,
-        requireInteraction: true,
-        vibrate: [200, 100, 200]
+        requireInteraction: true
       });
     } else {
       new Notification(config.title, {
