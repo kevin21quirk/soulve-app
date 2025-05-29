@@ -134,8 +134,8 @@ export const mockMessages: Message[] = [
     status: "read",
     type: "text",
     reactions: [
-      { emoji: "👍", userId: "you", userName: "You" },
-      { emoji: "❤️", userId: "mike_1", userName: "Mike Johnson" }
+      { emoji: "👍", userId: "you", userName: "You", timestamp: "2023-12-01T10:38:00Z" },
+      { emoji: "❤️", userId: "mike_1", userName: "Mike Johnson", timestamp: "2023-12-01T10:39:00Z" }
     ]
   },
   {

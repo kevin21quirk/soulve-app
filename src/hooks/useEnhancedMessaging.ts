@@ -65,10 +65,16 @@ export const useEnhancedMessaging = () => {
             reactions: existingReactions.filter(r => !(r.userId === "you" && r.emoji === emoji))
           };
         } else {
-          // Add reaction
+          // Add reaction with timestamp
+          const newReaction: MessageReaction = { 
+            emoji, 
+            userId: "you", 
+            userName: "You",
+            timestamp: new Date().toISOString()
+          };
           return {
             ...msg,
-            reactions: [...existingReactions, { emoji, userId: "you", userName: "You" }]
+            reactions: [...existingReactions, newReaction]
           };
         }
       }
