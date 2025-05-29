@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,13 +119,13 @@ const MobilePostCard = ({
       )}
 
       {/* Action Buttons */}
-      <div className="border-t border-gray-100 px-3 py-2">
-        <div className="flex items-center justify-between">
+      <div className="border-t border-gray-100 px-4 py-2">
+        <div className="flex items-center justify-center gap-2">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => onLike(post.id)}
-            className={`flex items-center space-x-1 px-3 py-2.5 ${
+            className={`flex items-center space-x-1 px-2 py-2.5 ${
               post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
             }`}
           >
@@ -138,7 +137,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onRespond(post.id)}
-            className="flex items-center space-x-1 px-3 py-2.5 text-gray-600 hover:text-blue-500"
+            className="flex items-center space-x-1 px-2 py-2.5 text-gray-600 hover:text-blue-500"
           >
             <MessageCircle className="h-4 w-4" />
             <span className="text-sm font-medium">Respond</span>
@@ -148,7 +147,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onShare(post.id)}
-            className="flex items-center space-x-1 px-3 py-2.5 text-gray-600 hover:text-green-500"
+            className="flex items-center space-x-1 px-2 py-2.5 text-gray-600 hover:text-green-500"
           >
             <Share2 className="h-4 w-4" />
             <span className="text-sm font-medium">Share</span>
@@ -158,7 +157,7 @@ const MobilePostCard = ({
             variant="ghost" 
             size="sm" 
             onClick={() => onBookmark(post.id)}
-            className={`flex items-center space-x-1 px-3 py-2.5 ${
+            className={`flex items-center space-x-1 px-2 py-2.5 ${
               post.isBookmarked ? 'text-yellow-500' : 'text-gray-600 hover:text-yellow-500'
             }`}
           >
