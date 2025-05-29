@@ -69,12 +69,95 @@ export type Database = {
         }
         Relationships: []
       }
+      trust_score_history: {
+        Row: {
+          change_reason: string
+          created_at: string
+          id: string
+          new_score: number
+          previous_score: number | null
+          user_id: string
+          verification_id: string | null
+        }
+        Insert: {
+          change_reason: string
+          created_at?: string
+          id?: string
+          new_score: number
+          previous_score?: number | null
+          user_id: string
+          verification_id?: string | null
+        }
+        Update: {
+          change_reason?: string
+          created_at?: string
+          id?: string
+          new_score?: number
+          previous_score?: number | null
+          user_id?: string
+          verification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_score_history_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "user_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_verifications: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          verification_data: Json | null
+          verification_type: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verification_data?: Json | null
+          verification_type: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verification_data?: Json | null
+          verification_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_trust_score: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

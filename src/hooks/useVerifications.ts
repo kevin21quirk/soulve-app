@@ -9,7 +9,7 @@ export const useVerifications = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [verifications, setVerifications] = useState<UserVerification[]>([]);
-  const [trustScore, setTrustScore] = useState<number>(0);
+  const [trustScore, setTrustScore] = useState<number>(50);
   const [trustHistory, setTrustHistory] = useState<TrustScoreHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +31,7 @@ export const useVerifications = () => {
     try {
       console.log('Fetching verifications for user:', user.id);
       
-      // Use type assertion to work around missing table types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('user_verifications')
         .select('*')
         .eq('user_id', user.id)
@@ -50,10 +49,9 @@ export const useVerifications = () => {
       console.error('Error in fetchVerifications:', error);
       toast({
         title: "Error",
-        description: "Failed to load verifications. The verification system may not be fully set up yet.",
+        description: "Failed to load verifications.",
         variant: "destructive"
       });
-      // Set empty array on error to prevent crashes
       setVerifications([]);
     }
   };
@@ -64,7 +62,7 @@ export const useVerifications = () => {
     try {
       console.log('Calculating trust score for user:', user.id);
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .rpc('calculate_trust_score', { user_uuid: user.id });
 
       console.log('Trust score response:', { data, error });
@@ -74,10 +72,9 @@ export const useVerifications = () => {
         throw error;
       }
       
-      setTrustScore(data || 50); // Default score of 50 if no data
+      setTrustScore(data || 50);
     } catch (error) {
       console.error('Error in fetchTrustScore:', error);
-      // Set default trust score on error
       setTrustScore(50);
     } finally {
       setLoading(false);
@@ -90,7 +87,7 @@ export const useVerifications = () => {
     try {
       console.log('Fetching trust history for user:', user.id);
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('trust_score_history')
         .select('*')
         .eq('user_id', user.id)
@@ -107,7 +104,6 @@ export const useVerifications = () => {
       setTrustHistory(data || []);
     } catch (error) {
       console.error('Error in fetchTrustHistory:', error);
-      // Set empty array on error
       setTrustHistory([]);
     }
   };
@@ -125,7 +121,7 @@ export const useVerifications = () => {
     try {
       console.log('Requesting verification:', { verificationType, userId: user.id });
       
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_verifications')
         .insert({
           user_id: user.id,

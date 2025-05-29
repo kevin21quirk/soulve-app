@@ -7,7 +7,6 @@ import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
 import VerificationPanel from "./verification/VerificationPanel";
-import VerificationTest from "./verification/VerificationTest";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 const UserProfile = () => {
@@ -78,8 +77,6 @@ const UserProfile = () => {
         
         <div className="space-y-6">
           <VerificationPanel />
-          {/* Temporary test component - remove after testing */}
-          <VerificationTest />
         </div>
       </div>
       
