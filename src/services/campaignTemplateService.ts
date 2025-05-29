@@ -2,173 +2,232 @@
 export interface CampaignTemplate {
   id: string;
   name: string;
+  category: "education" | "healthcare" | "environment" | "community" | "disaster-relief" | "animal-welfare";
   description: string;
-  category: 'fundraising' | 'volunteer' | 'awareness' | 'community' | 'petition' | 'social_cause';
-  organization_type: 'charity' | 'business' | 'social_group' | 'community_group' | 'individual';
-  featured_image: string;
-  template_data: {
+  estimatedDuration: string;
+  targetAmount: number;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  tags: string[];
+  content: {
     title: string;
     description: string;
     story: string;
-    goal_type: 'monetary' | 'volunteers' | 'signatures' | 'participants';
-    suggested_goal_amount?: number;
-    urgency: 'low' | 'medium' | 'high';
-    tags: string[];
-    duration_days?: number;
+    goals: string[];
+    impacts: string[];
   };
-  usage_count: number;
-  success_rate: number;
-  average_goal_achievement: number;
+  mediaPlaceholders: {
+    heroImage: string;
+    galleryImages: string[];
+    videoPlaceholder?: string;
+  };
+  socialStrategies: {
+    platform: string;
+    content: string;
+    hashtags: string[];
+  }[];
+  milestones: {
+    percentage: number;
+    title: string;
+    description: string;
+    reward?: string;
+  }[];
+  isPopular: boolean;
+  usageCount: number;
+  createdBy: string;
+  createdAt: string;
 }
 
 export const campaignTemplates: CampaignTemplate[] = [
   {
-    id: 'emergency-fundraising',
-    name: 'Emergency Medical Fundraising',
-    description: 'Quick setup for urgent medical expenses and emergency situations',
-    category: 'fundraising',
-    organization_type: 'individual',
-    featured_image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Help [Name] with Medical Expenses',
-      description: 'Emergency medical fundraiser to help cover unexpected healthcare costs',
-      story: 'We are raising funds to help cover urgent medical expenses for [Name]. Any contribution, no matter how small, will make a significant difference during this challenging time.\n\nThe funds will be used for:\n• Medical treatments and procedures\n• Hospital bills and medication\n• Recovery and rehabilitation costs\n\nYour support means the world to us and will help [Name] focus on healing without the burden of financial stress.',
-      goal_type: 'monetary',
-      suggested_goal_amount: 10000,
-      urgency: 'high',
-      tags: ['medical', 'emergency', 'healthcare', 'urgent'],
-      duration_days: 60
+    id: "education-scholarship",
+    name: "Scholarship Fund",
+    category: "education",
+    description: "Create a scholarship fund to support students in need of financial assistance for their education.",
+    estimatedDuration: "3-6 months",
+    targetAmount: 10000,
+    difficulty: "beginner",
+    tags: ["education", "scholarship", "students", "financial-aid"],
+    content: {
+      title: "Supporting Dreams: [Student Name] Scholarship Fund",
+      description: "Help us provide educational opportunities to deserving students who face financial barriers.",
+      story: "Education is a powerful tool that can transform lives and break cycles of poverty. Many talented students are unable to pursue their dreams due to financial constraints. This scholarship fund aims to bridge that gap and provide opportunities for academic excellence.",
+      goals: [
+        "Provide full tuition coverage for one academic year",
+        "Support 2-3 students with partial scholarships",
+        "Create sustainable funding for future scholars"
+      ],
+      impacts: [
+        "Direct impact on student's educational journey",
+        "Strengthening community through education",
+        "Creating role models for future generations"
+      ]
     },
-    usage_count: 1247,
-    success_rate: 78,
-    average_goal_achievement: 65
+    mediaPlaceholders: {
+      heroImage: "Education/graduation-ceremony.jpg",
+      galleryImages: [
+        "Education/students-studying.jpg",
+        "Education/library-scene.jpg",
+        "Education/campus-life.jpg"
+      ]
+    },
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "🎓 Every student deserves a chance to pursue their dreams! Help us support the next generation of leaders.",
+        hashtags: ["#EducationForAll", "#ScholarshipFund", "#SupportStudents"]
+      },
+      {
+        platform: "Twitter",
+        content: "Education changes lives. Your support can make the difference for a deserving student. 📚✨",
+        hashtags: ["#EducationMatters", "#Scholarship", "#PayItForward"]
+      }
+    ],
+    milestones: [
+      { percentage: 25, title: "First Quarter", description: "Cover textbooks and supplies for the semester" },
+      { percentage: 50, title: "Halfway There", description: "Semester tuition covered" },
+      { percentage: 75, title: "Almost There", description: "Full year tuition secured" },
+      { percentage: 100, title: "Goal Achieved", description: "Complete scholarship funded with room for growth" }
+    ],
+    isPopular: true,
+    usageCount: 156,
+    createdBy: "SouLVE Team",
+    createdAt: "2024-01-15"
   },
   {
-    id: 'community-garden',
-    name: 'Community Garden Project',
-    description: 'Template for creating local community gardens and green spaces',
-    category: 'community',
-    organization_type: 'community_group',
-    featured_image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Community Garden Initiative - Growing Together',
-      description: 'Creating a sustainable community garden to bring neighbors together and promote healthy living',
-      story: 'Our community is coming together to create a beautiful, sustainable garden space that will benefit everyone in our neighborhood.\n\nProject Goals:\n• Provide fresh, organic produce for local families\n• Create educational opportunities for children\n• Build stronger community connections\n• Promote environmental sustainability\n\nWe need volunteers to help with:\n• Garden design and planning\n• Soil preparation and planting\n• Ongoing maintenance and care\n• Community events and workshops',
-      goal_type: 'volunteers',
-      suggested_goal_amount: 50,
-      urgency: 'medium',
-      tags: ['community', 'garden', 'sustainability', 'environment', 'local'],
-      duration_days: 120
+    id: "community-garden",
+    name: "Community Garden Project",
+    category: "community",
+    description: "Transform unused space into a thriving community garden that brings neighbors together.",
+    estimatedDuration: "4-8 months",
+    targetAmount: 5000,
+    difficulty: "intermediate",
+    tags: ["community", "garden", "sustainability", "local"],
+    content: {
+      title: "Growing Together: [Location] Community Garden",
+      description: "Join us in creating a green space where neighbors can grow fresh produce, build connections, and strengthen our community.",
+      story: "Community gardens are more than just places to grow food – they're spaces where relationships flourish, children learn about nature, and communities come together. Our project will transform an unused lot into a vibrant hub of activity and connection.",
+      goals: [
+        "Install raised garden beds and irrigation system",
+        "Create composting and tool storage areas",
+        "Establish community programs and workshops",
+        "Engage 50+ local families in the project"
+      ],
+      impacts: [
+        "Increased access to fresh, healthy food",
+        "Stronger neighborhood connections",
+        "Environmental benefits through green space",
+        "Educational opportunities for children and adults"
+      ]
     },
-    usage_count: 892,
-    success_rate: 85,
-    average_goal_achievement: 92
+    mediaPlaceholders: {
+      heroImage: "Community/community-garden-harvest.jpg",
+      galleryImages: [
+        "Community/people-gardening.jpg",
+        "Community/fresh-vegetables.jpg",
+        "Community/children-planting.jpg"
+      ]
+    },
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "🌱 Help us grow more than just vegetables – let's grow community! Support our garden project.",
+        hashtags: ["#CommunityGarden", "#GrowTogether", "#LocalFood"]
+      },
+      {
+        platform: "Instagram",
+        content: "From seed to harvest, from neighbors to friends. Be part of our growing community! 🥕🌿",
+        hashtags: ["#CommunityGarden", "#GrowLocal", "#NeighborhoodLove"]
+      }
+    ],
+    milestones: [
+      { percentage: 20, title: "Site Preparation", description: "Land cleared and soil tested" },
+      { percentage: 40, title: "Infrastructure", description: "Raised beds and water access installed" },
+      { percentage: 60, title: "Tools & Storage", description: "Shed built and tools purchased" },
+      { percentage: 80, title: "First Planting", description: "Seeds planted and growing!" },
+      { percentage: 100, title: "Harvest Time", description: "Community celebrating first harvest" }
+    ],
+    isPopular: true,
+    usageCount: 89,
+    createdBy: "Green Community Initiative",
+    createdAt: "2024-02-01"
   },
   {
-    id: 'education-fundraising',
-    name: 'Education Support Fund',
-    description: 'Raise funds for educational programs, scholarships, or school supplies',
-    category: 'fundraising',
-    organization_type: 'charity',
-    featured_image: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Supporting Education in Our Community',
-      description: 'Raising funds to provide educational opportunities and resources for students in need',
-      story: 'Education is the foundation of a brighter future. Our campaign aims to support students who face financial barriers to learning.\n\nYour contribution will help provide:\n• School supplies and textbooks\n• Technology and learning devices\n• Scholarship opportunities\n• After-school tutoring programs\n\nEvery donation, regardless of size, directly impacts a student\'s educational journey and helps build stronger communities through learning.',
-      goal_type: 'monetary',
-      suggested_goal_amount: 25000,
-      urgency: 'medium',
-      tags: ['education', 'students', 'learning', 'community', 'scholarship'],
-      duration_days: 90
+    id: "animal-rescue",
+    name: "Animal Rescue Center",
+    category: "animal-welfare",
+    description: "Support local animal rescue efforts and help provide shelter, medical care, and new homes for animals in need.",
+    estimatedDuration: "6-12 months",
+    targetAmount: 15000,
+    difficulty: "advanced",
+    tags: ["animals", "rescue", "shelter", "veterinary"],
+    content: {
+      title: "Second Chances: [Location] Animal Rescue Initiative",
+      description: "Every animal deserves love, care, and a forever home. Help us provide rescue, rehabilitation, and adoption services.",
+      story: "Behind every rescue animal is a story of resilience and hope. Our rescue center provides emergency medical care, behavioral rehabilitation, and loving temporary homes while we search for permanent families. With your support, we can expand our capacity to save more lives.",
+      goals: [
+        "Rescue and rehabilitate 200+ animals annually",
+        "Establish mobile veterinary clinic",
+        "Create foster network of 50+ families",
+        "Achieve 90% successful adoption rate"
+      ],
+      impacts: [
+        "Lives saved through emergency rescue operations",
+        "Reduced pet overpopulation through spay/neuter programs",
+        "Community education on responsible pet ownership",
+        "Support for families facing financial hardship with pet care"
+      ]
     },
-    usage_count: 1156,
-    success_rate: 82,
-    average_goal_achievement: 73
-  },
-  {
-    id: 'environmental-cleanup',
-    name: 'Environmental Cleanup Drive',
-    description: 'Organize community cleanup events and environmental protection initiatives',
-    category: 'volunteer',
-    organization_type: 'social_group',
-    featured_image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Community Environmental Cleanup Initiative',
-      description: 'Join us in protecting our environment through organized cleanup and conservation efforts',
-      story: 'Our planet needs our help, and together we can make a real difference in our local environment.\n\nCleanup Activities:\n• Beach and waterway cleaning\n• Park and trail maintenance\n• Recycling and waste reduction programs\n• Tree planting and habitat restoration\n\nVolunteer Opportunities:\n• Event coordination and planning\n• Cleanup crew leaders\n• Educational outreach\n• Data collection and reporting\n\nNo experience necessary - just bring your enthusiasm and we\'ll provide training and supplies!',
-      goal_type: 'volunteers',
-      suggested_goal_amount: 100,
-      urgency: 'medium',
-      tags: ['environment', 'cleanup', 'conservation', 'volunteer', 'sustainability'],
-      duration_days: 45
+    mediaPlaceholders: {
+      heroImage: "Animals/rescue-shelter.jpg",
+      galleryImages: [
+        "Animals/happy-adopted-pets.jpg",
+        "Animals/veterinary-care.jpg",
+        "Animals/volunteers-with-animals.jpg"
+      ]
     },
-    usage_count: 743,
-    success_rate: 91,
-    average_goal_achievement: 88
-  },
-  {
-    id: 'local-business-support',
-    name: 'Support Local Business',
-    description: 'Help local businesses during challenging times or expansion',
-    category: 'fundraising',
-    organization_type: 'business',
-    featured_image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Supporting [Business Name] - Local Community Pillar',
-      description: 'Help us support a beloved local business that serves our community',
-      story: '[Business Name] has been a cornerstone of our community for [X] years, providing [services/products] and supporting local families.\n\nDue to [challenge/opportunity], they need our community\'s support to:\n• Continue serving our neighborhood\n• Maintain local jobs\n• Preserve community gathering space\n• Invest in improvements and growth\n\nYour support helps maintain the unique character of our community and ensures local businesses can thrive.',
-      goal_type: 'monetary',
-      suggested_goal_amount: 15000,
-      urgency: 'medium',
-      tags: ['local business', 'community', 'economy', 'support'],
-      duration_days: 75
-    },
-    usage_count: 634,
-    success_rate: 76,
-    average_goal_achievement: 69
-  },
-  {
-    id: 'mental-health-awareness',
-    name: 'Mental Health Awareness Campaign',
-    description: 'Promote mental health awareness and reduce stigma in your community',
-    category: 'awareness',
-    organization_type: 'social_group',
-    featured_image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&h=400&fit=crop',
-    template_data: {
-      title: 'Breaking the Silence: Mental Health Awareness',
-      description: 'Join our campaign to promote mental health awareness and create supportive communities',
-      story: 'Mental health affects everyone, yet stigma often prevents people from seeking the help they need. Our awareness campaign aims to change that.\n\nCampaign Goals:\n• Reduce mental health stigma\n• Provide resources and information\n• Create safe spaces for discussion\n• Connect people with professional help\n\nHow You Can Help:\n• Share your story (if comfortable)\n• Attend awareness events\n• Volunteer at information booths\n• Help distribute resources\n• Support others in their journey\n\nTogether, we can create a community where mental health is treated with the same importance as physical health.',
-      goal_type: 'participants',
-      suggested_goal_amount: 500,
-      urgency: 'medium',
-      tags: ['mental health', 'awareness', 'support', 'community', 'wellness'],
-      duration_days: 60
-    },
-    usage_count: 567,
-    success_rate: 87,
-    average_goal_achievement: 94
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "🐾 Every donation helps us give animals a second chance at happiness. Join our rescue mission!",
+        hashtags: ["#AnimalRescue", "#AdoptDontShop", "#SecondChances"]
+      },
+      {
+        platform: "Instagram",
+        content: "From rescue to forever home – your support makes these transformations possible! ❤️🐕🐱",
+        hashtags: ["#RescueLife", "#AdoptionSuccess", "#AnimalWelfare"]
+      }
+    ],
+    milestones: [
+      { percentage: 15, title: "Emergency Fund", description: "Emergency medical care fund established" },
+      { percentage: 35, title: "Foster Network", description: "Foster family recruitment and training" },
+      { percentage: 55, title: "Mobile Clinic", description: "Veterinary clinic equipment purchased" },
+      { percentage: 75, title: "Facility Expansion", description: "Additional shelter space created" },
+      { percentage: 100, title: "Full Operation", description: "All programs running at full capacity" }
+    ],
+    isPopular: false,
+    usageCount: 34,
+    createdBy: "Animal Welfare Alliance",
+    createdAt: "2024-01-20"
   }
 ];
 
-export const getCampaignTemplates = (category?: string) => {
-  if (category) {
-    return campaignTemplates.filter(template => template.category === category);
-  }
-  return campaignTemplates;
+export const getTemplatesByCategory = (category: string) => {
+  return campaignTemplates.filter(template => template.category === category);
+};
+
+export const getPopularTemplates = () => {
+  return campaignTemplates.filter(template => template.isPopular).sort((a, b) => b.usageCount - a.usageCount);
 };
 
 export const getTemplateById = (id: string) => {
   return campaignTemplates.find(template => template.id === id);
 };
 
-export const getPopularTemplates = (limit: number = 3) => {
-  return campaignTemplates
-    .sort((a, b) => b.usage_count - a.usage_count)
-    .slice(0, limit);
-};
-
-export const getHighPerformanceTemplates = (limit: number = 3) => {
-  return campaignTemplates
-    .sort((a, b) => b.success_rate - a.success_rate)
-    .slice(0, limit);
+export const searchTemplates = (query: string) => {
+  const lowercaseQuery = query.toLowerCase();
+  return campaignTemplates.filter(template => 
+    template.name.toLowerCase().includes(lowercaseQuery) ||
+    template.description.toLowerCase().includes(lowercaseQuery) ||
+    template.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
+  );
 };
