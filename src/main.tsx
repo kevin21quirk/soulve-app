@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ErrorProvider } from '@/contexts/ErrorContext'
 import ErrorBoundary from '@/components/ui/error-boundary'
 import App from './App.tsx'
 import './index.css'
@@ -21,10 +22,12 @@ createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <App />
-          <Toaster />
-        </AuthProvider>
+        <ErrorProvider>
+          <AuthProvider>
+            <App />
+            <Toaster />
+          </AuthProvider>
+        </ErrorProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </ErrorBoundary>
