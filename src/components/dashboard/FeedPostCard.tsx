@@ -58,10 +58,10 @@ const FeedPostCard = ({
 
   const getSourceIcon = () => {
     if (post.tags?.includes('help-center')) {
-      return <HelpCircle className="h-4 w-4 text-teal-600" />;
+      return <HelpCircle className="h-4 w-4 text-soulve-teal" />;
     }
     if (post.tags?.includes('campaign')) {
-      return <Target className="h-4 w-4 text-purple-600" />;
+      return <Target className="h-4 w-4 text-soulve-purple" />;
     }
     return null;
   };
@@ -69,7 +69,7 @@ const FeedPostCard = ({
   const getSourceBadge = () => {
     if (post.tags?.includes('help-center')) {
       return (
-        <Badge variant="outline" className="text-xs border-teal-200 text-teal-700">
+        <Badge variant="soulve-teal" className="text-xs">
           <HelpCircle className="h-3 w-3 mr-1" />
           Help Center
         </Badge>
@@ -77,7 +77,7 @@ const FeedPostCard = ({
     }
     if (post.tags?.includes('campaign')) {
       return (
-        <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">
+        <Badge variant="soulve-purple" className="text-xs">
           <Target className="h-3 w-3 mr-1" />
           Campaign
         </Badge>
@@ -139,7 +139,7 @@ const FeedPostCard = ({
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {post.tags.filter(tag => !['help-center', 'campaign'].includes(tag)).map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
+                <Badge key={index} variant="outline" className="text-xs border-soulve-blue/30 text-soulve-blue hover:bg-soulve-blue/10">
                   #{tag}
                 </Badge>
               ))}

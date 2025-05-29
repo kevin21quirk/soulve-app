@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ const CampaignBuilder = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Rocket className="h-5 w-5 text-teal-600" />
+                <Rocket className="h-5 w-5 text-soulve-purple" />
                 Create New Campaign
               </CardTitle>
               <p className="text-gray-600">
@@ -97,6 +98,7 @@ const CampaignBuilder = () => {
                   "community"
                 )}
                 variant="outline"
+                className="border-soulve-blue text-soulve-blue hover:bg-soulve-blue/10"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Quick Update

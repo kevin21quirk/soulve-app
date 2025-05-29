@@ -18,7 +18,7 @@ const impactStats: ImpactStats = {
 
 const HelpCenterHero = () => {
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
+    <div className="bg-gradient-to-r from-soulve-blue to-soulve-purple rounded-xl p-6 text-white">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Make a Difference Today</h1>
@@ -39,7 +39,7 @@ const HelpCenterHero = () => {
           </div>
         </div>
         <div className="text-right">
-          <Button variant="secondary" size="lg" className="mb-2">
+          <Button variant="secondary" size="lg" className="mb-2 bg-soulve-teal hover:bg-soulve-teal/90 text-white border-none">
             <Plus className="h-4 w-4 mr-2" />
             Create Help Request
           </Button>

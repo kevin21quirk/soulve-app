@@ -21,17 +21,17 @@ const TrendingCauses = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          <TrendingUp className="h-5 w-5" />
+          <TrendingUp className="h-5 w-5 text-soulve-blue" />
           <span>Trending Causes</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {trendingCauses.map((cause, index) => (
-            <div key={index} className="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+            <div key={index} className="p-3 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-soulve-teal/30">
               <h4 className="font-medium text-sm">{cause.name}</h4>
               <div className="flex items-center justify-between mt-2">
-                <Badge variant="secondary" className="text-xs">{cause.growth}</Badge>
+                <Badge variant="soulve-teal" className="text-xs">{cause.growth}</Badge>
                 <span className="text-xs text-gray-500">{cause.supporters.toLocaleString()}</span>
               </div>
             </div>

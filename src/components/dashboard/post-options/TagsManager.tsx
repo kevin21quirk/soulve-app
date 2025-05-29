@@ -30,7 +30,7 @@ const TagsManager = ({ formData, onFormDataChange }: TagsManagerProps) => {
       <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
       <div className="flex flex-wrap gap-2 mb-2">
         {formData.tags.map((tag) => (
-          <Badge key={tag} variant="secondary" className="flex items-center space-x-1">
+          <Badge key={tag} variant="soulve-blue" className="flex items-center space-x-1">
             <span>#{tag}</span>
             <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
           </Badge>
@@ -44,7 +44,9 @@ const TagsManager = ({ formData, onFormDataChange }: TagsManagerProps) => {
           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
           className="flex-1"
         />
-        <Button onClick={addTag} size="sm" variant="outline" type="button">Add</Button>
+        <Button onClick={addTag} size="sm" variant="outline" type="button" className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10">
+          Add
+        </Button>
       </div>
     </div>
   );
