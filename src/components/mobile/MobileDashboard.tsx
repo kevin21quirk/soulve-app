@@ -5,6 +5,7 @@ import MobileFeed from "./MobileFeed";
 import MobileDiscover from "./MobileDiscover";
 import MobileMessaging from "./MobileMessaging";
 import MobileActivity from "./MobileActivity";
+import MobileAnalyticsPoints from "./MobileAnalyticsPoints";
 import MobileNavigation from "./MobileNavigation";
 import MobileHeader from "./MobileHeader";
 
@@ -26,7 +27,7 @@ const MobileDashboard = () => {
         {activeTab === "discover" && <MobileDiscover />}
         {activeTab === "messaging" && <MobileMessaging />}
         {activeTab === "notifications" && <MobileActivity />}
-        {activeTab === "analytics-points" && <div className="p-4">Trust Score & Analytics coming soon...</div>}
+        {activeTab === "analytics-points" && <MobileAnalyticsPoints />}
         {activeTab === "profile" && <div className="p-4">Profile coming soon...</div>}
       </main>
 
