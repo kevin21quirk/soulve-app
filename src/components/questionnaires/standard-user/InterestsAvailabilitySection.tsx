@@ -15,16 +15,92 @@ interface InterestsAvailabilitySectionProps {
 
 const InterestsAvailabilitySection = ({ data, onChange }: InterestsAvailabilitySectionProps) => {
   const interestOptions = [
-    "Environment",
-    "Education",
-    "Health & Wellness",
-    "Community Development",
-    "Arts & Culture",
-    "Youth Programs",
-    "Senior Support",
-    "Animal Welfare",
+    // Community Support
+    "Senior Care",
+    "Youth Mentoring", 
+    "Food Banks",
+    "Homeless Support",
+    "Mental Health",
     "Crisis Support",
-    "Technology for Good"
+    "Community Development",
+    
+    // Family & Parenting
+    "Motherhood Support",
+    "Parenting & Family",
+    "Single Parents",
+    "Foster Care",
+    "Child Development",
+    "Family Counseling",
+    "Teen Support",
+    
+    // Health & Disabilities
+    "Disabilities Support",
+    "Mental Health Awareness",
+    "Chronic Illness",
+    "Addiction Recovery",
+    "Healthcare Access",
+    "Medical Research",
+    "Therapy Support",
+    
+    // Environment & Nature
+    "Tree Planting",
+    "Beach Cleanup",
+    "Recycling",
+    "Wildlife Conservation",
+    "Climate Action",
+    "Sustainable Living",
+    "Urban Gardening",
+    
+    // Education & Skills
+    "Tutoring",
+    "Adult Education",
+    "Computer Skills",
+    "Language Exchange",
+    "Career Guidance",
+    "Literacy Programs",
+    "STEM Education",
+    
+    // Social Justice & Rights
+    "Human Rights",
+    "Racial Equality",
+    "Gender Equality",
+    "LGBTQ+ Rights",
+    "Immigration Support",
+    "Legal Aid",
+    "Advocacy",
+    
+    // Arts & Culture
+    "Music Programs",
+    "Art Projects",
+    "Theater",
+    "Photography",
+    "Cultural Events",
+    "Creative Writing",
+    "Dance",
+    
+    // Animal Welfare
+    "Animal Rescue",
+    "Pet Care",
+    "Wildlife Protection",
+    "Animal Shelters",
+    "Veterinary Support",
+    "Animal Rights",
+    
+    // Technology & Innovation
+    "Digital Literacy",
+    "Tech for Good",
+    "Online Safety",
+    "Innovation Labs",
+    "Coding Education",
+    "Tech Access",
+    
+    // Emergency & Crisis
+    "Disaster Relief",
+    "Emergency Response",
+    "First Aid",
+    "Crisis Intervention",
+    "Refugee Support",
+    "Emergency Preparedness"
   ];
 
   return (

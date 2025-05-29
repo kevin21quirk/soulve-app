@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Heart, Zap, Users2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -16,27 +17,67 @@ const InterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Interest
   const interestCategories = [
     {
       title: "Community Support",
-      interests: ["Senior Care", "Youth Mentoring", "Food Banks", "Homeless Support", "Mental Health"]
+      interests: ["Senior Care", "Youth Mentoring", "Food Banks", "Homeless Support", "Mental Health", "Crisis Support", "Community Development"]
+    },
+    {
+      title: "Family & Parenting",
+      interests: ["Motherhood Support", "Parenting & Family", "Single Parents", "Foster Care", "Child Development", "Family Counseling", "Teen Support"]
+    },
+    {
+      title: "Health & Disabilities",
+      interests: ["Disabilities Support", "Mental Health Awareness", "Chronic Illness", "Addiction Recovery", "Healthcare Access", "Medical Research", "Therapy Support"]
     },
     {
       title: "Environment & Nature",
-      interests: ["Tree Planting", "Beach Cleanup", "Recycling", "Wildlife Conservation", "Gardening"]
+      interests: ["Tree Planting", "Beach Cleanup", "Recycling", "Wildlife Conservation", "Climate Action", "Sustainable Living", "Urban Gardening"]
     },
     {
       title: "Education & Skills",
-      interests: ["Tutoring", "Teaching", "Computer Skills", "Language Exchange", "Career Guidance"]
+      interests: ["Tutoring", "Adult Education", "Computer Skills", "Language Exchange", "Career Guidance", "Literacy Programs", "STEM Education"]
+    },
+    {
+      title: "Social Justice & Rights",
+      interests: ["Human Rights", "Racial Equality", "Gender Equality", "LGBTQ+ Rights", "Immigration Support", "Legal Aid", "Advocacy"]
     },
     {
       title: "Arts & Culture",
-      interests: ["Music", "Art Projects", "Theater", "Photography", "Cultural Events"]
+      interests: ["Music Programs", "Art Projects", "Theater", "Photography", "Cultural Events", "Creative Writing", "Dance"]
     },
     {
-      title: "Health & Wellness",
-      interests: ["Fitness Support", "Nutrition", "First Aid", "Therapy Support", "Medical Assistance"]
+      title: "Elderly & Aging",
+      interests: ["Senior Companionship", "Elderly Care", "Retirement Support", "Age-Related Health", "Intergenerational Programs", "Elder Abuse Prevention"]
     },
     {
-      title: "Practical Help",
-      interests: ["Moving Help", "Home Repairs", "Transportation", "Pet Care", "Technology Support"]
+      title: "Youth & Children",
+      interests: ["After-School Programs", "Youth Sports", "Child Safety", "Educational Support", "Playground Projects", "Summer Camps"]
+    },
+    {
+      title: "Housing & Shelter",
+      interests: ["Affordable Housing", "Homelessness Prevention", "Housing Assistance", "Shelter Support", "Home Repairs", "Community Building"]
+    },
+    {
+      title: "Food & Nutrition",
+      interests: ["Food Security", "Community Gardens", "Nutrition Education", "Meal Programs", "Food Distribution", "Cooking Classes"]
+    },
+    {
+      title: "Animal Welfare",
+      interests: ["Animal Rescue", "Pet Care", "Wildlife Protection", "Animal Shelters", "Veterinary Support", "Animal Rights"]
+    },
+    {
+      title: "Technology & Innovation",
+      interests: ["Digital Literacy", "Tech for Good", "Online Safety", "Innovation Labs", "Coding Education", "Tech Access"]
+    },
+    {
+      title: "Emergency & Crisis",
+      interests: ["Disaster Relief", "Emergency Response", "First Aid", "Crisis Intervention", "Refugee Support", "Emergency Preparedness"]
+    },
+    {
+      title: "Economic Support",
+      interests: ["Financial Literacy", "Job Training", "Microfinance", "Small Business Support", "Economic Development", "Entrepreneurship"]
+    },
+    {
+      title: "Sports & Recreation",
+      interests: ["Youth Sports", "Adaptive Sports", "Community Fitness", "Outdoor Recreation", "Sports Equipment", "Health & Wellness"]
     }
   ];
 
@@ -81,7 +122,7 @@ const InterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Interest
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-96 overflow-y-auto">
           {interestCategories.map((category) => (
             <div key={category.title} className="space-y-3">
               <h3 className="font-medium text-gray-900 flex items-center">
