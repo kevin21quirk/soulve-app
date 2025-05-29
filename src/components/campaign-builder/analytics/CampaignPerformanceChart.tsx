@@ -39,7 +39,7 @@ const CampaignPerformanceChart = () => {
 
   const sourceData = [
     { source: 'Direct', visitors: 1200, supporters: 68 },
-    { source: 'Social Media', visitors: 890, visitors: 45 },
+    { source: 'Social Media', visitors: 890, supporters: 45 },
     { source: 'Email', visitors: 560, supporters: 42 },
     { source: 'Search', visitors: 340, supporters: 18 },
     { source: 'Referral', visitors: 210, supporters: 12 }
