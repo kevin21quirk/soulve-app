@@ -54,14 +54,7 @@ export const trackCampaignView = async (options: AnalyticsTrackingOptions) => {
         .from('campaign_analytics')
         .update({
           total_views: existingAnalytics.total_views + 1,
-          // Only count unique views if a session ID is provided and it's different
-          unique_views: options.sessionId && !existingAnalytics.unique_views_sessions?.includes(options.sessionId) 
-            ? existingAnalytics.unique_views + 1 
-            : existingAnalytics.unique_views,
-          // Store session IDs to track unique views
-          unique_views_sessions: options.sessionId && !existingAnalytics.unique_views_sessions?.includes(options.sessionId)
-            ? [...(existingAnalytics.unique_views_sessions || []), options.sessionId]
-            : existingAnalytics.unique_views_sessions
+          unique_views: options.sessionId ? existingAnalytics.unique_views + 1 : existingAnalytics.unique_views
         })
         .eq('id', existingAnalytics.id);
 
@@ -76,8 +69,7 @@ export const trackCampaignView = async (options: AnalyticsTrackingOptions) => {
           campaign_id: options.campaignId,
           date: new Date().toISOString().split('T')[0],
           total_views: 1,
-          unique_views: options.sessionId ? 1 : 0,
-          unique_views_sessions: options.sessionId ? [options.sessionId] : []
+          unique_views: options.sessionId ? 1 : 0
         });
 
       if (insertError) {
@@ -85,16 +77,24 @@ export const trackCampaignView = async (options: AnalyticsTrackingOptions) => {
       }
     }
 
-    // Update campaign total_views
-    const { error: campaignUpdateError } = await supabase
+    // Update campaign total_views directly
+    const { data: campaign, error: campaignFetchError } = await supabase
       .from('campaigns')
-      .update({
-        total_views: supabase.rpc('increment', { inc_amount: 1 })
-      })
-      .eq('id', options.campaignId);
+      .select('total_views')
+      .eq('id', options.campaignId)
+      .single();
 
-    if (campaignUpdateError) {
-      console.error('Error updating campaign views:', campaignUpdateError);
+    if (!campaignFetchError && campaign) {
+      const { error: campaignUpdateError } = await supabase
+        .from('campaigns')
+        .update({
+          total_views: (campaign.total_views || 0) + 1
+        })
+        .eq('id', options.campaignId);
+
+      if (campaignUpdateError) {
+        console.error('Error updating campaign views:', campaignUpdateError);
+      }
     }
 
     // Track geographic impact
@@ -129,7 +129,7 @@ export const trackCampaignView = async (options: AnalyticsTrackingOptions) => {
           .insert({
             campaign_id: options.campaignId,
             country_code: options.locationCountry,
-            country_name: options.locationCountry, // Ideally you'd use a lookup for the full name
+            country_name: options.locationCountry,
             city: options.locationCity,
             total_views: 1
           });
@@ -206,16 +206,24 @@ export const trackCampaignShare = async (options: AnalyticsTrackingOptions & { p
       }
     }
 
-    // Update campaign total_shares
-    const { error: campaignUpdateError } = await supabase
+    // Update campaign total_shares directly
+    const { data: campaign, error: campaignFetchError } = await supabase
       .from('campaigns')
-      .update({
-        total_shares: supabase.rpc('increment', { inc_amount: 1 })
-      })
-      .eq('id', options.campaignId);
+      .select('total_shares')
+      .eq('id', options.campaignId)
+      .single();
 
-    if (campaignUpdateError) {
-      console.error('Error updating campaign shares:', campaignUpdateError);
+    if (!campaignFetchError && campaign) {
+      const { error: campaignUpdateError } = await supabase
+        .from('campaigns')
+        .update({
+          total_shares: (campaign.total_shares || 0) + 1
+        })
+        .eq('id', options.campaignId);
+
+      if (campaignUpdateError) {
+        console.error('Error updating campaign shares:', campaignUpdateError);
+      }
     }
 
     // Update geographic impact if location info exists
@@ -295,16 +303,24 @@ export const trackDonation = async (donation: {
       return { success: false, error: donationError };
     }
 
-    // Update the campaign's current_amount
-    const { error: campaignUpdateError } = await supabase
+    // Update the campaign's current_amount directly
+    const { data: campaign, error: campaignFetchError } = await supabase
       .from('campaigns')
-      .update({
-        current_amount: supabase.rpc('increment_numeric', { inc_amount: donation.amount })
-      })
-      .eq('id', donation.campaignId);
+      .select('current_amount')
+      .eq('id', donation.campaignId)
+      .single();
 
-    if (campaignUpdateError) {
-      console.error('Error updating campaign amount:', campaignUpdateError);
+    if (!campaignFetchError && campaign) {
+      const { error: campaignUpdateError } = await supabase
+        .from('campaigns')
+        .update({
+          current_amount: (campaign.current_amount || 0) + donation.amount
+        })
+        .eq('id', donation.campaignId);
+
+      if (campaignUpdateError) {
+        console.error('Error updating campaign amount:', campaignUpdateError);
+      }
     }
 
     // Update analytics table
@@ -377,7 +393,7 @@ export const trackDonation = async (donation: {
           .insert({
             campaign_id: donation.campaignId,
             country_code: donation.locationCountry,
-            country_name: donation.locationCountry, // Ideally use a lookup
+            country_name: donation.locationCountry,
             city: donation.locationCity,
             total_donations: donation.amount,
             donor_count: 1

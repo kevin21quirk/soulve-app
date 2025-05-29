@@ -1,10 +1,11 @@
+
 import { Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
 import ProfileRegistration from '@/pages/ProfileRegistration';
 import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import CampaignBuilder from '@/pages/CampaignBuilder';
 import CampaignAnalyticsPage from '@/pages/CampaignAnalyticsPage';
 
