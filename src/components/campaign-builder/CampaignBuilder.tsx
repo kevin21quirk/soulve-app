@@ -12,6 +12,11 @@ import CampaignAnalytics from "./CampaignAnalytics";
 const CampaignBuilder = () => {
   const [activeTab, setActiveTab] = useState("create");
 
+  const handleQuickUpdate = () => {
+    console.log("Quick update functionality triggered");
+    // Add quick update logic here
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -49,7 +54,7 @@ const CampaignBuilder = () => {
           </TabsContent>
 
           <TabsContent value="manage">
-            <CampaignManageTab />
+            <CampaignManageTab onQuickUpdate={handleQuickUpdate} />
           </TabsContent>
 
           <TabsContent value="analytics">

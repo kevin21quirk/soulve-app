@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import SearchBar from "../SearchBar";
-import NotificationCenter from "../NotificationCenter";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 import KeyboardShortcuts from "../KeyboardShortcuts";
 import RealTimeActivity from "../RealTimeActivity";
 
@@ -64,7 +64,10 @@ const HeaderOverlays = ({
             >
               ✕
             </Button>
-            <NotificationCenter />
+            <NotificationCenter 
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+            />
           </div>
         </div>
       )}
