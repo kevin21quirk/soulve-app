@@ -15,20 +15,25 @@ import {
   Plus,
   TrendingUp,
   MapPin,
-  Calendar
+  Calendar,
+  Sparkles
 } from "lucide-react";
 import CampaignForm from "./CampaignForm";
 import CampaignList from "./CampaignList";
 import CampaignAnalytics from "./CampaignAnalytics";
 import CampaignSocialIntegration from "./CampaignSocialIntegration";
+import CampaignTemplates from "./CampaignTemplates";
 import AutoCampaignPublisher from "./AutoCampaignPublisher";
 import { CampaignUpdate } from "@/services/feedIntegrationService";
 import { useAutoFeedIntegration } from "@/hooks/useAutoFeedIntegration";
 import { useToast } from "@/hooks/use-toast";
+import { type CampaignTemplate } from "@/services/campaignTemplateService";
 
 const CampaignBuilder = () => {
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useState("templates");
   const [pendingCampaign, setPendingCampaign] = useState<CampaignUpdate | undefined>();
+  const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
+  const [showForm, setShowForm] = useState(false);
   
   const { publishCampaignToFeed } = useAutoFeedIntegration();
   const { toast } = useToast();
@@ -55,6 +60,29 @@ const CampaignBuilder = () => {
     });
   };
 
+  const handleTemplateSelect = (template: CampaignTemplate) => {
+    setSelectedTemplate(template);
+    setShowForm(true);
+    setActiveTab("create");
+    
+    toast({
+      title: "Template selected!",
+      description: `Using template: ${template.name}`,
+    });
+  };
+
+  const handleCreateFromScratch = () => {
+    setSelectedTemplate(null);
+    setShowForm(true);
+    setActiveTab("create");
+  };
+
+  const handleCampaignSuccess = () => {
+    setSelectedTemplate(null);
+    setShowForm(false);
+    setActiveTab("manage");
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="text-center mb-8">
@@ -65,25 +93,70 @@ const CampaignBuilder = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="create">Create Campaign</TabsTrigger>
           <TabsTrigger value="manage">Manage Campaigns</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="templates" className="mt-6">
+          <CampaignTemplates 
+            onTemplateSelect={handleTemplateSelect}
+            onCreateFromScratch={handleCreateFromScratch}
+          />
+        </TabsContent>
 
         <TabsContent value="create" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Rocket className="h-5 w-5 text-soulve-purple" />
-                Create New Campaign
+                {selectedTemplate ? (
+                  <>
+                    <Sparkles className="h-5 w-5 text-yellow-500" />
+                    Create Campaign from Template: {selectedTemplate.name}
+                  </>
+                ) : (
+                  "Create New Campaign"
+                )}
               </CardTitle>
               <p className="text-gray-600">
-                Your campaign will automatically be shared in the community feed to maximize reach and engagement.
+                {selectedTemplate ? (
+                  <>Your campaign will be pre-filled with proven content from the selected template. You can customize everything before publishing.</>
+                ) : (
+                  <>Your campaign will automatically be shared in the community feed to maximize reach and engagement.</>
+                )}
               </p>
+              {selectedTemplate && (
+                <div className="flex gap-2 mt-2">
+                  <Badge variant="outline">
+                    {selectedTemplate.category.charAt(0).toUpperCase() + selectedTemplate.category.slice(1)}
+                  </Badge>
+                  <Badge variant="outline">
+                    {selectedTemplate.success_rate}% Success Rate
+                  </Badge>
+                  <Badge variant="outline">
+                    {selectedTemplate.usage_count} Uses
+                  </Badge>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
-              <CampaignForm onCampaignCreated={handleCampaignUpdate} />
+              {!showForm ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600 mb-4">Select a template or start from scratch to begin creating your campaign.</p>
+                  <Button onClick={() => setActiveTab("templates")}>
+                    Browse Templates
+                  </Button>
+                </div>
+              ) : (
+                <CampaignForm 
+                  onCampaignCreated={handleCampaignUpdate}
+                  onSuccess={handleCampaignSuccess}
+                  selectedTemplate={selectedTemplate}
+                />
+              )}
             </CardContent>
           </Card>
         </TabsContent>

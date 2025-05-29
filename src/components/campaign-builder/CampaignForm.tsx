@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,20 +12,22 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { createCampaign, type CampaignFormData } from "@/services/campaignService";
-import { Calendar, DollarSign, Globe, Users, Target, Settings, Image, Share2 } from "lucide-react";
+import { Calendar, DollarSign, Globe, Users, Target, Settings, Image, Share2, Sparkles } from "lucide-react";
+import { type CampaignTemplate } from "@/services/campaignTemplateService";
 
 interface CampaignFormProps {
   onSuccess?: () => void;
   onCampaignCreated?: (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => void;
+  selectedTemplate?: CampaignTemplate | null;
 }
 
-const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
+const CampaignForm = ({ onSuccess, onCampaignCreated, selectedTemplate }: CampaignFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<CampaignFormData>({
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<CampaignFormData>({
     defaultValues: {
       urgency: 'medium',
       visibility: 'public',
@@ -37,6 +40,41 @@ const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
 
   const goalType = watch('goal_type');
   const category = watch('category');
+
+  // Pre-fill form with template data when template is selected
+  useEffect(() => {
+    if (selectedTemplate) {
+      const template = selectedTemplate.template_data;
+      
+      // Reset form and set template values
+      reset({
+        title: template.title,
+        description: template.description,
+        story: template.story,
+        category: selectedTemplate.category,
+        organization_type: selectedTemplate.organization_type,
+        goal_type: template.goal_type,
+        goal_amount: template.suggested_goal_amount,
+        urgency: template.urgency,
+        visibility: 'public',
+        allow_anonymous_donations: true,
+        enable_comments: true,
+        enable_updates: true,
+        currency: 'USD'
+      });
+
+      // Set tags
+      setTags(template.tags);
+      setValue('tags', template.tags);
+
+      // Set end date if duration is specified
+      if (template.duration_days) {
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + template.duration_days);
+        setValue('end_date', endDate.toISOString().split('T')[0]);
+      }
+    }
+  }, [selectedTemplate, reset, setValue]);
 
   const addTag = () => {
     if (newTag && !tags.includes(newTag)) {
@@ -65,7 +103,9 @@ const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
       
       toast({
         title: "Campaign Created!",
-        description: "Your campaign has been successfully created and is ready to launch.",
+        description: selectedTemplate 
+          ? `Your campaign has been successfully created using the ${selectedTemplate.name} template.`
+          : "Your campaign has been successfully created and is ready to launch.",
       });
       
       if (onSuccess) {
@@ -89,10 +129,17 @@ const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Target className="h-6 w-6 text-teal-600" />
-            <span>Create New Campaign</span>
+            {selectedTemplate && <Sparkles className="h-6 w-6 text-yellow-500" />}
+            <span>
+              {selectedTemplate ? `Create Campaign from Template` : "Create New Campaign"}
+            </span>
           </CardTitle>
           <CardDescription>
-            Build a compelling campaign that drives real impact and engages your community
+            {selectedTemplate ? (
+              <>Using template: <strong>{selectedTemplate.name}</strong> - All fields have been pre-filled with proven content. Customize as needed.</>
+            ) : (
+              "Build a compelling campaign that drives real impact and engages your community"
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -107,6 +154,19 @@ const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
               </TabsList>
 
               <TabsContent value="basics" className="space-y-6 mt-6">
+                {selectedTemplate && (
+                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Sparkles className="h-5 w-5 text-yellow-600" />
+                      <span className="font-medium text-yellow-800">Template Applied</span>
+                    </div>
+                    <p className="text-sm text-yellow-700">
+                      Fields have been pre-filled with content from the <strong>{selectedTemplate.name}</strong> template. 
+                      Feel free to customize any field to match your specific needs.
+                    </p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="title">Campaign Title *</Label>
@@ -120,7 +180,7 @@ const CampaignForm = ({ onSuccess, onCampaignCreated }: CampaignFormProps) => {
 
                   <div className="space-y-2">
                     <Label htmlFor="category">Campaign Type *</Label>
-                    <Select onValueChange={(value: any) => setValue('category', value)}>
+                    <Select onValueChange={(value: any) => setValue('category', value)} value={category}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select campaign type" />
                       </SelectTrigger>
