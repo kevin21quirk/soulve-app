@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { BarChart3 } from "lucide-react";
+import SocialShareButton from "./SocialShareButton";
 
 type Campaign = Database['public']['Tables']['campaigns']['Row'];
 
@@ -140,18 +141,27 @@ const CampaignList = () => {
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="border-t pt-4 flex justify-between">
-                <Button variant="outline" onClick={() => navigate(`/campaign-builder/${campaign.id}`)}>
-                  Edit Campaign
-                </Button>
-                <Button 
-                  variant="secondary"
-                  onClick={() => navigate(`/campaign-analytics/${campaign.id}`)}
-                  className="flex items-center gap-1"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  Analytics
-                </Button>
+              <CardFooter className="border-t pt-4 flex justify-between space-x-2">
+                <div className="flex space-x-2">
+                  <Button variant="outline" onClick={() => navigate(`/campaign-builder/${campaign.id}`)}>
+                    Edit Campaign
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    onClick={() => navigate(`/campaign-analytics/${campaign.id}`)}
+                    className="flex items-center gap-1"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    Analytics
+                  </Button>
+                </div>
+                <SocialShareButton 
+                  campaign={campaign}
+                  variant="outline"
+                  size="sm"
+                  showText={false}
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                />
               </CardFooter>
             </Card>
           ))}

@@ -20,6 +20,7 @@ import {
 import CampaignForm from "./CampaignForm";
 import CampaignList from "./CampaignList";
 import CampaignAnalytics from "./CampaignAnalytics";
+import CampaignSocialIntegration from "./CampaignSocialIntegration";
 import AutoCampaignPublisher from "./AutoCampaignPublisher";
 import { CampaignUpdate } from "@/services/feedIntegrationService";
 import { useAutoFeedIntegration } from "@/hooks/useAutoFeedIntegration";
