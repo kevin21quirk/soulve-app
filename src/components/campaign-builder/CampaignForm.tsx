@@ -1,104 +1,64 @@
 
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Rocket, Save, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { createCampaign, type CampaignFormData } from "@/services/campaignService";
-import { Target, Sparkles } from "lucide-react";
 import { type CampaignTemplate } from "@/services/campaignTemplateService";
-import BasicInfoTab from "./form-tabs/BasicInfoTab";
-import GoalsTab from "./form-tabs/GoalsTab";
-import ContentTab from "./form-tabs/ContentTab";
-import SettingsTab from "./form-tabs/SettingsTab";
-import PromotionTab from "./form-tabs/PromotionTab";
 
 interface CampaignFormProps {
-  onSuccess?: () => void;
-  onCampaignCreated?: (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => void;
+  onCampaignCreated: (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => void;
+  onSuccess: () => void;
   selectedTemplate?: CampaignTemplate | null;
 }
 
-const CampaignForm = ({ onSuccess, onCampaignCreated, selectedTemplate }: CampaignFormProps) => {
+const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: CampaignFormProps) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
-  
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<CampaignFormData>({
-    defaultValues: {
-      urgency: 'medium',
-      visibility: 'public',
-      allow_anonymous_donations: true,
-      enable_comments: true,
-      enable_updates: true,
-      currency: 'USD'
-    }
+  const [formData, setFormData] = useState({
+    title: selectedTemplate?.template_data.title || "",
+    description: selectedTemplate?.template_data.description || "",
+    story: selectedTemplate?.template_data.story || "",
+    category: selectedTemplate?.category || "fundraising",
+    goalAmount: selectedTemplate?.template_data.suggested_goal_amount || 5000,
+    duration: selectedTemplate?.template_data.duration_days || 60,
+    tags: selectedTemplate?.template_data.tags.join(", ") || ""
   });
 
-  const goalType = watch('goal_type');
-  const category = watch('category');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Pre-fill form with template data when template is selected
-  useEffect(() => {
-    if (selectedTemplate) {
-      const template = selectedTemplate.template_data;
-      
-      // Reset form and set template values
-      reset({
-        title: template.title,
-        description: template.description,
-        story: template.story,
-        category: selectedTemplate.category,
-        organization_type: selectedTemplate.organization_type,
-        goal_type: template.goal_type,
-        goal_amount: template.suggested_goal_amount,
-        urgency: template.urgency,
-        visibility: 'public',
-        allow_anonymous_donations: true,
-        enable_comments: true,
-        enable_updates: true,
-        currency: 'USD'
-      });
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-      // Set tags
-      setTags(template.tags);
-      setValue('tags', template.tags);
-
-      // Set end date if duration is specified
-      if (template.duration_days) {
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + template.duration_days);
-        setValue('end_date', endDate.toISOString().split('T')[0]);
-      }
-    }
-  }, [selectedTemplate, reset, setValue]);
-
-  const onSubmit = async (data: CampaignFormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      await createCampaign({ ...data, tags });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Call the auto-feed integration callback if provided
-      if (onCampaignCreated && data.title && data.description && data.category) {
-        onCampaignCreated(data.title, data.description, data.category as 'fundraising' | 'volunteer' | 'awareness' | 'community');
-      }
+      onCampaignCreated(
+        formData.title, 
+        formData.description, 
+        formData.category as 'fundraising' | 'volunteer' | 'awareness' | 'community'
+      );
       
       toast({
-        title: "Campaign Created!",
-        description: selectedTemplate 
-          ? `Your campaign has been successfully created using the ${selectedTemplate.name} template.`
-          : "Your campaign has been successfully created and is ready to launch.",
+        title: "Campaign Created Successfully!",
+        description: "Your campaign has been created and will be shared in the community feed.",
       });
       
-      if (onSuccess) {
-        onSuccess();
-      }
+      onSuccess();
     } catch (error) {
-      console.error('Error creating campaign:', error);
       toast({
-        title: "Error",
-        description: "There was an error creating your campaign. Please try again.",
+        title: "Error Creating Campaign",
+        description: "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -107,84 +67,131 @@ const CampaignForm = ({ onSuccess, onCampaignCreated, selectedTemplate }: Campai
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Target className="h-6 w-6 text-teal-600" />
-            {selectedTemplate && <Sparkles className="h-6 w-6 text-yellow-500" />}
-            <span>
-              {selectedTemplate ? `Create Campaign from Template` : "Create New Campaign"}
-            </span>
-          </CardTitle>
-          <CardDescription>
-            {selectedTemplate ? (
-              <>Using template: <strong>{selectedTemplate.name}</strong> - All fields have been pre-filled with proven content. Customize as needed.</>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {selectedTemplate && (
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Using Template: {selectedTemplate.name}</h4>
+          <p className="text-sm text-blue-700">{selectedTemplate.description}</p>
+          <div className="flex gap-2 mt-2">
+            <Badge variant="outline">{selectedTemplate.category}</Badge>
+            <Badge variant="outline">{selectedTemplate.success_rate}% Success Rate</Badge>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="title">Campaign Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              placeholder="Enter campaign title"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="category">Campaign Type</Label>
+            <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select campaign type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fundraising">Fundraising</SelectItem>
+                <SelectItem value="volunteer">Volunteer</SelectItem>
+                <SelectItem value="awareness">Awareness</SelectItem>
+                <SelectItem value="community">Community</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="goalAmount">Goal Amount ($)</Label>
+            <Input
+              id="goalAmount"
+              type="number"
+              value={formData.goalAmount}
+              onChange={(e) => handleInputChange("goalAmount", parseInt(e.target.value))}
+              placeholder="5000"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="duration">Duration (days)</Label>
+            <Input
+              id="duration"
+              type="number"
+              value={formData.duration}
+              onChange={(e) => handleInputChange("duration", parseInt(e.target.value))}
+              placeholder="60"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="description">Short Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Brief description of your campaign"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="story">Campaign Story</Label>
+            <Textarea
+              id="story"
+              value={formData.story}
+              onChange={(e) => handleInputChange("story", e.target.value)}
+              placeholder="Tell the full story of your campaign"
+              rows={5}
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Input
+              id="tags"
+              value={formData.tags}
+              onChange={(e) => handleInputChange("tags", e.target.value)}
+              placeholder="education, community, help"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-6 border-t">
+        <div className="text-sm text-gray-600">
+          {selectedTemplate ? "Customizing template" : "Creating from scratch"}
+        </div>
+        <div className="flex space-x-3">
+          <Button type="button" variant="outline">
+            <Eye className="h-4 w-4 mr-2" />
+            Preview
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Creating...
+              </>
             ) : (
-              "Build a compelling campaign that drives real impact and engages your community"
+              <>
+                <Rocket className="h-4 w-4 mr-2" />
+                Create Campaign
+              </>
             )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Tabs defaultValue="basics" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="basics">Basics</TabsTrigger>
-                <TabsTrigger value="goals">Goals</TabsTrigger>
-                <TabsTrigger value="content">Content</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-                <TabsTrigger value="promotion">Promotion</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="basics">
-                <BasicInfoTab
-                  register={register}
-                  setValue={setValue}
-                  errors={errors}
-                  selectedTemplate={selectedTemplate}
-                  category={category}
-                />
-              </TabsContent>
-
-              <TabsContent value="goals">
-                <GoalsTab
-                  register={register}
-                  setValue={setValue}
-                  watch={watch}
-                />
-              </TabsContent>
-
-              <TabsContent value="content">
-                <ContentTab
-                  register={register}
-                  setValue={setValue}
-                  errors={errors}
-                  tags={tags}
-                  setTags={setTags}
-                />
-              </TabsContent>
-
-              <TabsContent value="settings">
-                <SettingsTab setValue={setValue} />
-              </TabsContent>
-
-              <TabsContent value="promotion">
-                <PromotionTab register={register} />
-              </TabsContent>
-            </Tabs>
-
-            <div className="flex justify-end space-x-4 mt-8 pt-6 border-t">
-              <Button type="button" variant="outline" onClick={onSuccess}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-teal-600 hover:bg-teal-700">
-                {isSubmitting ? "Creating..." : "Create Campaign"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </Button>
+        </div>
+      </div>
+    </form>
   );
 };
 

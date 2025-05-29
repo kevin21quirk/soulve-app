@@ -1,113 +1,123 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Image, Settings, Share2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sparkles, Target, Users, Calendar, Settings } from "lucide-react";
+import CampaignForm from "./CampaignForm";
 
 const CustomCampaignBuilder = () => {
-  const buildingSteps = [
-    {
-      id: "basic",
-      title: "Basic Information",
-      description: "Campaign title, category, and basic details",
-      icon: FileText,
-      completed: false
-    },
-    {
-      id: "content",
-      title: "Content & Story",
-      description: "Campaign description, story, and goals",
-      icon: FileText,
-      completed: false
-    },
-    {
-      id: "media",
-      title: "Media & Visuals",
-      description: "Upload images, videos, and create gallery",
-      icon: Image,
-      completed: false
-    },
-    {
-      id: "settings",
-      title: "Campaign Settings",
-      description: "Target amount, duration, and privacy settings",
-      icon: Settings,
-      completed: false
-    },
-    {
-      id: "promotion",
-      title: "Promotion Strategy",
-      description: "Social sharing, outreach, and marketing plan",
-      icon: Share2,
-      completed: false
-    }
+  const [activeStep, setActiveStep] = useState("basics");
+  
+  const steps = [
+    { id: "basics", label: "Basic Info", icon: Target },
+    { id: "content", label: "Content", icon: Sparkles },
+    { id: "audience", label: "Audience", icon: Users },
+    { id: "timeline", label: "Timeline", icon: Calendar },
+    { id: "settings", label: "Settings", icon: Settings }
   ];
+
+  const handleCampaignCreated = (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => {
+    console.log("Campaign created:", { title, description, type });
+  };
+
+  const handleSuccess = () => {
+    console.log("Campaign creation successful");
+  };
 
   return (
     <div className="space-y-6">
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Build Your Custom Campaign</h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-          Create a completely custom campaign from scratch. Follow our step-by-step guide to build 
-          a compelling and effective fundraising campaign.
-        </p>
-        <Button size="lg" className="flex items-center space-x-2">
-          <Plus className="h-5 w-5" />
-          <span>Start Building</span>
-        </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Custom Campaign Builder</h2>
+          <p className="text-gray-600 mt-1">Build your campaign from scratch with full customization</p>
+        </div>
+        <Badge variant="soulve" className="px-3 py-1">
+          <Sparkles className="h-3 w-3 mr-1" />
+          Advanced Builder
+        </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {buildingSteps.map((step, index) => (
-          <Card key={step.id} className="hover:shadow-lg transition-all duration-200 group cursor-pointer">
+      <Tabs value={activeStep} onValueChange={setActiveStep} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          {steps.map((step) => {
+            const IconComponent = step.icon;
+            return (
+              <TabsTrigger key={step.id} value={step.id} className="flex items-center space-x-2">
+                <IconComponent className="h-4 w-4" />
+                <span className="hidden sm:inline">{step.label}</span>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+
+        <TabsContent value="basics" className="space-y-6">
+          <Card>
             <CardHeader>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <step.icon className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{step.title}</CardTitle>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-sm text-gray-500">Step {index + 1}</span>
-                    {step.completed && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Completed
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <CardTitle>Campaign Basics</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 text-sm mb-4">{step.description}</p>
-              <Button variant="outline" size="sm" className="w-full">
-                {step.completed ? "Edit Step" : "Start Step"}
-              </Button>
+              <CampaignForm 
+                onCampaignCreated={handleCampaignCreated}
+                onSuccess={handleSuccess}
+              />
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
 
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Need Help Getting Started?</h3>
-              <p className="text-gray-600">
-                Check out our campaign building guide or browse successful campaigns for inspiration.
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
-                View Guide
-              </Button>
-              <Button size="sm">
-                Browse Examples
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="content" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaign Content</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-600">Content customization coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="audience" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Target Audience</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-600">Audience targeting coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaign Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-600">Timeline planning coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaign Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-600">Advanced settings coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
