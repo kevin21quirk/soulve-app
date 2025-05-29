@@ -9,11 +9,11 @@ const HeaderLogo = () => {
         <div className="h-10 w-10">
           <SouLVELogo size="small" />
         </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">
           SouLVE
         </h1>
       </div>
-      <Badge variant="secondary" className="hidden sm:inline-flex">
+      <Badge variant="secondary" className="hidden sm:inline-flex bg-[#4c3dfb] text-white hover:bg-[#4c3dfb]/90">
         Dashboard
       </Badge>
     </div>

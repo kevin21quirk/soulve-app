@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,6 +50,11 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* SouLVE Brand Colors */
+    --soulve-teal: 168 95% 47%; /* #0ce4af */
+    --soulve-blue: 206 99% 55%; /* #18a5fe */
+    --soulve-purple: 246 95% 62%; /* #4c3dfb */
   }
 
   .dark {
@@ -87,6 +93,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* SouLVE Brand Colors for dark mode */
+    --soulve-teal: 168 95% 47%;
+    --soulve-blue: 206 99% 55%;
+    --soulve-purple: 246 95% 62%;
   }
 }
 
@@ -97,5 +108,36 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* SouLVE Brand Color Utilities */
+@layer utilities {
+  .text-soulve-teal {
+    color: hsl(var(--soulve-teal));
+  }
+  .text-soulve-blue {
+    color: hsl(var(--soulve-blue));
+  }
+  .text-soulve-purple {
+    color: hsl(var(--soulve-purple));
+  }
+  .bg-soulve-teal {
+    background-color: hsl(var(--soulve-teal));
+  }
+  .bg-soulve-blue {
+    background-color: hsl(var(--soulve-blue));
+  }
+  .bg-soulve-purple {
+    background-color: hsl(var(--soulve-purple));
+  }
+  .border-soulve-teal {
+    border-color: hsl(var(--soulve-teal));
+  }
+  .border-soulve-blue {
+    border-color: hsl(var(--soulve-blue));
+  }
+  .border-soulve-purple {
+    border-color: hsl(var(--soulve-purple));
   }
 }
