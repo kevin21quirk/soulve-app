@@ -157,9 +157,9 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
                       {/* Relive button */}
                       <div className="mt-4 pt-4 border-t border-gray-100">
                         <Button 
-                          variant="ghost" 
+                          variant="gradient" 
                           size="sm" 
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="text-white"
                         >
                           <Heart className="h-4 w-4 mr-2" />
                           Relive this moment
