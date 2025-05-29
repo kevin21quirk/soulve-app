@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import FeedFilters from "./FeedFilters";
 import CampaignStatsWidget from "./CampaignStatsWidget";
+import { useSocialFeed } from "@/hooks/useSocialFeed";
+import FeedContent from "./social-feed/FeedContent";
+import CreatePost from "./CreatePost";
+import SmartRecommendations from "./SmartRecommendations";
 
 const EnhancedSocialFeed = () => {
   const [filters, setFilters] = useState({
@@ -23,20 +27,38 @@ const EnhancedSocialFeed = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
+  const {
+    filteredPosts,
+    activeFilter,
+    setActiveFilter,
+    isLoading,
+    handlePostCreated,
+    handleLike,
+    handleShare,
+    handleRespond,
+    handleBookmark,
+    handleReaction,
+    handleAddComment,
+    handleLikeComment,
+    handleCommentReaction,
+    getPostCounts,
+  } = useSocialFeed();
+
   return (
     <div className="space-y-6">
-      {/* Filters and Create Post */}
+      {/* Create Post Section */}
+      <CreatePost onPostCreated={handlePostCreated} />
+      
+      {/* Smart Recommendations */}
+      <SmartRecommendations />
+
+      {/* Filters and Campaign Stats */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">
           <FeedFilters 
-            activeFilter={filters.type}
-            onFilterChange={(filter) => setFilters(prev => ({ ...prev, type: filter }))}
-            postCounts={{
-              all: 25,
-              "help-needed": 8,
-              "help-offered": 12,
-              "success-story": 5
-            }}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            postCounts={getPostCounts()}
           />
         </div>
         <div className="lg:w-80">
@@ -44,30 +66,25 @@ const EnhancedSocialFeed = () => {
         </div>
       </div>
 
-      {/* Social Feed Content (Mock Data) */}
+      {/* Social Feed Content */}
       <Card>
         <CardHeader>
           <CardTitle>Community Feed</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Mock Feed Items - Replace with actual data fetching */}
-          <div className="space-y-4">
-            <div className="border rounded-md p-4">
-              <p>
-                Exciting news! We're hosting a community cleanup event this
-                Saturday. Join us!
-              </p>
-              <div className="text-sm text-gray-500">Posted by John Doe</div>
-            </div>
-            <div className="border rounded-md p-4">
-              <p>
-                Check out our latest blog post on sustainable living tips.
-                Let's make a difference together!
-              </p>
-              <div className="text-sm text-gray-500">Posted by Jane Smith</div>
-            </div>
-            {/* Add more feed items here */}
-          </div>
+          <FeedContent
+            posts={filteredPosts}
+            isLoading={isLoading}
+            onLike={handleLike}
+            onShare={handleShare}
+            onRespond={handleRespond}
+            onBookmark={handleBookmark}
+            onReaction={handleReaction}
+            onAddComment={handleAddComment}
+            onLikeComment={handleLikeComment}
+            onCommentReaction={handleCommentReaction}
+            emptyMessage="No posts found. Try adjusting your filters or check back later!"
+          />
         </CardContent>
       </Card>
     </div>
