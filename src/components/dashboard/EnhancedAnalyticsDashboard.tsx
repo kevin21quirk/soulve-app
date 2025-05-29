@@ -7,16 +7,8 @@ import ComparativeMetricsCard from "./analytics/ComparativeMetricsCard";
 import VisualAnalyticsDashboard from "./analytics/VisualAnalyticsDashboard";
 import AchievementProgressCard from "./analytics/AchievementProgressCard";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
-import { 
-  AnalyticsCardSkeleton, 
-  ChartSkeleton, 
-  PageLoadingSkeleton 
-} from "@/components/ui/skeleton-variants";
-import { ErrorState } from "@/components/ui/error-states";
-import { useIsMobile, PullToRefresh } from "@/components/ui/mobile-optimized";
-import { useScreenReader } from "@/hooks/useAccessibility";
-import { useRealTimeNotifications } from "@/components/ui/real-time-notifications";
-import { Heart, MessageCircle, Share, Eye, Trophy, Star, Zap, Crown, Shield, Target } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Heart, MessageCircle, Share, Eye, Trophy, Star, Zap } from "lucide-react";
 
 const EnhancedAnalyticsDashboard = React.memo(() => {
   const {
@@ -26,22 +18,20 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
     impactMetrics,
     isLoading,
     error,
+    refetch,
   } = useAnalyticsData();
 
-  const { announce } = useScreenReader();
-  const { addNotification } = useRealTimeNotifications();
-  const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      announce("Analytics dashboard refreshed");
-      addNotification({
-        type: "help",
+      refetch();
+      toast({
         title: "Analytics Updated",
-        message: "Your analytics dashboard has been refreshed with the latest data",
+        description: "Your analytics dashboard has been refreshed with the latest data",
       });
     } catch (error) {
       console.error("Failed to refresh analytics:", error);
@@ -138,13 +128,13 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
 
   const visualData = {
     weeklyActivity: [
-      { day: "Mon", posts: 3, likes: 45, comments: 12, connections: 2 },
-      { day: "Tue", posts: 2, likes: 67, comments: 18, connections: 4 },
-      { day: "Wed", posts: 4, likes: 34, comments: 8, connections: 1 },
-      { day: "Thu", posts: 1, likes: 89, comments: 23, connections: 3 },
-      { day: "Fri", posts: 5, likes: 112, comments: 31, connections: 6 },
-      { day: "Sat", posts: 2, likes: 56, comments: 14, connections: 2 },
-      { day: "Sun", posts: 3, likes: 78, comments: 19, connections: 1 }
+      { day: "Mon", posts: 2, likes: 15, comments: 8, connections: 2 },
+      { day: "Tue", posts: 1, likes: 22, comments: 12, connections: 4 },
+      { day: "Wed", posts: 3, likes: 18, comments: 6, connections: 1 },
+      { day: "Thu", posts: 2, likes: 25, comments: 15, connections: 3 },
+      { day: "Fri", posts: 4, likes: 30, comments: 18, connections: 6 },
+      { day: "Sat", posts: 1, likes: 12, comments: 5, connections: 2 },
+      { day: "Sun", posts: 2, likes: 20, comments: 10, connections: 1 }
     ],
     monthlyTrends: [
       { month: "Jan", impact: 65, engagement: 45, growth: 12 },
@@ -154,7 +144,7 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
       { month: "May", impact: 91, engagement: 89, growth: 34 },
       { month: "Jun", impact: 87, engagement: 94, growth: 31 }
     ],
-    categoryBreakdown: categoryData,
+    categoryBreakdown: categoryData || [],
     timeSpentData: [
       { hour: "6AM", activeUsers: 45, yourActivity: 2 },
       { hour: "9AM", activeUsers: 234, yourActivity: 8 },
@@ -212,20 +202,35 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
 
   if (error) {
     return (
-      <ErrorState
-        title="Analytics Error"
-        message="Failed to load analytics data"
-        type="server"
-        onRetry={() => window.location.reload()}
-      />
+      <div className="text-center p-8">
+        <h3 className="text-lg font-semibold text-red-600 mb-2">Analytics Error</h3>
+        <p className="text-gray-600 mb-4">Failed to load analytics data</p>
+        <button
+          onClick={handleRefresh}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Try Again
+        </button>
+      </div>
     );
   }
 
   if (isLoading) {
-    return <PageLoadingSkeleton />;
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="h-48 bg-gray-200 rounded"></div>
+            <div className="h-48 bg-gray-200 rounded"></div>
+            <div className="h-48 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const content = (
+  return (
     <div className="space-y-8" role="main" aria-label="Enhanced Analytics Dashboard">
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -237,15 +242,15 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
       </div>
 
       {/* Top Level Impact Cards */}
-      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-        <div className={isMobile ? 'col-span-1' : 'lg:col-span-2'}>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <PersonalImpactCard {...personalImpactData} />
         </div>
         <AchievementProgressCard {...achievementData} />
       </div>
 
       {/* Engagement and Network Analytics */}
-      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
+      <div className="grid gap-6 lg:grid-cols-2">
         <EngagementMetricsCard 
           metrics={engagementMetrics}
           totalEngagementScore={2847}
@@ -264,14 +269,6 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
       {/* Visual Charts Dashboard */}
       <VisualAnalyticsDashboard {...visualData} />
     </div>
-  );
-
-  return isMobile ? (
-    <PullToRefresh onRefresh={handleRefresh}>
-      {content}
-    </PullToRefresh>
-  ) : (
-    content
   );
 });
 

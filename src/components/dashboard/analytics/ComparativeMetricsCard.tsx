@@ -1,10 +1,11 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, TrendingUp, Users, Award } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Users, Clock } from "lucide-react";
 
-interface ComparisonMetric {
+interface ComparativeMetric {
   label: string;
   userValue: number;
   avgValue: number;
@@ -14,83 +15,89 @@ interface ComparisonMetric {
 }
 
 interface ComparativeMetricsCardProps {
-  metrics: ComparisonMetric[];
+  metrics: ComparativeMetric[];
   overallRanking: number;
   totalUsers: number;
 }
 
-const ComparativeMetricsCard = ({ metrics, overallRanking, totalUsers }: ComparativeMetricsCardProps) => {
-  const getPercentileColor = (percentile: number) => {
-    if (percentile >= 90) return "text-green-600 bg-green-50";
-    if (percentile >= 75) return "text-blue-600 bg-blue-50";
-    if (percentile >= 50) return "text-yellow-600 bg-yellow-50";
-    return "text-gray-600 bg-gray-50";
-  };
-
-  const getPercentileLabel = (percentile: number) => {
-    if (percentile >= 95) return "Elite";
-    if (percentile >= 90) return "Excellent";
-    if (percentile >= 75) return "Above Average";
-    if (percentile >= 50) return "Average";
-    return "Below Average";
-  };
-
+const ComparativeMetricsCard = ({
+  metrics,
+  overallRanking,
+  totalUsers
+}: ComparativeMetricsCardProps) => {
   return (
-    <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <BarChart className="h-5 w-5 text-slate-600" />
-          <span>Performance Comparison</span>
-          <Badge className="bg-slate-100 text-slate-800">
+        <CardTitle className="flex items-center justify-between">
+          <span className="flex items-center space-x-2">
+            <Trophy className="h-5 w-5 text-yellow-600" />
+            <span>Comparative Performance</span>
+          </span>
+          <Badge variant="secondary">
             #{overallRanking} of {totalUsers.toLocaleString()}
           </Badge>
         </CardTitle>
-        <CardDescription>
-          How you compare to other community members
-        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {metrics.map((metric, index) => (
-            <div key={index} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700">{metric.label}</span>
-                <Badge className={getPercentileColor(metric.userPercentile)}>
-                  {getPercentileLabel(metric.userPercentile)}
-                </Badge>
-              </div>
+      <CardContent className="space-y-6">
+        {metrics.map((metric, index) => (
+          <div key={index} className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-700">{metric.label}</span>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                {metric.userPercentile}th percentile
+              </Badge>
+            </div>
+            
+            <div className="space-y-2">
+              <Progress value={metric.userPercentile} className="h-2" />
               
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Your Score</span>
-                  <span className="font-bold text-gray-900">
-                    {metric.userValue}{metric.unit}
-                  </span>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="font-bold text-blue-600">
+                    {metric.userValue}{metric.unit || ''}
+                  </div>
+                  <div className="text-xs text-gray-500">You</div>
                 </div>
-                <Progress value={metric.userPercentile} className="h-2" />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Avg: {metric.avgValue}{metric.unit}</span>
-                  <span>Top: {metric.topValue}{metric.unit}</span>
+                
+                <div className="text-center">
+                  <div className="font-medium text-gray-600">
+                    {metric.avgValue}{metric.unit || ''}
+                  </div>
+                  <div className="text-xs text-gray-500">Average</div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="p-2 bg-red-50 rounded">
-                  <div className="font-semibold text-red-600">Bottom 25%</div>
-                  <div className="text-red-500">0-{Math.round(metric.avgValue * 0.7)}{metric.unit}</div>
-                </div>
-                <div className="p-2 bg-yellow-50 rounded">
-                  <div className="font-semibold text-yellow-600">Average</div>
-                  <div className="text-yellow-500">{Math.round(metric.avgValue * 0.7)}-{Math.round(metric.avgValue * 1.3)}{metric.unit}</div>
-                </div>
-                <div className="p-2 bg-green-50 rounded">
-                  <div className="font-semibold text-green-600">Top 25%</div>
-                  <div className="text-green-500">{Math.round(metric.avgValue * 1.3)}+{metric.unit}</div>
+                
+                <div className="text-center">
+                  <div className="font-medium text-green-600">
+                    {metric.topValue}{metric.unit || ''}
+                  </div>
+                  <div className="text-xs text-gray-500">Top 1%</div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            
+            {/* Performance indicator */}
+            <div className="flex items-center space-x-2">
+              {metric.userPercentile >= 90 && (
+                <Badge className="bg-green-100 text-green-800">
+                  <Trophy className="h-3 w-3 mr-1" />
+                  Top Performer
+                </Badge>
+              )}
+              {metric.userPercentile >= 75 && metric.userPercentile < 90 && (
+                <Badge className="bg-blue-100 text-blue-800">
+                  <Users className="h-3 w-3 mr-1" />
+                  Above Average
+                </Badge>
+              )}
+              {metric.userPercentile < 50 && (
+                <Badge className="bg-orange-100 text-orange-800">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Room for Growth
+                </Badge>
+              )}
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

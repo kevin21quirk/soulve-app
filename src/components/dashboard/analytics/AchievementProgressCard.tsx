@@ -1,8 +1,9 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Star, Zap, Crown, Shield, Target } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 interface Achievement {
   id: string;
@@ -13,121 +14,117 @@ interface Achievement {
   points: number;
   rarity: "common" | "rare" | "epic" | "legendary";
   unlocked: boolean;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   category: string;
 }
 
-interface AchievementProgressCardProps {
+interface AchievementProgressData {
   achievements: Achievement[];
   totalPoints: number;
   unlockedCount: number;
-  nextMilestone: { title: string; pointsNeeded: number };
+  nextMilestone: {
+    title: string;
+    pointsNeeded: number;
+  };
 }
 
-const AchievementProgressCard = ({ 
-  achievements, 
-  totalPoints, 
-  unlockedCount, 
-  nextMilestone 
-}: AchievementProgressCardProps) => {
-  const getRarityColor = (rarity: string) => {
+const AchievementProgressCard = ({
+  achievements,
+  totalPoints,
+  unlockedCount,
+  nextMilestone
+}: AchievementProgressData) => {
+  const getRarityColor = (rarity: Achievement["rarity"]) => {
     switch (rarity) {
-      case "common": return "bg-gray-100 text-gray-700 border-gray-300";
-      case "rare": return "bg-blue-100 text-blue-700 border-blue-300";
-      case "epic": return "bg-purple-100 text-purple-700 border-purple-300";
-      case "legendary": return "bg-yellow-100 text-yellow-700 border-yellow-300";
-      default: return "bg-gray-100 text-gray-700 border-gray-300";
+      case "common": return "bg-gray-100 text-gray-800";
+      case "rare": return "bg-blue-100 text-blue-800";
+      case "epic": return "bg-purple-100 text-purple-800";
+      case "legendary": return "bg-yellow-100 text-yellow-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  const nearCompletion = achievements.filter(a => !a.unlocked && a.progress / a.maxProgress >= 0.8);
-  const recentlyUnlocked = achievements.filter(a => a.unlocked).slice(-3);
-
   return (
-    <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Trophy className="h-5 w-5 text-amber-600" />
+        <CardTitle className="flex items-center justify-between">
           <span>Achievement Progress</span>
-          <Badge className="bg-amber-100 text-amber-800">
-            {unlockedCount}/{achievements.length} Unlocked
+          <Badge variant="secondary">
+            {totalPoints.toLocaleString()} points
           </Badge>
         </CardTitle>
-        <CardDescription>
-          Your journey to community mastery
-        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {/* Achievement Stats */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="p-3 bg-white/60 rounded-lg">
-              <div className="text-2xl font-bold text-amber-600">{totalPoints}</div>
-              <div className="text-xs text-gray-600">Total Points</div>
-            </div>
-            <div className="p-3 bg-white/60 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{unlockedCount}</div>
-              <div className="text-xs text-gray-600">Unlocked</div>
-            </div>
-            <div className="p-3 bg-white/60 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{nearCompletion.length}</div>
-              <div className="text-xs text-gray-600">Near Complete</div>
-            </div>
+      <CardContent className="space-y-4">
+        {/* Points Overview */}
+        <div className="text-center p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg">
+          <div className="text-2xl font-bold text-orange-600">
+            {totalPoints.toLocaleString()}
           </div>
-
-          {/* Next Milestone */}
-          <div className="p-4 bg-white/60 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">Next Milestone</span>
-              <Badge variant="outline">{nextMilestone.pointsNeeded} points needed</Badge>
-            </div>
-            <div className="text-lg font-semibold text-amber-700 mb-2">{nextMilestone.title}</div>
-            <Progress value={75} className="h-2" />
+          <div className="text-sm text-gray-600">
+            Total Points • {unlockedCount} achievements unlocked
           </div>
+        </div>
 
-          {/* Recently Unlocked */}
-          {recentlyUnlocked.length > 0 && (
-            <div>
-              <h4 className="font-semibold mb-3 text-gray-700">Recently Unlocked</h4>
-              <div className="space-y-2">
-                {recentlyUnlocked.map((achievement) => (
-                  <div key={achievement.id} className="flex items-center space-x-3 p-2 bg-white/60 rounded-lg">
-                    <achievement.icon className="h-5 w-5 text-amber-600" />
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{achievement.title}</div>
-                      <div className="text-xs text-gray-600">{achievement.category}</div>
-                    </div>
-                    <Badge className={getRarityColor(achievement.rarity)}>
-                      {achievement.rarity}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Next Milestone */}
+        <div className="p-3 border rounded-lg">
+          <div className="text-sm font-medium text-gray-700 mb-2">
+            Next Milestone: {nextMilestone.title}
+          </div>
+          <div className="text-xs text-gray-500 mb-1">
+            {nextMilestone.pointsNeeded} points needed
+          </div>
+          <Progress 
+            value={((totalPoints) / (totalPoints + nextMilestone.pointsNeeded)) * 100} 
+            className="h-2" 
+          />
+        </div>
 
-          {/* Near Completion */}
-          {nearCompletion.length > 0 && (
-            <div>
-              <h4 className="font-semibold mb-3 text-gray-700">Almost There!</h4>
-              <div className="space-y-3">
-                {nearCompletion.map((achievement) => (
-                  <div key={achievement.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <achievement.icon className="h-4 w-4 text-gray-600" />
-                        <span className="text-sm font-medium">{achievement.title}</span>
-                      </div>
-                      <span className="text-xs text-gray-500">
-                        {achievement.progress}/{achievement.maxProgress}
+        {/* Recent Achievements */}
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-700">Recent Progress</div>
+          {achievements.slice(0, 3).map((achievement) => {
+            const Icon = achievement.icon;
+            const progressPercentage = (achievement.progress / achievement.maxProgress) * 100;
+            
+            return (
+              <div 
+                key={achievement.id} 
+                className={`p-3 border rounded-lg ${achievement.unlocked ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Icon className={`h-5 w-5 ${
+                    achievement.unlocked ? 'text-green-600' : 'text-gray-400'
+                  }`} />
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {achievement.title}
                       </span>
+                      <Badge 
+                        variant="outline" 
+                        className={getRarityColor(achievement.rarity)}
+                      >
+                        {achievement.rarity}
+                      </Badge>
                     </div>
-                    <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="h-1" />
+                    
+                    <div className="text-xs text-gray-600 mb-2">
+                      {achievement.description}
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span>{achievement.progress}/{achievement.maxProgress}</span>
+                        <span>{achievement.points} pts</span>
+                      </div>
+                      <Progress value={progressPercentage} className="h-1" />
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

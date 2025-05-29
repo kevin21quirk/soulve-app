@@ -1,15 +1,15 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Heart, MessageCircle, Share, Eye, TrendingUp } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 interface EngagementMetric {
   label: string;
   value: number;
   growth: number;
-  comparison: number; // compared to average user
-  icon: React.ComponentType<{ className?: string }>;
+  comparison: number;
+  icon: LucideIcon;
   color: string;
 }
 
@@ -19,57 +19,64 @@ interface EngagementMetricsCardProps {
   rankPosition: number;
 }
 
-const EngagementMetricsCard = ({ metrics, totalEngagementScore, rankPosition }: EngagementMetricsCardProps) => {
+const EngagementMetricsCard = ({
+  metrics,
+  totalEngagementScore,
+  rankPosition
+}: EngagementMetricsCardProps) => {
   return (
-    <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Heart className="h-5 w-5 text-indigo-600" />
-          <span>Engagement Analytics</span>
-          <Badge className="bg-indigo-100 text-indigo-800">
-            #{rankPosition} Engagement
+        <CardTitle className="flex items-center justify-between">
+          <span>Engagement Metrics</span>
+          <Badge variant="outline">
+            Rank #{rankPosition}
           </Badge>
         </CardTitle>
-        <CardDescription>
-          Your community interaction metrics vs. platform average
-        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <div className="text-center p-4 bg-white/60 rounded-lg">
-            <div className="text-3xl font-bold text-indigo-600 mb-1">{totalEngagementScore}</div>
-            <div className="text-sm text-gray-600">Total Engagement Score</div>
-            <div className="flex items-center justify-center space-x-1 mt-2">
-              <TrendingUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-600 font-medium">+23% vs average</span>
-            </div>
+      <CardContent className="space-y-4">
+        {/* Total Score */}
+        <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+          <div className="text-2xl font-bold text-blue-600">
+            {totalEngagementScore.toLocaleString()}
           </div>
+          <div className="text-sm text-gray-600">Total Engagement Score</div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {metrics.map((metric, index) => (
-              <div key={index} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <metric.icon className={`h-4 w-4 ${metric.color}`} />
-                    <span className="text-sm font-medium">{metric.label}</span>
-                  </div>
-                  <Badge variant="outline" className={metric.growth >= 0 ? "text-green-600" : "text-red-600"}>
-                    {metric.growth >= 0 ? "+" : ""}{metric.growth}%
-                  </Badge>
+        {/* Individual Metrics */}
+        <div className="grid grid-cols-2 gap-3">
+          {metrics.map((metric, index) => {
+            const Icon = metric.icon;
+            const isPositive = metric.growth >= 0;
+            
+            return (
+              <div key={index} className="p-3 border rounded-lg hover:shadow-sm transition-shadow">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Icon className={`h-4 w-4 ${metric.color}`} />
+                  <span className="text-sm font-medium text-gray-700">
+                    {metric.label}
+                  </span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Your Score</span>
-                    <span className="font-bold">{metric.value}</span>
+                
+                <div className="space-y-1">
+                  <div className="text-lg font-bold">
+                    {metric.value.toLocaleString()}
                   </div>
-                  <Progress value={metric.comparison} className="h-2" />
-                  <div className="text-xs text-gray-500">
-                    {metric.comparison}% above platform average
+                  
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`font-medium ${
+                      isPositive ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {isPositive ? '+' : ''}{metric.growth}%
+                    </span>
+                    <span className="text-gray-500">
+                      vs {metric.comparison}% avg
+                    </span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
