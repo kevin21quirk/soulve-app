@@ -12,19 +12,17 @@ const SmartRecommendations = () => {
   return (
     <Card className="bg-gradient-to-r from-[#4c3dfb]/10 to-[#18a5fe]/10 border-[#4c3dfb]/30">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Brain className="h-4 w-4 text-[#4c3dfb]" />
-            <CardTitle className="text-lg text-[#4c3dfb]">Smart Recommendations</CardTitle>
-            <Badge variant="secondary" className="bg-gradient-to-r from-[#4c3dfb] to-[#18a5fe] text-white text-xs">
-              AI
-            </Badge>
-          </div>
+        <div className="flex items-center space-x-2">
+          <Brain className="h-4 w-4 text-[#4c3dfb]" />
+          <CardTitle className="text-lg text-[#4c3dfb]">Smart Recommendations</CardTitle>
+          <Badge variant="secondary" className="bg-gradient-to-r from-[#4c3dfb] to-[#18a5fe] text-white text-xs">
+            AI
+          </Badge>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={handleImproveRecommendations} 
-            className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center gap-1 px-2 py-1 h-auto"
+            className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center gap-1 px-2 py-1 h-auto ml-2"
           >
             <Brain className="h-3 w-3" />
             <span className="text-xs">Improve</span>
