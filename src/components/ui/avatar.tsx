@@ -12,7 +12,8 @@ const Avatar = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] p-[2px]",
+      "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] p-[3px]",
+      "shadow-lg shadow-[#0ce4af]/30",
       className
     )}
     {...props}
