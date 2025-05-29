@@ -1,7 +1,7 @@
 
+import { Search, Bell, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Bell, Search, Keyboard, Activity } from "lucide-react";
+import NotificationBadge from "@/components/notifications/NotificationBadge";
 
 interface HeaderActionsProps {
   showSearch: boolean;
@@ -12,6 +12,8 @@ interface HeaderActionsProps {
   setShowShortcuts: (show: boolean) => void;
   showActivity: boolean;
   setShowActivity: (show: boolean) => void;
+  unreadCount?: number;
+  onNotificationClick?: () => void;
 }
 
 const HeaderActions = ({
@@ -23,51 +25,49 @@ const HeaderActions = ({
   setShowShortcuts,
   showActivity,
   setShowActivity,
+  unreadCount = 0,
+  onNotificationClick,
 }: HeaderActionsProps) => {
+  const handleNotificationClick = () => {
+    if (onNotificationClick) {
+      onNotificationClick();
+    } else {
+      setShowNotifications(!showNotifications);
+    }
+  };
+
   return (
-    <div className="flex items-center space-x-4">
-      {/* Search Button */}
+    <div className="flex items-center space-x-2">
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setShowSearch(!showSearch)}
-        className="relative"
+        className="p-2"
       >
-        <Search className="h-5 w-5" />
+        <Search className="h-4 w-4" />
       </Button>
 
-      {/* Notifications */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setShowNotifications(!showNotifications)}
-        className="relative"
-      >
-        <Bell className="h-5 w-5" />
-        <Badge
-          variant="destructive"
-          className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-        >
-          3
-        </Badge>
-      </Button>
+      <NotificationBadge 
+        count={unreadCount}
+        onClick={handleNotificationClick}
+      />
 
-      {/* Shortcuts */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setShowShortcuts(!showShortcuts)}
+        className="p-2"
       >
-        <Keyboard className="h-5 w-5" />
+        <Zap className="h-4 w-4" />
       </Button>
 
-      {/* Activity */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setShowActivity(!showActivity)}
+        className="p-2"
       >
-        <Activity className="h-5 w-5" />
+        <Activity className="h-4 w-4" />
       </Button>
     </div>
   );

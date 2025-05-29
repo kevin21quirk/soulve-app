@@ -5,6 +5,9 @@ import HeaderLogo from "./header/HeaderLogo";
 import HeaderActions from "./header/HeaderActions";
 import UserSection from "./header/UserSection";
 import HeaderOverlays from "./header/HeaderOverlays";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
+import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
+import { useState } from "react";
 
 interface DashboardHeaderProps {
   showSearch: boolean;
@@ -30,10 +33,17 @@ const DashboardHeader = ({
   onNavigateToTab,
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
+  const { unreadCount } = useRealTimeNotifications();
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
 
   const handleSearchSubmit = (query: string) => {
     // Handle search functionality here
     console.log("Search query:", query);
+  };
+
+  const handleNotificationClick = () => {
+    setShowNotificationCenter(true);
+    setShowNotifications(false);
   };
 
   const quickActions = [
@@ -60,6 +70,8 @@ const DashboardHeader = ({
                 setShowShortcuts={setShowShortcuts}
                 showActivity={showActivity}
                 setShowActivity={setShowActivity}
+                unreadCount={unreadCount}
+                onNotificationClick={handleNotificationClick}
               />
 
               <UserSection />
@@ -78,6 +90,11 @@ const DashboardHeader = ({
         showActivity={showActivity}
         setShowActivity={setShowActivity}
         onSearchSubmit={handleSearchSubmit}
+      />
+
+      <NotificationCenter 
+        isOpen={showNotificationCenter}
+        onClose={() => setShowNotificationCenter(false)}
       />
     </>
   );
