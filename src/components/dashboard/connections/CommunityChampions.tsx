@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +55,7 @@ const CommunityChampions = ({ champions, onFollowChampion }: CommunityChampionsP
                     </div>
                     <Button
                       size="sm"
+                      variant="gradient"
                       onClick={() => onFollowChampion(champion.id)}
                       className="flex items-center space-x-1"
                     >
