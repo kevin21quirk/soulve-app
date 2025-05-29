@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, MapPin, Mail, Phone, Globe, Users, FileText, Target, Eye, Shield } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
+import { useNavigate } from "react-router-dom";
 
 interface UserProfileDisplayProps {
   profileData: UserProfileData;
 }
 
 const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
+  const navigate = useNavigate();
+
   const getSocialIcon = (platform: string) => {
     switch (platform) {
       case 'website': return <Globe className="h-4 w-4" />;
@@ -24,6 +27,23 @@ const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
   const formatUrl = (url: string) => {
     if (!url) return '';
     return url.startsWith('http') ? url : `https://${url}`;
+  };
+
+  const handleStatClick = (statType: string) => {
+    switch (statType) {
+      case 'followers':
+        navigate('/dashboard?tab=discover-connect&section=followers');
+        break;
+      case 'following':
+        navigate('/dashboard?tab=discover-connect&section=following');
+        break;
+      case 'posts':
+        navigate('/dashboard?tab=feed&filter=my-posts');
+        break;
+      case 'helps':
+        navigate('/dashboard?tab=help-center&section=my-impact');
+        break;
+    }
   };
 
   return (
@@ -57,21 +77,33 @@ const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
       <div>
         <h4 className="text-lg font-semibold mb-4">Statistics</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-teal-600">{profileData.followerCount}</div>
-            <div className="text-sm text-gray-600">Followers</div>
+          <div 
+            className="text-center p-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg cursor-pointer hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all transform hover:scale-105"
+            onClick={() => handleStatClick('followers')}
+          >
+            <div className="text-2xl font-bold text-white">{profileData.followerCount}</div>
+            <div className="text-sm text-white/90">Followers</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-teal-600">{profileData.followingCount}</div>
-            <div className="text-sm text-gray-600">Following</div>
+          <div 
+            className="text-center p-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg cursor-pointer hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all transform hover:scale-105"
+            onClick={() => handleStatClick('following')}
+          >
+            <div className="text-2xl font-bold text-white">{profileData.followingCount}</div>
+            <div className="text-sm text-white/90">Following</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-teal-600">{profileData.postCount}</div>
-            <div className="text-sm text-gray-600">Posts</div>
+          <div 
+            className="text-center p-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg cursor-pointer hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all transform hover:scale-105"
+            onClick={() => handleStatClick('posts')}
+          >
+            <div className="text-2xl font-bold text-white">{profileData.postCount}</div>
+            <div className="text-sm text-white/90">Posts</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-teal-600">{profileData.helpCount}</div>
-            <div className="text-sm text-gray-600">Helps</div>
+          <div 
+            className="text-center p-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg cursor-pointer hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all transform hover:scale-105"
+            onClick={() => handleStatClick('helps')}
+          >
+            <div className="text-2xl font-bold text-white">{profileData.helpCount}</div>
+            <div className="text-sm text-white/90">Helps</div>
           </div>
         </div>
       </div>
