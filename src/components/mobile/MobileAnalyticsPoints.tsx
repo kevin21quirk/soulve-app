@@ -4,9 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Users, Heart, Star, Trophy, Target, Shield, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, Users, Heart, Star, Trophy, Target, Shield, Award, Gift, Crown } from "lucide-react";
 import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges, mockPointTransactions } from "@/data/mockPointsData";
 import { PointsCalculator } from "@/services/pointsService";
+import { AchievementsService } from "@/services/achievementsService";
+import { LeaderboardService } from "@/services/leaderboardService";
+import { PointRedemptionService } from "@/services/pointRedemptionService";
+import { useProgressTracking } from "@/hooks/useProgressTracking";
 
 const MobileAnalyticsPoints = () => {
   const [activeTab, setActiveTab] = useState("trust");
@@ -14,13 +19,31 @@ const MobileAnalyticsPoints = () => {
   const trustLevelConfig = PointsCalculator.getTrustLevelConfig(userStats.trustLevel);
   const nextLevel = PointsCalculator.getNextTrustLevel(userStats.totalPoints);
 
+  // Use progress tracking hook
+  const {
+    achievements,
+    recentPointsEarned,
+    progressAnimations,
+    nextLevelProgress,
+    weeklyProgress,
+    unlockedAchievements,
+    inProgressAchievements
+  } = useProgressTracking(userStats, mockPointTransactions);
+
+  // Get leaderboard data
+  const leaderboard = LeaderboardService.getLeaderboard();
+  const userRank = LeaderboardService.getUserRank('current-user');
+
+  // Get redemption rewards
+  const availableRewards = PointRedemptionService.getAvailableRewards(userStats.level);
+
   const getTrustLevelIcon = (level: string) => {
     switch (level) {
       case "new_user": return Shield;
       case "verified_helper": return Star;
       case "trusted_helper": return Trophy;
       case "community_leader": return Award;
-      case "impact_champion": return Trophy;
+      case "impact_champion": return Crown;
       default: return Shield;
     }
   };
@@ -47,9 +70,9 @@ const MobileAnalyticsPoints = () => {
       bgColor: "bg-red-50"
     },
     {
-      label: "Connections",
-      value: userStats.connectionsCount,
-      subValue: "Active network",
+      label: "Leaderboard Rank",
+      value: `#${userRank}`,
+      subValue: "Community rank",
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
@@ -67,9 +90,18 @@ const MobileAnalyticsPoints = () => {
   return (
     <div className="p-4 space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="trust">Trust Score</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="trust">Trust</TabsTrigger>
           <TabsTrigger value="points">Points</TabsTrigger>
+          <TabsTrigger value="achievements">
+            Rewards
+            {unlockedAchievements.length > 0 && (
+              <Badge variant="destructive" className="ml-1 text-xs">
+                {unlockedAchievements.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard">Ranks</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trust" className="space-y-4 mt-4">
@@ -99,15 +131,21 @@ const MobileAnalyticsPoints = () => {
                   <div className="text-white/80">Trust Score</div>
                 </div>
                 
-                {nextLevel && (
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Progress to next level</span>
-                      <span>{userStats.totalPoints}/{userStats.totalPoints + nextLevel.pointsNeeded}</span>
-                    </div>
-                    <Progress value={75} className="h-2" />
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Next level progress</span>
+                    <span>{nextLevelProgress.percentage.toFixed(0)}%</span>
                   </div>
-                )}
+                  <Progress value={nextLevelProgress.percentage} className="h-2" />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Weekly goal</span>
+                    <span>{weeklyProgress.points}/{weeklyProgress.goal}</span>
+                  </div>
+                  <Progress value={weeklyProgress.percentage} className="h-2" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -164,6 +202,25 @@ const MobileAnalyticsPoints = () => {
         </TabsContent>
 
         <TabsContent value="points" className="space-y-4 mt-4">
+          {/* Recent Points Animation */}
+          {recentPointsEarned.length > 0 && (
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader>
+                <CardTitle className="text-lg text-green-800">Recent Points Earned!</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {recentPointsEarned.slice(0, 3).map((transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between">
+                      <span className="text-sm text-green-700">{transaction.description}</span>
+                      <Badge className="bg-green-600 text-white">+{transaction.points}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Points Breakdown */}
           <Card>
             <CardHeader>
@@ -202,36 +259,6 @@ const MobileAnalyticsPoints = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Transactions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockPointTransactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
-                          {transaction.description}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(transaction.timestamp).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <TrendingUp className="h-3 w-3 text-green-600" />
-                      <span className="text-sm font-bold text-green-600">+{transaction.points}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Active Challenges */}
           <Card>
             <CardHeader>
@@ -263,6 +290,146 @@ const MobileAnalyticsPoints = () => {
                     </div>
                   );
                 })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="achievements" className="space-y-4 mt-4">
+          {/* Achievements Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Achievements & Rewards</CardTitle>
+              <CardDescription>
+                Unlock rewards and show off your accomplishments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                <div>
+                  <div className="text-2xl font-bold text-yellow-600">{unlockedAchievements.length}</div>
+                  <div className="text-xs text-gray-600">Unlocked</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">{inProgressAchievements.length}</div>
+                  <div className="text-xs text-gray-600">In Progress</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{availableRewards.length}</div>
+                  <div className="text-xs text-gray-600">Available</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Unlocked Achievements */}
+          {unlockedAchievements.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Recent Achievements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {unlockedAchievements.slice(0, 3).map((achievement) => (
+                    <div key={achievement.id} className="flex items-center space-x-3 p-2 bg-yellow-50 rounded-lg">
+                      <span className="text-2xl">{achievement.icon}</span>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{achievement.title}</h4>
+                        <p className="text-xs text-gray-600">{achievement.description}</p>
+                      </div>
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                        +{achievement.pointsReward}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Available Rewards */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Redeem Points</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {availableRewards.slice(0, 3).map((reward) => (
+                  <div key={reward.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xl">{reward.icon}</span>
+                      <div>
+                        <h4 className="font-medium text-sm">{reward.title}</h4>
+                        <p className="text-xs text-gray-600 truncate">{reward.description}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Button 
+                        size="sm" 
+                        variant={userStats.totalPoints >= reward.pointsCost ? "default" : "outline"}
+                        disabled={userStats.totalPoints < reward.pointsCost}
+                      >
+                        {reward.pointsCost} pts
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leaderboard" className="space-y-4 mt-4">
+          {/* User Rank */}
+          <Card className="bg-gradient-to-r from-purple-50 to-blue-50">
+            <CardHeader>
+              <CardTitle className="text-lg">Your Ranking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600">#{userRank}</div>
+                <div className="text-sm text-gray-600">Community Rank</div>
+                <Badge variant="outline" className="mt-2">
+                  {userStats.totalPoints} points
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Top 5 Leaderboard */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Top Community Members</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {leaderboard.slice(0, 5).map((entry) => (
+                  <div 
+                    key={entry.userId} 
+                    className={`flex items-center justify-between p-2 rounded-lg ${
+                      entry.userId === 'current-user' ? 'bg-blue-50' : 'bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 text-center">
+                        {entry.rank === 1 && <Trophy className="h-4 w-4 text-yellow-500 mx-auto" />}
+                        {entry.rank === 2 && <Award className="h-4 w-4 text-gray-400 mx-auto" />}
+                        {entry.rank === 3 && <Award className="h-4 w-4 text-amber-600 mx-auto" />}
+                        {entry.rank > 3 && <span className="text-xs font-bold">#{entry.rank}</span>}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{entry.userName}</p>
+                        {entry.userId === 'current-user' && (
+                          <Badge variant="secondary" className="text-xs">You</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-sm">{entry.totalPoints}</div>
+                      <div className="text-xs text-gray-500">points</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
