@@ -118,7 +118,7 @@ const AvatarUpload = ({
 
   if (!isEditing) {
     return (
-      <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+      <Avatar className="h-24 w-24 shadow-lg">
         <AvatarImage src={currentAvatar} alt={userName} />
         <AvatarFallback className="text-2xl">
           {userName.split(' ').map(n => n[0]).join('')}
@@ -129,7 +129,7 @@ const AvatarUpload = ({
 
   return (
     <div className="relative">
-      <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+      <Avatar className="h-24 w-24 shadow-lg">
         <AvatarImage src={displayAvatar} alt={userName} />
         <AvatarFallback className="text-2xl">
           {userName.split(' ').map(n => n[0]).join('')}
