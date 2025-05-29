@@ -10,3 +10,4 @@ export { MobileCard } from "./mobile-card";
 export { PullToRefresh } from "./pull-to-refresh";
 export { MobileSearchFilter } from "./mobile-search-filter";
 export { MobileActionBar } from "./mobile-action-bar";
+export { default as MobileBottomNav } from "./mobile-bottom-nav";

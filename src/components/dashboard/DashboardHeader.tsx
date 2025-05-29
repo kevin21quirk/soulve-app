@@ -5,8 +5,10 @@ import HeaderLogo from "./header/HeaderLogo";
 import HeaderActions from "./header/HeaderActions";
 import UserSection from "./header/UserSection";
 import HeaderOverlays from "./header/HeaderOverlays";
+import MobileHeader from "./header/MobileHeader";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 
 interface DashboardHeaderProps {
@@ -35,9 +37,9 @@ const DashboardHeader = ({
   const navigate = useNavigate();
   const { unreadCount } = useRealTimeNotifications();
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleSearchSubmit = (query: string) => {
-    // Handle search functionality here
     console.log("Search query:", query);
   };
 
@@ -58,10 +60,8 @@ const DashboardHeader = ({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <HeaderLogo />
-
-            <div className="flex items-center space-x-4">
-              <HeaderActions
+            {isMobile ? (
+              <MobileHeader
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
                 showNotifications={showNotifications}
@@ -73,9 +73,26 @@ const DashboardHeader = ({
                 unreadCount={unreadCount}
                 onNotificationClick={handleNotificationClick}
               />
-
-              <UserSection />
-            </div>
+            ) : (
+              <>
+                <HeaderLogo />
+                <div className="flex items-center space-x-4">
+                  <HeaderActions
+                    showSearch={showSearch}
+                    setShowSearch={setShowSearch}
+                    showNotifications={showNotifications}
+                    setShowNotifications={setShowNotifications}
+                    showShortcuts={showShortcuts}
+                    setShowShortcuts={setShowShortcuts}
+                    showActivity={showActivity}
+                    setShowActivity={setShowActivity}
+                    unreadCount={unreadCount}
+                    onNotificationClick={handleNotificationClick}
+                  />
+                  <UserSection />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
