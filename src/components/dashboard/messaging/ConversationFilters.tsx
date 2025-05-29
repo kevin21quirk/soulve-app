@@ -42,10 +42,14 @@ const ConversationFiltersComponent = ({
         {filterOptions.map((option) => (
           <Button
             key={option.key}
-            variant={filters.type === option.key ? "default" : "outline"}
+            variant={filters.type === option.key ? "gradient" : "outline"}
             size="sm"
             onClick={() => onFiltersChange({ ...filters, type: option.key as ConversationFilters["type"] })}
-            className="flex items-center space-x-1"
+            className={`flex items-center space-x-1 ${
+              filters.type !== option.key 
+                ? "bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200" 
+                : ""
+            }`}
           >
             <span>{option.label}</span>
             {option.count > 0 && (
