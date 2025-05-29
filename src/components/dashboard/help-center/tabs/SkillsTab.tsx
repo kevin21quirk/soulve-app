@@ -33,7 +33,7 @@ const SkillsTab = () => {
               </div>
               <p className="text-sm text-gray-600 mb-2">{skill.opportunities} opportunities</p>
               <p className="text-sm text-green-600 font-medium">Avg: {skill.rate}</p>
-              <Button size="sm" className="w-full mt-3">
+              <Button variant="gradient" size="sm" className="w-full mt-3">
                 View Opportunities
               </Button>
             </div>
