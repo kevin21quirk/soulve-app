@@ -1,12 +1,24 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Heart, Image, Video, MapPin, Clock, Globe, Users, Lock } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Heart, 
+  MessageCircle, 
+  Share2, 
+  Bookmark, 
+  MapPin, 
+  Clock,
+  MoreHorizontal,
+  Users,
+  Target,
+  HelpCircle
+} from "lucide-react";
 import { FeedPost } from "@/types/feed";
-import { getCategoryColor, getCategoryLabel } from "@/utils/postUtils";
 import PostActions from "./PostActions";
-import { FEELINGS, URGENCY_LEVELS } from "./CreatePostTypes";
+import PostComments from "./PostComments";
+import PostReactions from "./PostReactions";
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -25,182 +37,129 @@ const FeedPostCard = ({
   onLike, 
   onShare, 
   onRespond, 
-  onBookmark,
+  onBookmark, 
   onReaction,
   onAddComment,
-  onLikeComment
+  onLikeComment,
+  onCommentReaction
 }: FeedPostCardProps) => {
-  const renderMediaGrid = () => {
-    if (!post.media || post.media.length === 0) return null;
-
-    const mediaCount = post.media.length;
-    
-    return (
-      <div className={`mt-4 grid gap-2 ${
-        mediaCount === 1 ? 'grid-cols-1' : 
-        mediaCount === 2 ? 'grid-cols-2' :
-        mediaCount === 3 ? 'grid-cols-3' :
-        'grid-cols-2'
-      }`}>
-        {post.media.slice(0, 4).map((media, index) => (
-          <div 
-            key={media.id} 
-            className={`relative rounded-lg overflow-hidden bg-gray-100 cursor-pointer ${
-              mediaCount === 1 ? 'aspect-video' : 'aspect-square'
-            }`}
-          >
-            {media.type === 'image' ? (
-              <>
-                <img
-                  src={media.url}
-                  alt={media.filename}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform"
-                />
-                <div className="absolute top-2 right-2">
-                  <Image className="h-4 w-4 text-white drop-shadow-lg" />
-                </div>
-              </>
-            ) : (
-              <>
-                <video
-                  src={media.url}
-                  className="w-full h-full object-cover"
-                  controls={false}
-                  muted
-                  preload="metadata"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer hover:bg-opacity-20 transition-all">
-                  <Video className="h-8 w-8 text-white drop-shadow-lg" />
-                </div>
-                <div className="absolute top-2 right-2">
-                  <Video className="h-4 w-4 text-white drop-shadow-lg" />
-                </div>
-              </>
-            )}
-            
-            {/* Show count overlay for 4+ media items */}
-            {index === 3 && mediaCount > 4 && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">
-                  +{mediaCount - 4}
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      "help-needed": "bg-red-100 text-red-800",
+      "help-offered": "bg-green-100 text-green-800", 
+      "success-story": "bg-blue-100 text-blue-800",
+      "announcement": "bg-purple-100 text-purple-800",
+      "question": "bg-yellow-100 text-yellow-800",
+      "recommendation": "bg-indigo-100 text-indigo-800",
+    };
+    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
-  const getVisibilityIcon = () => {
-    switch (post.visibility) {
-      case 'public': return <Globe className="h-3 w-3" />;
-      case 'friends': return <Users className="h-3 w-3" />;
-      case 'private': return <Lock className="h-3 w-3" />;
-      default: return <Globe className="h-3 w-3" />;
+  const getSourceIcon = () => {
+    if (post.tags?.includes('help-center')) {
+      return <HelpCircle className="h-4 w-4 text-teal-600" />;
     }
+    if (post.tags?.includes('campaign')) {
+      return <Target className="h-4 w-4 text-purple-600" />;
+    }
+    return null;
   };
 
-  const urgencyConfig = post.urgency ? 
-    URGENCY_LEVELS.find(level => level.value === post.urgency) : null;
-
-  const feelingConfig = post.feeling ? 
-    FEELINGS.find(feeling => feeling.value === post.feeling) : null;
+  const getSourceBadge = () => {
+    if (post.tags?.includes('help-center')) {
+      return (
+        <Badge variant="outline" className="text-xs border-teal-200 text-teal-700">
+          <HelpCircle className="h-3 w-3 mr-1" />
+          Help Center
+        </Badge>
+      );
+    }
+    if (post.tags?.includes('campaign')) {
+      return (
+        <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">
+          <Target className="h-3 w-3 mr-1" />
+          Campaign
+        </Badge>
+      );
+    }
+    return null;
+  };
 
   return (
-    <Card className={`border-l-4 ${getCategoryColor(post.category)} hover:shadow-lg transition-all duration-200 hover:scale-[1.01]`}>
-      <CardHeader>
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="hover:scale-110 transition-transform">
-              <AvatarImage src={post.avatar} />
-              <AvatarFallback>{post.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={post.avatar} alt={post.author} />
+              <AvatarFallback>{post.author.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-lg hover:text-blue-600 transition-colors cursor-pointer">{post.title}</CardTitle>
-              <CardDescription className="flex items-center space-x-2 flex-wrap">
-                <span>{post.author}</span>
-                <span>•</span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{post.timestamp}</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center space-x-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{post.location}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  {getVisibilityIcon()}
-                </span>
-              </CardDescription>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900">{post.author}</h3>
+                {getSourceIcon()}
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>{post.timestamp}</span>
+                {post.location && (
+                  <>
+                    <span>•</span>
+                    <MapPin className="h-3 w-3" />
+                    <span>{post.location}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex flex-col items-end space-y-2">
-            <Badge variant="outline" className="text-xs">
-              {getCategoryLabel(post.category)}
+          <Button variant="ghost" size="sm">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2 mt-2">
+          <Badge className={getCategoryColor(post.category)}>
+            {post.category.replace('-', ' ')}
+          </Badge>
+          {getSourceBadge()}
+          {post.urgency && post.urgency !== 'low' && (
+            <Badge variant={post.urgency === 'urgent' ? 'destructive' : 'secondary'}>
+              {post.urgency}
             </Badge>
-            {urgencyConfig && post.urgency !== 'low' && (
-              <Badge className={urgencyConfig.color + " text-xs"}>
-                {urgencyConfig.icon} {urgencyConfig.label}
-              </Badge>
-            )}
-          </div>
+          )}
         </div>
       </CardHeader>
+
       <CardContent>
-        <p className="text-gray-700 mb-4">{post.description}</p>
-        
-        {/* Tagged Users */}
-        {(post as any).taggedUsers && (post as any).taggedUsers.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-            <div className="text-sm font-medium text-blue-800 mb-2">Tagged:</div>
-            <div className="flex flex-wrap gap-2">
-              {(post as any).taggedUsers.map((user: any, index: number) => (
-                <span 
-                  key={index} 
-                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full cursor-pointer hover:bg-blue-200 transition-colors"
-                >
-                  @{user.username}
-                </span>
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-gray-900">{post.title}</h2>
+          <p className="text-gray-700">{post.description}</p>
+          
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {post.tags.filter(tag => !['help-center', 'campaign'].includes(tag)).map((tag, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  #{tag}
+                </Badge>
               ))}
             </div>
-          </div>
-        )}
-        
-        {/* Post Metadata */}
-        {(feelingConfig || (post.tags && post.tags.length > 0)) && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {feelingConfig && (
-              <Badge variant="secondary" className="text-xs">
-                {feelingConfig.emoji} Feeling {feelingConfig.label}
-              </Badge>
-            )}
-            {post.tags?.map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs cursor-pointer hover:bg-blue-50">
-                #{tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-        
-        {/* Media Content */}
-        {renderMediaGrid()}
-        
-        <div className="mt-4">
-          <PostActions 
+          )}
+
+          <PostReactions post={post} onReaction={onReaction} />
+
+          <PostActions
             post={post}
             onLike={onLike}
             onShare={onShare}
             onRespond={onRespond}
             onBookmark={onBookmark}
-            onReaction={onReaction}
+          />
+
+          <PostComments
+            post={post}
             onAddComment={onAddComment}
             onLikeComment={onLikeComment}
-            onCommentReaction={(postId, commentId, reactionType) => {
-              // This will be handled by the parent component
-              console.log('Comment reaction:', { postId, commentId, reactionType });
-            }}
+            onCommentReaction={onCommentReaction}
           />
         </div>
       </CardContent>
