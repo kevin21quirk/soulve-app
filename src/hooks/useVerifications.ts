@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { UserVerification, TrustScoreHistoryEntry } from '@/types/verification';
+import { UserVerification, TrustScoreHistoryEntry, VerificationType, VerificationStatus } from '@/types/verification';
 import { useToast } from '@/hooks/use-toast';
 
 export const useVerifications = () => {
@@ -44,7 +44,19 @@ export const useVerifications = () => {
         throw error;
       }
       
-      setVerifications(data || []);
+      // Transform the data to match our interface types
+      const transformedData: UserVerification[] = (data || []).map(item => ({
+        ...item,
+        verification_type: item.verification_type as VerificationType,
+        status: item.status as VerificationStatus,
+        expires_at: item.expires_at || undefined,
+        verified_at: item.verified_at || undefined,
+        verified_by: item.verified_by || undefined,
+        notes: item.notes || undefined,
+        verification_data: item.verification_data || undefined
+      }));
+      
+      setVerifications(transformedData);
     } catch (error) {
       console.error('Error in fetchVerifications:', error);
       toast({
@@ -108,7 +120,7 @@ export const useVerifications = () => {
     }
   };
 
-  const requestVerification = async (verificationType: string, verificationData?: any) => {
+  const requestVerification = async (verificationType: VerificationType, verificationData?: any) => {
     if (!user) {
       toast({
         title: "Authentication Required",
