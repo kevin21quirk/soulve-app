@@ -6,10 +6,6 @@ import { UserProfileData } from "./UserProfileTypes";
 import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
-import VerificationPanel from "./verification/VerificationPanel";
-import ChallengesEventsPanel from "./ChallengesEventsPanel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Trophy } from "lucide-react";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
 const UserProfile = () => {
@@ -86,32 +82,6 @@ const UserProfile = () => {
           />
         </div>
       </div>
-
-      {/* Verification Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield className="h-5 w-5 text-blue-600" />
-            <span>Trust & Verification</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <VerificationPanel />
-        </CardContent>
-      </Card>
-
-      {/* Challenges & Events Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Trophy className="h-5 w-5 text-yellow-600" />
-            <span>Challenges & Events</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChallengesEventsPanel />
-        </CardContent>
-      </Card>
 
       <UserProfilePointsDetails
         profileData={profileData}

@@ -34,23 +34,16 @@ const getVerificationLabel = (type: VerificationType) => {
   }
 };
 
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'approved': return CheckCircle;
-    case 'pending': return Clock;
-    case 'rejected': return XCircle;
-    case 'expired': return XCircle;
-    default: return Clock;
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'approved': return 'bg-green-100 text-green-800 border-green-200';
-    case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
-    case 'expired': return 'bg-gray-100 text-gray-800 border-gray-200';
-    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+const getVerificationVariant = (type: VerificationType) => {
+  switch (type) {
+    case 'email': return 'soulve-blue';
+    case 'phone': return 'soulve-teal';
+    case 'government_id': return 'soulve';
+    case 'organization': return 'soulve-purple';
+    case 'community_leader': return 'soulve';
+    case 'expert': return 'soulve-blue';
+    case 'background_check': return 'soulve-teal';
+    default: return 'soulve';
   }
 };
 
@@ -68,16 +61,17 @@ const VerificationBadges = ({ verifications, size = "md" }: VerificationBadgesPr
     <div className="flex flex-wrap gap-2">
       {approvedVerifications.map((verification) => {
         const Icon = getVerificationIcon(verification.verification_type);
-        const StatusIcon = getStatusIcon(verification.status);
+        const variant = getVerificationVariant(verification.verification_type);
         
         return (
           <Badge
             key={verification.id}
-            className={`${getStatusColor(verification.status)} ${textSize} flex items-center space-x-1`}
+            variant={variant}
+            className={`${textSize} flex items-center space-x-1`}
           >
             <Icon className={iconSize} />
             <span>{getVerificationLabel(verification.verification_type)}</span>
-            <StatusIcon className={`${iconSize} ml-1`} />
+            <CheckCircle className={`${iconSize} ml-1`} />
           </Badge>
         );
       })}
