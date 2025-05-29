@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ interface MobileMessageBubbleProps {
 const MobileMessageBubble = ({ message }: MobileMessageBubbleProps) => {
   const [showReactions, setShowReactions] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const reactions = ['❤️', '👍', '😂', '😮', '😢', '😡'];
 
@@ -33,6 +34,19 @@ const MobileMessageBubble = ({ message }: MobileMessageBubbleProps) => {
   const handleReaction = (emoji: string) => {
     // Handle adding reaction
     setShowReactions(false);
+  };
+
+  const handleTouchStart = () => {
+    longPressTimer.current = setTimeout(() => {
+      setShowReactions(true);
+    }, 500); // 500ms long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   const renderAttachment = (attachment: any) => {
@@ -114,7 +128,11 @@ const MobileMessageBubble = ({ message }: MobileMessageBubbleProps) => {
                 ? 'bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white rounded-br-md'
                 : 'bg-gray-100 text-gray-900 rounded-bl-md'
             }`}
-            onLongPress={() => setShowReactions(true)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleTouchStart}
+            onMouseUp={handleTouchEnd}
+            onMouseLeave={handleTouchEnd}
           >
             {/* Priority indicator */}
             {message.priority === "urgent" && (
