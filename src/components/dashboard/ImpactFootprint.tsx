@@ -98,7 +98,7 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
                           </p>
                         </div>
                         <Badge 
-                          variant={activity.status === "completed" ? "default" : "secondary"}
+                          variant={activity.status === "completed" || activity.status === "verified" ? "soulve" : "secondary"}
                           className="ml-4"
                         >
                           {activity.status}
