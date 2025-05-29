@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileFeed from "./MobileFeed";
+import MobileDiscover from "./MobileDiscover";
 import MobileNavigation from "./MobileNavigation";
 import MobileHeader from "./MobileHeader";
 
@@ -20,7 +21,7 @@ const MobileDashboard = () => {
       {/* Main Content */}
       <main className="pb-20">
         {activeTab === "feed" && <MobileFeed />}
-        {activeTab === "discover" && <div className="p-4">Discover content coming soon...</div>}
+        {activeTab === "discover" && <MobileDiscover />}
         {activeTab === "messaging" && <div className="p-4">Messages coming soon...</div>}
         {activeTab === "notifications" && <div className="p-4">Activity & Notifications coming soon...</div>}
         {activeTab === "analytics-points" && <div className="p-4">Trust Score & Analytics coming soon...</div>}
