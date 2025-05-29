@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus, Target, Users, Megaphone, BarChart3 } from "lucide-react";
+import { Plus, Target, Users, Megaphone, BarChart3, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CampaignForm from "./CampaignForm";
 import CampaignList from "./CampaignList";
 import CampaignAnalytics from "./CampaignAnalytics";
@@ -11,6 +11,7 @@ import CampaignAnalytics from "./CampaignAnalytics";
 const CampaignBuilder = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const navigate = useNavigate();
 
   if (showCreateForm) {
     return (
@@ -21,7 +22,8 @@ const CampaignBuilder = () => {
             onClick={() => setShowCreateForm(false)}
             className="mb-4"
           >
-            ← Back to Campaign Builder
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Campaign Builder
           </Button>
         </div>
         <CampaignForm onSuccess={() => setShowCreateForm(false)} />
@@ -31,11 +33,21 @@ const CampaignBuilder = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Campaign Builder</h1>
-        <p className="text-lg text-gray-600">
-          Create, manage, and deliver impactful campaigns that drive real change
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Campaign Builder</h1>
+          <p className="text-lg text-gray-600">
+            Create, manage, and deliver impactful campaigns that drive real change
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center space-x-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
