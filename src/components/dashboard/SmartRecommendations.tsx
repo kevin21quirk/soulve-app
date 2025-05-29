@@ -20,9 +20,14 @@ const SmartRecommendations = () => {
               AI
             </Badge>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleImproveRecommendations} className="text-[#4c3dfb] hover:text-[#4c3dfb]/80">
-            <Brain className="h-3 w-3 mr-1" />
-            Improve
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleImproveRecommendations} 
+            className="text-[#4c3dfb] hover:text-[#4c3dfb]/80 flex items-center gap-1 px-2 py-1 h-auto"
+          >
+            <Brain className="h-3 w-3" />
+            <span className="text-xs">Improve</span>
           </Button>
         </div>
         <CardDescription className="text-sm text-[#4c3dfb]/80">
@@ -41,7 +46,7 @@ const SmartRecommendations = () => {
         </div>
         
         {recommendations.length > 4 && (
-          <div className="text-centre mt-3 pt-3 border-t border-[#4c3dfb]/20">
+          <div className="text-center mt-3 pt-3 border-t border-[#4c3dfb]/20">
             <Button variant="outline" size="sm" className="text-[#4c3dfb] border-[#4c3dfb]/30 hover:bg-[#4c3dfb]/10">
               View All Recommendations
               <ChevronRight className="h-3 w-3 ml-1" />
