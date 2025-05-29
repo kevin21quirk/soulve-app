@@ -12,7 +12,7 @@ const Avatar = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      "before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-teal-500 before:to-blue-500 before:p-[2px]",
+      "before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-green-500 before:to-purple-500 before:p-[2px]",
       "before:content-[''] before:-z-10",
       className
     )}
