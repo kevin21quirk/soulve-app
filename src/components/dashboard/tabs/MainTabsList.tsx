@@ -24,7 +24,7 @@ const MainTabsList = () => {
 
   return (
     <TooltipProvider>
-      <TabsList className="flex w-full bg-white border border-gray-200 p-2 gap-2 rounded-lg h-auto">
+      <TabsList className="flex w-full bg-transparent border-none p-2 gap-2 rounded-lg h-auto">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
           return (
@@ -32,7 +32,7 @@ const MainTabsList = () => {
               <TooltipTrigger asChild>
                 <TabsTrigger 
                   value={tab.value} 
-                  className="flex items-center justify-center bg-white border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all flex-1"
+                  className="flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1"
                 >
                   <IconComponent className="h-5 w-5" />
                 </TabsTrigger>
