@@ -1,4 +1,3 @@
-
 import HeaderLogo from "./header/HeaderLogo";
 import HeaderActions from "./header/HeaderActions";
 import UserSection from "./header/UserSection";
@@ -31,6 +30,13 @@ const DashboardHeader = ({
     // Handle search functionality here
     console.log("Search query:", query);
   };
+
+  const quickActions = [
+    { label: "Create Campaign", action: () => navigate('/campaign-builder'), icon: Plus },
+    { label: "View Analytics", action: () => onNavigateToTab("analytics-points"), icon: BarChart3 },
+    { label: "Help Center", action: () => onNavigateToTab("help-center"), icon: HelpCircle },
+    { label: "Messages", action: () => onNavigateToTab("messaging"), icon: MessageCircle },
+  ];
 
   return (
     <>

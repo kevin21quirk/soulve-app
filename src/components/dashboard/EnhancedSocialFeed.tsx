@@ -1,115 +1,71 @@
-
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { useSocialFeed } from "@/hooks/useSocialFeed";
-import { useSmartFiltering } from "@/hooks/useSmartFiltering";
-import FeedHeader from "./social-feed/FeedHeader";
-import FeedFilters from "./social-feed/FeedFilters";
-import SmartFeedTabs from "./social-feed/SmartFeedTabs";
-import FeedControls from "./social-feed/FeedControls";
-import FeedTabContent from "./social-feed/FeedTabContent";
-import EnhancedSearchBar from "./search/EnhancedSearchBar";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CalendarDateRangePicker } from "@/components/ui/calendar";
+import { CalendarIcon, ChevronDown, Filter, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { FeedFilters } from "./FeedFilters";
+import CampaignStatsWidget from "./CampaignStatsWidget";
 
 const EnhancedSocialFeed = () => {
-  const [activeTab, setActiveTab] = useState("for-you");
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState("relevance");
-  const [showSearch, setShowSearch] = useState(false);
-
-  const {
-    filteredPosts,
-    activeFilter,
-    setActiveFilter,
-    searchQuery,
-    setSearchQuery,
-    isLoading,
-    handlePostCreated,
-    handleLike,
-    handleShare,
-    handleRespond,
-    handleBookmark,
-    handleReaction,
-    handleAddComment,
-    handleLikeComment,
-    handleCommentReaction,
-    getPostCounts,
-    posts, // Add posts to debug
-  } = useSocialFeed();
-
-  const smartFilteredPosts = useSmartFiltering(filteredPosts, activeTab);
-  const postCounts = getPostCounts();
-  
-  // Calculate urgent posts count
-  const urgentPostsCount = filteredPosts.filter(p => p.urgency === "high" || p.urgency === "urgent").length;
-
-  // Debug logging
-  console.log("EnhancedSocialFeed Debug:", {
-    totalPosts: posts.length,
-    filteredPosts: filteredPosts.length,
-    smartFilteredPosts: smartFilteredPosts.length,
-    activeTab,
-    activeFilter,
-    searchQuery,
-    isLoading
+  const [filters, setFilters] = useState({
+    type: "all",
+    dateRange: undefined,
+    sort: "recent",
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="space-y-6">
-      <FeedHeader 
-        onSearch={() => setShowSearch(!showSearch)}
-        onFilter={() => setShowFilters(!showFilters)}
-        totalPosts={filteredPosts.length}
-        urgentPosts={urgentPostsCount}
-      />
+      {/* Filters and Create Post */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1">
+          <FeedFilters 
+            filters={filters}
+            onFiltersChange={setFilters}
+            onSearch={setSearchQuery}
+            searchQuery={searchQuery}
+          />
+        </div>
+        <div className="lg:w-80">
+          <CampaignStatsWidget />
+        </div>
+      </div>
 
-      {showSearch && (
-        <Card>
-          <CardContent className="p-4">
-            <EnhancedSearchBar
-              onSearch={setSearchQuery}
-              placeholder="Search posts, people, locations, skills..."
-              showTrending={true}
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      <SmartFeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-      <FeedControls
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        activeFilter={activeFilter}
-        postsCount={smartFilteredPosts.length}
-        urgentPostsCount={urgentPostsCount}
-        activeTab={activeTab}
-      />
-
-      {showFilters && (
-        <FeedFilters
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          postCounts={postCounts}
-          onClose={() => setShowFilters(false)}
-        />
-      )}
-
-      <FeedTabContent
-        activeTab={activeTab}
-        posts={smartFilteredPosts}
-        isLoading={isLoading}
-        onPostCreated={handlePostCreated}
-        onLike={handleLike}
-        onShare={handleShare}
-        onRespond={handleRespond}
-        onBookmark={handleBookmark}
-        onReaction={handleReaction}
-        onAddComment={handleAddComment}
-        onLikeComment={handleLikeComment}
-        onCommentReaction={handleCommentReaction}
-      />
+      {/* Social Feed Content (Mock Data) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Community Feed</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Mock Feed Items - Replace with actual data fetching */}
+          <div className="space-y-4">
+            <div className="border rounded-md p-4">
+              <p>
+                Exciting news! We're hosting a community cleanup event this
+                Saturday. Join us!
+              </p>
+              <div className="text-sm text-gray-500">Posted by John Doe</div>
+            </div>
+            <div className="border rounded-md p-4">
+              <p>
+                Check out our latest blog post on sustainable living tips.
+                Let's make a difference together!
+              </p>
+              <div className="text-sm text-gray-500">Posted by Jane Smith</div>
+            </div>
+            {/* Add more feed items here */}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
