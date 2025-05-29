@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus, Target } from "lucide-react";
+import { 
+  Plus, 
+  Target, 
+  Feed, 
+  Users, 
+  MessageCircle, 
+  HelpCircle, 
+  BarChart3, 
+  User 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SocialFeed from "./SocialFeed";
 import SmartRecommendations from "./SmartRecommendations";
@@ -23,13 +32,34 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TabsList className="grid w-full grid-cols-7">
-        <TabsTrigger value="feed">Feed</TabsTrigger>
-        <TabsTrigger value="discover-connect">Discover & Connect</TabsTrigger>
-        <TabsTrigger value="messaging">Messages</TabsTrigger>
-        <TabsTrigger value="help-center">Help Center</TabsTrigger>
-        <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-        <TabsTrigger value="analytics-points">Analytics & Points</TabsTrigger>
-        <TabsTrigger value="profile">Profile</TabsTrigger>
+        <TabsTrigger value="feed" className="flex items-center gap-2">
+          <Feed className="h-4 w-4" />
+          <span className="hidden sm:inline">Feed</span>
+        </TabsTrigger>
+        <TabsTrigger value="discover-connect" className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          <span className="hidden sm:inline">Discover & Connect</span>
+        </TabsTrigger>
+        <TabsTrigger value="messaging" className="flex items-center gap-2">
+          <MessageCircle className="h-4 w-4" />
+          <span className="hidden sm:inline">Messages</span>
+        </TabsTrigger>
+        <TabsTrigger value="help-center" className="flex items-center gap-2">
+          <HelpCircle className="h-4 w-4" />
+          <span className="hidden sm:inline">Help Center</span>
+        </TabsTrigger>
+        <TabsTrigger value="campaigns" className="flex items-center gap-2">
+          <Target className="h-4 w-4" />
+          <span className="hidden sm:inline">Campaigns</span>
+        </TabsTrigger>
+        <TabsTrigger value="analytics-points" className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          <span className="hidden sm:inline">Analytics & Points</span>
+        </TabsTrigger>
+        <TabsTrigger value="profile" className="flex items-center gap-2">
+          <User className="h-4 w-4" />
+          <span className="hidden sm:inline">Profile</span>
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="feed" className="mt-6">
