@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -31,34 +32,55 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] p-1">
-        <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <Rss className="h-4 w-4" />
-          <span className="hidden sm:inline">Feed</span>
+      <TabsList className="grid w-full grid-cols-7 bg-white border border-gray-200 p-2 gap-2 rounded-lg">
+        <TabsTrigger 
+          value="feed" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <Rss className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current data-[state=active]:text-white" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent data-[state=active]:text-white">Feed</span>
         </TabsTrigger>
-        <TabsTrigger value="discover-connect" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <Users className="h-4 w-4" />
-          <span className="hidden sm:inline">Discover & Connect</span>
+        <TabsTrigger 
+          value="discover-connect" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <Users className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Discover & Connect</span>
         </TabsTrigger>
-        <TabsTrigger value="messaging" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <MessageCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Messages</span>
+        <TabsTrigger 
+          value="messaging" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <MessageCircle className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Messages</span>
         </TabsTrigger>
-        <TabsTrigger value="help-center" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Help Center</span>
+        <TabsTrigger 
+          value="help-center" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <HelpCircle className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Help Center</span>
         </TabsTrigger>
-        <TabsTrigger value="campaigns" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <Target className="h-4 w-4" />
-          <span className="hidden sm:inline">Campaigns</span>
+        <TabsTrigger 
+          value="campaigns" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <Target className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Campaigns</span>
         </TabsTrigger>
-        <TabsTrigger value="analytics-points" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <BarChart3 className="h-4 w-4" />
-          <span className="hidden sm:inline">Analytics & Points</span>
+        <TabsTrigger 
+          value="analytics-points" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <BarChart3 className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Analytics & Points</span>
         </TabsTrigger>
-        <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/80 hover:text-white hover:bg-white/10">
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">Profile</span>
+        <TabsTrigger 
+          value="profile" 
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:border-transparent text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text hover:bg-gray-50"
+        >
+          <User className="h-4 w-4 text-transparent bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text [&>*]:fill-current" />
+          <span className="hidden sm:inline bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">Profile</span>
         </TabsTrigger>
       </TabsList>
 
