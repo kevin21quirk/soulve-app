@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,7 +186,7 @@ const MessageThread = ({
               placeholder="Type your message..."
               className="flex-1"
             />
-            <Button type="submit" size="sm" disabled={!newMessage.trim()}>
+            <Button type="submit" variant="gradient" size="sm" disabled={!newMessage.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </form>
