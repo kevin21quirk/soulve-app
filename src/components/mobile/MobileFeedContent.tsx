@@ -2,8 +2,10 @@
 import { useState, useCallback } from "react";
 import { FeedPost } from "@/types/feed";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useLazyLoading, usePerformanceTracker } from "@/hooks/usePerformanceOptimization";
 import MobilePostCard from "./MobilePostCard";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw, TrendingUp, Users, Zap } from "lucide-react";
 
 interface MobileFeedContentProps {
@@ -31,6 +33,8 @@ const MobileFeedContent = ({
   onLikeComment,
   onCommentReaction
 }: MobileFeedContentProps) => {
+  usePerformanceTracker('MobileFeedContent');
+  
   const [displayedPosts, setDisplayedPosts] = useState(posts.slice(0, 5));
   const [hasMore, setHasMore] = useState(posts.length > 5);
 
@@ -60,17 +64,17 @@ const MobileFeedContent = ({
     return (
       <div className="space-y-3 p-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-xl p-4 animate-pulse">
+          <div key={index} className="bg-white rounded-xl p-4">
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+              <Skeleton className="w-10 h-10 rounded-full" />
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
             </div>
             <div className="space-y-2 mb-3">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
             </div>
           </div>
         ))}
@@ -115,7 +119,7 @@ const MobileFeedContent = ({
   return (
     <div className="space-y-3 pb-4">
       {displayedPosts.map((post) => (
-        <MobilePostCard
+        <LazyPostCard
           key={post.id}
           post={post}
           onLike={onLike}
@@ -143,6 +147,23 @@ const MobileFeedContent = ({
           <div className="text-gray-400 text-sm">
             🎉 You've seen all posts! Check back later for more.
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Lazy-loaded post card component
+const LazyPostCard = ({ post, ...props }: any) => {
+  const { ref, isIntersecting } = useLazyLoading(0.1, "100px");
+
+  return (
+    <div ref={ref}>
+      {isIntersecting ? (
+        <MobilePostCard post={post} {...props} />
+      ) : (
+        <div className="bg-white rounded-xl p-4 h-48">
+          <Skeleton className="w-full h-full" />
         </div>
       )}
     </div>
