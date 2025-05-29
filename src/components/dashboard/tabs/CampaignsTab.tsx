@@ -15,7 +15,7 @@ const CampaignsTab = () => {
         </div>
         <Button 
           onClick={() => navigate('/campaign-builder')}
-          className="bg-[#0ce4af] hover:bg-[#0ce4af]/90 text-gray-900"
+          variant="gradient"
         >
           <Plus className="h-4 w-4 mr-2" />
           Open Campaign Builder
