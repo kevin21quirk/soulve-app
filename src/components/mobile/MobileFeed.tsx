@@ -9,6 +9,7 @@ import MobileFeedContent from "./MobileFeedContent";
 import MobileFloatingActionButton from "./MobileFloatingActionButton";
 import MobileQuickStats from "./MobileQuickStats";
 import MobileSwipeGestures from "./MobileSwipeGestures";
+import MobileLiveUpdates from "./MobileLiveUpdates";
 import { useState } from "react";
 
 const MobileFeed = () => {
@@ -44,22 +45,22 @@ const MobileFeed = () => {
   const handleQuickPost = (type: string) => {
     console.log("Quick post action:", type);
     setShowCreatePost(true);
-    // Here you could pre-populate the create post with the selected type
   };
 
   const handleSwipeLeft = () => {
-    // Navigate to next tab or perform action
     console.log("Swiped left - could navigate to discover");
   };
 
   const handleSwipeRight = () => {
-    // Navigate to previous tab or perform action
     console.log("Swiped right - could navigate to messages");
   };
 
   const handleSwipeUp = () => {
-    // Show create post or refresh
     setShowCreatePost(true);
+  };
+
+  const handleLiveUpdate = () => {
+    handleRefresh();
   };
 
   return (
@@ -70,6 +71,9 @@ const MobileFeed = () => {
     >
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="bg-gray-50 min-h-screen">
+          {/* Live Updates Indicator */}
+          <MobileLiveUpdates onNewUpdate={handleLiveUpdate} />
+          
           {/* Stories Section */}
           <MobileStories />
           

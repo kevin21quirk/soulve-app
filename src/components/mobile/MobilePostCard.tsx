@@ -1,8 +1,12 @@
+
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Clock } from "lucide-react";
+import { MoreHorizontal, MapPin, Clock, MessageCircle } from "lucide-react";
 import { FeedPost } from "@/types/feed";
+import MobilePostReactions from "./MobilePostReactions";
+import MobilePostComments from "./MobilePostComments";
 
 interface MobilePostCardProps {
   post: FeedPost;
@@ -27,6 +31,8 @@ const MobilePostCard = ({
   onLikeComment,
   onCommentReaction 
 }: MobilePostCardProps) => {
+  const [showComments, setShowComments] = useState(false);
+
   const getCategoryColor = (category: string) => {
     const colors = {
       "help-needed": "bg-red-100 text-red-700 border-red-200",
@@ -37,6 +43,13 @@ const MobilePostCard = ({
       "recommendation": "bg-indigo-100 text-indigo-700 border-indigo-200",
     };
     return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-700 border-gray-200";
+  };
+
+  const handleCommentClick = () => {
+    setShowComments(!showComments);
+    if (!showComments) {
+      onRespond(post.id);
+    }
   };
 
   return (
@@ -98,70 +111,26 @@ const MobilePostCard = ({
         )}
       </div>
 
-      {/* Engagement Stats */}
-      {(post.likes > 0 || post.responses > 0) && (
-        <div className="px-4 py-2 border-t border-gray-100">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center space-x-4">
-              {post.likes > 0 && (
-                <span className="flex items-center space-x-1">
-                  <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                    <Heart className="h-2.5 w-2.5 text-white fill-current" />
-                  </div>
-                  <span>{post.likes}</span>
-                </span>
-              )}
-              {post.responses > 0 && <span>{post.responses} responses</span>}
-            </div>
-            {post.shares > 0 && <span>{post.shares} shares</span>}
-          </div>
-        </div>
-      )}
+      {/* Interactive Elements */}
+      <MobilePostReactions
+        post={post}
+        onLike={onLike}
+        onShare={onShare}
+        onRespond={handleCommentClick}
+        onBookmark={onBookmark}
+        onReaction={onReaction}
+      />
 
-      {/* Action Buttons */}
-      <div className="border-t border-gray-100 px-2 py-1.5">
-        <div className="flex items-center justify-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onLike(post.id)}
-            className={`p-3 rounded-full ${
-              post.isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
-            }`}
-          >
-            <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onRespond(post.id)}
-            className="p-3 rounded-full text-gray-600 hover:text-blue-500 hover:bg-blue-50"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onShare(post.id)}
-            className="p-3 rounded-full text-gray-600 hover:text-green-500 hover:bg-green-50"
-          >
-            <Share2 className="h-5 w-5" />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onBookmark(post.id)}
-            className={`p-3 rounded-full ${
-              post.isBookmarked ? 'text-yellow-500 bg-yellow-50' : 'text-gray-600 hover:text-yellow-500 hover:bg-yellow-50'
-            }`}
-          >
-            <Bookmark className={`h-5 w-5 ${post.isBookmarked ? 'fill-current' : ''}`} />
-          </Button>
-        </div>
-      </div>
+      {/* Comments Section */}
+      {(showComments || (post.comments && post.comments.length > 0)) && (
+        <MobilePostComments
+          post={post}
+          onAddComment={onAddComment}
+          onLikeComment={onLikeComment}
+          onCommentReaction={onCommentReaction}
+          isExpanded={showComments}
+        />
+      )}
     </div>
   );
 };
