@@ -30,10 +30,10 @@ const TagsManager = ({ formData, onFormDataChange }: TagsManagerProps) => {
       <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
       <div className="flex flex-wrap gap-2 mb-2">
         {formData.tags.map((tag) => (
-          <Badge key={tag} variant="soulve-blue" className="flex items-center space-x-1">
+          <div key={tag} className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-3 py-1 rounded-full text-sm flex items-center space-x-1 shadow-sm">
             <span>#{tag}</span>
-            <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
-          </Badge>
+            <X className="h-3 w-3 cursor-pointer hover:bg-white/20 rounded-full p-0.5" onClick={() => removeTag(tag)} />
+          </div>
         ))}
       </div>
       <div className="flex space-x-2">
