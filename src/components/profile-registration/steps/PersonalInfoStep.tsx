@@ -24,7 +24,7 @@ const PersonalInfoStep = ({ onNext, onPrevious, currentStep, totalSteps }: Perso
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const isFormValid = formData.firstName && formData.lastName && formData.email && formData.location;
+  const isFormValid = Boolean(formData.firstName && formData.lastName && formData.email && formData.location);
 
   const platformInsight = {
     title: "Trust & Safety",
