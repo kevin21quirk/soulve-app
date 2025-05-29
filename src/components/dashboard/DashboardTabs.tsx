@@ -59,7 +59,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <MobileBottomNav activeTab={activeTab} />
+        <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
       </Tabs>
     </div>
   );

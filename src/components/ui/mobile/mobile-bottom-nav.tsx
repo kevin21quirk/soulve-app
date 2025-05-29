@@ -1,5 +1,4 @@
 
-import { TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Rss, 
@@ -14,9 +13,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileBottomNavProps {
   activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-const MobileBottomNav = ({ activeTab }: MobileBottomNavProps) => {
+const MobileBottomNav = ({ activeTab, onTabChange }: MobileBottomNavProps) => {
   const isMobile = useIsMobile();
 
   if (!isMobile) return null;
@@ -42,8 +42,8 @@ const MobileBottomNav = ({ activeTab }: MobileBottomNavProps) => {
             return (
               <Tooltip key={tab.value}>
                 <TooltipTrigger asChild>
-                  <TabsTrigger 
-                    value={tab.value} 
+                  <button
+                    onClick={() => onTabChange(tab.value)}
                     className={`flex flex-col items-center justify-center p-2 min-h-[60px] rounded-lg transition-all duration-200 ${
                       isActive 
                         ? 'bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white' 
@@ -52,7 +52,7 @@ const MobileBottomNav = ({ activeTab }: MobileBottomNavProps) => {
                   >
                     <IconComponent className="h-4 w-4 mb-1" />
                     <span className="text-xs leading-tight">{tab.label}</span>
-                  </TabsTrigger>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p>{tab.label}</p>
