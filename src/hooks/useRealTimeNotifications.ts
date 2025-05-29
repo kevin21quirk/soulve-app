@@ -1,3 +1,4 @@
+
 import { useNotificationState } from "./useNotificationState";
 import { useNotificationGenerator } from "./useNotificationGenerator";
 
@@ -28,7 +29,7 @@ const mockNotifications = [
   },
   {
     id: "3",
-    type: "message",
+    type: "message" as const,
     title: "New Message",
     message: "You have a new message from Alex Chen",
     timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
@@ -39,7 +40,7 @@ const mockNotifications = [
   },
   {
     id: "4",
-    type: "social",
+    type: "social" as const,
     title: "Post Interaction",
     message: "Mike Wilson liked your post about environmental action",
     timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
@@ -51,7 +52,7 @@ const mockNotifications = [
   },
   {
     id: "5",
-    type: "donation",
+    type: "donation" as const,
     title: "Recurring Donation",
     message: "Monthly donation of $25 processed successfully",
     timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
