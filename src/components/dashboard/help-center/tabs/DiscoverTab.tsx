@@ -84,9 +84,8 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
                 </Button>
                 <Button 
                   size="sm" 
+                  variant="gradient"
                   onClick={() => handleHelpAction("person", person.name)}
-                  className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
-                  style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
                 >
                   Offer Help
                 </Button>
@@ -103,32 +102,32 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
         </CardHeader>
         <CardContent className="space-y-3">
           <Button 
-            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none" 
-            style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
+            variant="gradient"
+            className="w-full justify-start"
             onClick={() => handleQuickAction("donation")}
           >
             <DollarSign className="h-4 w-4 mr-2" />
             Make a Donation
           </Button>
           <Button 
-            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
-            style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
+            variant="gradient"
+            className="w-full justify-start"
             onClick={() => handleQuickAction("volunteer")}
           >
             <Clock className="h-4 w-4 mr-2" />
             Volunteer Today
           </Button>
           <Button 
-            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
-            style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
+            variant="gradient"
+            className="w-full justify-start"
             onClick={() => handleQuickAction("share")}
           >
             <Share2 className="h-4 w-4 mr-2" />
             Share a Cause
           </Button>
           <Button 
-            className="w-full justify-start bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
-            style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
+            variant="gradient"
+            className="w-full justify-start"
             onClick={() => handleQuickAction("events")}
           >
             <Calendar className="h-4 w-4 mr-2" />

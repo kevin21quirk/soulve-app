@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,12 +150,8 @@ const GroupCard = ({ group, onAction, actionLabel, variant }: GroupCardProps) =>
 
           <Button 
             onClick={() => onAction(group.id)}
-            className={`w-full ${
-              variant === "suggested" 
-                ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all" 
-                : ""
-            }`}
-            variant={variant === "joined" ? "outline" : "default"}
+            variant={variant === "suggested" ? "gradient" : "outline"}
+            className="w-full"
             size="sm"
           >
             {actionLabel}
