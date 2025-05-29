@@ -72,7 +72,9 @@ const DashboardHeader = ({
                 <div className="h-10 w-10">
                   <SouLVELogo size="small" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900">SouLVE</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                  SouLVE
+                </h1>
               </div>
               <Badge variant="secondary" className="hidden sm:inline-flex">
                 Dashboard
