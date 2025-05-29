@@ -69,6 +69,42 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaire_responses: {
+        Row: {
+          agree_to_terms: boolean
+          completed_at: string
+          created_at: string
+          id: string
+          motivation: string | null
+          response_data: Json
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          agree_to_terms?: boolean
+          completed_at?: string
+          created_at?: string
+          id?: string
+          motivation?: string | null
+          response_data: Json
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          agree_to_terms?: boolean
+          completed_at?: string
+          created_at?: string
+          id?: string
+          motivation?: string | null
+          response_data?: Json
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       trust_score_history: {
         Row: {
           change_reason: string

@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Heart, Zap, Users2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import RegistrationStep from "../RegistrationStep";
 
 interface InterestsStepProps {
-  onNext: () => void;
+  onNext: (data?: any) => void;
   onPrevious: () => void;
   currentStep: number;
   totalSteps: number;
@@ -49,6 +48,10 @@ const InterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Interest
     );
   };
 
+  const handleNext = () => {
+    onNext({ interests: selectedInterests });
+  };
+
   const platformInsight = {
     title: "Smart Matching",
     description: "Our AI-powered matching system uses your interests to suggest relevant opportunities and connect you with people who share similar passions. The more interests you select, the better we can personalize your experience!",
@@ -61,7 +64,7 @@ const InterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Interest
       subtitle="Select areas where you'd like to help or receive support. This helps us match you with the right opportunities."
       currentStep={currentStep}
       totalSteps={totalSteps}
-      onNext={onNext}
+      onNext={handleNext}
       onPrevious={onPrevious}
       isNextEnabled={selectedInterests.length >= 3}
       platformInsight={platformInsight}

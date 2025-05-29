@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Sparkles, Users, Heart, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RegistrationStep from "../RegistrationStep";
 
 interface WelcomeStepProps {
-  onNext: () => void;
+  onNext: (data?: any) => void;
   currentStep: number;
   totalSteps: number;
 }
@@ -40,6 +39,10 @@ const WelcomeStep = ({ onNext, currentStep, totalSteps }: WelcomeStepProps) => {
     }
   ];
 
+  const handleNext = () => {
+    onNext({ motivation: selectedMotivation });
+  };
+
   const platformInsight = {
     title: "Welcome to SouLVE!",
     description: "SouLVE transforms social media from endless scrolling into meaningful social action. By understanding your motivation, we can personalize your experience and connect you with opportunities that matter to you.",
@@ -52,7 +55,7 @@ const WelcomeStep = ({ onNext, currentStep, totalSteps }: WelcomeStepProps) => {
       subtitle="Let's start by understanding what brings you here today."
       currentStep={currentStep}
       totalSteps={totalSteps}
-      onNext={onNext}
+      onNext={handleNext}
       onPrevious={() => {}}
       isNextEnabled={!!selectedMotivation}
       showPrevious={false}

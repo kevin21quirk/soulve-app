@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { User, Mail, MapPin, Shield } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import RegistrationStep from "../RegistrationStep";
 
 interface PersonalInfoStepProps {
-  onNext: () => void;
+  onNext: (data?: any) => void;
   onPrevious: () => void;
   currentStep: number;
   totalSteps: number;
@@ -24,6 +23,10 @@ const PersonalInfoStep = ({ onNext, onPrevious, currentStep, totalSteps }: Perso
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleNext = () => {
+    onNext({ personalInfo: formData });
+  };
+
   const isFormValid = Boolean(formData.firstName && formData.lastName && formData.email && formData.location);
 
   const platformInsight = {
@@ -38,7 +41,7 @@ const PersonalInfoStep = ({ onNext, onPrevious, currentStep, totalSteps }: Perso
       subtitle="Your basic information helps us create a personalized experience and connect you with relevant opportunities."
       currentStep={currentStep}
       totalSteps={totalSteps}
-      onNext={onNext}
+      onNext={handleNext}
       onPrevious={onPrevious}
       isNextEnabled={isFormValid}
       platformInsight={platformInsight}
