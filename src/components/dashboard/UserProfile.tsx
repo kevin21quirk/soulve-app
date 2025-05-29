@@ -8,7 +8,7 @@ import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
 import VerificationPanel from "./verification/VerificationPanel";
 import ChallengesEventsPanel from "./ChallengesEventsPanel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Trophy } from "lucide-react";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 
