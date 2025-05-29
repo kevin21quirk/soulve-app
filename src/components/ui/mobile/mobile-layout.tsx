@@ -50,7 +50,7 @@ export const MobileContainer = ({
   return (
     <div className={cn(
       "w-full",
-      isMobile ? "max-w-full" : "max-w-7xl mx-auto",
+      isMobile ? "max-w-full px-4" : "max-w-7xl mx-auto",
       className
     )}>
       {children}
