@@ -77,7 +77,8 @@ const ConnectionCard = ({
             {variant === "suggested" && onSendRequest && (
               <Button 
                 onClick={() => onSendRequest(connection.id)}
-                className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
+                className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
+                style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
                 size="sm"
               >
                 <UserPlus className="h-4 w-4 mr-1" />
@@ -89,7 +90,8 @@ const ConnectionCard = ({
               <>
                 <Button 
                   onClick={() => onAccept(connection.id)}
-                  className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
+                  className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] text-white border-none"
+                  style={{ background: 'linear-gradient(to right, #0ce4af, #18a5fe)' }}
                   size="sm"
                 >
                   <UserCheck className="h-4 w-4 mr-1" />
