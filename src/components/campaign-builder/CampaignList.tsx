@@ -1,272 +1,158 @@
-
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { getUserCampaigns } from "@/services/campaignService";
-import { CalendarDays, MapPin, Users, DollarSign, Eye, Share2, MoreHorizontal, Edit, Pause, Play, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+import { BarChart3 } from "lucide-react";
 
-interface Campaign {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: string;
-  goal_type: string;
-  goal_amount: number;
-  current_amount: number;
-  currency: string;
-  end_date: string;
-  location: string;
-  urgency: string;
-  total_views: number;
-  total_shares: number;
-  created_at: string;
-}
+type Campaign = Database['public']['Tables']['campaigns']['Row'];
 
 const CampaignList = () => {
-  const { toast } = useToast();
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadCampaigns();
+    const fetchCampaigns = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const { data, error } = await supabase
+          .from('campaigns')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          setError(error.message);
+        } else {
+          setCampaigns(data);
+        }
+      } catch (err: any) {
+        setError(err.message || "An unexpected error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCampaigns();
   }, []);
 
-  const loadCampaigns = async () => {
-    try {
-      const data = await getUserCampaigns();
-      setCampaigns(data || []);
-    } catch (error) {
-      console.error('Error loading campaigns:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load campaigns. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const formatCategory = (category: string) => {
+    return category
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const calculateProgress = (current: number, goal: number) => {
-    return goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
-  };
-
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const filteredCampaigns = campaigns.filter(campaign => {
-    if (activeFilter === 'all') return true;
-    return campaign.status === activeFilter;
-  });
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-6">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeFilter} onValueChange={setActiveFilter}>
-        <TabsList>
-          <TabsTrigger value="all">All ({campaigns.length})</TabsTrigger>
-          <TabsTrigger value="active">Active ({campaigns.filter(c => c.status === 'active').length})</TabsTrigger>
-          <TabsTrigger value="draft">Draft ({campaigns.filter(c => c.status === 'draft').length})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({campaigns.filter(c => c.status === 'completed').length})</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Your Campaigns</h2>
+        <Button onClick={() => navigate("/campaign-builder")}>Create New Campaign</Button>
+      </div>
 
-      {filteredCampaigns.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Users className="h-16 w-16" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No campaigns found</h3>
-            <p className="text-gray-600 text-center mb-4">
-              {activeFilter === 'all' 
-                ? "You haven't created any campaigns yet. Start by creating your first campaign!"
-                : `No ${activeFilter} campaigns found.`
-              }
-            </p>
-          </CardContent>
-        </Card>
+      {isLoading ? (
+        <p>Loading campaigns...</p>
+      ) : error ? (
+        <p className="text-red-500">Error: {error}</p>
+      ) : campaigns?.length === 0 ? (
+        <p>No campaigns found. Create one to get started!</p>
       ) : (
-        <div className="grid gap-6">
-          {filteredCampaigns.map((campaign) => (
-            <Card key={campaign.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Badge className={getStatusColor(campaign.status)}>
-                        {campaign.status}
-                      </Badge>
-                      <Badge className={getUrgencyColor(campaign.urgency)}>
-                        {campaign.urgency} priority
-                      </Badge>
-                      <Badge variant="outline">
-                        {campaign.category}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-xl">{campaign.title}</CardTitle>
-                    <CardDescription className="mt-2">
-                      {campaign.description}
-                    </CardDescription>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        {campaign.status === 'active' ? (
-                          <>
-                            <Pause className="h-4 w-4 mr-2" />
-                            Pause
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Resume
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {campaigns?.map((campaign) => (
+            <Card key={campaign.id} className="overflow-hidden flex flex-col">
+              {campaign.featured_image ? (
+                <img
+                  src={campaign.featured_image}
+                  alt={campaign.title}
+                  className="h-48 w-full object-cover"
+                />
+              ) : (
+                <div className="h-48 bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">No image</span>
                 </div>
+              )}
+              <CardHeader>
+                <CardTitle>{campaign.title}</CardTitle>
+                <CardDescription>
+                  {campaign.description?.slice(0, 100)}
+                  {campaign.description && campaign.description.length > 100 ? "..." : ""}
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-grow">
                 <div className="space-y-4">
-                  {/* Progress Section */}
-                  {campaign.goal_type === 'monetary' && campaign.goal_amount > 0 && (
-                    <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status:</span>
+                    <Badge
+                      variant={
+                        campaign.status === "active"
+                          ? "default"
+                          : campaign.status === "draft"
+                          ? "secondary"
+                          : "outline"
+                      }
+                    >
+                      {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                    </Badge>
+                  </div>
+
+                  {campaign.goal_amount && (
+                    <div className="space-y-1">
                       <div className="flex justify-between text-sm">
-                        <span className="font-medium">
-                          {formatCurrency(campaign.current_amount, campaign.currency)} raised
-                        </span>
-                        <span className="text-gray-600">
-                          of {formatCurrency(campaign.goal_amount, campaign.currency)} goal
+                        <span>Progress:</span>
+                        <span>
+                          {campaign.current_amount ? (
+                            <>
+                              ${campaign.current_amount.toLocaleString()} / $
+                              {campaign.goal_amount.toLocaleString()}
+                            </>
+                          ) : (
+                            <>$0 / ${campaign.goal_amount.toLocaleString()}</>
+                          )}
                         </span>
                       </div>
-                      <Progress 
-                        value={calculateProgress(campaign.current_amount, campaign.goal_amount)} 
-                        className="h-2"
+                      <Progress
+                        value={
+                          campaign.current_amount
+                            ? (campaign.current_amount / campaign.goal_amount) * 100
+                            : 0
+                        }
                       />
-                      <div className="text-sm text-gray-600">
-                        {calculateProgress(campaign.current_amount, campaign.goal_amount).toFixed(1)}% complete
-                      </div>
                     </div>
                   )}
 
-                  {/* Campaign Details */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    {campaign.location && (
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {campaign.location}
-                      </div>
-                    )}
-                    {campaign.end_date && (
-                      <div className="flex items-center text-gray-600">
-                        <CalendarDays className="h-4 w-4 mr-1" />
-                        Ends {formatDate(campaign.end_date)}
-                      </div>
-                    )}
-                    <div className="flex items-center text-gray-600">
-                      <Eye className="h-4 w-4 mr-1" />
-                      {campaign.total_views} views
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <Share2 className="h-4 w-4 mr-1" />
-                      {campaign.total_shares} shares
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Category:</span>
+                    <span className="text-sm">{formatCategory(campaign.category)}</span>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex space-x-2 pt-4 border-t">
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Share2 className="h-4 w-4 mr-1" />
-                      Share
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Analytics
-                    </Button>
-                    {campaign.status === 'draft' && (
-                      <Button size="sm" className="bg-teal-600 hover:bg-teal-700">
-                        Launch Campaign
-                      </Button>
-                    )}
-                  </div>
+                  {campaign.end_date && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">End Date:</span>
+                      <span className="text-sm">
+                        {new Date(campaign.end_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
+              <CardFooter className="border-t pt-4 flex justify-between">
+                <Button variant="outline" onClick={() => navigate(`/campaign-builder/${campaign.id}`)}>
+                  Edit Campaign
+                </Button>
+                <Button 
+                  variant="secondary"
+                  onClick={() => navigate(`/campaign-analytics/${campaign.id}`)}
+                  className="flex items-center gap-1"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </Button>
+              </CardFooter>
             </Card>
           ))}
         </div>

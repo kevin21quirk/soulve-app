@@ -9,6 +9,242 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      campaign_analytics: {
+        Row: {
+          avg_time_on_page: number | null
+          bounce_rate: number | null
+          campaign_id: string
+          comment_count: number | null
+          conversion_rate: number | null
+          created_at: string
+          date: string
+          donation_amount: number | null
+          id: string
+          social_shares: number | null
+          total_donations: number | null
+          total_views: number | null
+          unique_views: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_time_on_page?: number | null
+          bounce_rate?: number | null
+          campaign_id: string
+          comment_count?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date?: string
+          donation_amount?: number | null
+          id?: string
+          social_shares?: number | null
+          total_donations?: number | null
+          total_views?: number | null
+          unique_views?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_time_on_page?: number | null
+          bounce_rate?: number | null
+          campaign_id?: string
+          comment_count?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date?: string
+          donation_amount?: number | null
+          id?: string
+          social_shares?: number | null
+          total_donations?: number | null
+          total_views?: number | null
+          unique_views?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_analytics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_donations: {
+        Row: {
+          amount: number
+          campaign_id: string
+          created_at: string
+          currency: string | null
+          device_type: string | null
+          donation_type: string | null
+          donor_id: string | null
+          donor_message: string | null
+          id: string
+          is_anonymous: boolean | null
+          location_city: string | null
+          location_country: string | null
+          payment_processor: string | null
+          payment_status: string | null
+          referrer_url: string | null
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          campaign_id: string
+          created_at?: string
+          currency?: string | null
+          device_type?: string | null
+          donation_type?: string | null
+          donor_id?: string | null
+          donor_message?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          location_city?: string | null
+          location_country?: string | null
+          payment_processor?: string | null
+          payment_status?: string | null
+          referrer_url?: string | null
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string
+          created_at?: string
+          currency?: string | null
+          device_type?: string | null
+          donation_type?: string | null
+          donor_id?: string | null
+          donor_message?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          location_city?: string | null
+          location_country?: string | null
+          payment_processor?: string | null
+          payment_status?: string | null
+          referrer_url?: string | null
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_donations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_engagement: {
+        Row: {
+          action_type: string
+          campaign_id: string
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_address: unknown | null
+          location_city: string | null
+          location_country: string | null
+          referrer_url: string | null
+          session_id: string | null
+          time_spent: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          campaign_id: string
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          location_city?: string | null
+          location_country?: string | null
+          referrer_url?: string | null
+          session_id?: string | null
+          time_spent?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          campaign_id?: string
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          location_city?: string | null
+          location_country?: string | null
+          referrer_url?: string | null
+          session_id?: string | null
+          time_spent?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_engagement_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_geographic_impact: {
+        Row: {
+          campaign_id: string
+          city: string | null
+          country_code: string
+          country_name: string
+          created_at: string
+          donor_count: number | null
+          id: string
+          region: string | null
+          total_donations: number | null
+          total_shares: number | null
+          total_views: number | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          city?: string | null
+          country_code: string
+          country_name: string
+          created_at?: string
+          donor_count?: number | null
+          id?: string
+          region?: string | null
+          total_donations?: number | null
+          total_shares?: number | null
+          total_views?: number | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          city?: string | null
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          donor_count?: number | null
+          id?: string
+          region?: string | null
+          total_donations?: number | null
+          total_shares?: number | null
+          total_views?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_geographic_impact_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_invitations: {
         Row: {
           campaign_id: string
@@ -106,6 +342,50 @@ export type Database = {
           },
         ]
       }
+      campaign_predictions: {
+        Row: {
+          actual_value: number | null
+          campaign_id: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          model_version: string | null
+          predicted_value: number | null
+          prediction_date: string
+          prediction_type: string
+        }
+        Insert: {
+          actual_value?: number | null
+          campaign_id: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          model_version?: string | null
+          predicted_value?: number | null
+          prediction_date?: string
+          prediction_type: string
+        }
+        Update: {
+          actual_value?: number | null
+          campaign_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          model_version?: string | null
+          predicted_value?: number | null
+          prediction_date?: string
+          prediction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_predictions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_promotions: {
         Row: {
           budget_spent: number | null
@@ -149,6 +429,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "campaign_promotions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_social_metrics: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          date: string
+          external_post_id: string | null
+          id: string
+          metric_type: string
+          platform: string
+          value: number | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          date?: string
+          external_post_id?: string | null
+          id?: string
+          metric_type: string
+          platform: string
+          value?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          date?: string
+          external_post_id?: string | null
+          id?: string
+          metric_type?: string
+          platform?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_social_metrics_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
@@ -483,6 +804,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_campaign_performance_score: {
+        Args: { campaign_uuid: string }
+        Returns: number
+      }
       calculate_trust_score: {
         Args: { user_uuid: string }
         Returns: number
