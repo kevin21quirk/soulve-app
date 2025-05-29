@@ -11,6 +11,7 @@ export interface DatabaseProfile {
   bio?: string;
   avatar_url?: string;
   banner_url?: string;
+  banner_type?: string;
   skills?: string[];
   interests?: string[];
   website?: string;

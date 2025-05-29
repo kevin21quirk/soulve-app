@@ -58,7 +58,7 @@ export const mapDatabaseProfileToUserProfile = (user: any, profile?: DatabasePro
     bio: profile?.bio || 'No bio added yet',
     avatar: profile?.avatar_url || '',
     banner: profile?.banner_url || '',
-    bannerType: null,
+    bannerType: profile?.banner_type as 'image' | 'video' | null || null,
     joinDate: new Date(user.created_at).toLocaleDateString('en-US', { 
       month: 'short', 
       year: 'numeric' 
@@ -100,6 +100,7 @@ export const mapUserProfileToDatabase = (userData: UserProfileData) => {
     bio: userData.bio,
     avatar_url: userData.avatar,
     banner_url: userData.banner,
+    banner_type: userData.bannerType,
     skills: userData.skills,
     interests: userData.interests,
     website: userData.socialLinks.website,

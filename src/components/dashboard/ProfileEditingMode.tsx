@@ -33,7 +33,10 @@ const ProfileEditingMode = ({
   onOrganizationInfoChange,
   setEditData
 }: ProfileEditingModeProps) => {
-  const { handleBannerUpload, handleRemoveBanner } = useProfileBannerManager({ setBannerFile });
+  const { handleBannerUpload, handleRemoveBanner } = useProfileBannerManager({ 
+    setBannerFile, 
+    setEditData 
+  });
 
   return (
     <CardContent className="space-y-6">
