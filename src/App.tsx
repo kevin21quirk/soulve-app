@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -11,29 +12,27 @@ import "./App.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/profile-registration" element={<ProfileRegistration />} />
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/campaign-builder" element={
-          <ProtectedRoute>
-            <CampaignBuilderPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/campaign-analytics/:campaignId" element={
-          <ProtectedRoute>
-            <CampaignAnalyticsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/profile-registration" element={<ProfileRegistration />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/campaign-builder" element={
+        <ProtectedRoute>
+          <CampaignBuilderPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/campaign-analytics/:campaignId" element={
+        <ProtectedRoute>
+          <CampaignAnalyticsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
