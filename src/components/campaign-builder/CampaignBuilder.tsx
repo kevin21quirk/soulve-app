@@ -23,6 +23,7 @@ import CampaignList from "./CampaignList";
 import CampaignAnalytics from "./CampaignAnalytics";
 import CampaignSocialIntegration from "./CampaignSocialIntegration";
 import CampaignTemplates from "./CampaignTemplates";
+import CampaignManagementTools from "./CampaignManagementTools";
 import AutoCampaignPublisher from "./AutoCampaignPublisher";
 import { CampaignUpdate } from "@/services/feedIntegrationService";
 import { useAutoFeedIntegration } from "@/hooks/useAutoFeedIntegration";
@@ -34,6 +35,7 @@ const CampaignBuilder = () => {
   const [pendingCampaign, setPendingCampaign] = useState<CampaignUpdate | undefined>();
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
   
   const { publishCampaignToFeed } = useAutoFeedIntegration();
   const { toast } = useToast();
@@ -81,6 +83,12 @@ const CampaignBuilder = () => {
     setSelectedTemplate(null);
     setShowForm(false);
     setActiveTab("manage");
+    handleCampaignsUpdate();
+  };
+
+  const handleCampaignsUpdate = () => {
+    // This would normally fetch updated campaign data
+    console.log("Refreshing campaigns data...");
   };
 
   return (
@@ -93,10 +101,11 @@ const CampaignBuilder = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="create">Create Campaign</TabsTrigger>
           <TabsTrigger value="manage">Manage Campaigns</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced Tools</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -180,6 +189,13 @@ const CampaignBuilder = () => {
             </div>
             <CampaignList />
           </div>
+        </TabsContent>
+
+        <TabsContent value="advanced" className="mt-6">
+          <CampaignManagementTools 
+            campaigns={campaigns}
+            onCampaignsUpdate={handleCampaignsUpdate}
+          />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
