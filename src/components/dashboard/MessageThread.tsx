@@ -1,12 +1,26 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Send, Phone, Video, MoreVertical, Users, Reply, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { 
+  Phone, 
+  Video, 
+  MoreVertical, 
+  Users, 
+  Reply, 
+  Edit,
+  Trash2,
+  Forward,
+  Pin,
+  MessageSquare,
+  Copy
+} from "lucide-react";
 import { Message, Conversation } from "@/types/messaging";
 import MessageReactions from "./messaging/MessageReactions";
 import ConversationParticipants from "./messaging/ConversationParticipants";
+import EnhancedMessageInput from "./messaging/EnhancedMessageInput";
 
 interface MessageThreadProps {
   selectedConv: Conversation | undefined;
@@ -18,7 +32,17 @@ interface MessageThreadProps {
   setShowParticipants: (show: boolean) => void;
   replyingTo: string | null;
   setReplyingTo: (messageId: string | null) => void;
+  replyingToMessage?: Message;
+  editingMessage: string | null;
+  setEditingMessage: (messageId: string | null) => void;
+  isRecording: boolean;
   onReactToMessage: (messageId: string, emoji: string) => void;
+  onEditMessage: (messageId: string, newContent: string) => void;
+  onDeleteMessage: (messageId: string) => void;
+  onForwardMessage: (messageId: string, conversationIds: string[]) => void;
+  onPinMessage: (messageId: string) => void;
+  onCreateThread: (messageId: string) => void;
+  onVoiceRecording: (start: boolean) => void;
 }
 
 const MessageThread = ({ 
@@ -31,11 +55,23 @@ const MessageThread = ({
   setShowParticipants,
   replyingTo,
   setReplyingTo,
-  onReactToMessage
+  replyingToMessage,
+  editingMessage,
+  setEditingMessage,
+  isRecording,
+  onReactToMessage,
+  onEditMessage,
+  onDeleteMessage,
+  onForwardMessage,
+  onPinMessage,
+  onCreateThread,
+  onVoiceRecording
 }: MessageThreadProps) => {
   if (!selectedConv) return null;
 
-  const replyingToMessage = replyingTo ? messages.find(m => m.id === replyingTo) : null;
+  const handleCopyMessage = (content: string) => {
+    navigator.clipboard.writeText(content);
+  };
 
   return (
     <div className="lg:col-span-2 flex">
@@ -61,6 +97,9 @@ const MessageThread = ({
                     <Badge variant="secondary" className="text-xs">
                       {selectedConv.participants?.length || 0} members
                     </Badge>
+                  )}
+                  {selectedConv.isPinned && (
+                    <Pin className="h-4 w-4 text-yellow-500" />
                   )}
                 </CardTitle>
                 <CardDescription>
@@ -97,25 +136,39 @@ const MessageThread = ({
             <div key={message.id}>
               {message.replyTo && (
                 <div className="text-xs text-gray-500 mb-1 ml-2">
+                  <Reply className="h-3 w-3 inline mr-1" />
                   Replying to: {messages.find(m => m.id === message.replyTo)?.content?.substring(0, 50)}...
                 </div>
               )}
-              <div
-                className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} group`}
-              >
+              
+              <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} group`}>
                 <div className="max-w-xs lg:max-w-md space-y-1">
                   <div
-                    className={`px-4 py-2 rounded-lg ${
+                    className={`px-4 py-2 rounded-lg relative ${
                       message.isOwn
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
+                    {message.priority === "urgent" && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                    )}
+                    
                     <p className="text-sm">{message.content}</p>
+                    
+                    {message.isForwarded && (
+                      <div className="text-xs opacity-75 mt-1">
+                        Forwarded from {message.forwardedFrom}
+                      </div>
+                    )}
+                    
                     <div className={`flex items-center justify-between mt-1 ${
                       message.isOwn ? 'text-blue-100' : 'text-gray-500'
                     }`}>
-                      <p className="text-xs">{message.timestamp}</p>
+                      <p className="text-xs">
+                        {message.timestamp}
+                        {message.isEdited && " (edited)"}
+                      </p>
                       {message.isOwn && message.status && (
                         <span className="text-xs">
                           {message.status === 'sent' && '✓'}
@@ -132,18 +185,62 @@ const MessageThread = ({
                     isOwn={message.isOwn}
                   />
                   
+                  {/* Message actions */}
                   <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${
                     message.isOwn ? 'text-right' : 'text-left'
                   }`}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setReplyingTo(message.id)}
-                      className="h-6 text-xs"
-                    >
-                      <Reply className="h-3 w-3 mr-1" />
-                      Reply
-                    </Button>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setReplyingTo(message.id)}
+                        className="h-6 text-xs"
+                      >
+                        <Reply className="h-3 w-3 mr-1" />
+                        Reply
+                      </Button>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <MoreVertical className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleCopyMessage(message.content)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onCreateThread(message.id)}>
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Start thread
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onForwardMessage(message.id, [])}>
+                            <Forward className="h-4 w-4 mr-2" />
+                            Forward
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onPinMessage(message.id)}>
+                            <Pin className="h-4 w-4 mr-2" />
+                            Pin message
+                          </DropdownMenuItem>
+                          {message.isOwn && (
+                            <>
+                              <DropdownMenuItem onClick={() => setEditingMessage(message.id)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => onDeleteMessage(message.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -163,34 +260,16 @@ const MessageThread = ({
           )}
         </CardContent>
 
-        <div className="border-t p-4">
-          {replyingToMessage && (
-            <div className="bg-gray-50 p-2 rounded mb-2 text-sm flex items-center justify-between">
-              <div>
-                <span className="text-gray-600">Replying to:</span>
-                <span className="ml-2">{replyingToMessage.content.substring(0, 50)}...</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setReplyingTo(null)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-          <form onSubmit={onSendMessage} className="flex space-x-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1"
-            />
-            <Button type="submit" variant="gradient" size="sm" disabled={!newMessage.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
-        </div>
+        <EnhancedMessageInput
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          onSendMessage={onSendMessage}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
+          replyingToMessage={replyingToMessage}
+          isRecording={isRecording}
+          onVoiceRecording={onVoiceRecording}
+        />
       </Card>
 
       {showParticipants && (
