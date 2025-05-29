@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,8 +58,8 @@ const CampaignSocialIntegration = ({
             </div>
             <SocialShareButton 
               campaign={campaign}
-              variant="gradient"
-              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+              variant="default"
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
             />
           </div>
 
