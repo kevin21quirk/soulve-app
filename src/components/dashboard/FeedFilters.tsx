@@ -28,7 +28,11 @@ const FeedFilters = ({ activeFilter, onFilterChange, postCounts }: FeedFiltersPr
           key={filter.key}
           variant={activeFilter === filter.key ? "default" : "outline"}
           onClick={() => onFilterChange(filter.key)}
-          className="flex items-center space-x-2"
+          className={`flex items-center space-x-2 transition-all ${
+            activeFilter === filter.key 
+              ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe]" 
+              : "hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white"
+          }`}
         >
           <span>{filter.label}</span>
           <Badge variant="secondary" className="ml-1">

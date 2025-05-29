@@ -72,13 +72,21 @@ const PostActions = ({
 
           {/* Category-specific actions */}
           {post.category === "help-needed" && (
-            <Button size="sm" onClick={() => onRespond(post.id)} className="hover:scale-105 transition-transform">
+            <Button 
+              size="sm" 
+              onClick={() => onRespond(post.id)} 
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] hover:scale-105 transition-all"
+            >
               <Send className="h-4 w-4 mr-2" />
               Offer Help
             </Button>
           )}
           {post.category === "help-offered" && (
-            <Button size="sm" onClick={() => onRespond(post.id)} className="hover:scale-105 transition-transform">
+            <Button 
+              size="sm" 
+              onClick={() => onRespond(post.id)} 
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] hover:scale-105 transition-all"
+            >
               <Users className="h-4 w-4 mr-2" />
               Request Help
             </Button>
