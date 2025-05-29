@@ -1,8 +1,8 @@
-
 import { useState, useCallback } from "react";
 import { FeedPost } from "@/types/feed";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { useLazyLoading, usePerformanceTracker } from "@/hooks/usePerformanceOptimization";
+import { useLazyLoading } from "@/hooks/usePerformanceOptimization";
+import { usePerformanceTracker } from "@/utils/performance";
 import MobilePostCard from "./MobilePostCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
