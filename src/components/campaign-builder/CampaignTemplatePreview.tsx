@@ -19,12 +19,12 @@ interface CampaignTemplatePreviewProps {
 const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignTemplatePreviewProps) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "education": return "🎓";
-      case "healthcare": return "🏥";
-      case "environment": return "🌱";
+      case "fundraising": return "💰";
+      case "volunteer": return "🤝";
+      case "awareness": return "📢";
       case "community": return "🏘️";
-      case "disaster-relief": return "🚨";
-      case "animal-welfare": return "🐾";
+      case "petition": return "✊";
+      case "social_cause": return "❤️";
       default: return "📋";
     }
   };
@@ -64,29 +64,29 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                       <h5 className="font-medium text-sm text-gray-900 mb-1">Duration</h5>
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <Clock className="h-3 w-3" />
-                        <span>{template.estimatedDuration}</span>
+                        <span>{template.estimatedDuration || `${template.template_data.duration_days || 60} days`}</span>
                       </div>
                     </div>
                     <div>
                       <h5 className="font-medium text-sm text-gray-900 mb-1">Target Amount</h5>
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <Target className="h-3 w-3" />
-                        <span>${template.targetAmount.toLocaleString()}</span>
+                        <span>${(template.targetAmount || template.template_data.suggested_goal_amount || 0).toLocaleString()}</span>
                       </div>
                     </div>
                     <div>
                       <h5 className="font-medium text-sm text-gray-900 mb-1">Difficulty</h5>
                       <Badge className={template.difficulty === 'beginner' ? 'bg-green-100 text-green-800' : 
                                        template.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' : 
-                                       'bg-red-100 text-red-800'}>
-                        {template.difficulty}
+                                       template.difficulty === 'advanced' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}>
+                        {template.difficulty || "intermediate"}
                       </Badge>
                     </div>
                     <div>
                       <h5 className="font-medium text-sm text-gray-900 mb-1">Usage</h5>
                       <div className="flex items-center space-x-1 text-sm text-gray-600">
                         <Users className="h-3 w-3" />
-                        <span>{template.usageCount} times</span>
+                        <span>{template.usage_count} times</span>
                       </div>
                     </div>
                   </div>
@@ -94,7 +94,7 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                   <div>
                     <h5 className="font-medium text-sm text-gray-900 mb-2">Tags</h5>
                     <div className="flex flex-wrap gap-1">
-                      {template.tags.map(tag => (
+                      {template.template_data.tags.map(tag => (
                         <Badge key={tag} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
@@ -109,29 +109,33 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                   <CardTitle className="text-lg">Expected Impact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Goals</h4>
-                    <ul className="space-y-1">
-                      {template.content.goals.map((goal, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
-                          <span className="text-green-500 mt-1">•</span>
-                          <span>{goal}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {template.content?.goals && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Goals</h4>
+                      <ul className="space-y-1">
+                        {template.content.goals.map((goal, index) => (
+                          <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
+                            <span className="text-green-500 mt-1">•</span>
+                            <span>{goal}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Expected Impacts</h4>
-                    <ul className="space-y-1">
-                      {template.content.impacts.map((impact, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
-                          <span className="text-blue-500 mt-1">•</span>
-                          <span>{impact}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {template.content?.impacts && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Expected Impacts</h4>
+                      <ul className="space-y-1">
+                        {template.content.impacts.map((impact, index) => (
+                          <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
+                            <span className="text-blue-500 mt-1">•</span>
+                            <span>{impact}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -145,17 +149,17 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
               <CardContent className="space-y-6">
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Campaign Title</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.content.title}</p>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.template_data.title}</p>
                 </div>
                 
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.content.description}</p>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.template_data.description}</p>
                 </div>
                 
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Campaign Story</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.content.story}</p>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-md">{template.template_data.story}</p>
                 </div>
               </CardContent>
             </Card>
@@ -167,19 +171,25 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                 <CardTitle>Social Media Strategy</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {template.socialStrategies.map((strategy, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{strategy.platform}</h4>
-                    <p className="text-gray-700 mb-3 bg-gray-50 p-3 rounded">{strategy.content}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {strategy.hashtags.map(hashtag => (
-                        <Badge key={hashtag} variant="outline" className="text-xs">
-                          {hashtag}
-                        </Badge>
-                      ))}
+                {template.socialStrategies && template.socialStrategies.length > 0 ? (
+                  template.socialStrategies.map((strategy, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-2">{strategy.platform}</h4>
+                      <p className="text-gray-700 mb-3 bg-gray-50 p-3 rounded">{strategy.content}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {strategy.hashtags.map(hashtag => (
+                          <Badge key={hashtag} variant="outline" className="text-xs">
+                            {hashtag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">
+                    Social media strategies will be customized based on your campaign goals.
+                  </p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -190,21 +200,27 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                 <CardTitle>Campaign Milestones</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {template.milestones.map((milestone, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">{milestone.title}</h4>
-                      <Badge variant="outline">{milestone.percentage}%</Badge>
-                    </div>
-                    <Progress value={milestone.percentage} className="mb-2" />
-                    <p className="text-sm text-gray-600">{milestone.description}</p>
-                    {milestone.reward && (
-                      <div className="mt-2 text-sm text-green-600 font-medium">
-                        🎁 Reward: {milestone.reward}
+                {template.milestones && template.milestones.length > 0 ? (
+                  template.milestones.map((milestone, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-gray-900">{milestone.title}</h4>
+                        <Badge variant="outline">{milestone.percentage}%</Badge>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <Progress value={milestone.percentage} className="mb-2" />
+                      <p className="text-sm text-gray-600">{milestone.description}</p>
+                      {milestone.reward && (
+                        <div className="mt-2 text-sm text-green-600 font-medium">
+                          🎁 Reward: {milestone.reward}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">
+                    Milestones will be set up based on your campaign type and goals.
+                  </p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -14,7 +14,7 @@ interface CampaignTemplateCardProps {
 }
 
 const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: CampaignTemplateCardProps) => {
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case "beginner": return "bg-green-100 text-green-800";
       case "intermediate": return "bg-yellow-100 text-yellow-800";
@@ -25,12 +25,12 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "education": return "🎓";
-      case "healthcare": return "🏥";
-      case "environment": return "🌱";
+      case "fundraising": return "💰";
+      case "volunteer": return "🤝";
+      case "awareness": return "📢";
       case "community": return "🏘️";
-      case "disaster-relief": return "🚨";
-      case "animal-welfare": return "🐾";
+      case "petition": return "✊";
+      case "social_cause": return "❤️";
       default: return "📋";
     }
   };
@@ -45,7 +45,7 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
               <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors">
                 {template.name}
               </h3>
-              <p className="text-sm text-gray-600 capitalize">{template.category.replace('-', ' ')}</p>
+              <p className="text-sm text-gray-600 capitalize">{template.category.replace('_', ' ')}</p>
             </div>
           </div>
           {showPopularBadge && template.isPopular && (
@@ -61,14 +61,14 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
         <p className="text-gray-600 text-sm line-clamp-3">{template.description}</p>
 
         <div className="flex flex-wrap gap-1">
-          {template.tags.slice(0, 3).map(tag => (
+          {template.template_data.tags.slice(0, 3).map(tag => (
             <Badge key={tag} variant="secondary" className="text-xs">
               {tag}
             </Badge>
           ))}
-          {template.tags.length > 3 && (
+          {template.template_data.tags.length > 3 && (
             <Badge variant="secondary" className="text-xs">
-              +{template.tags.length - 3}
+              +{template.template_data.tags.length - 3}
             </Badge>
           )}
         </div>
@@ -76,19 +76,19 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-1 text-gray-600">
             <Clock className="h-3 w-3" />
-            <span>{template.estimatedDuration}</span>
+            <span>{template.estimatedDuration || `${template.template_data.duration_days || 60} days`}</span>
           </div>
           <div className="flex items-center space-x-1 text-gray-600">
             <Target className="h-3 w-3" />
-            <span>${template.targetAmount.toLocaleString()}</span>
+            <span>${(template.targetAmount || template.template_data.suggested_goal_amount || 0).toLocaleString()}</span>
           </div>
           <div className="flex items-center space-x-1 text-gray-600">
             <Users className="h-3 w-3" />
-            <span>{template.usageCount} uses</span>
+            <span>{template.usage_count} uses</span>
           </div>
           <div className="flex items-center space-x-1">
             <Badge className={getDifficultyColor(template.difficulty)}>
-              {template.difficulty}
+              {template.difficulty || "intermediate"}
             </Badge>
           </div>
         </div>

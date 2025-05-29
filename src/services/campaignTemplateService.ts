@@ -21,6 +21,28 @@ export interface CampaignTemplate {
   isPopular: boolean;
   createdBy: string;
   createdAt: string;
+  // Additional properties for the components
+  estimatedDuration?: string;
+  targetAmount?: number;
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  content?: {
+    title: string;
+    description: string;
+    story: string;
+    goals: string[];
+    impacts: string[];
+  };
+  socialStrategies?: Array<{
+    platform: string;
+    content: string;
+    hashtags: string[];
+  }>;
+  milestones?: Array<{
+    title: string;
+    percentage: number;
+    description: string;
+    reward?: string;
+  }>;
 }
 
 export const campaignTemplates: CampaignTemplate[] = [
@@ -45,7 +67,49 @@ export const campaignTemplates: CampaignTemplate[] = [
     usage_count: 156,
     isPopular: true,
     createdBy: "SouLVE Team",
-    createdAt: "2024-01-15"
+    createdAt: "2024-01-15",
+    estimatedDuration: "3 months",
+    targetAmount: 10000,
+    difficulty: "intermediate",
+    content: {
+      title: "Supporting Dreams: [Student Name] Scholarship Fund",
+      description: "Help us provide educational opportunities to deserving students who face financial barriers.",
+      story: "Education is a powerful tool that can transform lives and break cycles of poverty.",
+      goals: ["Provide financial assistance to students", "Support academic excellence", "Break barriers to education"],
+      impacts: ["Students receive higher education", "Reduced financial burden on families", "Increased graduation rates"]
+    },
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "🎓 Help us support deserving students! Every donation brings someone closer to their educational dreams.",
+        hashtags: ["#Education", "#Scholarship", "#Students"]
+      },
+      {
+        platform: "Twitter",
+        content: "Education changes lives. Help us provide scholarships to students in need. #EducationForAll",
+        hashtags: ["#Scholarship", "#Education", "#Community"]
+      }
+    ],
+    milestones: [
+      {
+        title: "First Scholarship Awarded",
+        percentage: 25,
+        description: "Celebrate our first scholarship recipient",
+        reward: "Thank you video from recipient"
+      },
+      {
+        title: "Halfway to Goal",
+        percentage: 50,
+        description: "We're making great progress!",
+        reward: "Progress report and impact update"
+      },
+      {
+        title: "Goal Achieved",
+        percentage: 100,
+        description: "Full scholarship fund established",
+        reward: "Annual impact report"
+      }
+    ]
   },
   {
     id: "community-garden",
@@ -68,7 +132,37 @@ export const campaignTemplates: CampaignTemplate[] = [
     usage_count: 89,
     isPopular: true,
     createdBy: "Green Community Initiative",
-    createdAt: "2024-02-01"
+    createdAt: "2024-02-01",
+    estimatedDuration: "4 months",
+    targetAmount: 5000,
+    difficulty: "beginner",
+    content: {
+      title: "Growing Together: [Location] Community Garden",
+      description: "Join us in creating a green space where neighbors can grow fresh produce, build connections, and strengthen our community.",
+      story: "Community gardens are more than just places to grow food – they're spaces where relationships flourish.",
+      goals: ["Create community green space", "Provide fresh produce access", "Build neighborhood connections"],
+      impacts: ["Improved food security", "Stronger community bonds", "Environmental benefits"]
+    },
+    socialStrategies: [
+      {
+        platform: "Instagram",
+        content: "🌱 Growing more than vegetables - we're growing community! Join our garden project.",
+        hashtags: ["#CommunityGarden", "#Sustainability", "#LocalFood"]
+      }
+    ],
+    milestones: [
+      {
+        title: "Land Secured",
+        percentage: 30,
+        description: "Garden plot secured and prepared",
+      },
+      {
+        title: "Garden Established",
+        percentage: 100,
+        description: "Community garden fully operational",
+        reward: "Harvest celebration event"
+      }
+    ]
   },
   {
     id: "animal-rescue",
@@ -91,7 +185,37 @@ export const campaignTemplates: CampaignTemplate[] = [
     usage_count: 34,
     isPopular: false,
     createdBy: "Animal Welfare Alliance",
-    createdAt: "2024-01-20"
+    createdAt: "2024-01-20",
+    estimatedDuration: "6 months",
+    targetAmount: 15000,
+    difficulty: "advanced",
+    content: {
+      title: "Second Chances: [Location] Animal Rescue Initiative",
+      description: "Every animal deserves love, care, and a forever home. Help us provide rescue, rehabilitation, and adoption services.",
+      story: "Behind every rescue animal is a story of resilience and hope.",
+      goals: ["Provide emergency medical care", "Create temporary shelter", "Find forever homes"],
+      impacts: ["Animals saved from streets", "Reduced animal suffering", "Increased adoption rates"]
+    },
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "🐾 Every animal deserves a second chance. Help us provide rescue and rehabilitation services.",
+        hashtags: ["#AnimalRescue", "#AdoptDontShop", "#SecondChances"]
+      }
+    ],
+    milestones: [
+      {
+        title: "Emergency Fund",
+        percentage: 40,
+        description: "Emergency medical care fund established"
+      },
+      {
+        title: "Shelter Operational",
+        percentage: 100,
+        description: "Full rescue center operational",
+        reward: "Adoption success stories video"
+      }
+    ]
   },
   {
     id: "volunteer-cleanup",
@@ -113,7 +237,37 @@ export const campaignTemplates: CampaignTemplate[] = [
     usage_count: 67,
     isPopular: true,
     createdBy: "Clean Community Collective",
-    createdAt: "2024-02-10"
+    createdAt: "2024-02-10",
+    estimatedDuration: "2 months",
+    targetAmount: 0,
+    difficulty: "beginner",
+    content: {
+      title: "Clean Up [Location]: Volunteer Initiative",
+      description: "Join us in making our community cleaner and more beautiful through volunteer action.",
+      story: "Small actions create big changes. Our volunteer cleanup drives bring community members together.",
+      goals: ["Organize cleanup events", "Engage volunteers", "Beautify community spaces"],
+      impacts: ["Cleaner environment", "Community pride", "Environmental awareness"]
+    },
+    socialStrategies: [
+      {
+        platform: "Twitter",
+        content: "🌍 Small actions, big changes! Join our community cleanup drive this weekend.",
+        hashtags: ["#CommunityCleanup", "#Environment", "#Volunteer"]
+      }
+    ],
+    milestones: [
+      {
+        title: "First Cleanup Event",
+        percentage: 50,
+        description: "Successfully organized first cleanup"
+      },
+      {
+        title: "Monthly Events",
+        percentage: 100,
+        description: "Regular cleanup schedule established",
+        reward: "Community recognition ceremony"
+      }
+    ]
   }
 ];
 
