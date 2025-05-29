@@ -9,6 +9,7 @@ import SearchBar from "./SearchBar";
 import NotificationCenter from "./NotificationCenter";
 import KeyboardShortcuts from "./KeyboardShortcuts";
 import RealTimeActivity from "./RealTimeActivity";
+import SouLVELogo from "@/components/SouLVELogo";
 
 interface DashboardHeaderProps {
   showSearch: boolean;
@@ -67,7 +68,12 @@ const DashboardHeader = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-teal-600">SouLVE</h1>
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8">
+                  <SouLVELogo size="small" />
+                </div>
+                <h1 className="text-2xl font-bold text-teal-600">SouLVE</h1>
+              </div>
               <Badge variant="secondary" className="hidden sm:inline-flex">
                 Dashboard
               </Badge>
