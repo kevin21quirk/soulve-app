@@ -64,6 +64,14 @@ const HelpCenter = () => {
     });
   };
 
+  // Handler for help actions from DiscoverTab
+  const handleHelpAction = (type: string, target: string) => {
+    toast({
+      title: `${type} action`,
+      description: `Initiating ${type} for ${target}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <HelpCenterHero />
@@ -127,7 +135,7 @@ const HelpCenter = () => {
         </TabsList>
 
         <TabsContent value="discover" className="mt-6">
-          <DiscoverTab />
+          <DiscoverTab handleHelpAction={handleHelpAction} />
         </TabsContent>
 
         <TabsContent value="my-impact" className="mt-6">
