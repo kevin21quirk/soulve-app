@@ -107,10 +107,10 @@ const HelpCenter = () => {
               "I need assistance with something in my area", 
               "help-needed"
             )}
-            className="bg-soulve-blue hover:bg-soulve-blue/90 text-white"
+            className="bg-soulve-teal hover:bg-soulve-teal/90 text-white border-none"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Post Help Request
+            Create Help Request
           </Button>
         </div>
       </div>
