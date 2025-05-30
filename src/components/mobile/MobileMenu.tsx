@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,8 +23,20 @@ import {
   LogOut,
   ChevronRight,
   User,
-  Globe
+  Globe,
+  Smartphone,
+  Moon,
+  Sun,
+  Languages,
+  Download,
+  Share2,
+  Bookmark,
+  History,
+  Zap,
+  Award,
+  DollarSign
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface MobileMenuProps {
   onNavigateToProfile?: () => void;
@@ -40,38 +51,201 @@ const MobileMenu = ({ onNavigateToProfile, onNavigateToTab, onLogout }: MobileMe
     helpedCount: 23,
     connectionsCount: 42
   });
+  const { toast } = useToast();
+
+  const handleFeatureClick = (featureName: string) => {
+    toast({
+      title: `${featureName} Coming Soon`,
+      description: "This feature is currently in development and will be available soon.",
+    });
+  };
 
   const menuSections = [
     {
       title: "Your Impact",
       items: [
-        { icon: User, label: "Profile", action: onNavigateToProfile, description: "View and edit your profile" },
-        { icon: BarChart3, label: "Trust & Analytics", action: () => onNavigateToTab?.("analytics-points"), description: "View your trust score and analytics" },
-        { icon: Target, label: "Campaigns", action: () => onNavigateToTab?.("campaigns"), description: "Your campaigns and causes" },
-        { icon: Heart, label: "Donations", action: () => {}, description: "Your donation history" },
-        { icon: Users, label: "Connections", action: () => onNavigateToTab?.("discover-connect"), description: "Manage your network" },
+        { 
+          icon: User, 
+          label: "Profile", 
+          action: onNavigateToProfile, 
+          description: "View and edit your profile" 
+        },
+        { 
+          icon: BarChart3, 
+          label: "Trust & Analytics", 
+          action: () => onNavigateToTab?.("analytics-points"), 
+          description: "View your trust score and analytics" 
+        },
+        { 
+          icon: Target, 
+          label: "Campaigns", 
+          action: () => onNavigateToTab?.("campaigns"), 
+          description: "Your campaigns and causes" 
+        },
+        { 
+          icon: Heart, 
+          label: "Donations", 
+          action: () => handleFeatureClick("Donations"), 
+          description: "Your donation history" 
+        },
+        { 
+          icon: Users, 
+          label: "Connections", 
+          action: () => onNavigateToTab?.("discover-connect"), 
+          description: "Manage your network" 
+        },
+        { 
+          icon: Award, 
+          label: "Achievements", 
+          action: () => handleFeatureClick("Achievements"), 
+          description: "View your badges and milestones" 
+        },
       ]
     },
     {
       title: "Platform Features",
       items: [
-        { icon: MapPin, label: "Local Impact", action: () => {}, description: "Find local causes and events" },
-        { icon: Calendar, label: "Events", action: () => {}, description: "Community events and meetups" },
-        { icon: Gift, label: "Rewards", action: () => {}, description: "Redeem points and rewards" },
-        { icon: MessageSquare, label: "Community Forums", action: () => {}, description: "Join discussions" },
-        { icon: Globe, label: "Global Causes", action: () => {}, description: "International impact opportunities" },
+        { 
+          icon: MapPin, 
+          label: "Local Impact", 
+          action: () => handleFeatureClick("Local Impact"), 
+          description: "Find local causes and events" 
+        },
+        { 
+          icon: Calendar, 
+          label: "Events", 
+          action: () => handleFeatureClick("Events"), 
+          description: "Community events and meetups" 
+        },
+        { 
+          icon: Gift, 
+          label: "Rewards", 
+          action: () => handleFeatureClick("Rewards"), 
+          description: "Redeem points and rewards" 
+        },
+        { 
+          icon: MessageSquare, 
+          label: "Community Forums", 
+          action: () => handleFeatureClick("Community Forums"), 
+          description: "Join discussions" 
+        },
+        { 
+          icon: Globe, 
+          label: "Global Causes", 
+          action: () => handleFeatureClick("Global Causes"), 
+          description: "International impact opportunities" 
+        },
+        { 
+          icon: Bookmark, 
+          label: "Saved Posts", 
+          action: () => handleFeatureClick("Saved Posts"), 
+          description: "View your bookmarked content" 
+        },
+        { 
+          icon: History, 
+          label: "Activity History", 
+          action: () => handleFeatureClick("Activity History"), 
+          description: "Your platform activity timeline" 
+        },
       ]
     },
     {
-      title: "Account & Support",
+      title: "Tools & Utilities",
       items: [
-        { icon: Settings, label: "Settings", action: () => {}, description: "App preferences and privacy" },
-        { icon: Bell, label: "Notifications", action: () => {}, description: "Manage notification preferences" },
-        { icon: CreditCard, label: "Payment Methods", action: () => {}, description: "Manage payment options" },
-        { icon: Shield, label: "Privacy & Security", action: () => {}, description: "Account security settings" },
-        { icon: HelpCircle, label: "Help & Support", action: () => onNavigateToTab?.("help-center"), description: "Get help and support" },
-        { icon: FileText, label: "Terms & Policies", action: () => {}, description: "Legal information" },
-        { icon: Star, label: "Rate SouLVE", action: () => {}, description: "Leave us a review" },
+        { 
+          icon: Zap, 
+          label: "Emergency Help", 
+          action: () => handleFeatureClick("Emergency Help"), 
+          description: "Quick access to urgent assistance" 
+        },
+        { 
+          icon: DollarSign, 
+          label: "Fundraising Tools", 
+          action: () => handleFeatureClick("Fundraising Tools"), 
+          description: "Create and manage fundraisers" 
+        },
+        { 
+          icon: Share2, 
+          label: "Share SouLVE", 
+          action: () => handleFeatureClick("Share SouLVE"), 
+          description: "Invite friends to join" 
+        },
+        { 
+          icon: Download, 
+          label: "Download Data", 
+          action: () => handleFeatureClick("Download Data"), 
+          description: "Export your platform data" 
+        },
+      ]
+    },
+    {
+      title: "Account & Settings",
+      items: [
+        { 
+          icon: Settings, 
+          label: "Settings", 
+          action: () => onNavigateToTab?.("settings"), 
+          description: "App preferences and privacy" 
+        },
+        { 
+          icon: Bell, 
+          label: "Notifications", 
+          action: () => handleFeatureClick("Notifications"), 
+          description: "Manage notification preferences" 
+        },
+        { 
+          icon: CreditCard, 
+          label: "Payment Methods", 
+          action: () => handleFeatureClick("Payment Methods"), 
+          description: "Manage payment options" 
+        },
+        { 
+          icon: Shield, 
+          label: "Privacy & Security", 
+          action: () => handleFeatureClick("Privacy & Security"), 
+          description: "Account security settings" 
+        },
+        { 
+          icon: Languages, 
+          label: "Language", 
+          action: () => handleFeatureClick("Language"), 
+          description: "Change app language" 
+        },
+        { 
+          icon: Smartphone, 
+          label: "App Preferences", 
+          action: () => handleFeatureClick("App Preferences"), 
+          description: "Mobile app settings" 
+        },
+      ]
+    },
+    {
+      title: "Help & Support",
+      items: [
+        { 
+          icon: HelpCircle, 
+          label: "Help Center", 
+          action: () => onNavigateToTab?.("help-center"), 
+          description: "Get help and support" 
+        },
+        { 
+          icon: MessageSquare, 
+          label: "Contact Support", 
+          action: () => handleFeatureClick("Contact Support"), 
+          description: "Reach out to our team" 
+        },
+        { 
+          icon: FileText, 
+          label: "Terms & Policies", 
+          action: () => handleFeatureClick("Terms & Policies"), 
+          description: "Legal information" 
+        },
+        { 
+          icon: Star, 
+          label: "Rate SouLVE", 
+          action: () => handleFeatureClick("Rate SouLVE"), 
+          description: "Leave us a review" 
+        },
       ]
     }
   ];
