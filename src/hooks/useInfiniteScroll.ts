@@ -12,38 +12,30 @@ export const useInfiniteScroll = ({
   hasMore,
   isLoading,
   onLoadMore,
-  threshold = 200
+  threshold = 100
 }: UseInfiniteScrollProps) => {
   const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      
-      if (
-        scrollHeight - scrollTop <= clientHeight + threshold &&
-        hasMore &&
-        !isLoading &&
-        !isFetching
-      ) {
-        setIsFetching(true);
+      if (window.innerHeight + document.documentElement.scrollTop 
+          >= document.documentElement.offsetHeight - threshold) {
+        if (hasMore && !isLoading && !isFetching) {
+          setIsFetching(true);
+          onLoadMore();
+          timeoutId = setTimeout(() => setIsFetching(false), 1000);
+        }
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, isLoading, isFetching, threshold]);
-
-  useEffect(() => {
-    if (!isFetching) return;
-    
-    const fetchMore = async () => {
-      await onLoadMore();
-      setIsFetching(false);
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
     };
-
-    fetchMore();
-  }, [isFetching, onLoadMore]);
+  }, [hasMore, isLoading, isFetching, onLoadMore, threshold]);
 
   return { isFetching };
 };
