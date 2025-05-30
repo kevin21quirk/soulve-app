@@ -20,7 +20,19 @@ const queryClient = new QueryClient({
 });
 
 const renderApp = () => {
-  createRoot(document.getElementById("root")!).render(
+  console.log('🚀 Starting app render...');
+  console.log('📱 Platform:', Capacitor.getPlatform());
+  console.log('🔧 Is native platform:', Capacitor.isNativePlatform());
+  
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    console.error('❌ Root element not found!');
+    return;
+  }
+  
+  console.log('✅ Root element found, creating React root...');
+  
+  createRoot(rootElement).render(
     <ErrorBoundary>
       <HashRouter>
         <QueryClientProvider client={queryClient}>
@@ -34,16 +46,47 @@ const renderApp = () => {
       </HashRouter>
     </ErrorBoundary>
   );
+  
+  console.log('✅ React app rendered successfully!');
 };
 
-// Initialize the app
+// Initialize the app with better error handling
+console.log('🎯 Initializing SouLVE app...');
+
 if (Capacitor.isNativePlatform()) {
-  // Wait for the device to be ready on native platforms
-  document.addEventListener('deviceready', renderApp, false);
+  console.log('📱 Running on native platform, waiting for device ready...');
   
-  // Fallback timeout in case deviceready doesn't fire
-  setTimeout(renderApp, 2000);
+  // Try multiple initialization methods
+  let appStarted = false;
+  
+  const startApp = () => {
+    if (!appStarted) {
+      appStarted = true;
+      console.log('🎉 Device ready! Starting app...');
+      renderApp();
+    }
+  };
+  
+  // Method 1: Standard deviceready event
+  document.addEventListener('deviceready', startApp, false);
+  
+  // Method 2: Capacitor ready event
+  Capacitor.addListener('appStateChange', (state) => {
+    console.log('📱 App state change:', state);
+    if (state.isActive && !appStarted) {
+      startApp();
+    }
+  });
+  
+  // Method 3: Fallback timeout (reduced to 1 second for faster loading)
+  setTimeout(() => {
+    if (!appStarted) {
+      console.log('⏰ Fallback timeout triggered, starting app...');
+      startApp();
+    }
+  }, 1000);
+  
 } else {
-  // Render immediately on web
+  console.log('🌐 Running on web platform');
   renderApp();
 }

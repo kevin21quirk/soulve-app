@@ -5,27 +5,26 @@ const config: CapacitorConfig = {
   appId: 'app.lovable.bf52b470070e4c4aac1a978a0d3d9af7',
   appName: 'soulve',
   webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
+      launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: "#ffffffff",
+      backgroundColor: "#ffffff",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
-      showSpinner: true,
-      androidSpinnerStyle: "large",
-      iosSpinnerStyle: "small",
-      spinnerColor: "#999999",
+      showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true,
-      layoutName: "launch_screen",
-      useDialog: true,
     },
   },
   android: {
     allowMixedContent: true,
     captureInput: true,
     webContentsDebuggingEnabled: true,
+    appendUserAgent: 'SouLVEApp/1.0.0',
   },
 };
 
