@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MessageReaction } from "@/types/messaging";
@@ -7,9 +8,10 @@ interface MessageReactionsProps {
   reactions?: MessageReaction[];
   onReact: (emoji: string) => void;
   isOwn: boolean;
+  showReactions?: boolean;
 }
 
-const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsProps) => {
+const MessageReactions = ({ reactions = [], onReact, isOwn, showReactions = false }: MessageReactionsProps) => {
   const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
   
   const groupedReactions = reactions.reduce((acc, reaction) => {
@@ -19,6 +21,10 @@ const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsPr
     acc[reaction.emoji].push(reaction);
     return acc;
   }, {} as Record<string, MessageReaction[]>);
+
+  if (!showReactions && Object.keys(groupedReactions).length === 0) {
+    return null;
+  }
 
   return (
     <div className={`flex items-center space-x-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -35,28 +41,30 @@ const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsPr
         </Button>
       ))}
       
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-            <Plus className="h-3 w-3" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-2">
-          <div className="grid grid-cols-6 gap-1">
-            {commonEmojis.map((emoji) => (
-              <Button
-                key={emoji}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onReact(emoji)}
-              >
-                {emoji}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+      {showReactions && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Plus className="h-3 w-3" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2">
+            <div className="grid grid-cols-6 gap-1">
+              {commonEmojis.map((emoji) => (
+                <Button
+                  key={emoji}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => onReact(emoji)}
+                >
+                  {emoji}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 };
