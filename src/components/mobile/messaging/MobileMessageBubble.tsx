@@ -79,7 +79,7 @@ const MobileMessageBubble = ({
           <MessageReactions 
             reactions={message.reactions}
             showReactions={showReactions}
-            onReaction={handleReaction}
+            onReact={handleReaction}
             isOwn={message.isOwn}
           />
         </div>
