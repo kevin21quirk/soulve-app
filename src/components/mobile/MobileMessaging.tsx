@@ -5,7 +5,7 @@ import MobileConversationList from "./messaging/MobileConversationList";
 import MobileMessageThread from "./messaging/MobileMessageThread";
 import MobileMessageSearch from "./messaging/MobileMessageSearch";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Search, MoreVertical } from "lucide-react";
+import { Search, MoreVertical, Edit } from "lucide-react";
 
 const MobileMessaging = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -38,6 +38,13 @@ const MobileMessaging = () => {
     });
   };
 
+  const handleNewMessage = () => {
+    toast({
+      title: "New message",
+      description: "Start a new conversation",
+    });
+  };
+
   if (showSearch) {
     return (
       <MobileMessageSearch
@@ -64,7 +71,7 @@ const MobileMessaging = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 shadow-sm">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
           <div className="flex space-x-2">
@@ -72,10 +79,23 @@ const MobileMessaging = () => {
               variant="ghost"
               size="sm"
               onClick={() => setShowSearch(true)}
+              className="p-2 rounded-full hover:bg-gray-100"
             >
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleNewMessage}
+              className="p-2 rounded-full hover:bg-gray-100"
+            >
+              <Edit className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="p-2 rounded-full hover:bg-gray-100"
+            >
               <MoreVertical className="h-5 w-5" />
             </Button>
           </div>
