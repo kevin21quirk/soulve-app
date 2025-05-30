@@ -3,9 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Search, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-const MobileHeader = () => {
+interface MobileHeaderProps {
+  onNavigateToProfile?: () => void;
+}
+
+const MobileHeader = ({ onNavigateToProfile }: MobileHeaderProps) => {
   const [showSwipeHint, setShowSwipeHint] = useState(true);
 
   return (
@@ -33,12 +37,19 @@ const MobileHeader = () => {
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
           </Button>
 
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder-avatar.jpg" alt="Profile" />
-            <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-sm">
-              U
-            </AvatarFallback>
-          </Avatar>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="p-1"
+            onClick={onNavigateToProfile}
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder-avatar.jpg" alt="Profile" />
+              <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-sm">
+                U
+              </AvatarFallback>
+            </Avatar>
+          </Button>
         </div>
       </div>
 
