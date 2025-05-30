@@ -1,25 +1,17 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MessageReaction } from "@/types/messaging";
+import { Plus, Smile } from "lucide-react";
 
 interface MessageReactionsProps {
   reactions?: MessageReaction[];
-  showReactions: boolean;
-  onReaction: (emoji: string) => void;
+  onReact: (emoji: string) => void;
   isOwn: boolean;
 }
 
-const commonEmojis = ["❤️", "👍", "😂", "😮", "😢", "😡"];
-
-const MessageReactions = ({ 
-  reactions = [], 
-  showReactions, 
-  onReaction, 
-  isOwn 
-}: MessageReactionsProps) => {
-  const [showAll, setShowAll] = useState(false);
-
-  // Group reactions by emoji
+const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsProps) => {
+  const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+  
   const groupedReactions = reactions.reduce((acc, reaction) => {
     if (!acc[reaction.emoji]) {
       acc[reaction.emoji] = [];
@@ -29,68 +21,42 @@ const MessageReactions = ({
   }, {} as Record<string, MessageReaction[]>);
 
   return (
-    <div className={`relative ${isOwn ? 'text-right' : 'text-left'}`}>
-      {/* Existing reactions */}
-      {Object.keys(groupedReactions).length > 0 && (
-        <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-          {Object.entries(groupedReactions).map(([emoji, reactionList]) => (
-            <button
-              key={emoji}
-              className="bg-white border border-gray-200 rounded-full px-2 py-1 text-xs flex items-center space-x-1 shadow-sm hover:shadow-md transition-shadow"
-              onClick={() => onReaction(emoji)}
-            >
-              <span>{emoji}</span>
-              <span className="text-gray-600">{reactionList.length}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Quick reaction picker */}
-      {showReactions && (
-        <div className={`absolute z-10 mt-1 ${isOwn ? 'right-0' : 'left-0'}`}>
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-3">
-            <div className="flex space-x-2">
-              {commonEmojis.map((emoji) => (
-                <Button
-                  key={emoji}
-                  variant="ghost"
-                  size="sm"
-                  className="rounded-full h-10 w-10 p-0 hover:bg-gray-100 text-lg"
-                  onClick={() => onReaction(emoji)}
-                >
-                  {emoji}
-                </Button>
-              ))}
-            </div>
-            
-            {showAll && (
-              <div className="grid grid-cols-6 gap-1 mt-2 pt-2 border-t border-gray-200">
-                {["🔥", "💯", "🎉", "👏", "💪", "🙏", "😍", "🤔", "😊", "👌", "✨", "💫"].map((emoji) => (
-                  <Button
-                    key={emoji}
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full h-8 w-8 p-0 hover:bg-gray-100"
-                    onClick={() => onReaction(emoji)}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
-              </div>
-            )}
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2 text-xs text-gray-500"
-              onClick={() => setShowAll(!showAll)}
-            >
-              {showAll ? 'Less' : 'More'}
-            </Button>
+    <div className={`flex items-center space-x-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+      {Object.entries(groupedReactions).map(([emoji, reactionList]) => (
+        <Button
+          key={emoji}
+          variant="outline"
+          size="sm"
+          className="h-6 px-2 text-xs"
+          onClick={() => onReact(emoji)}
+        >
+          <span className="mr-1">{emoji}</span>
+          <span>{reactionList.length}</span>
+        </Button>
+      ))}
+      
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+            <Plus className="h-3 w-3" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2">
+          <div className="grid grid-cols-6 gap-1">
+            {commonEmojis.map((emoji) => (
+              <Button
+                key={emoji}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => onReact(emoji)}
+              >
+                {emoji}
+              </Button>
+            ))}
           </div>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };

@@ -2,7 +2,6 @@
 import { Reply, Forward } from "lucide-react";
 import MessageAttachment from "./MessageAttachment";
 import { Message } from "@/types/messaging";
-import { useTouchGestures } from "@/components/ui/mobile/touch-gestures";
 
 interface MessageContentProps {
   message: Message;
@@ -10,10 +9,7 @@ interface MessageContentProps {
 }
 
 const MessageContent = ({ message, onLongPress }: MessageContentProps) => {
-  const { onTouchStart, onTouchEnd } = useTouchGestures();
-
   const handleTouchStart = () => {
-    onTouchStart;
     // Start long press timer for message options
     if (onLongPress) {
       setTimeout(onLongPress, 500);
@@ -50,7 +46,6 @@ const MessageContent = ({ message, onLongPress }: MessageContentProps) => {
             : 'bg-gray-100 text-gray-900 rounded-bl-md'
         }`}
         onTouchStart={handleTouchStart}
-        onTouchEnd={onTouchEnd}
       >
         {/* Priority indicator */}
         {message.priority === "urgent" && (
