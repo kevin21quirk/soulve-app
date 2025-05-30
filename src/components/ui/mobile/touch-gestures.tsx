@@ -6,6 +6,13 @@ interface TouchPosition {
   y: number;
 }
 
+export interface SwipeResult {
+  isLeftSwipe: boolean;
+  isRightSwipe: boolean;
+  isUpSwipe: boolean;
+  isDownSwipe: boolean;
+}
+
 export const useTouchGestures = () => {
   const [startTouch, setStartTouch] = useState<TouchPosition | null>(null);
   const [currentTouch, setCurrentTouch] = useState<TouchPosition | null>(null);
@@ -24,10 +31,29 @@ export const useTouchGestures = () => {
     }
   }, []);
 
-  const onTouchEnd = useCallback(() => {
+  const onTouchEnd = useCallback((): SwipeResult | null => {
+    if (!startTouch || !currentTouch) {
+      setStartTouch(null);
+      setCurrentTouch(null);
+      return null;
+    }
+
+    const deltaX = currentTouch.x - startTouch.x;
+    const deltaY = currentTouch.y - startTouch.y;
+    const minSwipeDistance = 50;
+
+    const result: SwipeResult = {
+      isLeftSwipe: deltaX < -minSwipeDistance && Math.abs(deltaX) > Math.abs(deltaY),
+      isRightSwipe: deltaX > minSwipeDistance && Math.abs(deltaX) > Math.abs(deltaY),
+      isUpSwipe: deltaY < -minSwipeDistance && Math.abs(deltaY) > Math.abs(deltaX),
+      isDownSwipe: deltaY > minSwipeDistance && Math.abs(deltaY) > Math.abs(deltaX)
+    };
+
     setStartTouch(null);
     setCurrentTouch(null);
-  }, []);
+    
+    return result;
+  }, [startTouch, currentTouch]);
 
   const getSwipeDirection = useCallback(() => {
     if (!startTouch || !currentTouch) return null;

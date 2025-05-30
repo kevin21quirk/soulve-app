@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 // Performance tracking utility
@@ -28,4 +29,12 @@ export const useDebounce = <T>(value: T, delay: number): T => {
   }, [value, delay]);
 
   return debouncedValue;
+};
+
+// Performance monitor for testing
+export const performanceMonitor = {
+  cleanup: () => {
+    // Cleanup function for tests
+    console.log('Performance monitor cleanup');
+  }
 };
