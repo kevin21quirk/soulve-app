@@ -22,6 +22,11 @@ const config: CapacitorConfig = {
       useDialog: true,
     },
   },
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: true,
+  },
 };
 
 export default config;
