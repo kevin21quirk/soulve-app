@@ -1,17 +1,19 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, Heart, Star, Trophy, Target, Shield, Award, Gift, Crown } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges, mockPointTransactions } from "@/data/mockPointsData";
 import { PointsCalculator } from "@/services/pointsService";
-import { AchievementsService } from "@/services/achievementsService";
 import { LeaderboardService } from "@/services/leaderboardService";
 import { PointRedemptionService } from "@/services/pointRedemptionService";
 import { useProgressTracking } from "@/hooks/useProgressTracking";
+import TrustScoreCard from "./analytics/points/TrustScoreCard";
+import QuickStatsGrid from "./analytics/points/QuickStatsGrid";
+import PointsBreakdownCard from "./analytics/points/PointsBreakdownCard";
+import LeaderboardCard from "./analytics/points/LeaderboardCard";
 
 const MobileAnalyticsPoints = () => {
   const [activeTab, setActiveTab] = useState("trust");
@@ -37,56 +39,6 @@ const MobileAnalyticsPoints = () => {
   // Get redemption rewards
   const availableRewards = PointRedemptionService.getAvailableRewards(userStats.level);
 
-  const getTrustLevelIcon = (level: string) => {
-    switch (level) {
-      case "new_user": return Shield;
-      case "verified_helper": return Star;
-      case "trusted_helper": return Trophy;
-      case "community_leader": return Award;
-      case "impact_champion": return Crown;
-      default: return Shield;
-    }
-  };
-
-  const TrustIcon = getTrustLevelIcon(userStats.trustLevel);
-
-  const quickStats = [
-    {
-      label: "Trust Level",
-      value: userStats.level,
-      subValue: `${userStats.trustScore}% Trust`,
-      icon: Trophy,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-      badge: userStats.trustLevel.replace('_', ' '),
-      badgeColor: "bg-yellow-100 text-yellow-800"
-    },
-    {
-      label: "People Helped",
-      value: userStats.helpedCount,
-      subValue: "This month",
-      icon: Heart,
-      color: "text-red-600",
-      bgColor: "bg-red-50"
-    },
-    {
-      label: "Leaderboard Rank",
-      value: `#${userRank}`,
-      subValue: "Community rank",
-      icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50"
-    },
-    {
-      label: "Total Points",
-      value: userStats.totalPoints,
-      subValue: "Lifetime earned",
-      icon: Star,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50"
-    }
-  ];
-
   return (
     <div className="p-4 space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -105,76 +57,15 @@ const MobileAnalyticsPoints = () => {
         </TabsList>
 
         <TabsContent value="trust" className="space-y-4 mt-4">
-          {/* Trust Score Header */}
-          <Card className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrustIcon className="h-6 w-6" />
-                  <span>{trustLevelConfig?.name || "New User"}</span>
-                </div>
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                  Level {userStats.level}
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                {nextLevel ? 
-                  `${nextLevel.pointsNeeded} points to ${PointsCalculator.getTrustLevelConfig(nextLevel.level)?.name}` :
-                  "Maximum level reached!"
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{userStats.trustScore}%</div>
-                  <div className="text-white/80">Trust Score</div>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Next level progress</span>
-                    <span>{nextLevelProgress.percentage.toFixed(0)}%</span>
-                  </div>
-                  <Progress value={nextLevelProgress.percentage} className="h-2" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Weekly goal</span>
-                    <span>{weeklyProgress.points}/{weeklyProgress.goal}</span>
-                  </div>
-                  <Progress value={weeklyProgress.percentage} className="h-2" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats Grid */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Stats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                {quickStats.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${stat.bgColor} mb-2`}>
-                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                    </div>
-                    <div className="text-lg font-bold text-gray-900">{stat.value}</div>
-                    <div className="text-xs text-gray-600 mb-1">{stat.label}</div>
-                    <div className="text-xs text-gray-500">{stat.subValue}</div>
-                    {stat.badge && (
-                      <Badge variant="outline" className={`mt-1 text-xs ${stat.badgeColor}`}>
-                        {stat.badge}
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <TrustScoreCard 
+            userStats={userStats}
+            trustLevelConfig={trustLevelConfig}
+            nextLevel={nextLevel}
+            nextLevelProgress={nextLevelProgress}
+            weeklyProgress={weeklyProgress}
+          />
+          
+          <QuickStatsGrid userStats={userStats} userRank={userRank} />
 
           {/* Trust Level Benefits */}
           {trustLevelConfig?.benefits && (
@@ -221,43 +112,7 @@ const MobileAnalyticsPoints = () => {
             </Card>
           )}
 
-          {/* Points Breakdown */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Points Breakdown</CardTitle>
-              <CardDescription>
-                How you've earned your {userStats.totalPoints} points
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockPointBreakdown.slice(0, 4).map((item) => {
-                  const percentage = (item.totalPoints / userStats.totalPoints) * 100;
-                  
-                  return (
-                    <div key={item.category} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg">{item.icon}</span>
-                          <div>
-                            <h4 className="font-medium text-sm">{item.categoryName}</h4>
-                            <p className="text-xs text-gray-500">
-                              {item.transactionCount} activities
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-sm">{item.totalPoints}</div>
-                          <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
-                        </div>
-                      </div>
-                      <Progress value={percentage} className="h-2" />
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <PointsBreakdownCard userStats={userStats} />
 
           {/* Active Challenges */}
           <Card>
@@ -380,59 +235,11 @@ const MobileAnalyticsPoints = () => {
         </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-4 mt-4">
-          {/* User Rank */}
-          <Card className="bg-gradient-to-r from-purple-50 to-blue-50">
-            <CardHeader>
-              <CardTitle className="text-lg">Your Ranking</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">#{userRank}</div>
-                <div className="text-sm text-gray-600">Community Rank</div>
-                <Badge variant="outline" className="mt-2">
-                  {userStats.totalPoints} points
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Top 5 Leaderboard */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Top Community Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {leaderboard.slice(0, 5).map((entry) => (
-                  <div 
-                    key={entry.userId} 
-                    className={`flex items-center justify-between p-2 rounded-lg ${
-                      entry.userId === 'current-user' ? 'bg-blue-50' : 'bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 text-center">
-                        {entry.rank === 1 && <Trophy className="h-4 w-4 text-yellow-500 mx-auto" />}
-                        {entry.rank === 2 && <Award className="h-4 w-4 text-gray-400 mx-auto" />}
-                        {entry.rank === 3 && <Award className="h-4 w-4 text-amber-600 mx-auto" />}
-                        {entry.rank > 3 && <span className="text-xs font-bold">#{entry.rank}</span>}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{entry.userName}</p>
-                        {entry.userId === 'current-user' && (
-                          <Badge variant="secondary" className="text-xs">You</Badge>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-sm">{entry.totalPoints}</div>
-                      <div className="text-xs text-gray-500">points</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <LeaderboardCard 
+            userRank={userRank}
+            userStats={userStats}
+            leaderboard={leaderboard}
+          />
         </TabsContent>
       </Tabs>
     </div>
