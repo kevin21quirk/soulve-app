@@ -981,6 +981,42 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendation_cache: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          reasoning: string | null
+          recommendation_type: string
+          target_id: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type: string
+          target_id: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type?: string
+          target_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trust_score_history: {
         Row: {
           change_reason: string
@@ -1052,6 +1088,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_interaction_scores: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_type: string
+          score_value: number | null
+          target_post_id: string | null
+          target_user_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_type: string
+          score_value?: number | null
+          target_post_id?: string | null
+          target_user_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          score_value?: number | null
+          target_post_id?: string | null
+          target_user_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interaction_scores_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          preference_type: string
+          preference_value: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preference_type: string
+          preference_value: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preference_type?: string
+          preference_value?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
       user_verifications: {
         Row: {
           created_at: string
@@ -1106,6 +1210,20 @@ export type Database = {
       calculate_trust_score: {
         Args: { user_uuid: string }
         Returns: number
+      }
+      calculate_user_similarity: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: number
+      }
+      generate_user_recommendations: {
+        Args: { target_user_id: string }
+        Returns: {
+          recommendation_type: string
+          target_id: string
+          confidence_score: number
+          reasoning: string
+          metadata: Json
+        }[]
       }
     }
     Enums: {

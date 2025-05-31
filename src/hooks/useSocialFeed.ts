@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { FeedPost } from "@/types/feed";
 import { mockPosts } from "@/data/mockPosts";
 import { useFeedFilters } from "./useFeedFilters";
 import { usePostInteractions } from "./usePostInteractions";
 import { usePostCreation } from "./usePostCreation";
+import { useInteractionTracking } from "./useInteractionTracking";
 
 /**
  * Custom hook for managing social feed state and operations
@@ -54,12 +56,12 @@ export const useSocialFeed = () => {
   } = useFeedFilters(posts);
 
   const {
-    handleLike,
-    handleShare,
+    handleLike: originalHandleLike,
+    handleShare: originalHandleShare,
     handleRespond,
     handleBookmark,
     handleReaction,
-    handleAddComment,
+    handleAddComment: originalHandleAddComment,
     handleLikeComment,
     handleCommentReaction,
   } = usePostInteractions(posts, setPosts);
@@ -68,6 +70,36 @@ export const useSocialFeed = () => {
     isLoading,
     handlePostCreated,
   } = usePostCreation(setPosts);
+
+  const {
+    trackPostLike,
+    trackPostShare,
+    trackPostComment,
+    trackPostView,
+  } = useInteractionTracking();
+
+  // Enhanced handlers with interaction tracking
+  const handleLike = async (postId: string) => {
+    originalHandleLike(postId);
+    await trackPostLike(postId);
+  };
+
+  const handleShare = async (postId: string) => {
+    originalHandleShare(postId);
+    await trackPostShare(postId);
+  };
+
+  const handleAddComment = async (postId: string, content: string) => {
+    originalHandleAddComment(postId, content);
+    await trackPostComment(postId);
+  };
+
+  // Track post views when posts are displayed
+  const trackPostViews = async (posts: FeedPost[]) => {
+    posts.forEach(async (post) => {
+      await trackPostView(post.id);
+    });
+  };
 
   return {
     posts,
@@ -87,5 +119,6 @@ export const useSocialFeed = () => {
     handleLikeComment,
     handleCommentReaction,
     getPostCounts,
+    trackPostViews,
   };
 };
