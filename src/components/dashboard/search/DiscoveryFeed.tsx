@@ -13,7 +13,8 @@ import {
   Share2,
   Bookmark,
   Clock,
-  Filter
+  Filter,
+  Search
 } from "lucide-react";
 
 interface DiscoveryItem {
