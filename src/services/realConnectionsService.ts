@@ -69,9 +69,10 @@ export const useRealConnections = () => {
         profileMap.set(profile.id, profile);
       });
 
-      // Combine connections with profile data
+      // Combine connections with profile data and properly type the status
       const connectionsWithProfiles: ConnectionWithProfiles[] = connections.map(conn => ({
         ...conn,
+        status: conn.status as 'pending' | 'accepted' | 'declined' | 'blocked',
         requester: profileMap.get(conn.requester_id) || null,
         addressee: profileMap.get(conn.addressee_id) || null,
       }));
