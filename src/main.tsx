@@ -70,15 +70,7 @@ if (Capacitor.isNativePlatform()) {
   // Method 1: Standard deviceready event
   document.addEventListener('deviceready', startApp, false);
   
-  // Method 2: Capacitor ready event
-  Capacitor.addListener('appStateChange', (state) => {
-    console.log('📱 App state change:', state);
-    if (state.isActive && !appStarted) {
-      startApp();
-    }
-  });
-  
-  // Method 3: Fallback timeout (reduced to 1 second for faster loading)
+  // Method 2: Simple timeout fallback (reduced to 1 second for faster loading)
   setTimeout(() => {
     if (!appStarted) {
       console.log('⏰ Fallback timeout triggered, starting app...');
