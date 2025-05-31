@@ -1,9 +1,20 @@
 
 import { Button } from "@/components/ui/button";
 import { Heart, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import SouLVELogo from "./SouLVELogo";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleTryDemo = () => {
+    navigate("/dashboard");
+  };
+
+  const handleBecomeSoulver = () => {
+    navigate("/auth");
+  };
+
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white min-h-screen flex items-center">
       <div className="absolute inset-0 bg-black/10"></div>
@@ -23,17 +34,21 @@ const HeroSection = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12">
-            <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
-              <a href="/dashboard">
-                <Heart className="mr-3 h-6 w-6" />
-                Try SouLVE Demo
-              </a>
+            <Button 
+              size="lg" 
+              className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl"
+              onClick={handleTryDemo}
+            >
+              <Heart className="mr-3 h-6 w-6" />
+              Try SouLVE Demo
             </Button>
-            <Button size="lg" className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl" asChild>
-              <a href="/register">
-                <Users className="mr-3 h-6 w-6" />
-                Become a Soulver
-              </a>
+            <Button 
+              size="lg" 
+              className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl"
+              onClick={handleBecomeSoulver}
+            >
+              <Users className="mr-3 h-6 w-6" />
+              Become a Soulver
             </Button>
           </div>
         </div>
