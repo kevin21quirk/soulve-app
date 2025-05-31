@@ -7,14 +7,6 @@ import { MobileContainer } from "@/components/ui/mobile/mobile-layout";
 import { useDashboardShortcuts } from "@/hooks/useDashboardShortcuts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDashboard from "@/components/mobile/MobileDashboard";
-import DiscoverConnectTab from "@/components/dashboard/tabs/DiscoverConnectTab";
-import RealDiscoverConnectTab from "@/components/dashboard/tabs/RealDiscoverConnectTab";
-import RealMessagingTab from "@/components/dashboard/tabs/RealMessagingTab";
-import { default as SocialFeed } from "@/components/dashboard/SocialFeed";
-import { default as HelpCenter } from "@/components/dashboard/HelpCenter";
-import CampaignsTab from "@/components/dashboard/tabs/CampaignsTab";
-import AnalyticsPointsTab from "@/components/dashboard/tabs/AnalyticsPointsTab";
-import { default as UserProfile } from "@/components/dashboard/UserProfile";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("feed");
@@ -34,6 +26,7 @@ const Dashboard = () => {
   });
 
   const handleNavigateToTab = (tab: string) => {
+    console.log("Navigating to tab:", tab);
     setActiveTab(tab);
   };
 
@@ -46,7 +39,7 @@ const Dashboard = () => {
     );
   }
 
-  // Render desktop version for desktop devices (unchanged)
+  // Render desktop version for desktop devices
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">

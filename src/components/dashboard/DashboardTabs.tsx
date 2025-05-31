@@ -5,7 +5,7 @@ import EnhancedMessaging from "./EnhancedMessaging";
 import HelpCenter from "./HelpCenter";
 import UserProfile from "./UserProfile";
 import MainTabsList from "./tabs/MainTabsList";
-import DiscoverConnectTab from "./tabs/DiscoverConnectTab";
+import RealDiscoverConnectTab from "./tabs/RealDiscoverConnectTab";
 import CampaignsTab from "./tabs/CampaignsTab";
 import AnalyticsPointsTab from "./tabs/AnalyticsPointsTab";
 import MobileBottomNav from "@/components/ui/mobile/mobile-bottom-nav";
@@ -20,9 +20,14 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   const isMobile = useIsMobile();
 
+  const handleTabChange = (tab: string) => {
+    console.log("Tab changed to:", tab);
+    onTabChange(tab);
+  };
+
   return (
     <div className="w-full">
-      <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Desktop Tabs - Hidden on mobile */}
         <div className={isMobile ? "hidden" : "block"}>
           <MainTabsList />
@@ -31,31 +36,52 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         {/* Tab Content with proper mobile layout */}
         <MobileLayout hasBottomNav={isMobile} className="mt-6">
           <TabsContent value="feed" className="mt-0">
-            <EnhancedSocialFeed />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Social Feed</h2>
+              <EnhancedSocialFeed />
+            </div>
           </TabsContent>
 
           <TabsContent value="discover-connect" className="mt-0">
-            <DiscoverConnectTab />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Discover & Connect</h2>
+              <RealDiscoverConnectTab />
+            </div>
           </TabsContent>
 
           <TabsContent value="messaging" className="mt-0">
-            <EnhancedMessaging />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Messages</h2>
+              <EnhancedMessaging />
+            </div>
           </TabsContent>
 
           <TabsContent value="help-center" className="mt-0">
-            <HelpCenter />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Help Center</h2>
+              <HelpCenter />
+            </div>
           </TabsContent>
 
           <TabsContent value="campaigns" className="mt-0">
-            <CampaignsTab />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Campaigns</h2>
+              <CampaignsTab />
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics-points" className="mt-0">
-            <AnalyticsPointsTab />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Analytics & Points</h2>
+              <AnalyticsPointsTab />
+            </div>
           </TabsContent>
 
           <TabsContent value="profile" className="mt-0">
-            <UserProfile />
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Profile</h2>
+              <UserProfile />
+            </div>
           </TabsContent>
 
           {/* Handle notifications tab for mobile (redirect to activity) */}
@@ -68,7 +94,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         </MobileLayout>
 
         {/* Mobile Bottom Navigation */}
-        <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
+        <MobileBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </Tabs>
     </div>
   );

@@ -18,6 +18,7 @@ import { useSocialFeed } from "@/hooks/useSocialFeed";
 import FeedContent from "./social-feed/FeedContent";
 import CreatePost from "./CreatePost";
 import SmartRecommendations from "./SmartRecommendations";
+import TestButtons from "./TestButtons";
 
 const EnhancedSocialFeed = () => {
   const [filters, setFilters] = useState({
@@ -44,8 +45,17 @@ const EnhancedSocialFeed = () => {
     getPostCounts,
   } = useSocialFeed();
 
+  console.log("EnhancedSocialFeed rendered with:", { 
+    filteredPosts: filteredPosts?.length, 
+    activeFilter, 
+    isLoading 
+  });
+
   return (
     <div className="space-y-6">
+      {/* Test Buttons Panel */}
+      <TestButtons />
+      
       {/* Create Post Section */}
       <CreatePost onPostCreated={handlePostCreated} />
       
