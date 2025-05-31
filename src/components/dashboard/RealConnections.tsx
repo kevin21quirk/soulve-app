@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, UserPlus, Users, Check, X } from "lucide-react";
 import { useRealConnections, useSendConnectionRequest, useRespondToConnection, useSuggestedConnections } from "@/services/realConnectionsService";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
 
 export const RealConnections = () => {
   const { data: connections, isLoading: connectionsLoading } = useRealConnections();
@@ -27,14 +27,9 @@ export const RealConnections = () => {
     );
   }
 
-  // Get current user ID for filtering
-  const getCurrentUserId = async () => {
-    const { data: user } = await supabase.auth.getUser();
-    return user.user?.id;
-  };
-
+  // Filter connections by type
   const pendingRequests = connections?.filter(conn => 
-    conn.status === 'pending' && conn.requester_id !== conn.addressee_id
+    conn.status === 'pending' && conn.addressee?.id // Requests I received
   ) || [];
   
   const acceptedConnections = connections?.filter(conn => 
@@ -42,7 +37,7 @@ export const RealConnections = () => {
   ) || [];
 
   const sentRequests = connections?.filter(conn => 
-    conn.status === 'pending' && conn.requester_id === conn.addressee_id
+    conn.status === 'pending' && conn.requester?.id // Requests I sent
   ) || [];
 
   const getProfileName = (profile: any) => {
@@ -123,7 +118,8 @@ export const RealConnections = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {acceptedConnections.map((connection) => {
-              const profile = connection.requester_id !== connection.addressee_id ? connection.addressee : connection.requester;
+              // Show the other person's profile
+              const profile = connection.requester?.id === connection.addressee?.id ? connection.addressee : connection.requester;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">

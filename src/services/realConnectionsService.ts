@@ -23,6 +23,11 @@ export interface DatabaseProfile {
   interests?: string[];
 }
 
+export interface ConnectionWithProfiles extends DatabaseConnection {
+  requester: DatabaseProfile | null;
+  addressee: DatabaseProfile | null;
+}
+
 // Hook to get user's connections
 export const useRealConnections = () => {
   return useQuery({
@@ -31,17 +36,47 @@ export const useRealConnections = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      const { data: connections, error } = await supabase
+      // First get the connections
+      const { data: connections, error: connectionsError } = await supabase
         .from('connections')
-        .select(`
-          *,
-          requester:profiles!connections_requester_id_fkey(id, first_name, last_name, avatar_url, location, bio, skills),
-          addressee:profiles!connections_addressee_id_fkey(id, first_name, last_name, avatar_url, location, bio, skills)
-        `)
+        .select('*')
         .or(`requester_id.eq.${user.user.id},addressee_id.eq.${user.user.id}`);
 
-      if (error) throw error;
-      return connections || [];
+      if (connectionsError) throw connectionsError;
+
+      if (!connections || connections.length === 0) {
+        return [];
+      }
+
+      // Get all unique user IDs from connections
+      const userIds = new Set<string>();
+      connections.forEach(conn => {
+        userIds.add(conn.requester_id);
+        userIds.add(conn.addressee_id);
+      });
+
+      // Fetch profiles for all users involved in connections
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, location, bio, skills, interests')
+        .in('id', Array.from(userIds));
+
+      if (profilesError) throw profilesError;
+
+      // Create a map for quick profile lookup
+      const profileMap = new Map<string, DatabaseProfile>();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Combine connections with profile data
+      const connectionsWithProfiles: ConnectionWithProfiles[] = connections.map(conn => ({
+        ...conn,
+        requester: profileMap.get(conn.requester_id) || null,
+        addressee: profileMap.get(conn.addressee_id) || null,
+      }));
+
+      return connectionsWithProfiles;
     },
   });
 };
@@ -84,6 +119,7 @@ export const useSendConnectionRequest = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['real-connections'] });
+      queryClient.invalidateQueries({ queryKey: ['suggested-connections'] });
       toast({
         title: "Connection request sent!",
         description: "Your request has been sent successfully.",
