@@ -5,9 +5,7 @@ const config: CapacitorConfig = {
   appId: 'app.lovable.bf52b470070e4c4aac1a978a0d3d9af7',
   appName: 'soulve',
   webDir: 'dist',
-  server: {
-    androidScheme: 'https'
-  },
+  // Removed server configuration - app will now use local files
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,

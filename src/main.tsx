@@ -24,30 +24,47 @@ const renderApp = () => {
   console.log('📱 Platform:', Capacitor.getPlatform());
   console.log('🔧 Is native platform:', Capacitor.isNativePlatform());
   
-  const rootElement = document.getElementById("root");
-  if (!rootElement) {
-    console.error('❌ Root element not found!');
-    return;
+  try {
+    const rootElement = document.getElementById("root");
+    if (!rootElement) {
+      console.error('❌ Root element not found!');
+      // Create root element if it doesn't exist (mobile fallback)
+      const newRoot = document.createElement('div');
+      newRoot.id = 'root';
+      document.body.appendChild(newRoot);
+      console.log('✅ Created new root element');
+    }
+    
+    console.log('✅ Root element found, creating React root...');
+    
+    const finalRootElement = document.getElementById("root")!;
+    createRoot(finalRootElement).render(
+      <ErrorBoundary>
+        <HashRouter>
+          <QueryClientProvider client={queryClient}>
+            <ErrorProvider>
+              <AuthProvider>
+                <App />
+                <Toaster />
+              </AuthProvider>
+            </ErrorProvider>
+          </QueryClientProvider>
+        </HashRouter>
+      </ErrorBoundary>
+    );
+    
+    console.log('✅ React app rendered successfully!');
+  } catch (error) {
+    console.error('❌ Error rendering app:', error);
+    // Fallback: show basic error message
+    document.body.innerHTML = `
+      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h1>SouLVE</h1>
+        <p>App is loading...</p>
+        <p style="color: red; font-size: 12px;">Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
+      </div>
+    `;
   }
-  
-  console.log('✅ Root element found, creating React root...');
-  
-  createRoot(rootElement).render(
-    <ErrorBoundary>
-      <HashRouter>
-        <QueryClientProvider client={queryClient}>
-          <ErrorProvider>
-            <AuthProvider>
-              <App />
-              <Toaster />
-            </AuthProvider>
-          </ErrorProvider>
-        </QueryClientProvider>
-      </HashRouter>
-    </ErrorBoundary>
-  );
-  
-  console.log('✅ React app rendered successfully!');
 };
 
 // Initialize the app with better error handling
@@ -56,7 +73,7 @@ console.log('🎯 Initializing SouLVE app...');
 if (Capacitor.isNativePlatform()) {
   console.log('📱 Running on native platform, waiting for device ready...');
   
-  // Try multiple initialization methods
+  // Simple mobile initialization
   let appStarted = false;
   
   const startApp = () => {
@@ -70,13 +87,13 @@ if (Capacitor.isNativePlatform()) {
   // Method 1: Standard deviceready event
   document.addEventListener('deviceready', startApp, false);
   
-  // Method 2: Simple timeout fallback (reduced to 1 second for faster loading)
+  // Method 2: Simple timeout fallback for quick loading
   setTimeout(() => {
     if (!appStarted) {
-      console.log('⏰ Fallback timeout triggered, starting app...');
+      console.log('⏰ Timeout triggered, starting app...');
       startApp();
     }
-  }, 1000);
+  }, 500); // Reduced timeout for faster mobile loading
   
 } else {
   console.log('🌐 Running on web platform');
