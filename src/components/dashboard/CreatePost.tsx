@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Template, Calendar, MapPin, Upload } from "lucide-react";
+import { X, FileText, Calendar, MapPin, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import PostOptions from "./PostOptions";
 import UserTagging from "./tagging/UserTagging";
@@ -152,7 +151,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
                 setShowTemplates(true);
                 setIsExpanded(true);
               }}>
-                <Template className="h-4 w-4" />
+                <FileText className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -286,7 +285,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
                 variant="outline" 
                 onClick={() => setShowAdvancedOptions(true)}
               >
-                <Template className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2" />
                 Use Template
               </Button>
             )}
