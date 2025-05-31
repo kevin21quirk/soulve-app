@@ -7,7 +7,10 @@ import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
 import ImpactFootprint from "./ImpactFootprint";
 import VerificationPanel from "./verification/VerificationPanel";
+import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Settings } from "lucide-react";
 
 const UserProfile = () => {
   const { toast } = useToast();
@@ -66,24 +69,46 @@ const UserProfile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <UserProfileTabs
+      <Tabs defaultValue="view" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="view" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            View Profile
+          </TabsTrigger>
+          <TabsTrigger value="manage" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Manage Profile
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="view" className="space-y-6">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <UserProfileTabs
+                profileData={profileData}
+                onProfileUpdate={handleProfileUpdate}
+                onViewPointsDetails={handleViewPointsDetails}
+              />
+            </div>
+            
+            <div className="space-y-6">
+              <VerificationPanel />
+            </div>
+          </div>
+          
+          <ImpactFootprint 
+            activities={mockTrustFootprint.activities}
+            userName={profileData.name}
+          />
+        </TabsContent>
+
+        <TabsContent value="manage" className="space-y-6">
+          <ProfileManagementTabs
             profileData={profileData}
             onProfileUpdate={handleProfileUpdate}
-            onViewPointsDetails={handleViewPointsDetails}
           />
-        </div>
-        
-        <div className="space-y-6">
-          <VerificationPanel />
-        </div>
-      </div>
-      
-      <ImpactFootprint 
-        activities={mockTrustFootprint.activities}
-        userName={profileData.name}
-      />
+        </TabsContent>
+      </Tabs>
 
       <UserProfilePointsDetails
         profileData={profileData}
