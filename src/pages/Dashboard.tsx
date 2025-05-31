@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
@@ -9,11 +10,11 @@ import MobileDashboard from "@/components/mobile/MobileDashboard";
 import DiscoverConnectTab from "@/components/dashboard/tabs/DiscoverConnectTab";
 import RealDiscoverConnectTab from "@/components/dashboard/tabs/RealDiscoverConnectTab";
 import RealMessagingTab from "@/components/dashboard/tabs/RealMessagingTab";
-import SocialFeed from "@/components/dashboard/tabs/SocialFeed";
-import HelpCenter from "@/components/dashboard/tabs/HelpCenter";
+import { default as SocialFeed } from "@/components/dashboard/SocialFeed";
+import { default as HelpCenter } from "@/components/dashboard/HelpCenter";
 import CampaignsTab from "@/components/dashboard/tabs/CampaignsTab";
 import AnalyticsPointsTab from "@/components/dashboard/tabs/AnalyticsPointsTab";
-import UserProfile from "@/components/dashboard/tabs/UserProfile";
+import { default as UserProfile } from "@/components/dashboard/UserProfile";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("feed");

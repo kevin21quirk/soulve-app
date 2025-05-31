@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, UserPlus, Users, Check, X } from "lucide-react";
 import { useRealConnections, useSendConnectionRequest, useRespondToConnection, useSuggestedConnections } from "@/services/realConnectionsService";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 
 export const RealConnections = () => {
   const { data: connections, isLoading: connectionsLoading } = useRealConnections();
@@ -27,8 +27,14 @@ export const RealConnections = () => {
     );
   }
 
+  // Get current user ID for filtering
+  const getCurrentUserId = async () => {
+    const { data: user } = await supabase.auth.getUser();
+    return user.user?.id;
+  };
+
   const pendingRequests = connections?.filter(conn => 
-    conn.status === 'pending' && conn.addressee_id === connections[0]?.addressee_id
+    conn.status === 'pending' && conn.requester_id !== conn.addressee_id
   ) || [];
   
   const acceptedConnections = connections?.filter(conn => 
@@ -36,7 +42,7 @@ export const RealConnections = () => {
   ) || [];
 
   const sentRequests = connections?.filter(conn => 
-    conn.status === 'pending' && conn.requester_id === connections[0]?.requester_id
+    conn.status === 'pending' && conn.requester_id === conn.addressee_id
   ) || [];
 
   const getProfileName = (profile: any) => {
@@ -69,12 +75,12 @@ export const RealConnections = () => {
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{getProfileName(profile)}</h4>
-                      <p className="text-sm text-muted-foreground">{profile?.location}</p>
+                      <p className="text-sm text-muted-foreground">{profile?.location || 'Location not specified'}</p>
                       {profile?.bio && (
                         <p className="text-sm text-muted-foreground mt-1">{profile.bio}</p>
                       )}
@@ -117,17 +123,17 @@ export const RealConnections = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {acceptedConnections.map((connection) => {
-              const profile = connection.requester_id === connection.requester?.id ? connection.addressee : connection.requester;
+              const profile = connection.requester_id !== connection.addressee_id ? connection.addressee : connection.requester;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{getProfileName(profile)}</h4>
-                      <p className="text-sm text-muted-foreground">{profile?.location}</p>
+                      <p className="text-sm text-muted-foreground">{profile?.location || 'Location not specified'}</p>
                       {profile?.skills && profile.skills.length > 0 && (
                         <div className="flex gap-1 mt-2">
                           {profile.skills.slice(0, 3).map((skill: string) => (
@@ -164,12 +170,12 @@ export const RealConnections = () => {
               <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={profile.avatar_url} />
+                    <AvatarImage src={profile.avatar_url || ''} />
                     <AvatarFallback>{getInitials(profile)}</AvatarFallback>
                   </Avatar>
                   <div>
                     <h4 className="font-medium">{getProfileName(profile)}</h4>
-                    <p className="text-sm text-muted-foreground">{profile.location}</p>
+                    <p className="text-sm text-muted-foreground">{profile.location || 'Location not specified'}</p>
                     {profile.bio && (
                       <p className="text-sm text-muted-foreground mt-1">{profile.bio}</p>
                     )}
@@ -214,12 +220,12 @@ export const RealConnections = () => {
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{getProfileName(profile)}</h4>
-                      <p className="text-sm text-muted-foreground">{profile?.location}</p>
+                      <p className="text-sm text-muted-foreground">{profile?.location || 'Location not specified'}</p>
                     </div>
                   </div>
                   <Badge variant="secondary">Pending</Badge>
