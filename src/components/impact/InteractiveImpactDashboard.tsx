@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -159,6 +158,11 @@ const InteractiveImpactDashboard = () => {
             variant={timeRange === range ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTimeRange(range as '7d' | '30d' | '90d')}
+            className={`transition-all duration-200 ${
+              timeRange === range
+                ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+                : "bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent"
+            }`}
           >
             {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
           </Button>
@@ -167,13 +171,48 @@ const InteractiveImpactDashboard = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="stories">Stories</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic</TabsTrigger>
-          <TabsTrigger value="network">Network</TabsTrigger>
-          <TabsTrigger value="gamification">Rewards</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="goals">Goals</TabsTrigger>
+          <TabsTrigger 
+            value="overview"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="stories"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Stories
+          </TabsTrigger>
+          <TabsTrigger 
+            value="geographic"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Geographic
+          </TabsTrigger>
+          <TabsTrigger 
+            value="network"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Network
+          </TabsTrigger>
+          <TabsTrigger 
+            value="gamification"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Rewards
+          </TabsTrigger>
+          <TabsTrigger 
+            value="trends"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Trends
+          </TabsTrigger>
+          <TabsTrigger 
+            value="goals"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Goals
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
