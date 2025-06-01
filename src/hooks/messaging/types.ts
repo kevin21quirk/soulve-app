@@ -33,4 +33,13 @@ export interface Conversation {
     created_at: string;
   };
   unread_count: number;
+  // Additional properties for compatibility
+  partner_id: string;
+  partner_profile?: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+  };
+  last_message_time: string;
+  is_read: boolean;
 }

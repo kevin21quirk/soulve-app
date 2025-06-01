@@ -68,6 +68,11 @@ export const useConversations = (userId: string | undefined) => {
               created_at: message.created_at
             },
             unread_count: 0,
+            // Additional properties for compatibility
+            partner_id: partnerId,
+            partner_profile: partnerProfile,
+            last_message_time: message.created_at,
+            is_read: message.is_read || message.sender_id === userId,
           });
         }
       });

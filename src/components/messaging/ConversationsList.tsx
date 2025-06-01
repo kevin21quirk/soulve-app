@@ -7,20 +7,7 @@ import { Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useState } from "react";
-
-interface Conversation {
-  id: string;
-  partner_id: string;
-  partner_profile?: {
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-  };
-  last_message: string;
-  last_message_time: string;
-  is_read: boolean;
-  unread_count: number;
-}
+import { Conversation } from "@/hooks/messaging/types";
 
 interface ConversationsListProps {
   conversations: Conversation[];
@@ -40,7 +27,7 @@ const ConversationsList = ({
   const filteredConversations = conversations.filter(conv => {
     const partnerName = conv.partner_profile 
       ? `${conv.partner_profile.first_name || ''} ${conv.partner_profile.last_name || ''}`.trim()
-      : 'Anonymous';
+      : conv.user_name || 'Anonymous';
     return partnerName.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -80,7 +67,10 @@ const ConversationsList = ({
               {filteredConversations.map((conversation) => {
                 const partnerName = conversation.partner_profile 
                   ? `${conversation.partner_profile.first_name || ''} ${conversation.partner_profile.last_name || ''}`.trim() || 'Anonymous'
-                  : 'Anonymous';
+                  : conversation.user_name || 'Anonymous';
+
+                const lastMessage = conversation.last_message?.content || 'No messages yet';
+                const lastMessageTime = conversation.last_message?.created_at || conversation.last_message_time;
 
                 return (
                   <div
@@ -95,7 +85,7 @@ const ConversationsList = ({
                     <div className="flex items-center space-x-3">
                       <div className="relative">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={conversation.partner_profile?.avatar_url || ''} alt={partnerName} />
+                          <AvatarImage src={conversation.partner_profile?.avatar_url || conversation.avatar_url || ''} alt={partnerName} />
                           <AvatarFallback>
                             {partnerName.split(' ').map(n => n[0]).join('').toUpperCase()}
                           </AvatarFallback>
@@ -108,11 +98,11 @@ const ConversationsList = ({
                         <div className="flex items-center justify-between">
                           <h4 className="font-semibold text-gray-900 truncate">{partnerName}</h4>
                           <span className="text-xs text-gray-500">
-                            {format(new Date(conversation.last_message_time), 'MMM d')}
+                            {lastMessageTime && format(new Date(lastMessageTime), 'MMM d')}
                           </span>
                         </div>
                         <p className="text-sm text-gray-600 truncate mt-1">
-                          {conversation.last_message}
+                          {lastMessage}
                         </p>
                         {conversation.unread_count > 0 && (
                           <Badge variant="secondary" className="mt-1 text-xs">
