@@ -26,6 +26,44 @@ const MobileDiscoverDashboard = () => {
     });
   };
 
+  const handleSearch = (query: string, filters: string[]) => {
+    setSearchQuery(query);
+    console.log('Search:', query, 'Filters:', filters);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setActiveFilter("all");
+  };
+
+  const handleQuickAction = (type: string, data?: any) => {
+    toast({
+      title: "Quick Action",
+      description: `${type} action triggered`,
+    });
+  };
+
+  const handleConnect = (personId: string) => {
+    toast({
+      title: "Connect",
+      description: "Connection request sent!",
+    });
+  };
+
+  const handleJoinGroup = (groupId: string) => {
+    toast({
+      title: "Join Group",
+      description: "Joined group successfully!",
+    });
+  };
+
+  const handleJoinCampaign = (campaignId: string) => {
+    toast({
+      title: "Support Campaign",
+      description: "You're now supporting this campaign!",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -57,15 +95,20 @@ const MobileDiscoverDashboard = () => {
 
             <TabsContent value="activities" className="mt-4 space-y-4">
               <DiscoverSearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                activeFilter={activeFilter}
-                setActiveFilter={setActiveFilter}
+                onSearch={handleSearch}
+                onClearFilters={handleClearFilters}
               />
 
-              <QuickConnectActions />
+              <QuickConnectActions onAction={handleQuickAction} />
 
-              <EnhancedDiscoverGrid />
+              <EnhancedDiscoverGrid 
+                searchQuery={searchQuery}
+                activeFilters={[activeFilter]}
+                onConnect={handleConnect}
+                onJoinGroup={handleJoinGroup}
+                onJoinCampaign={handleJoinCampaign}
+                onViewProfile={handleUserClick}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
