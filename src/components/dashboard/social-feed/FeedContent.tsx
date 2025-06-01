@@ -1,3 +1,4 @@
+
 import { FeedPost } from "@/types/feed";
 import FeedPostCard from "../FeedPostCard";
 import PostSkeleton from "../PostSkeleton";
@@ -56,7 +57,6 @@ const FeedContent = ({
           key={post.id}
           post={{
             id: post.id,
-            author: post.author,
             authorAvatar: post.avatar, // Map avatar to authorAvatar
             title: post.title,
             description: post.description,
@@ -73,11 +73,11 @@ const FeedContent = ({
               id: comment.id,
               author: comment.author,
               content: comment.content || '', 
-              timestamp: comment.created_at || new Date().toISOString(),
+              timestamp: comment.timestamp || new Date().toISOString(),
               likes: comment.likes,
-              isLiked: false,
+              isLiked: comment.isLiked || false,
               user_id: comment.user_id || '',
-              created_at: comment.created_at || new Date().toISOString()
+              created_at: comment.created_at || comment.timestamp || new Date().toISOString()
             }))
           }}
           onLike={() => onLike(post.id)}

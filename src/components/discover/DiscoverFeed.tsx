@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -235,9 +236,6 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                       key={post.id}
                       post={{
                         id: post.id,
-                        author: post.author_profile && typeof post.author_profile === 'object' && 'first_name' in post.author_profile
-                          ? `${post.author_profile.first_name || ''} ${post.author_profile.last_name || ''}`.trim() || 'Anonymous'
-                          : 'Anonymous',
                         authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
                           ? post.author_profile.avatar_url || ''
                           : '',
@@ -310,9 +308,6 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                     key={post.id}
                     post={{
                       id: post.id,
-                      author: post.author_profile && typeof post.author_profile === 'object' && 'first_name' in post.author_profile
-                        ? `${post.author_profile.first_name || ''} ${post.author_profile.last_name || ''}`.trim() || 'Anonymous'
-                        : 'Anonymous',
                       authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
                         ? post.author_profile.avatar_url || ''
                         : '',

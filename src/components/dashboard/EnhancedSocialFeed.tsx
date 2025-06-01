@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -198,9 +199,6 @@ const EnhancedSocialFeed = () => {
                       key={post.id}
                       post={{
                         id: post.id,
-                        author: post.author_profile && typeof post.author_profile === 'object' && 'first_name' in post.author_profile
-                          ? `${post.author_profile.first_name || ''} ${post.author_profile.last_name || ''}`.trim() || 'Anonymous'
-                          : 'Anonymous',
                         authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
                           ? post.author_profile.avatar_url || ''
                           : '',
