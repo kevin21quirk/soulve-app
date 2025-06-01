@@ -23,7 +23,6 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const createPostMutation = useCreatePost();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [taggedUsers, setTaggedUsers] = useState<TaggedUser[]>([]);
   const [formData, setFormData] = useState<PostFormData>({
@@ -115,7 +114,6 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     setTaggedUsers([]);
     setIsExpanded(false);
     setShowTemplates(false);
-    setShowAdvancedOptions(false);
   };
 
   const handleInputChange = (field: keyof PostFormData, value: any) => {
@@ -134,7 +132,6 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       tags: template.tags || prev.tags
     }));
     setShowTemplates(false);
-    setShowAdvancedOptions(true);
   };
 
   const handleLocationSelect = (location: { address: string }) => {
@@ -183,18 +180,16 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     console.log("Collapsing post form");
     setIsExpanded(false);
     setShowTemplates(false);
-    setShowAdvancedOptions(false);
   };
 
   const handleToggleAdvancedOptions = () => {
-    console.log("Toggling advanced options");
-    setShowAdvancedOptions(!showAdvancedOptions);
+    console.log("Showing templates");
+    setShowTemplates(true);
   };
 
   const handleCancelTemplates = () => {
     console.log("Canceling template selection");
     setShowTemplates(false);
-    setShowAdvancedOptions(false);
   };
 
   const handleMediaChange = (files: MediaFile[]) => {
@@ -230,7 +225,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       onLocationSelect={handleLocationSelect}
       mediaFiles={mediaFiles}
       onMediaChange={handleMediaChange}
-      showAdvancedOptions={showAdvancedOptions}
+      showAdvancedOptions={true}
       onToggleAdvancedOptions={handleToggleAdvancedOptions}
       onSubmit={handleSubmit}
       onCancel={handleCollapsePost}

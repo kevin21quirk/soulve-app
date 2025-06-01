@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Upload, FileText } from "lucide-react";
+import { X, FileText } from "lucide-react";
 import PostFormFields from "./PostFormFields";
 import PostAdvancedOptions from "./PostAdvancedOptions";
 import { PostFormData } from "../CreatePostTypes";
@@ -50,22 +50,9 @@ const PostFormSection = ({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Create New Post</CardTitle>
-          <div className="flex items-center space-x-2">
-            {!showAdvancedOptions && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onToggleAdvancedOptions}
-                type="button"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Advanced
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={onCancel} type="button">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm" onClick={onCancel} type="button">
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -79,30 +66,26 @@ const PostFormSection = ({
             onLocationSelect={onLocationSelect}
           />
 
-          {/* Advanced Options */}
-          {showAdvancedOptions && (
-            <PostAdvancedOptions
-              formData={formData}
-              onFormDataChange={onInputChange}
-              mediaFiles={mediaFiles}
-              onMediaChange={onMediaChange}
-            />
-          )}
+          {/* Always show advanced options */}
+          <PostAdvancedOptions
+            formData={formData}
+            onFormDataChange={onInputChange}
+            mediaFiles={mediaFiles}
+            onMediaChange={onMediaChange}
+          />
 
           <div className="flex justify-end space-x-2 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            {!showAdvancedOptions && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onToggleAdvancedOptions}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Use Template
-              </Button>
-            )}
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onToggleAdvancedOptions}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Use Template
+            </Button>
             <Button 
               type="submit" 
               disabled={!isFormValid}
