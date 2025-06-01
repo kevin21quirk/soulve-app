@@ -22,7 +22,7 @@ export class HelpCompletionService {
       .single();
 
     if (error) throw error;
-    return result;
+    return result as HelpCompletionRequest;
   }
 
   static async getCompletionRequestsForHelper(helperId: string): Promise<HelpCompletionRequest[]> {
@@ -33,7 +33,7 @@ export class HelpCompletionService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as HelpCompletionRequest[];
   }
 
   static async getCompletionRequestsForRequester(requesterId: string): Promise<HelpCompletionRequest[]> {
@@ -45,7 +45,7 @@ export class HelpCompletionService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as HelpCompletionRequest[];
   }
 
   static async reviewCompletionRequest(
@@ -65,7 +65,7 @@ export class HelpCompletionService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as HelpCompletionRequest;
   }
 
   static async getCompletionRequestForPost(postId: string): Promise<HelpCompletionRequest | null> {
@@ -78,6 +78,6 @@ export class HelpCompletionService {
       .maybeSingle();
 
     if (error) throw error;
-    return data;
+    return data as HelpCompletionRequest | null;
   }
 }
