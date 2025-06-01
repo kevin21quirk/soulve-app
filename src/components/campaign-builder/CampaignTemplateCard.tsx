@@ -98,7 +98,7 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
             variant="outline"
             size="sm"
             onClick={() => onSelect(template)}
-            className="flex-1 flex items-center space-x-1"
+            className="flex-1 flex items-center space-x-1 bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
           >
             <Eye className="h-3 w-3" />
             <span>Preview</span>
@@ -106,7 +106,7 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
           <Button
             size="sm"
             onClick={() => onUse(template)}
-            className="flex-1"
+            className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
           >
             Use Template
           </Button>
