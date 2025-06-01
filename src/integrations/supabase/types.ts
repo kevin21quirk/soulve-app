@@ -650,6 +650,104 @@ export type Database = {
         }
         Relationships: []
       }
+      evidence_submissions: {
+        Row: {
+          activity_id: string | null
+          created_at: string
+          evidence_type: string
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          rejection_reason: string | null
+          updated_at: string
+          user_id: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          activity_id?: string | null
+          created_at?: string
+          evidence_type: string
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          activity_id?: string | null
+          created_at?: string
+          evidence_type?: string
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_submissions_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "impact_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fraud_detection_log: {
+        Row: {
+          actual_value: number
+          auto_flagged: boolean | null
+          created_at: string
+          detection_type: string
+          id: string
+          metadata: Json | null
+          reviewed: boolean | null
+          reviewer_id: string | null
+          risk_score: number
+          threshold_value: number
+          time_window: string
+          user_id: string
+        }
+        Insert: {
+          actual_value: number
+          auto_flagged?: boolean | null
+          created_at?: string
+          detection_type: string
+          id?: string
+          metadata?: Json | null
+          reviewed?: boolean | null
+          reviewer_id?: string | null
+          risk_score?: number
+          threshold_value: number
+          time_window: string
+          user_id: string
+        }
+        Update: {
+          actual_value?: number
+          auto_flagged?: boolean | null
+          created_at?: string
+          detection_type?: string
+          id?: string
+          metadata?: Json | null
+          reviewed?: boolean | null
+          reviewer_id?: string | null
+          risk_score?: number
+          threshold_value?: number
+          time_window?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -780,33 +878,48 @@ export type Database = {
       impact_activities: {
         Row: {
           activity_type: string
+          auto_verified: boolean | null
           created_at: string
           description: string
+          effort_level: number | null
+          evidence_submitted: boolean | null
           id: string
           metadata: Json | null
           points_earned: number
+          requires_evidence: boolean | null
+          risk_score: number | null
           updated_at: string
           user_id: string
           verified: boolean | null
         }
         Insert: {
           activity_type: string
+          auto_verified?: boolean | null
           created_at?: string
           description: string
+          effort_level?: number | null
+          evidence_submitted?: boolean | null
           id?: string
           metadata?: Json | null
           points_earned?: number
+          requires_evidence?: boolean | null
+          risk_score?: number | null
           updated_at?: string
           user_id: string
           verified?: boolean | null
         }
         Update: {
           activity_type?: string
+          auto_verified?: boolean | null
           created_at?: string
           description?: string
+          effort_level?: number | null
+          evidence_submitted?: boolean | null
           id?: string
           metadata?: Json | null
           points_earned?: number
+          requires_evidence?: boolean | null
+          risk_score?: number | null
           updated_at?: string
           user_id?: string
           verified?: boolean | null
@@ -857,43 +970,58 @@ export type Database = {
       }
       impact_metrics: {
         Row: {
+          average_rating: number | null
           calculated_at: string
           connections_count: number | null
+          decay_applied_count: number | null
           donation_amount: number | null
           help_provided_count: number | null
           help_received_count: number | null
           id: string
           impact_score: number
+          last_activity_date: string | null
+          red_flag_count: number | null
           response_time_hours: number | null
           trust_score: number
           user_id: string
           volunteer_hours: number | null
+          xp_points: number | null
         }
         Insert: {
+          average_rating?: number | null
           calculated_at?: string
           connections_count?: number | null
+          decay_applied_count?: number | null
           donation_amount?: number | null
           help_provided_count?: number | null
           help_received_count?: number | null
           id?: string
           impact_score?: number
+          last_activity_date?: string | null
+          red_flag_count?: number | null
           response_time_hours?: number | null
           trust_score?: number
           user_id: string
           volunteer_hours?: number | null
+          xp_points?: number | null
         }
         Update: {
+          average_rating?: number | null
           calculated_at?: string
           connections_count?: number | null
+          decay_applied_count?: number | null
           donation_amount?: number | null
           help_provided_count?: number | null
           help_received_count?: number | null
           id?: string
           impact_score?: number
+          last_activity_date?: string | null
+          red_flag_count?: number | null
           response_time_hours?: number | null
           trust_score?: number
           user_id?: string
           volunteer_hours?: number | null
+          xp_points?: number | null
         }
         Relationships: []
       }
@@ -972,6 +1100,39 @@ export type Database = {
           sender_id?: string | null
           title?: string
           type?: string
+        }
+        Relationships: []
+      }
+      point_decay_log: {
+        Row: {
+          applied_at: string
+          decay_percentage: number
+          id: string
+          last_activity_date: string | null
+          points_after: number
+          points_before: number
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string
+          decay_percentage?: number
+          id?: string
+          last_activity_date?: string | null
+          points_after?: number
+          points_before?: number
+          reason?: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string
+          decay_percentage?: number
+          id?: string
+          last_activity_date?: string | null
+          points_after?: number
+          points_before?: number
+          reason?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1223,6 +1384,51 @@ export type Database = {
         }
         Relationships: []
       }
+      red_flags: {
+        Row: {
+          created_at: string
+          description: string
+          evidence: Json | null
+          flag_type: string
+          flagged_by: string | null
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          evidence?: Json | null
+          flag_type: string
+          flagged_by?: string | null
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          evidence?: Json | null
+          flag_type?: string
+          flagged_by?: string | null
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       seasonal_challenges: {
         Row: {
           created_at: string
@@ -1262,6 +1468,42 @@ export type Database = {
           start_date?: string
           target_categories?: string[] | null
           title?: string
+        }
+        Relationships: []
+      }
+      trust_domains: {
+        Row: {
+          actions_count: number
+          average_rating: number | null
+          created_at: string
+          domain: string
+          domain_score: number
+          id: string
+          last_activity: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actions_count?: number
+          average_rating?: number | null
+          created_at?: string
+          domain: string
+          domain_score?: number
+          id?: string
+          last_activity?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actions_count?: number
+          average_rating?: number | null
+          created_at?: string
+          domain?: string
+          domain_score?: number
+          id?: string
+          last_activity?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1516,6 +1758,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_point_decay: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       award_impact_points: {
         Args: {
           target_user_id: string
@@ -1540,6 +1786,10 @@ export type Database = {
         Args: { campaign_uuid: string }
         Returns: number
       }
+      calculate_enhanced_trust_score: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
       calculate_trust_score: {
         Args: { user_uuid: string }
         Returns: number
@@ -1551,6 +1801,10 @@ export type Database = {
       calculate_user_similarity: {
         Args: { user1_id: string; user2_id: string }
         Returns: number
+      }
+      detect_fraud_patterns: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
       generate_user_recommendations: {
         Args: { target_user_id: string }

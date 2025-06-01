@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { HelpCompletionService } from '@/services/helpCompletionService';
+import { EnhancedPointsService } from '@/services/enhancedPointsService';
 import { HelpCompletionRequest, CreateHelpCompletionRequest, ReviewHelpCompletionRequest } from '@/types/helpCompletion';
 
 export const useHelpCompletion = () => {
@@ -83,11 +84,15 @@ export const useHelpCompletion = () => {
     try {
       await HelpCompletionService.reviewCompletionRequest(requestId, review);
       
+      const statusMessage = review.status === 'approved' 
+        ? "Help Approved! ✅ Points have been awarded!" 
+        : "Help completion has been rejected.";
+      
       toast({
-        title: review.status === 'approved' ? "Help Approved! ✅" : "Help Rejected",
+        title: statusMessage,
         description: review.status === 'approved' 
-          ? "Points have been awarded to your helper!"
-          : "The help completion has been rejected.",
+          ? `Rating: ${review.feedback_rating}/5 stars`
+          : review.feedback_message || "Completion was not verified.",
       });
       
       await loadPendingRequests();
