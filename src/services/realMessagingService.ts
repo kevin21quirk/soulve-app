@@ -33,25 +33,39 @@ export const useConversations = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      // Get latest message with each user
+      // Get latest message with each user - simplified query
       const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender_profile:profiles!sender_id(first_name, last_name, avatar_url),
-          recipient_profile:profiles!recipient_id(first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .or(`sender_id.eq.${user.user.id},recipient_id.eq.${user.user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      // Get unique partner IDs and fetch their profiles separately
+      const partnerIds = new Set<string>();
+      (messages || []).forEach((message: any) => {
+        const partnerId = message.sender_id === user.user.id ? message.recipient_id : message.sender_id;
+        partnerIds.add(partnerId);
+      });
+
+      // Fetch profiles separately
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', Array.from(partnerIds));
+
+      const profileMap = new Map();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
 
       // Group by conversation partner and get latest message
       const conversationsMap = new Map();
       
       (messages || []).forEach((message: any) => {
         const partnerId = message.sender_id === user.user.id ? message.recipient_id : message.sender_id;
-        const partnerProfile = message.sender_id === user.user.id ? message.recipient_profile : message.sender_profile;
+        const partnerProfile = profileMap.get(partnerId);
         
         if (!conversationsMap.has(partnerId)) {
           conversationsMap.set(partnerId, {
@@ -79,17 +93,34 @@ export const useMessages = (partnerId: string) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !partnerId) return [];
 
+      // Get messages first
       const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender_profile:profiles!sender_id(first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .or(`and(sender_id.eq.${user.user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.user.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return messages || [];
+
+      // Get sender profiles for all messages
+      const senderIds = [...new Set((messages || []).map(msg => msg.sender_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', senderIds);
+
+      const profileMap = new Map();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Add profile data to messages
+      const messagesWithProfiles = (messages || []).map(message => ({
+        ...message,
+        sender_profile: profileMap.get(message.sender_id)
+      }));
+
+      return messagesWithProfiles;
     },
     enabled: !!partnerId,
   });

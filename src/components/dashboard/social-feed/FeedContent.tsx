@@ -59,7 +59,7 @@ const FeedContent = ({
             ...post,
             urgency: post.urgency || 'medium',
             tags: post.tags || [],
-            reactions: post.reactions || []
+            reactions: post.reactions ? post.reactions.map(r => typeof r === 'string' ? r : r.type || 'like') : []
           }}
           onLike={() => onLike(post.id)}
           onShare={() => onShare(post.id)}
