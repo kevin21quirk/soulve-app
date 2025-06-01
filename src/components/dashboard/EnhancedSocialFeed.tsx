@@ -11,6 +11,7 @@ import { usePosts, usePostInteraction } from "@/services/realPostsService";
 import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { supabase } from "@/integrations/supabase/client";
+import { FeedPost } from "@/types/feed";
 
 const EnhancedSocialFeed = () => {
   const [activeTab, setActiveTab] = useState("for-you");
@@ -32,11 +33,11 @@ const EnhancedSocialFeed = () => {
       case "urgent":
         return filteredPosts.filter(post => post.urgency === "urgent" || post.urgency === "high");
       case "nearby":
-        return filteredPosts.filter(post => post.location);
+        return filteredPosts.filter(post => post.location && post.location !== 'Location not specified');
       case "trending":
         return filteredPosts.sort((a, b) => {
-          const aScore = (a.interactions?.like_count || 0) + (a.interactions?.comment_count || 0);
-          const bScore = (b.interactions?.like_count || 0) + (b.interactions?.comment_count || 0);
+          const aScore = a.likes + a.responses + a.shares;
+          const bScore = b.likes + b.responses + b.shares;
           return bScore - aScore;
         });
       case "following":
@@ -55,7 +56,7 @@ const EnhancedSocialFeed = () => {
     try {
       // Get current state for optimistic update
       const post = posts.find(p => p.id === postId);
-      const currentlyLiked = post?.interactions?.user_liked || false;
+      const currentlyLiked = post?.isLiked || false;
       
       // Apply optimistic update immediately
       optimisticLike(postId, !currentlyLiked);
@@ -197,38 +198,13 @@ const EnhancedSocialFeed = () => {
                   {filteredPostsForDisplay.map((post) => (
                     <FeedPostCard
                       key={post.id}
-                      post={{
-                        id: post.id,
-                        authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
-                          ? post.author_profile.avatar_url || ''
-                          : '',
-                        title: post.title,
-                        description: post.content,
-                        category: post.category as any,
-                        date: new Date(post.created_at),
-                        location: post.location || 'Location not specified',
-                        responses: post.interactions?.comment_count || 0,
-                        likes: post.interactions?.like_count || 0,
-                        shares: 0,
-                        urgency: post.urgency as any,
-                        tags: post.tags || [],
-                        comments: post.comments?.map(comment => ({
-                          id: comment.id,
-                          author: comment.author,
-                          content: comment.content,
-                          timestamp: comment.created_at,
-                          likes: comment.likes,
-                          isLiked: false,
-                          user_id: comment.user_id,
-                          created_at: comment.created_at
-                        })) || []
-                      }}
-                      onLike={() => handleLike(post.id)}
+                      post={post}
+                      onLike={handleLike}
                       onShare={() => {}}
                       onRespond={() => {}}
                       onBookmark={() => {}}
                       onReaction={() => {}}
-                      onAddComment={(content) => handleComment(post.id, content)}
+                      onAddComment={handleComment}
                       onLikeComment={() => {}}
                       onCommentReaction={() => {}}
                     />

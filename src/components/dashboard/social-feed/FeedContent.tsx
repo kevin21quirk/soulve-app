@@ -55,31 +55,7 @@ const FeedContent = ({
       {posts.map((post) => (
         <FeedPostCard
           key={post.id}
-          post={{
-            id: post.id,
-            authorAvatar: post.avatar, // Map avatar to authorAvatar
-            title: post.title,
-            description: post.description,
-            category: post.category,
-            date: new Date(post.timestamp), // Convert timestamp string to Date object
-            location: post.location || 'Location not specified',
-            responses: post.responses,
-            likes: post.likes,
-            shares: post.shares,
-            urgency: post.urgency || 'medium',
-            tags: post.tags || [],
-            // Transform comments to match expected format
-            comments: (post.comments || []).map(comment => ({
-              id: comment.id,
-              author: comment.author,
-              content: comment.content || '', 
-              timestamp: comment.timestamp || new Date().toISOString(),
-              likes: comment.likes,
-              isLiked: comment.isLiked || false,
-              user_id: comment.user_id || '',
-              created_at: comment.created_at || comment.timestamp || new Date().toISOString()
-            }))
-          }}
+          post={post}
           onLike={() => onLike(post.id)}
           onShare={() => onShare(post.id)}
           onRespond={() => onRespond(post.id)}

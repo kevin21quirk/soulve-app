@@ -3,120 +3,147 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
-import { PostWithProfile } from "@/services/realPostsService";
-import { usePostInteraction } from "@/services/realPostsService";
-import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
+import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock, MoreHorizontal } from "lucide-react";
+import { FeedPost } from "@/types/feed";
+import PostReactions from "./PostReactions";
+import PostComments from "./PostComments";
+import { useState } from "react";
 
 interface FeedPostCardProps {
-  post: PostWithProfile;
+  post: FeedPost;
+  onLike: (postId: string) => void;
+  onShare: (postId: string) => void;
+  onRespond: (postId: string) => void;
+  onBookmark: (postId: string) => void;
+  onReaction: (postId: string, reactionType: string) => void;
+  onAddComment: (postId: string, content: string) => void;
+  onLikeComment: (postId: string, commentId: string) => void;
+  onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
 }
 
-const FeedPostCard = ({ post }: FeedPostCardProps) => {
-  const postInteraction = usePostInteraction();
-  const { optimisticLike } = useOptimisticUpdates();
+const FeedPostCard = ({ 
+  post, 
+  onLike, 
+  onShare, 
+  onRespond, 
+  onBookmark,
+  onReaction,
+  onAddComment,
+  onLikeComment,
+  onCommentReaction 
+}: FeedPostCardProps) => {
+  const [showComments, setShowComments] = useState(false);
 
-  const handleLike = async () => {
-    const newLikedState = !post.interactions?.user_liked;
-    
-    // Optimistic update
-    optimisticLike(post.id, newLikedState);
-    
-    // Send to server
-    try {
-      await postInteraction.mutateAsync({
-        postId: post.id,
-        interactionType: 'like'
-      });
-    } catch (error) {
-      console.error('Failed to like post:', error);
-      // Revert optimistic update on error
-      optimisticLike(post.id, !newLikedState);
-    }
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      "help-needed": "bg-red-100 text-red-700 border-red-200",
+      "help-offered": "bg-green-100 text-green-700 border-green-200", 
+      "success-story": "bg-blue-100 text-blue-700 border-blue-200",
+      "announcement": "bg-purple-100 text-purple-700 border-purple-200",
+      "question": "bg-yellow-100 text-yellow-700 border-yellow-200",
+      "recommendation": "bg-indigo-100 text-indigo-700 border-indigo-200",
+    };
+    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-700 border-gray-200";
   };
 
-  const handleComment = () => {
-    console.log('Comment on post:', post.id);
-  };
-
-  const handleShare = () => {
-    console.log('Share post:', post.id);
-  };
-
-  const handleBookmark = () => {
-    console.log('Bookmark post:', post.id);
+  const getUrgencyColor = (urgency: string) => {
+    const colors = {
+      "urgent": "bg-red-500 text-white",
+      "high": "bg-orange-500 text-white",
+      "medium": "bg-yellow-500 text-white",
+      "low": "bg-green-500 text-white",
+    };
+    return colors[urgency as keyof typeof colors] || "bg-gray-500 text-white";
   };
 
   return (
-    <Card className="mb-4">
+    <Card className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+      {/* Post Header */}
       <CardHeader className="pb-3">
-        <div className="flex items-center space-x-3">
-          <Avatar>
-            <AvatarImage src={post.author_profile.avatar_url} />
-            <AvatarFallback>
-              {post.author_profile.first_name?.[0] || 'U'}
-              {post.author_profile.last_name?.[0] || ''}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <p className="font-medium">
-              {post.author_profile.first_name} {post.author_profile.last_name}
-            </p>
-            <p className="text-sm text-gray-500">{post.created_at}</p>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <Avatar className="h-10 w-10 flex-shrink-0">
+              <AvatarImage src={post.avatar} alt={post.author} />
+              <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                {post.author.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-semibold text-gray-900 text-sm truncate">
+                  {post.author}
+                </h3>
+                <Badge className={`${getCategoryColor(post.category)} text-xs px-2 py-0.5 border flex-shrink-0`}>
+                  {post.category.replace('-', ' ')}
+                </Badge>
+                {post.urgency && post.urgency !== 'medium' && (
+                  <Badge className={`${getUrgencyColor(post.urgency)} text-xs px-2 py-0.5 flex-shrink-0`}>
+                    {post.urgency}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>{post.timestamp}</span>
+                {post.location && (
+                  <>
+                    <span>•</span>
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{post.location}</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <Badge variant="outline">{post.category}</Badge>
-            <Badge variant="secondary">{post.urgency}</Badge>
-          </div>
+          <Button variant="ghost" size="sm" className="p-1 h-6 w-6 flex-shrink-0 -mt-1">
+            <MoreHorizontal className="h-4 w-4 text-gray-500" />
+          </Button>
         </div>
       </CardHeader>
-      
-      <CardContent>
-        <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-        <p className="text-gray-700 mb-4">{post.content}</p>
-        
-        {post.location && (
-          <p className="text-sm text-gray-500 mb-4">📍 {post.location}</p>
-        )}
-        
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-        
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`flex items-center space-x-1 ${
-                post.interactions?.user_liked ? 'text-red-500' : ''
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${post.interactions?.user_liked ? 'fill-current' : ''}`} />
-              <span>{post.interactions?.like_count || 0}</span>
-            </Button>
-            
-            <Button variant="ghost" size="sm" onClick={handleComment} className="flex items-center space-x-1">
-              <MessageCircle className="h-4 w-4" />
-              <span>{post.interactions?.comment_count || 0}</span>
-            </Button>
-            
-            <Button variant="ghost" size="sm" onClick={handleShare} className="flex items-center space-x-1">
-              <Share2 className="h-4 w-4" />
-              <span>Share</span>
-            </Button>
+
+      {/* Post Content */}
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div>
+            <h2 className="font-semibold text-gray-900 text-base mb-2 leading-tight">
+              {post.title}
+            </h2>
+            <p className="text-gray-700 text-sm leading-relaxed break-words">
+              {post.description}
+            </p>
           </div>
           
-          <Button variant="ghost" size="sm" onClick={handleBookmark}>
-            <Bookmark className="h-4 w-4" />
-          </Button>
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {post.tags.filter(tag => !['help-center', 'campaign'].includes(tag)).slice(0, 3).map((tag, index) => (
+                <Badge key={index} variant="outline" className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 border-gray-200">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Reactions */}
+          <PostReactions 
+            post={post}
+            onLike={onLike}
+            onShare={onShare}
+            onRespond={() => setShowComments(!showComments)}
+            onBookmark={onBookmark}
+            onReaction={onReaction}
+          />
+
+          {/* Comments Section */}
+          {(showComments || (post.comments && post.comments.length > 0)) && (
+            <PostComments
+              post={post}
+              onAddComment={onAddComment}
+              onLikeComment={onLikeComment}
+              onCommentReaction={onCommentReaction}
+              isExpanded={showComments}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

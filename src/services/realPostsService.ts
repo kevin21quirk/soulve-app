@@ -1,7 +1,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { FeedPost } from '@/types/feed';
+import { transformPostToFeedPost } from '@/utils/dataTransformers';
 
-// Types
+// Types for database interaction
 export interface PostWithProfile {
   id: string;
   title: string;
@@ -34,12 +36,12 @@ export interface PostWithProfile {
 }
 
 // Mock data for now - in a real app this would connect to your backend
-const mockPosts: PostWithProfile[] = [
+const mockPostsData: PostWithProfile[] = [
   {
     id: '1',
     title: 'Help needed with grocery shopping',
     content: 'Looking for someone to help with weekly grocery runs for my elderly neighbor.',
-    category: 'help_needed',
+    category: 'help-needed',
     urgency: 'medium',
     location: 'Downtown District',
     tags: ['transportation', 'elderly care'],
@@ -60,7 +62,7 @@ const mockPosts: PostWithProfile[] = [
     id: '2',
     title: 'Volunteer opportunity at food bank',
     content: 'Join our team distributing meals to families in need every Saturday morning.',
-    category: 'volunteer',
+    category: 'help-offered',
     urgency: 'high',
     location: 'Community Center',
     tags: ['volunteer', 'food assistance'],
@@ -82,10 +84,12 @@ const mockPosts: PostWithProfile[] = [
 export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
-    queryFn: async (): Promise<PostWithProfile[]> => {
+    queryFn: async (): Promise<FeedPost[]> => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return mockPosts;
+      
+      // Transform PostWithProfile data to FeedPost format
+      return mockPostsData.map(transformPostToFeedPost);
     },
   });
 };
@@ -106,7 +110,7 @@ export const useCreatePost = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      const newPost: PostWithProfile = {
+      const newPostData: PostWithProfile = {
         id: Date.now().toString(),
         title: postData.title,
         content: postData.content,
@@ -128,7 +132,8 @@ export const useCreatePost = () => {
         comments: []
       };
       
-      return newPost;
+      // Transform to FeedPost before returning
+      return transformPostToFeedPost(newPostData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });

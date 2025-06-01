@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -110,7 +109,7 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!post.title.toLowerCase().includes(query) && 
-          !post.content.toLowerCase().includes(query)) {
+          !post.description.toLowerCase().includes(query)) {
         return false;
       }
     }
@@ -234,32 +233,7 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                   {filteredPosts.slice(0, 10).map((post) => (
                     <FeedPostCard
                       key={post.id}
-                      post={{
-                        id: post.id,
-                        authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
-                          ? post.author_profile.avatar_url || ''
-                          : '',
-                        title: post.title,
-                        description: post.content,
-                        category: post.category as any,
-                        date: new Date(post.created_at),
-                        location: post.location || 'Location not specified',
-                        responses: post.interactions?.comment_count || 0,
-                        likes: post.interactions?.like_count || 0,
-                        shares: 0,
-                        urgency: post.urgency as any,
-                        tags: post.tags || [],
-                        comments: post.comments?.map(comment => ({
-                          id: comment.id,
-                          author: comment.author,
-                          content: comment.content,
-                          timestamp: comment.created_at,
-                          likes: comment.likes,
-                          isLiked: false,
-                          user_id: comment.user_id,
-                          created_at: comment.created_at
-                        })) || []
-                      }}
+                      post={post}
                       onLike={() => handlePostInteraction(post.id, 'like')}
                       onShare={() => handlePostInteraction(post.id, 'share')}
                       onRespond={() => handlePostInteraction(post.id, 'respond')}
@@ -306,32 +280,7 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                 {posts.slice(0, 5).map((post) => (
                   <FeedPostCard
                     key={post.id}
-                    post={{
-                      id: post.id,
-                      authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
-                        ? post.author_profile.avatar_url || ''
-                        : '',
-                      title: post.title,
-                      description: post.content,
-                      category: post.category as any,
-                      date: new Date(post.created_at),
-                      location: post.location || 'Location not specified',
-                      responses: post.interactions?.comment_count || 0,
-                      likes: post.interactions?.like_count || 0,
-                      shares: 0,
-                      urgency: post.urgency as any,
-                      tags: post.tags || [],
-                      comments: post.comments?.map(comment => ({
-                        id: comment.id,
-                        author: comment.author,
-                        content: comment.content,
-                        timestamp: comment.created_at,
-                        likes: comment.likes,
-                        isLiked: false,
-                        user_id: comment.user_id,
-                        created_at: comment.created_at
-                      })) || []
-                    }}
+                    post={post}
                     onLike={() => handlePostInteraction(post.id, 'like')}
                     onShare={() => handlePostInteraction(post.id, 'share')}
                     onRespond={() => handlePostInteraction(post.id, 'respond')}
