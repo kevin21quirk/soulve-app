@@ -218,7 +218,7 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                 <TrendingUp className="h-5 w-5 text-green-600" />
                 <span>Trending Now</span>
               </CardTitle>
-            </CardContent>
+            </CardHeader>
             <CardContent>
               {postsLoading ? (
                 <div className="text-center py-8">
