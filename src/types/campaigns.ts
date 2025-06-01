@@ -16,6 +16,3 @@ export interface CampaignData {
   tags: string[];
   isParticipating: boolean;
 }
-
-// Export as Campaign for backward compatibility
-export type Campaign = CampaignData;
