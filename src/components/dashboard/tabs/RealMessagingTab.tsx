@@ -1,15 +1,14 @@
 
-import React from 'react';
-import { RealMessaging } from '../RealMessaging';
+import RealTimeMessagingInterface from '@/components/messaging/RealTimeMessagingInterface';
 
 const RealMessagingTab = () => {
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Messages</h1>
+        <h2 className="text-2xl font-bold">Messages</h2>
       </div>
       
-      <RealMessaging />
+      <RealTimeMessagingInterface />
     </div>
   );
 };
