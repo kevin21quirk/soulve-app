@@ -3,21 +3,57 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, MapPin, Lock, Globe, Calendar, UserPlus } from "lucide-react";
-import { useGroupsManager } from "@/hooks/useGroupsManager";
+import { useSuggestedGroups, useJoinGroup } from "@/services/groupsService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DiscoverGroupsProps {
   searchQuery: string;
 }
 
 const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
-  const { suggestedGroups, handleJoinGroup } = useGroupsManager();
+  const { data: suggestedGroups = [], isLoading } = useSuggestedGroups();
+  const joinGroup = useJoinGroup();
 
   const filteredGroups = suggestedGroups.filter(group => {
     if (!searchQuery) return true;
     return group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           group.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           group.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
            group.category.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  const handleJoinGroup = (groupId: string) => {
+    joinGroup.mutate(groupId);
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Users className="h-5 w-5 text-green-500" />
+            <span>Discover Groups</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="border rounded-lg p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-full" />
+                  <div className="flex space-x-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-20" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-24" />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -35,10 +71,10 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
         ) : (
           filteredGroups.map((group) => (
             <div key={group.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-              {group.coverImage && (
+              {group.cover_image && (
                 <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                   <img 
-                    src={group.coverImage} 
+                    src={group.cover_image} 
                     alt={group.name}
                     className="w-full h-full object-cover"
                   />
@@ -50,7 +86,7 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <h4 className="font-semibold text-gray-900">{group.name}</h4>
-                      {group.isPrivate ? (
+                      {group.is_private ? (
                         <Lock className="h-4 w-4 text-gray-500" />
                       ) : (
                         <Globe className="h-4 w-4 text-green-500" />
@@ -62,7 +98,7 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
                     <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
                       <div className="flex items-center space-x-1">
                         <Users className="h-3 w-3" />
-                        <span>{group.memberCount} members</span>
+                        <span>{group.member_count} members</span>
                       </div>
                       {group.location && (
                         <div className="flex items-center space-x-1">
@@ -101,10 +137,11 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
                     variant="gradient"
                     size="sm"
                     onClick={() => handleJoinGroup(group.id)}
+                    disabled={joinGroup.isPending}
                     className="whitespace-nowrap"
                   >
                     <UserPlus className="h-4 w-4 mr-1" />
-                    {group.isPrivate ? 'Request to Join' : 'Join Group'}
+                    {group.is_private ? 'Request to Join' : 'Join Group'}
                   </Button>
                 </div>
               </div>

@@ -13,9 +13,13 @@ import {
   BarChart3
 } from "lucide-react";
 import { useRealConnections } from "@/services/realConnectionsService";
+import { useUserGroups } from "@/services/groupsService";
+import { useUserCampaignParticipation } from "@/services/campaignsService";
 
 const NetworkInsights = () => {
   const { data: connections = [] } = useRealConnections();
+  const { data: userGroups = [] } = useUserGroups();
+  const { data: userCampaigns = [] } = useUserCampaignParticipation();
 
   const acceptedConnections = connections.filter(conn => conn.status === 'accepted');
   const pendingConnections = connections.filter(conn => conn.status === 'pending');
@@ -23,17 +27,37 @@ const NetworkInsights = () => {
   const networkStats = {
     totalConnections: acceptedConnections.length,
     pendingRequests: pendingConnections.length,
-    networkGrowth: 15, // Mock data
-    trustScore: 85, // Mock data
-    helpfulActions: 23, // Mock data
-    communitiesJoined: 5, // Mock data
+    networkGrowth: Math.min(15 + acceptedConnections.length * 2, 100), // Dynamic growth based on connections
+    trustScore: Math.min(50 + acceptedConnections.length * 5 + userGroups.length * 3, 100), // Dynamic trust score
+    helpfulActions: userCampaigns.length + userGroups.length, // Based on actual participation
+    communitiesJoined: userGroups.length,
   };
 
   const achievements = [
-    { icon: Users, title: "Community Builder", description: "Connected with 10+ people", earned: true },
-    { icon: Star, title: "Trusted Helper", description: "85% trust score", earned: true },
-    { icon: Globe, title: "Global Connector", description: "Connected across 3+ cities", earned: false },
-    { icon: Award, title: "Campaign Champion", description: "Participated in 5+ campaigns", earned: false },
+    { 
+      icon: Users, 
+      title: "Community Builder", 
+      description: "Connected with 10+ people", 
+      earned: networkStats.totalConnections >= 10 
+    },
+    { 
+      icon: Star, 
+      title: "Trusted Helper", 
+      description: "85% trust score", 
+      earned: networkStats.trustScore >= 85 
+    },
+    { 
+      icon: Globe, 
+      title: "Global Connector", 
+      description: "Joined 3+ communities", 
+      earned: networkStats.communitiesJoined >= 3 
+    },
+    { 
+      icon: Award, 
+      title: "Campaign Champion", 
+      description: "Participated in 5+ campaigns", 
+      earned: userCampaigns.length >= 5 
+    },
   ];
 
   const insights = [
@@ -47,18 +71,32 @@ const NetworkInsights = () => {
     {
       title: "Trust Score",
       value: `${networkStats.trustScore}%`,
-      description: "Above average",
+      description: networkStats.trustScore >= 75 ? "Above average" : "Building trust",
       trend: "up",
-      color: "text-blue-600"
+      color: networkStats.trustScore >= 75 ? "text-blue-600" : "text-yellow-600"
     },
     {
       title: "Community Impact",
       value: `${networkStats.helpfulActions}`,
-      description: "Helpful actions",
+      description: "Active participations",
       trend: "up",
       color: "text-purple-600"
     }
   ];
+
+  // Generate recent activity based on real data
+  const recentActivity = [
+    ...(acceptedConnections.slice(-2).map(conn => ({
+      action: `Connected with ${conn.partner_profile?.first_name || 'someone'}`,
+      time: new Date(conn.created_at).toLocaleDateString(),
+      type: "connection"
+    }))),
+    ...(userGroups.slice(-2).map(group => ({
+      action: `Joined '${group.name}' group`,
+      time: new Date(group.created_at).toLocaleDateString(),
+      type: "group"
+    }))),
+  ].slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -212,23 +250,24 @@ const NetworkInsights = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[
-              { action: "Connected with Sarah Johnson", time: "2 hours ago", type: "connection" },
-              { action: "Joined 'Community Garden' group", time: "1 day ago", type: "group" },
-              { action: "Participated in 'Clean Streets' campaign", time: "3 days ago", type: "campaign" },
-              { action: "Helped with moving assistance", time: "5 days ago", type: "help" },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 border-l-4 border-blue-200 bg-blue-50">
-                <Target className="h-4 w-4 text-blue-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-3 p-3 border-l-4 border-blue-200 bg-blue-50">
+                  <Target className="h-4 w-4 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                    <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {activity.type}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  {activity.type}
-                </Badge>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Start connecting and joining groups to see activity here!</p>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>

@@ -541,6 +541,7 @@ export type Database = {
           id: string
           location: string | null
           organization_type: string
+          organizer: string | null
           promotion_budget: number | null
           social_links: Json | null
           start_date: string
@@ -573,6 +574,7 @@ export type Database = {
           id?: string
           location?: string | null
           organization_type: string
+          organizer?: string | null
           promotion_budget?: number | null
           social_links?: Json | null
           start_date?: string
@@ -605,6 +607,7 @@ export type Database = {
           id?: string
           location?: string | null
           organization_type?: string
+          organizer?: string | null
           promotion_budget?: number | null
           social_links?: Json | null
           start_date?: string
