@@ -1,14 +1,9 @@
+
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { X, FileText, Calendar, MapPin, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import PostOptions from "./PostOptions";
-import UserTagging from "./tagging/UserTagging";
-import PostTemplates from "./post-creation/PostTemplates";
-import LocationSelector from "./post-creation/LocationSelector";
-import EnhancedMediaUpload from "./post-creation/EnhancedMediaUpload";
+import PostCollapsedView from "./post-creation/PostCollapsedView";
+import PostTemplateSelector from "./post-creation/PostTemplateSelector";
+import PostFormSection from "./post-creation/PostFormSection";
 import { PostFormData } from "./CreatePostTypes";
 import { MediaFile } from "./media-upload/MediaUploadTypes";
 
@@ -139,163 +134,61 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     setTaggedUsers(users);
   };
 
+  const handleShowTemplates = () => {
+    setShowTemplates(true);
+    setIsExpanded(true);
+  };
+
+  const handleExpandPost = () => {
+    setIsExpanded(true);
+  };
+
+  const handleCollapsePost = () => {
+    setIsExpanded(false);
+  };
+
+  const handleToggleAdvancedOptions = () => {
+    setShowAdvancedOptions(!showAdvancedOptions);
+  };
+
+  const handleCancelTemplates = () => {
+    setShowTemplates(false);
+    setShowAdvancedOptions(true);
+  };
+
   if (!isExpanded) {
     return (
-      <Card className="mb-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setIsExpanded(true)}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">Share something with your community... (Type @ to tag someone)</span>
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm" onClick={(e) => {
-                e.stopPropagation();
-                setShowTemplates(true);
-                setIsExpanded(true);
-              }}>
-                <FileText className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <PostCollapsedView
+        onExpand={handleExpandPost}
+        onShowTemplates={handleShowTemplates}
+      />
     );
   }
 
   if (showTemplates) {
     return (
-      <Card className="mb-6 border-blue-200">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Choose a Template</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => setShowTemplates(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <PostTemplates
-            onTemplateSelect={handleTemplateSelect}
-            onCancel={() => {
-              setShowTemplates(false);
-              setShowAdvancedOptions(true);
-            }}
-          />
-        </CardContent>
-      </Card>
+      <PostTemplateSelector
+        onTemplateSelect={handleTemplateSelect}
+        onCancel={handleCancelTemplates}
+      />
     );
   }
 
   return (
-    <Card className="mb-6 border-blue-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Create New Post</CardTitle>
-          <div className="flex items-center space-x-2">
-            {!showAdvancedOptions && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowAdvancedOptions(true)}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Advanced
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <UserTagging
-              value={formData.title}
-              onChange={handleTitleChange}
-              placeholder="What's the title of your post? (Type @ to tag someone)"
-            />
-          </div>
-
-          <div>
-            <UserTagging
-              value={formData.description}
-              onChange={handleDescriptionChange}
-              placeholder="Describe what you need or want to offer... (Type @ to tag someone)"
-              multiline
-              rows={3}
-            />
-          </div>
-
-          {/* Location Selector */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              <MapPin className="h-4 w-4 inline mr-1" />
-              Location
-            </label>
-            <LocationSelector
-              onLocationSelect={handleLocationSelect}
-              initialLocation={formData.location}
-            />
-          </div>
-
-          {/* Show tagged users */}
-          {taggedUsers.length > 0 && (
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <div className="text-sm font-medium text-blue-800 mb-2">Tagged users:</div>
-              <div className="flex flex-wrap gap-2">
-                {taggedUsers.map((user, index) => (
-                  <span key={index} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                    @{user.username}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Advanced Options */}
-          {showAdvancedOptions && (
-            <>
-              {/* Enhanced Media Upload */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Media Upload
-                </label>
-                <EnhancedMediaUpload
-                  onMediaChange={setMediaFiles}
-                  maxFiles={5}
-                  maxFileSize={10}
-                />
-              </div>
-
-              {/* Post Options */}
-              <PostOptions
-                formData={formData}
-                onFormDataChange={handleInputChange}
-              />
-            </>
-          )}
-
-          <div className="flex justify-end space-x-2 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => setIsExpanded(false)}>
-              Cancel
-            </Button>
-            {!showAdvancedOptions && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setShowAdvancedOptions(true)}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Use Template
-              </Button>
-            )}
-            <Button type="submit">
-              {formData.scheduledFor ? "Schedule Post" : "Share Post"}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <PostFormSection
+      formData={formData}
+      onInputChange={handleInputChange}
+      taggedUsers={taggedUsers}
+      onTitleChange={handleTitleChange}
+      onDescriptionChange={handleDescriptionChange}
+      onLocationSelect={handleLocationSelect}
+      mediaFiles={mediaFiles}
+      onMediaChange={setMediaFiles}
+      showAdvancedOptions={showAdvancedOptions}
+      onToggleAdvancedOptions={handleToggleAdvancedOptions}
+      onSubmit={handleSubmit}
+      onCancel={handleCollapsePost}
+    />
   );
 };
 

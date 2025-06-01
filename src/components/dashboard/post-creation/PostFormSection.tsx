@@ -1,0 +1,113 @@
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { X, Upload, FileText } from "lucide-react";
+import PostFormFields from "./PostFormFields";
+import PostAdvancedOptions from "./PostAdvancedOptions";
+import { PostFormData } from "../CreatePostTypes";
+import { MediaFile } from "../media-upload/MediaUploadTypes";
+
+interface TaggedUser {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+}
+
+interface PostFormSectionProps {
+  formData: PostFormData;
+  onInputChange: (field: keyof PostFormData, value: any) => void;
+  taggedUsers: TaggedUser[];
+  onTitleChange: (value: string, users: TaggedUser[]) => void;
+  onDescriptionChange: (value: string, users: TaggedUser[]) => void;
+  onLocationSelect: (location: { address: string }) => void;
+  mediaFiles: MediaFile[];
+  onMediaChange: (files: MediaFile[]) => void;
+  showAdvancedOptions: boolean;
+  onToggleAdvancedOptions: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+}
+
+const PostFormSection = ({
+  formData,
+  onInputChange,
+  taggedUsers,
+  onTitleChange,
+  onDescriptionChange,
+  onLocationSelect,
+  mediaFiles,
+  onMediaChange,
+  showAdvancedOptions,
+  onToggleAdvancedOptions,
+  onSubmit,
+  onCancel
+}: PostFormSectionProps) => {
+  return (
+    <Card className="mb-6 border-blue-200">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Create New Post</CardTitle>
+          <div className="flex items-center space-x-2">
+            {!showAdvancedOptions && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onToggleAdvancedOptions}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Advanced
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={onCancel}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={onSubmit} className="space-y-6">
+          <PostFormFields
+            formData={formData}
+            onInputChange={onInputChange}
+            taggedUsers={taggedUsers}
+            onTitleChange={onTitleChange}
+            onDescriptionChange={onDescriptionChange}
+            onLocationSelect={onLocationSelect}
+          />
+
+          {/* Advanced Options */}
+          {showAdvancedOptions && (
+            <PostAdvancedOptions
+              formData={formData}
+              onFormDataChange={onInputChange}
+              mediaFiles={mediaFiles}
+              onMediaChange={onMediaChange}
+            />
+          )}
+
+          <div className="flex justify-end space-x-2 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            {!showAdvancedOptions && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onToggleAdvancedOptions}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Use Template
+              </Button>
+            )}
+            <Button type="submit">
+              {formData.scheduledFor ? "Schedule Post" : "Share Post"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PostFormSection;
