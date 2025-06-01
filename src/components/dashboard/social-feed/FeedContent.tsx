@@ -56,7 +56,17 @@ const FeedContent = ({
         <FeedPostCard
           key={post.id}
           post={{
-            ...post,
+            id: post.id,
+            author: post.author,
+            authorAvatar: post.avatar, // Map avatar to authorAvatar
+            title: post.title,
+            description: post.description,
+            category: post.category,
+            date: new Date(post.timestamp), // Convert timestamp string to Date object
+            location: post.location || 'Location not specified',
+            responses: post.responses,
+            likes: post.likes,
+            shares: post.shares,
             urgency: post.urgency || 'medium',
             tags: post.tags || [],
             // Transform comments to match expected format
