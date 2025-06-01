@@ -1,70 +1,97 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, ThumbsUp, Smile, Frown, Angry } from "lucide-react";
-import { useState } from "react";
+import { Heart, MessageCircle, Share2, Bookmark, Send, Users } from "lucide-react";
 import { FeedPost } from "@/types/feed";
-import { useReactions } from "@/hooks/useReactions";
-import ReactionDisplay from "./ReactionDisplay";
 
 interface PostReactionsProps {
   post: FeedPost;
-  onReaction: (reactionType: string) => void;
+  onLike: (postId: string) => void;
+  onShare: (postId: string) => void;
+  onRespond: () => void;
+  onBookmark: (postId: string) => void;
+  onReaction: (postId: string, reactionType: string) => void;
 }
 
-const reactionTypes = [
-  { type: 'like', emoji: '👍', icon: ThumbsUp, label: 'Like' },
-  { type: 'love', emoji: '❤️', icon: Heart, label: 'Love' },
-  { type: 'laugh', emoji: '😂', icon: Smile, label: 'Laugh' },
-  { type: 'wow', emoji: '😮', icon: null, label: 'Wow' },
-  { type: 'sad', emoji: '😢', icon: Frown, label: 'Sad' },
-  { type: 'angry', emoji: '😠', icon: Angry, label: 'Angry' }
-];
-
-const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
-  const [showReactions, setShowReactions] = useState(false);
-  const { reactionCounts, totalReactions, hasUserReacted } = useReactions(post.reactions);
-
+const PostReactions = ({ 
+  post, 
+  onLike, 
+  onShare, 
+  onRespond, 
+  onBookmark,
+  onReaction
+}: PostReactionsProps) => {
   return (
-    <div className="relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setShowReactions(!showReactions)}
-        onMouseEnter={() => setShowReactions(true)}
-        onMouseLeave={() => setShowReactions(false)}
-        className={`flex items-center space-x-1 ${
-          hasUserReacted ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
-        }`}
-      >
-        <Heart className={`h-4 w-4 ${hasUserReacted ? "fill-current" : ""}`} />
-        <span>{totalReactions || post.likes}</span>
-      </Button>
-
-      {showReactions && (
-        <div 
-          className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex space-x-1 z-10"
-          onMouseEnter={() => setShowReactions(true)}
-          onMouseLeave={() => setShowReactions(false)}
+    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+      <div className="flex items-center space-x-1">
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => onLike(post.id)}
+          className={`hover:scale-105 transition-transform ${
+            post.isLiked ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
+          }`}
         >
-          {reactionTypes.map((reaction) => (
-            <Button
-              key={reaction.type}
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                onReaction(reaction.type);
-                setShowReactions(false);
-              }}
-              className="h-8 w-8 p-0 hover:bg-gray-100"
-              title={reaction.label}
-            >
-              <span className="text-lg">{reaction.emoji}</span>
-            </Button>
-          ))}
-        </div>
-      )}
+          <Heart className={`h-4 w-4 mr-2 ${post.isLiked ? "fill-current" : ""}`} />
+          <span>{post.likes}</span>
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={onRespond}
+          className="hover:scale-105 transition-transform text-gray-600 hover:text-blue-600"
+        >
+          <MessageCircle className="h-4 w-4 mr-2" />
+          <span>{post.responses}</span>
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => onShare(post.id)} 
+          className={`hover:scale-105 transition-transform ${
+            post.isShared ? 'text-green-600' : 'text-gray-600 hover:text-green-600'
+          }`}
+        >
+          <Share2 className="h-4 w-4 mr-2" />
+          <span>{post.shares}</span>
+        </Button>
+      </div>
 
-      <ReactionDisplay reactionCounts={reactionCounts} className="mt-1" />
+      <div className="flex items-center space-x-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onBookmark(post.id)}
+          className={`hover:scale-105 transition-transform ${
+            post.isBookmarked ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
+          }`}
+        >
+          <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
+        </Button>
+
+        {/* Category-specific actions */}
+        {post.category === "help-needed" && (
+          <Button 
+            size="sm" 
+            onClick={onRespond} 
+            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] hover:scale-105 transition-all"
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Offer Help
+          </Button>
+        )}
+        {post.category === "help-offered" && (
+          <Button 
+            size="sm" 
+            onClick={onRespond} 
+            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] hover:scale-105 transition-all"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Request Help
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

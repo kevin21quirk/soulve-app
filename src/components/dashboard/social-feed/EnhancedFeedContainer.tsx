@@ -24,6 +24,38 @@ const EnhancedFeedContainer = () => {
     return post.category === activeFilter;
   });
 
+  const handleLike = (postId: string) => {
+    console.log("Like post:", postId);
+  };
+
+  const handleShare = (postId: string) => {
+    console.log("Share post:", postId);
+  };
+
+  const handleRespond = (postId: string) => {
+    console.log("Respond to post:", postId);
+  };
+
+  const handleBookmark = (postId: string) => {
+    console.log("Bookmark post:", postId);
+  };
+
+  const handleReaction = (postId: string, reactionType: string) => {
+    console.log("React to post:", postId, reactionType);
+  };
+
+  const handleAddComment = (postId: string, content: string) => {
+    console.log("Add comment to post:", postId, content);
+  };
+
+  const handleLikeComment = (postId: string, commentId: string) => {
+    console.log("Like comment:", postId, commentId);
+  };
+
+  const handleCommentReaction = (postId: string, commentId: string, reactionType: string) => {
+    console.log("React to comment:", postId, commentId, reactionType);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -66,7 +98,18 @@ const EnhancedFeedContainer = () => {
           </div>
         ) : (
           filteredPosts.map((post) => (
-            <FeedPostCard key={post.id} post={post} />
+            <FeedPostCard 
+              key={post.id} 
+              post={post}
+              onLike={handleLike}
+              onShare={handleShare}
+              onRespond={handleRespond}
+              onBookmark={handleBookmark}
+              onReaction={handleReaction}
+              onAddComment={handleAddComment}
+              onLikeComment={handleLikeComment}
+              onCommentReaction={handleCommentReaction}
+            />
           ))
         )}
       </div>
