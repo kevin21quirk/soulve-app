@@ -49,10 +49,14 @@ const RealDiscoverConnectTab = () => {
               return (
                 <Button
                   key={filter.id}
-                  variant={activeFilter === filter.id ? "gradient" : "outline"}
+                  variant={activeFilter === filter.id ? "default" : "outline"}
                   size="sm"
                   onClick={() => setActiveFilter(filter.id)}
-                  className="flex items-center space-x-1 whitespace-nowrap"
+                  className={`flex items-center space-x-1 whitespace-nowrap transition-all duration-200 ${
+                    activeFilter === filter.id
+                      ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent"
+                  }`}
                 >
                   <IconComponent className="h-4 w-4" />
                   <span>{filter.label}</span>
@@ -65,9 +69,24 @@ const RealDiscoverConnectTab = () => {
 
       <Tabs defaultValue="discover" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="discover">Discover</TabsTrigger>
-          <TabsTrigger value="connections">My Network</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+          <TabsTrigger 
+            value="discover"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Discover
+          </TabsTrigger>
+          <TabsTrigger 
+            value="connections"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            My Network
+          </TabsTrigger>
+          <TabsTrigger 
+            value="insights"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Insights
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="discover" className="space-y-6">
