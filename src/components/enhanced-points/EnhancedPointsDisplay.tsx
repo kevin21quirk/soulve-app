@@ -11,7 +11,9 @@ import {
   Star,
   Zap,
   Clock,
-  Award
+  Award,
+  DollarSign,
+  Heart
 } from 'lucide-react';
 
 const EnhancedPointsDisplay = () => {
@@ -133,10 +135,15 @@ const EnhancedPointsDisplay = () => {
               <span>Lifetime earned</span>
             </div>
             {metrics.decay_applied_count > 0 && (
-              <div className="mt-2 text-xs text-orange-600">
-                Decay applied {metrics.decay_applied_count} time{metrics.decay_applied_count > 1 ? 's' : ''}
+              <div className="mt-2 text-xs text-orange-600 flex items-center space-x-1">
+                <Clock className="h-3 w-3" />
+                <span>Decay applied {metrics.decay_applied_count} time{metrics.decay_applied_count > 1 ? 's' : ''}</span>
               </div>
             )}
+            <div className="mt-2 text-xs text-green-600 flex items-center space-x-1">
+              <DollarSign className="h-3 w-3" />
+              <span>Campaign points never decay</span>
+            </div>
           </CardContent>
         </Card>
 
@@ -236,6 +243,21 @@ const EnhancedPointsDisplay = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Points Protection Notice */}
+      <Card className="bg-green-50 border-green-200">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-2 text-green-800">
+            <Heart className="h-5 w-5" />
+            <div>
+              <h4 className="font-medium">Campaign Points Protection</h4>
+              <p className="text-sm text-green-700 mt-1">
+                Your donation and fundraising points never decay - supporting long-term campaigns and sustained giving.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

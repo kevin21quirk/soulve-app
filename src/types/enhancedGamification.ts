@@ -110,7 +110,7 @@ export const ENHANCED_POINT_VALUES: Record<string, number> = {
   recurring_help: 15,
   group_help: 30,
   
-  // Donations (£1 = 1 point base)
+  // Donations (£1 = 1 point base) - NEVER DECAY
   donation: 1, // Per £1 donated
   recurring_donation: 1.2, // 20% bonus
   fundraiser_created: 50,
@@ -141,6 +141,15 @@ export const ENHANCED_POINT_VALUES: Record<string, number> = {
   volunteer_event: 25,
   skilled_volunteer: 5 // Per hour for skilled work
 };
+
+// Activities that are exempt from points decay (campaign-related)
+export const DECAY_EXEMPT_ACTIVITIES = [
+  'donation',
+  'recurring_donation', 
+  'fundraiser_created',
+  'fundraiser_raised',
+  'matching_donation'
+];
 
 // Enhanced trust tier thresholds
 export const ENHANCED_TRUST_TIERS = [
@@ -218,7 +227,7 @@ export const ENHANCED_TRUST_TIERS = [
 export interface FraudProtectionConfig {
   pointBurstThreshold: number; // 300 points/day
   patternFarmingThreshold: number; // 10 same actions/month
-  decayRate: number; // 5% per 30 days
+  decayRate: number; // 5% per 30 days (non-campaign activities only)
   maxDecay: number; // 50% total cap
   inactivityPeriod: number; // 30 days
   evidenceRequiredThreshold: number; // Points value requiring evidence
@@ -228,7 +237,7 @@ export interface FraudProtectionConfig {
 export const DEFAULT_FRAUD_CONFIG: FraudProtectionConfig = {
   pointBurstThreshold: 300,
   patternFarmingThreshold: 10,
-  decayRate: 5,
+  decayRate: 5, // Only applies to non-campaign activities
   maxDecay: 50,
   inactivityPeriod: 30,
   evidenceRequiredThreshold: 50,
