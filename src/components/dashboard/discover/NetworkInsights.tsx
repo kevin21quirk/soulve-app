@@ -15,6 +15,7 @@ import {
 import { useRealConnections } from "@/services/realConnectionsService";
 import { useUserGroups } from "@/services/groupsService";
 import { useUserCampaignParticipation } from "@/services/campaignsService";
+import { supabase } from "@/integrations/supabase/client";
 
 const NetworkInsights = () => {
   const { data: connections = [] } = useRealConnections();
@@ -85,17 +86,30 @@ const NetworkInsights = () => {
   ];
 
   // Generate recent activity based on real data
+  const getCurrentUserId = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id;
+  };
+
+  const getPartnerProfile = (connection: any, currentUserId: string) => {
+    return connection.requester_id === currentUserId ? connection.addressee : connection.requester;
+  };
+
   const recentActivity = [
-    ...(acceptedConnections.slice(-2).map(conn => ({
-      action: `Connected with ${conn.partner_profile?.first_name || 'someone'}`,
-      time: new Date(conn.created_at).toLocaleDateString(),
-      type: "connection"
-    }))),
-    ...(userGroups.slice(-2).map(group => ({
+    ...acceptedConnections.slice(-2).map(conn => {
+      // For now, we'll use a placeholder since we can't call async in this context
+      const partnerProfile = conn.requester || conn.addressee;
+      return {
+        action: `Connected with ${partnerProfile?.first_name || 'someone'}`,
+        time: new Date(conn.created_at).toLocaleDateString(),
+        type: "connection"
+      };
+    }),
+    ...userGroups.slice(-2).map(group => ({
       action: `Joined '${group.name}' group`,
       time: new Date(group.created_at).toLocaleDateString(),
       type: "group"
-    }))),
+    })),
   ].slice(0, 4);
 
   return (
