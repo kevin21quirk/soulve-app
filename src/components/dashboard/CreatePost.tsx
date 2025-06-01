@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import PostCollapsedView from "./post-creation/PostCollapsedView";
@@ -6,6 +5,7 @@ import PostTemplateSelector from "./post-creation/PostTemplateSelector";
 import PostFormSection from "./post-creation/PostFormSection";
 import { PostFormData } from "./CreatePostTypes";
 import { MediaFile } from "./media-upload/MediaUploadTypes";
+import { useCreatePost } from "@/services/realPostsService";
 
 interface TaggedUser {
   id: string;
@@ -20,6 +20,7 @@ interface CreatePostProps {
 
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
+  const createPostMutation = useCreatePost();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -38,7 +39,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     allowSharing: true,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
@@ -69,43 +70,32 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       return;
     }
 
-    const newPost = {
-      id: Date.now().toString(),
-      author: "You",
-      avatar: "",
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      category: formData.category as "help-needed" | "help-offered" | "success-story",
-      timestamp: formData.scheduledFor ? `Scheduled for ${formData.scheduledFor.toLocaleDateString()}` : "Just now",
-      location: formData.location || "Your area",
-      responses: 0,
-      likes: 0,
-      isLiked: false,
-      urgency: formData.urgency,
-      feeling: formData.feeling,
-      tags: formData.tags,
-      visibility: formData.visibility,
-      allowComments: formData.allowComments,
-      allowSharing: formData.allowSharing,
-      taggedUsers: taggedUsers,
-      media: mediaFiles.map(file => ({
-        id: file.id,
-        type: file.type,
-        url: file.preview,
-        filename: file.file.name
-      }))
-    };
+    try {
+      // Create post using the real service
+      await createPostMutation.mutateAsync({
+        title: formData.title.trim(),
+        content: formData.description.trim(),
+        category: formData.category,
+        urgency: formData.urgency,
+        location: formData.location,
+        tags: formData.tags,
+        visibility: formData.visibility,
+      });
 
-    console.log("Creating post:", newPost);
-    onPostCreated(newPost);
-    
-    // Reset form and state
-    resetForm();
-    
-    toast({
-      title: "Post created successfully!",
-      description: `Your post has been shared with the community${taggedUsers.length > 0 ? ` and ${taggedUsers.length} user(s) have been tagged` : ''}.`,
-    });
+      // Reset form and state
+      resetForm();
+      
+      // Notify parent component
+      onPostCreated({ success: true });
+      
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast({
+        title: "Failed to create post",
+        description: "There was an error creating your post. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const resetForm = () => {
