@@ -17,8 +17,18 @@ const EnhancedAnalyticsPointsTab = () => {
   return (
     <Tabs defaultValue="points" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="points">Points & Gamification</TabsTrigger>
-        <TabsTrigger value="analytics">Advanced Analytics</TabsTrigger>
+        <TabsTrigger 
+          value="points"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+        >
+          Points & Gamification
+        </TabsTrigger>
+        <TabsTrigger 
+          value="analytics"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+        >
+          Advanced Analytics
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="points" className="mt-6">
