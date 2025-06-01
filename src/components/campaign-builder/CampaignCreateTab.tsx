@@ -61,7 +61,10 @@ const CampaignCreateTab = ({
         {!showForm ? (
           <div className="text-center py-8">
             <p className="text-gray-600 mb-4">Select a template or start from scratch to begin creating your campaign.</p>
-            <Button onClick={onBrowseTemplates}>
+            <Button 
+              onClick={onBrowseTemplates}
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+            >
               Browse Templates
             </Button>
           </div>
