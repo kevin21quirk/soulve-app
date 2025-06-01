@@ -1,8 +1,6 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Users2, Heart, TrendingUp, Crown, Search, Filter, BarChart3 } from "lucide-react";
-import { useRealConnections, useSuggestedConnections, useSendConnectionRequest, useRespondToConnection } from "@/services/realConnectionsService";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { useEnhancedConnections } from "@/hooks/useEnhancedConnections";
 import PendingRequests from "./PendingRequests";
 import ConnectedPeople from "./ConnectedPeople";
 import SuggestedConnections from "./SuggestedConnections";
@@ -11,79 +9,34 @@ import CampaignsSection from "./connections/CampaignsSection";
 import PeopleYouMayKnow from "./connections/PeopleYouMayKnow";
 import CommunityChampions from "./connections/CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
-import NetworkSearch from "./connections/NetworkSearch";
-import NetworkAnalytics from "./connections/NetworkAnalytics";
 import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights";
-import DatabaseNetworkSearch from "./connections/DatabaseNetworkSearch";
-import DatabaseNetworkAnalytics from "./connections/DatabaseNetworkAnalytics";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import ConnectionsHeader from "./connections/ConnectionsHeader";
+import ConnectionsOverlays from "./connections/ConnectionsOverlays";
+import ConnectionsTabsList from "./connections/ConnectionsTabsList";
 
 const EnhancedConnections = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
-  const [showSearch, setShowSearch] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  
-  // Real database connections
-  const { data: connections = [], isLoading: connectionsLoading } = useRealConnections();
-  const { data: suggestedProfiles = [], isLoading: suggestionsLoading } = useSuggestedConnections();
-  const sendConnectionRequest = useSendConnectionRequest();
-  const respondToConnection = useRespondToConnection();
+  const {
+    activeTab,
+    setActiveTab,
+    showSearch,
+    setShowSearch,
+    showAnalytics,
+    setShowAnalytics,
+    pendingRequests,
+    connectedPeople,
+    suggestedConnections,
+    mockGroups,
+    mockCampaigns,
+    mockPeople,
+    mockChampions,
+    handleAcceptConnection,
+    handleDeclineConnection,
+    handleSendRequest,
+    getTrustScoreColor,
+    isLoading,
+  } = useEnhancedConnections();
 
-  // Process connections data
-  const pendingRequests = connections.filter(conn => 
-    conn.status === 'pending' && conn.addressee_id === user?.id
-  );
-  
-  const connectedPeople = connections
-    .filter(conn => conn.status === 'accepted')
-    .map(conn => ({
-      id: conn.id,
-      partner_id: conn.requester_id === user?.id ? conn.addressee_id : conn.requester_id,
-      partner_profile: conn.requester_id === user?.id ? conn.addressee : conn.requester
-    }));
-
-  // Transform suggested profiles to match SuggestedConnection interface
-  const suggestedConnections = suggestedProfiles.map(profile => ({
-    id: `suggestion-${profile.id}`,
-    target_user_id: profile.id,
-    target_profile: {
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      avatar_url: profile.avatar_url,
-      location: profile.location,
-    },
-    recommendation_type: 'similar_interests',
-    confidence_score: 85,
-    reasoning: 'Based on shared interests and location',
-  }));
-
-  const handleAcceptConnection = (connectionId: string) => {
-    respondToConnection.mutate({ connectionId, status: 'accepted' });
-  };
-
-  const handleDeclineConnection = (connectionId: string) => {
-    respondToConnection.mutate({ connectionId, status: 'declined' });
-  };
-
-  const handleSendRequest = (userId: string) => {
-    sendConnectionRequest.mutate(userId);
-  };
-
-  const getTrustScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  // Mock data for sections not yet implemented
-  const mockGroups = { myGroups: [], suggestedGroups: [] };
-  const mockCampaigns = { campaigns: [] };
-  const mockPeople = { peopleYouMayKnow: [] };
-  const mockChampions = { champions: [] };
-
-  if (connectionsLoading || suggestionsLoading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="text-center py-12">
@@ -96,75 +49,24 @@ const EnhancedConnections = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="text-center flex-1">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Network</h2>
-          <p className="text-gray-600">Build trust and connections within your community</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSearch(!showSearch)}
-            className="flex items-center space-x-2"
-          >
-            <Search className="h-4 w-4" />
-            <span>Search</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAnalytics(!showAnalytics)}
-            className="flex items-center space-x-2"
-          >
-            <BarChart3 className="h-4 w-4" />
-            <span>Analytics</span>
-          </Button>
-        </div>
-      </div>
+      <ConnectionsHeader
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        showAnalytics={showAnalytics}
+        setShowAnalytics={setShowAnalytics}
+      />
 
-      {showSearch && (
-        <DatabaseNetworkSearch
-          connectedPeople={connectedPeople}
-          suggestedConnections={suggestedConnections}
-          onClose={() => setShowSearch(false)}
-        />
-      )}
-
-      {showAnalytics && (
-        <DatabaseNetworkAnalytics
-          connectedPeople={connectedPeople}
-          onClose={() => setShowAnalytics(false)}
-        />
-      )}
+      <ConnectionsOverlays
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        showAnalytics={showAnalytics}
+        setShowAnalytics={setShowAnalytics}
+        connectedPeople={connectedPeople}
+        suggestedConnections={suggestedConnections}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex w-full bg-transparent border-none p-2 gap-2 rounded-lg h-auto">
-          <TabsTrigger value="overview" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="connections" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Connections</span>
-          </TabsTrigger>
-          <TabsTrigger value="groups" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <Users2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Groups</span>
-          </TabsTrigger>
-          <TabsTrigger value="campaigns" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <Heart className="h-4 w-4" />
-            <span className="hidden sm:inline">Campaigns</span>
-          </TabsTrigger>
-          <TabsTrigger value="discover" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <UserPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">Discover</span>
-          </TabsTrigger>
-          <TabsTrigger value="champions" className="flex items-center space-x-2 bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200 flex-1">
-            <Crown className="h-4 w-4" />
-            <span className="hidden sm:inline">Champions</span>
-          </TabsTrigger>
-        </TabsList>
+        <ConnectionsTabsList activeTab={activeTab} />
 
         <TabsContent value="overview" className="space-y-6">
           <ConnectionStats
