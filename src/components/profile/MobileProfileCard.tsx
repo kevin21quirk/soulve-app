@@ -1,25 +1,21 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Award, Users, MessageSquare, UserPlus } from "lucide-react";
+import { MapPin, Award, Users } from "lucide-react";
 import { UserProfileData } from "@/components/dashboard/UserProfileTypes";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
+import ConnectionButton from "../connections/ConnectionButton";
 
 interface MobileProfileCardProps {
   profileData: UserProfileData;
-  onSendMessage?: () => void;
-  onConnect?: () => void;
-  connectionStatus?: 'none' | 'pending' | 'connected';
+  onMessage?: () => void;
   compact?: boolean;
 }
 
 const MobileProfileCard = ({ 
   profileData, 
-  onSendMessage, 
-  onConnect, 
-  connectionStatus = 'none',
+  onMessage, 
   compact = false 
 }: MobileProfileCardProps) => {
   return (
@@ -65,26 +61,12 @@ const MobileProfileCard = ({
             )}
           </div>
           
-          <div className="flex flex-col space-y-1">
-            {connectionStatus === 'connected' ? (
-              <Button 
-                onClick={onSendMessage} 
-                size="sm" 
-                className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-xs"
-              >
-                <MessageSquare className="h-3 w-3 mr-1" />
-                Message
-              </Button>
-            ) : connectionStatus === 'pending' ? (
-              <Badge variant="outline" className="text-xs">
-                Pending
-              </Badge>
-            ) : (
-              <Button onClick={onConnect} variant="outline" size="sm" className="text-xs">
-                <UserPlus className="h-3 w-3 mr-1" />
-                Connect
-              </Button>
-            )}
+          <div className="flex-shrink-0">
+            <ConnectionButton 
+              userId={profileData.id}
+              variant="compact"
+              onMessage={onMessage}
+            />
           </div>
         </div>
       </CardContent>

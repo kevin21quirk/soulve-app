@@ -1,28 +1,23 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Calendar, Award, Users, MessageSquare, UserPlus, UserCheck } from "lucide-react";
+import { MapPin, Calendar, Award, Users } from "lucide-react";
 import { UserProfileData } from "@/components/dashboard/UserProfileTypes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRealTimeProfile } from "@/hooks/useRealTimeProfile";
 import { useVerifications } from "@/hooks/useVerifications";
 import VerificationBadges from "@/components/dashboard/verification/VerificationBadges";
+import ConnectionButton from "../connections/ConnectionButton";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 
 interface PublicProfileViewProps {
   profileData: UserProfileData;
-  onSendMessage?: () => void;
-  onConnect?: () => void;
-  connectionStatus?: 'none' | 'pending' | 'connected';
+  onMessage?: () => void;
 }
 
 const PublicProfileView = ({ 
   profileData, 
-  onSendMessage, 
-  onConnect, 
-  connectionStatus = 'none' 
+  onMessage
 }: PublicProfileViewProps) => {
   const { user } = useAuth();
   const { profileUpdates } = useRealTimeProfile(profileData.id);
@@ -80,30 +75,13 @@ const PublicProfileView = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Connection Button */}
           {!isOwnProfile && (
-            <div className="flex flex-col space-y-2">
-              {connectionStatus === 'connected' ? (
-                <>
-                  <Button onClick={onSendMessage} className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe]">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Message
-                  </Button>
-                  <Badge variant="outline" className="justify-center">
-                    <UserCheck className="h-3 w-3 mr-1" />
-                    Connected
-                  </Badge>
-                </>
-              ) : connectionStatus === 'pending' ? (
-                <Badge variant="outline" className="justify-center">
-                  Request Pending
-                </Badge>
-              ) : (
-                <Button onClick={onConnect} variant="outline">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Connect
-                </Button>
-              )}
+            <div className="flex-shrink-0">
+              <ConnectionButton 
+                userId={profileData.id}
+                onMessage={onMessage}
+              />
             </div>
           )}
         </div>
