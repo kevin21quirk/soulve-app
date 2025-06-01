@@ -1,5 +1,4 @@
 
-
 import { FeedPost } from "@/types/feed";
 import FeedPostCard from "../FeedPostCard";
 import PostSkeleton from "../PostSkeleton";
@@ -61,6 +60,7 @@ const FeedContent = ({
             urgency: post.urgency || 'medium',
             tags: post.tags || [],
             visibility: post.visibility || 'public',
+            comments: post.comments || [],
             reactions: post.reactions ? post.reactions.map(r => typeof r === 'string' ? r : r.type || 'like') : []
           }}
           onLike={() => onLike(post.id)}
@@ -78,4 +78,3 @@ const FeedContent = ({
 };
 
 export default FeedContent;
-
