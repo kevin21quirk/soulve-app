@@ -122,7 +122,11 @@ const CampaignList = () => {
               variant={statusFilter === status ? "default" : "outline"}
               size="sm"
               onClick={() => setStatusFilter(status)}
-              className="capitalize"
+              className={`capitalize transition-all duration-200 ${
+                statusFilter === status
+                  ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent"
+              }`}
             >
               {status}
             </Button>
@@ -150,7 +154,10 @@ const CampaignList = () => {
                     <div>
                       <p className="text-sm text-gray-500">Progress</p>
                       <div className="flex items-center space-x-2">
-                        <Progress value={campaign.progress} className="flex-1" />
+                        <Progress 
+                          value={campaign.progress} 
+                          className="flex-1 [&>div]:bg-gradient-to-r [&>div]:from-[#0ce4af] [&>div]:to-[#18a5fe]" 
+                        />
                         <span className="text-sm font-medium">{campaign.progress}%</span>
                       </div>
                     </div>
@@ -170,15 +177,27 @@ const CampaignList = () => {
                   </div>
                   
                   <div className="flex items-center space-x-3">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                    >
                       <Edit3 className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                    >
                       <Share2 className="h-3 w-3 mr-1" />
                       Share
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                    >
                       <BarChart3 className="h-3 w-3 mr-1" />
                       Analytics
                     </Button>

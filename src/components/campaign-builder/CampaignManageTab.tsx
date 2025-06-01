@@ -16,7 +16,7 @@ const CampaignManageTab = ({ onQuickUpdate }: CampaignManageTabProps) => {
         <Button 
           onClick={onQuickUpdate}
           variant="outline"
-          className="border-soulve-blue text-soulve-blue hover:bg-soulve-blue/10"
+          className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
           Quick Update
