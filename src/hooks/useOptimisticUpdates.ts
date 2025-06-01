@@ -1,69 +1,59 @@
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { QUERY_KEYS } from "@/services/dataService";
-import { FeedPost } from "@/types/feed";
-import { ConnectionRequest } from "@/types/connections";
+import { useQueryClient } from '@tanstack/react-query';
+import { PostWithProfile } from '@/services/realPostsService';
 
 export const useOptimisticUpdates = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  const optimisticLikePost = (postId: string) => {
-    queryClient.setQueryData<FeedPost[]>(QUERY_KEYS.FEED_POSTS, (oldData) => {
+  const optimisticLike = (postId: string, isLiked: boolean) => {
+    queryClient.setQueryData(['posts'], (oldData: PostWithProfile[] | undefined) => {
       if (!oldData) return oldData;
       
-      return oldData.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1
+      return oldData.map(post => {
+        if (post.id === postId && post.interactions) {
+          return {
+            ...post,
+            interactions: {
+              ...post.interactions,
+              user_liked: isLiked,
+              like_count: isLiked 
+                ? post.interactions.like_count + 1 
+                : Math.max(0, post.interactions.like_count - 1)
             }
-          : post
-      );
+          };
+        }
+        return post;
+      });
     });
   };
 
-  const optimisticUpdateConnection = (id: string, status: ConnectionRequest['status']) => {
-    queryClient.setQueryData<ConnectionRequest[]>(QUERY_KEYS.CONNECTIONS, (oldData) => {
+  const optimisticComment = (postId: string) => {
+    queryClient.setQueryData(['posts'], (oldData: PostWithProfile[] | undefined) => {
       if (!oldData) return oldData;
       
-      return oldData.map(conn => 
-        conn.id === id ? { ...conn, status } : conn
-      );
-    });
-
-    // Show appropriate toast
-    const statusMessages = {
-      connected: "Connection accepted!",
-      declined: "Connection declined",
-      sent: "Connection request sent!",
-      pending: "Connection is pending"
-    };
-
-    toast({
-      title: statusMessages[status],
-      description: status === 'connected' 
-        ? "You're now connected and can start helping each other."
-        : "The connection status has been updated.",
+      return oldData.map(post => {
+        if (post.id === postId && post.interactions) {
+          return {
+            ...post,
+            interactions: {
+              ...post.interactions,
+              comment_count: post.interactions.comment_count + 1
+            }
+          };
+        }
+        return post;
+      });
     });
   };
 
-  const rollbackOnError = (queryKey: any[], error: Error) => {
-    console.error('Optimistic update failed:', error);
-    queryClient.invalidateQueries({ queryKey });
-    
-    toast({
-      title: "Update Failed",
-      description: "Please try again. Your changes were not saved.",
-      variant: "destructive",
-    });
+  const revertOptimisticUpdate = () => {
+    // Invalidate to get fresh data if optimistic update fails
+    queryClient.invalidateQueries({ queryKey: ['posts'] });
   };
 
   return {
-    optimisticLikePost,
-    optimisticUpdateConnection,
-    rollbackOnError,
+    optimisticLike,
+    optimisticComment,
+    revertOptimisticUpdate
   };
 };

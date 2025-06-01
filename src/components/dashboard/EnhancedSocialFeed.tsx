@@ -8,13 +8,20 @@ import { useState } from "react";
 import CreatePost from "./CreatePost";
 import FeedPostCard from "./FeedPostCard";
 import { usePosts, usePostInteraction } from "@/services/realPostsService";
+import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
+import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 
 const EnhancedSocialFeed = () => {
   const [activeTab, setActiveTab] = useState("for-you");
-  const [searchFilters, setSearchFilters] = useState<any>(null);
   
   const { data: posts = [], isLoading, refetch } = usePosts();
   const postInteraction = usePostInteraction();
+  
+  // Enable real-time updates
+  useRealTimeUpdates();
+  
+  // Enable optimistic updates for better UX
+  const { optimisticLike, optimisticComment, revertOptimisticUpdate } = useOptimisticUpdates();
 
   // Apply tab-specific filtering
   const getFilteredPosts = () => {
@@ -39,29 +46,50 @@ const EnhancedSocialFeed = () => {
   };
 
   const handlePostCreated = () => {
+    console.log('Post created, refreshing feed');
     refetch(); // Refresh the posts when a new one is created
   };
 
   const handleLike = async (postId: string) => {
     try {
+      // Get current state for optimistic update
+      const post = posts.find(p => p.id === postId);
+      const currentlyLiked = post?.interactions?.user_liked || false;
+      
+      // Apply optimistic update immediately
+      optimisticLike(postId, !currentlyLiked);
+      
+      // Perform actual API call
       await postInteraction.mutateAsync({
         postId,
         interactionType: 'like'
       });
+      
+      console.log('Like interaction completed');
     } catch (error) {
       console.error('Error liking post:', error);
+      // Revert optimistic update on error
+      revertOptimisticUpdate();
     }
   };
 
   const handleComment = async (postId: string, content: string) => {
     try {
+      // Apply optimistic update
+      optimisticComment(postId);
+      
+      // Perform actual API call
       await postInteraction.mutateAsync({
         postId,
         interactionType: 'comment',
         content
       });
+      
+      console.log('Comment added successfully');
     } catch (error) {
       console.error('Error commenting on post:', error);
+      // Revert optimistic update on error
+      revertOptimisticUpdate();
     }
   };
 
@@ -90,10 +118,13 @@ const EnhancedSocialFeed = () => {
       {/* Real-time Status Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Badge variant="default" className="flex items-center space-x-1">
+          <Badge variant="default" className="flex items-center space-x-1 bg-green-100 text-green-800">
             <Wifi className="h-3 w-3" />
-            <span>Live</span>
+            <span>Live Feed</span>
           </Badge>
+          <span className="text-sm text-gray-500">
+            {posts.length} posts • Updates in real-time
+          </span>
         </div>
       </div>
 
@@ -145,6 +176,7 @@ const EnhancedSocialFeed = () => {
               ) : filteredPostsForDisplay.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No posts available right now.</p>
+                  <p className="text-sm text-gray-400 mt-2">Be the first to share something!</p>
                 </div>
               ) : (
                 <div className="space-y-4">

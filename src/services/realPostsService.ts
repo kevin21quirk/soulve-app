@@ -32,17 +32,17 @@ export interface PostWithProfile extends DatabasePost {
   };
 }
 
-// Hook to get posts for the feed
+// Hook to get posts for the feed with optimized queries
 export const usePosts = (category?: string, urgency?: string) => {
   return useQuery({
     queryKey: ['posts', category, urgency],
     queryFn: async () => {
-      // First, get posts with basic author info
+      console.log('Fetching posts...');
+      
+      // Get posts with basic info
       let query = supabase
         .from('posts')
-        .select(`
-          *
-        `)
+        .select('*')
         .eq('is_active', true)
         .eq('visibility', 'public')
         .order('created_at', { ascending: false });
@@ -59,60 +59,56 @@ export const usePosts = (category?: string, urgency?: string) => {
 
       if (error) throw error;
 
-      // Get interaction counts and profile data for each post
+      console.log(`Fetched ${posts?.length || 0} posts`);
+
+      // Get enhanced data for each post in parallel
       const postsWithInteractions = await Promise.all(
         (posts || []).map(async (post) => {
           const { data: user } = await supabase.auth.getUser();
           
-          // Get profile data
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, avatar_url')
-            .eq('id', post.author_id)
-            .single();
-          
-          // Get like count
-          const { count: likeCount } = await supabase
-            .from('post_interactions')
-            .select('*', { count: 'exact', head: true })
-            .eq('post_id', post.id)
-            .eq('interaction_type', 'like');
-
-          // Get comment count
-          const { count: commentCount } = await supabase
-            .from('post_interactions')
-            .select('*', { count: 'exact', head: true })
-            .eq('post_id', post.id)
-            .eq('interaction_type', 'comment');
-
-          // Check if user liked this post
-          let userLiked = false;
-          if (user.user) {
-            const { data: userLike } = await supabase
+          // Get all required data in parallel for better performance
+          const [profileResult, likeCountResult, commentCountResult, userLikeResult] = await Promise.all([
+            supabase
+              .from('profiles')
+              .select('first_name, last_name, avatar_url')
+              .eq('id', post.author_id)
+              .single(),
+            supabase
+              .from('post_interactions')
+              .select('*', { count: 'exact', head: true })
+              .eq('post_id', post.id)
+              .eq('interaction_type', 'like'),
+            supabase
+              .from('post_interactions')
+              .select('*', { count: 'exact', head: true })
+              .eq('post_id', post.id)
+              .eq('interaction_type', 'comment'),
+            user.user ? supabase
               .from('post_interactions')
               .select('id')
               .eq('post_id', post.id)
               .eq('user_id', user.user.id)
               .eq('interaction_type', 'like')
-              .single();
-            
-            userLiked = !!userLike;
-          }
+              .single() : Promise.resolve({ data: null })
+          ]);
 
           return {
             ...post,
-            author_profile: profile,
+            author_profile: profileResult.data,
             interactions: {
-              like_count: likeCount || 0,
-              comment_count: commentCount || 0,
-              user_liked: userLiked,
+              like_count: likeCountResult.count || 0,
+              comment_count: commentCountResult.count || 0,
+              user_liked: !!userLikeResult.data,
             },
           };
         })
       );
 
+      console.log('Enhanced posts with interaction data');
       return postsWithInteractions;
     },
+    staleTime: 1000 * 30, // 30 seconds - posts can be stale for a bit since we have real-time updates
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -131,6 +127,8 @@ export const useCreatePost = () => {
       tags?: string[];
       visibility?: string;
     }) => {
+      console.log('Creating new post:', postData);
+      
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
@@ -151,7 +149,7 @@ export const useCreatePost = () => {
 
       if (error) throw error;
 
-      // Create activity
+      // Create activity log
       await supabase
         .from('user_activities')
         .insert({
@@ -162,16 +160,19 @@ export const useCreatePost = () => {
           metadata: { post_id: data.id, category: postData.category }
         });
 
+      console.log('Post created successfully:', data);
       return data;
     },
     onSuccess: () => {
+      // Invalidate posts to trigger refetch (real-time will also handle this)
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast({
         title: "Post created!",
-        description: "Your post has been shared successfully.",
+        description: "Your post is now live and visible to everyone.",
       });
     },
     onError: (error: any) => {
+      console.error('Error creating post:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create post.",
@@ -181,7 +182,7 @@ export const useCreatePost = () => {
   });
 };
 
-// Hook to interact with posts (like, comment)
+// Hook to interact with posts (like, comment) with optimistic updates
 export const usePostInteraction = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -196,6 +197,8 @@ export const usePostInteraction = () => {
       interactionType: 'like' | 'comment' | 'share' | 'bookmark';
       content?: string;
     }) => {
+      console.log(`${interactionType} interaction on post:`, postId);
+      
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
@@ -217,6 +220,7 @@ export const usePostInteraction = () => {
             .eq('id', existingLike.id);
           
           if (error) throw error;
+          console.log('Post unliked');
           return { action: 'unliked' };
         } else {
           // Like the post
@@ -232,7 +236,7 @@ export const usePostInteraction = () => {
 
           if (error) throw error;
 
-          // Get post author to send notification
+          // Send notification to post author
           const { data: post } = await supabase
             .from('posts')
             .select('author_id')
@@ -252,6 +256,7 @@ export const usePostInteraction = () => {
               });
           }
 
+          console.log('Post liked');
           return { action: 'liked', data };
         }
       } else if (interactionType === 'comment') {
@@ -268,7 +273,7 @@ export const usePostInteraction = () => {
 
         if (error) throw error;
 
-        // Get post author to send notification
+        // Send notification to post author
         const { data: post } = await supabase
           .from('posts')
           .select('author_id')
@@ -288,13 +293,16 @@ export const usePostInteraction = () => {
             });
         }
 
+        console.log('Comment added');
         return { action: 'commented', data };
       }
     },
     onSuccess: () => {
+      // Real-time updates will handle the refresh, but we can also invalidate for immediate feedback
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
     onError: (error: any) => {
+      console.error('Interaction error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to interact with post.",
