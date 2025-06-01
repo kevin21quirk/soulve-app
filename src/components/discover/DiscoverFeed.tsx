@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -255,9 +254,12 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                         comments: post.comments?.map(comment => ({
                           id: comment.id,
                           author: comment.author,
-                          text: comment.content,
+                          content: comment.content,
+                          timestamp: comment.created_at,
                           likes: comment.likes,
-                          reactions: []
+                          isLiked: false,
+                          user_id: comment.user_id,
+                          created_at: comment.created_at
                         })) || []
                       }}
                       onLike={() => handlePostInteraction(post.id, 'like')}
@@ -327,9 +329,12 @@ const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: Discover
                       comments: post.comments?.map(comment => ({
                         id: comment.id,
                         author: comment.author,
-                        text: comment.content,
+                        content: comment.content,
+                        timestamp: comment.created_at,
                         likes: comment.likes,
-                        reactions: []
+                        isLiked: false,
+                        user_id: comment.user_id,
+                        created_at: comment.created_at
                       })) || []
                     }}
                     onLike={() => handlePostInteraction(post.id, 'like')}

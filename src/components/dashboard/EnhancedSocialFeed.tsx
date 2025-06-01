@@ -217,9 +217,12 @@ const EnhancedSocialFeed = () => {
                         comments: post.comments?.map(comment => ({
                           id: comment.id,
                           author: comment.author,
-                          text: comment.content, // Use text property as expected by FeedPostCard
+                          content: comment.content,
+                          timestamp: comment.created_at,
                           likes: comment.likes,
-                          reactions: []
+                          isLiked: false,
+                          user_id: comment.user_id,
+                          created_at: comment.created_at
                         })) || []
                       }}
                       onLike={() => handleLike(post.id)}

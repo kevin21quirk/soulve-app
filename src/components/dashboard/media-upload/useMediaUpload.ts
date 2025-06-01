@@ -55,7 +55,8 @@ export const useMediaUpload = (
         file,
         type: isImage ? 'image' : 'video',
         preview: URL.createObjectURL(file),
-        size: file.size
+        size: file.size,
+        status: 'ready'
       };
 
       newFiles.push(mediaFile);

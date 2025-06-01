@@ -15,3 +15,18 @@ export interface MediaUploadProps {
   maxFileSize?: number; // in MB
   acceptedTypes?: string[];
 }
+
+export interface MediaUploadConfig {
+  maxFiles: number;
+  maxFileSize: number; // in MB
+  acceptedTypes: Record<string, string[]>;
+}
+
+export const DEFAULT_MEDIA_CONFIG: MediaUploadConfig = {
+  maxFiles: 5,
+  maxFileSize: 10,
+  acceptedTypes: {
+    'image/*': ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    'video/*': ['mp4', 'mov', 'avi', 'wmv']
+  }
+};
