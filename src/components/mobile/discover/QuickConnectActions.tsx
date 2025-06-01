@@ -51,9 +51,10 @@ const QuickConnectActions = ({ onAction }: QuickConnectActionsProps) => {
             return (
               <div key={action.id} className="text-center">
                 <Button
+                  variant="gradient"
                   size="sm"
                   onClick={() => onAction(action.id)}
-                  className="w-full h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200 rounded-lg p-2 flex flex-col items-center justify-center space-y-1"
+                  className="w-full h-12 rounded-lg p-2 flex flex-col items-center justify-center space-y-1"
                 >
                   <IconComponent className="h-4 w-4" />
                 </Button>
