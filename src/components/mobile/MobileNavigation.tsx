@@ -1,5 +1,5 @@
 
-import { Home, Users, MessageCircle, Bell, User, TrendingUp, Menu } from "lucide-react";
+import { Home, Users, MessageCircle, Bell, User, Trophy, Menu } from "lucide-react";
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -12,7 +12,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
     { id: "discover", icon: Users, label: "Discover" },
     { id: "messaging", icon: MessageCircle, label: "Messages" },
     { id: "notifications", icon: Bell, label: "Activity" },
-    { id: "analytics-points", icon: TrendingUp, label: "Trust" },
+    { id: "points", icon: Trophy, label: "Points" },
     { id: "menu", icon: Menu, label: "Menu" },
   ];
 
@@ -27,16 +27,14 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
-                isActive 
-                  ? 'bg-gradient-to-r from-[#0ce4af]/10 to-[#18a5fe]/10 text-[#18a5fe]' 
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              <IconComponent className={`h-5 w-5 mb-1 ${isActive ? 'text-[#18a5fe]' : ''}`} />
-              <span className={`text-xs font-medium truncate ${isActive ? 'text-[#18a5fe]' : ''}`}>
-                {tab.label}
-              </span>
+              <IconComponent className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">{tab.label}</span>
             </button>
           );
         })}

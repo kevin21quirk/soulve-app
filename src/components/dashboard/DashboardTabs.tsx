@@ -4,14 +4,14 @@ import SocialFeed from "./SocialFeed";
 import RealDiscoverConnectTab from "./tabs/RealDiscoverConnectTab";
 import MessagesTab from "./tabs/MessagesTab";
 import EnhancedCampaignBuilder from "../campaign-builder/EnhancedCampaignBuilder";
-import ImpactTab from "./tabs/ImpactTab";
+import EnhancedAnalyticsPointsTab from "./tabs/EnhancedAnalyticsPointsTab";
 import UserProfile from "./UserProfile";
 import { 
   Home, 
   Users, 
   MessageCircle, 
   Target, 
-  BarChart3, 
+  Trophy, 
   User
 } from "lucide-react";
 
@@ -26,7 +26,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
     { id: "discover", label: "Discover & Connect", icon: Users, component: RealDiscoverConnectTab },
     { id: "campaigns", label: "Campaigns", icon: Target, component: EnhancedCampaignBuilder },
     { id: "messages", label: "Messages", icon: MessageCircle, component: MessagesTab },
-    { id: "impact", label: "Trust & Impact", icon: BarChart3, component: ImpactTab },
+    { id: "points", label: "Points & Trust", icon: Trophy, component: EnhancedAnalyticsPointsTab },
     { id: "profile", label: "Profile", icon: User, component: UserProfile },
   ];
 

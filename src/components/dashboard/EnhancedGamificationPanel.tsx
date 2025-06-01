@@ -1,10 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, TrendingUp, Users, Settings, BarChart3 } from "lucide-react";
+import { Trophy, TrendingUp, Users, Settings, BarChart3, Zap } from "lucide-react";
 import GamificationPanel from "./GamificationPanel";
 import SocialFeaturesPanel from "./SocialFeaturesPanel";
 import AdminCustomizationPanel from "./AdminCustomizationPanel";
@@ -12,9 +12,13 @@ import { AdvancedAnalyticsService } from "@/services/advancedAnalyticsService";
 import { EnhancedAchievementsService } from "@/services/enhancedAchievementsService";
 import { BackendDataService } from "@/services/backendDataService";
 import { useToast } from "@/hooks/use-toast";
+import { useRealTimePoints } from "@/hooks/useRealTimePoints";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EnhancedGamificationPanel = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { recentTransactions, totalPoints, awardPoints } = useRealTimePoints();
   const [isLoading, setIsLoading] = useState(false);
   const [activeAnalytics, setActiveAnalytics] = useState<any>(null);
 
@@ -51,10 +55,66 @@ const EnhancedGamificationPanel = () => {
     }
   };
 
+  // Demo function to show real-time points
+  const handleDemoPoints = () => {
+    const demoActions = [
+      { category: 'help_completed', points: 25, description: 'Helped community member with groceries' },
+      { category: 'donation', points: 10, description: 'Donated to local food bank' },
+      { category: 'positive_feedback', points: 5, description: 'Received 5-star rating' }
+    ];
+    
+    const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
+    awardPoints(randomAction.category, randomAction.points, randomAction.description);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Real-time Points Display */}
+      {recentTransactions.length > 0 && (
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-yellow-500" />
+              <span>Recent Points Activity</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {recentTransactions.slice(0, 3).map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                  <span className="text-sm">{transaction.description}</span>
+                  <Badge className="bg-green-600 text-white">+{transaction.points}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Enhanced Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Points</p>
+                <p className="text-2xl font-bold">{totalPoints || 1247}</p>
+              </div>
+              <Trophy className="h-8 w-8 text-yellow-500" />
+            </div>
+            <div className="mt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDemoPoints}
+                className="text-xs"
+              >
+                Demo +Points
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
@@ -84,23 +144,6 @@ const EnhancedGamificationPanel = () => {
             <div className="mt-2">
               <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
                 Most Active
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Social Features</p>
-                <p className="text-2xl font-bold">{achievementStats.byCategory.social}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-500" />
-            </div>
-            <div className="mt-2">
-              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
-                Connected
               </Badge>
             </div>
           </CardContent>

@@ -10,6 +10,7 @@ import { PointsCalculator } from "@/services/pointsService";
 import { LeaderboardService } from "@/services/leaderboardService";
 import { PointRedemptionService } from "@/services/pointRedemptionService";
 import { useProgressTracking } from "@/hooks/useProgressTracking";
+import { useRealTimePoints } from "@/hooks/useRealTimePoints";
 import TrustScoreCard from "./analytics/points/TrustScoreCard";
 import QuickStatsGrid from "./analytics/points/QuickStatsGrid";
 import PointsBreakdownCard from "./analytics/points/PointsBreakdownCard";
@@ -17,20 +18,26 @@ import LeaderboardCard from "./analytics/points/LeaderboardCard";
 
 const MobileAnalyticsPoints = () => {
   const [activeTab, setActiveTab] = useState("trust");
-  const userStats = mockEnhancedUserStats;
+  const { recentTransactions, totalPoints, awardPoints } = useRealTimePoints();
+  
+  // Use real-time total points if available, otherwise use mock data
+  const userStats = {
+    ...mockEnhancedUserStats,
+    totalPoints: totalPoints || mockEnhancedUserStats.totalPoints
+  };
+  
   const trustLevelConfig = PointsCalculator.getTrustLevelConfig(userStats.trustLevel);
   const nextLevel = PointsCalculator.getNextTrustLevel(userStats.totalPoints);
 
   // Use progress tracking hook
   const {
     achievements,
-    recentPointsEarned,
     progressAnimations,
     nextLevelProgress,
     weeklyProgress,
     unlockedAchievements,
     inProgressAchievements
-  } = useProgressTracking(userStats, mockPointTransactions);
+  } = useProgressTracking(userStats, [...recentTransactions, ...mockPointTransactions]);
 
   // Get leaderboard data
   const leaderboard = LeaderboardService.getLeaderboard();
@@ -39,8 +46,47 @@ const MobileAnalyticsPoints = () => {
   // Get redemption rewards
   const availableRewards = PointRedemptionService.getAvailableRewards(userStats.level);
 
+  // Demo function
+  const handleDemoPoints = () => {
+    const demoActions = [
+      { category: 'help_completed', points: 25, description: 'Helped community member with groceries' },
+      { category: 'donation', points: 10, description: 'Donated to local food bank' },
+      { category: 'positive_feedback', points: 5, description: 'Received 5-star rating' }
+    ];
+    
+    const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
+    awardPoints(randomAction.category, randomAction.points, randomAction.description);
+  };
+
   return (
     <div className="p-4 space-y-4">
+      {/* Real-time Points Display */}
+      {recentTransactions.length > 0 && (
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-lg text-green-800">Recent Points Earned! 🎉</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {recentTransactions.slice(0, 3).map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between">
+                  <span className="text-sm text-green-700">{transaction.description}</span>
+                  <Badge className="bg-green-600 text-white">+{transaction.points}</Badge>
+                </div>
+              ))}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleDemoPoints}
+              className="mt-3 w-full"
+            >
+              Demo: Earn More Points
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="trust">Trust</TabsTrigger>
@@ -93,25 +139,6 @@ const MobileAnalyticsPoints = () => {
         </TabsContent>
 
         <TabsContent value="points" className="space-y-4 mt-4">
-          {/* Recent Points Animation */}
-          {recentPointsEarned.length > 0 && (
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="text-lg text-green-800">Recent Points Earned!</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {recentPointsEarned.slice(0, 3).map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between">
-                      <span className="text-sm text-green-700">{transaction.description}</span>
-                      <Badge className="bg-green-600 text-white">+{transaction.points}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           <PointsBreakdownCard userStats={userStats} />
 
           {/* Active Challenges */}
