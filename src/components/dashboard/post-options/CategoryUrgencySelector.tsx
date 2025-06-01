@@ -1,6 +1,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PostFormData } from "@/components/dashboard/CreatePostTypes";
+import { Badge } from "@/components/ui/badge";
+import { PostFormData } from "../CreatePostTypes";
 import { POST_CATEGORIES, URGENCY_LEVELS } from "./PostOptionsConfig";
 
 interface CategoryUrgencySelectorProps {
@@ -15,15 +16,15 @@ const CategoryUrgencySelector = ({ formData, onFormDataChange }: CategoryUrgency
         <label className="text-sm font-medium text-gray-700 mb-2 block">Category *</label>
         <Select value={formData.category} onValueChange={(value) => onFormDataChange('category', value)}>
           <SelectTrigger>
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
             {POST_CATEGORIES.map((category) => (
               <SelectItem key={category.value} value={category.value}>
-                <span className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
                   <span>{category.icon}</span>
                   <span>{category.label}</span>
-                </span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -31,7 +32,7 @@ const CategoryUrgencySelector = ({ formData, onFormDataChange }: CategoryUrgency
       </div>
 
       <div>
-        <label className="text-sm font-medium text-gray-700 mb-2 block">Urgency Level</label>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">Urgency</label>
         <Select value={formData.urgency} onValueChange={(value) => onFormDataChange('urgency', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select urgency" />
@@ -41,7 +42,9 @@ const CategoryUrgencySelector = ({ formData, onFormDataChange }: CategoryUrgency
               <SelectItem key={level.value} value={level.value}>
                 <div className="flex items-center space-x-2">
                   <span>{level.icon}</span>
-                  <span>{level.label}</span>
+                  <Badge className={level.color} variant="secondary">
+                    {level.label}
+                  </Badge>
                 </div>
               </SelectItem>
             ))}

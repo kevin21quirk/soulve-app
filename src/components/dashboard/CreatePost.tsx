@@ -87,6 +87,11 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       // Notify parent component
       onPostCreated({ success: true });
       
+      toast({
+        title: "Post created!",
+        description: "Your post has been shared with the community.",
+      });
+      
     } catch (error) {
       console.error('Error creating post:', error);
       toast({

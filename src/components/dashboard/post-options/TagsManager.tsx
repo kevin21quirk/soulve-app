@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { PostFormData } from "@/components/dashboard/CreatePostTypes";
+import { Badge } from "@/components/ui/badge";
+import { X, Plus } from "lucide-react";
+import { PostFormData } from "../CreatePostTypes";
 
 interface TagsManagerProps {
   formData: PostFormData;
@@ -12,42 +12,61 @@ interface TagsManagerProps {
 }
 
 const TagsManager = ({ formData, onFormDataChange }: TagsManagerProps) => {
-  const [newTag, setNewTag] = useState("");
+  const [tagInput, setTagInput] = useState("");
 
   const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      onFormDataChange('tags', [...formData.tags, newTag.trim()]);
-      setNewTag("");
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      const newTags = [...formData.tags, tagInput.trim()];
+      onFormDataChange('tags', newTags);
+      setTagInput("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    onFormDataChange('tags', formData.tags.filter(tag => tag !== tagToRemove));
+    const newTags = formData.tags.filter(tag => tag !== tagToRemove);
+    onFormDataChange('tags', newTags);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    }
   };
 
   return (
     <div>
       <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {formData.tags.map((tag) => (
-          <div key={tag} className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-3 py-1 rounded-full text-sm flex items-center space-x-1 shadow-sm">
-            <span>#{tag}</span>
-            <X className="h-3 w-3 cursor-pointer hover:bg-white/20 rounded-full p-0.5" onClick={() => removeTag(tag)} />
-          </div>
-        ))}
-      </div>
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 mb-3">
         <Input
           placeholder="Add a tag..."
-          value={newTag}
-          onChange={(e) => setNewTag(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-          className="flex-1"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
-        <Button onClick={addTag} size="sm" variant="outline" type="button" className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10">
-          Add
+        <Button type="button" onClick={addTag} size="sm">
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
+      
+      {formData.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {formData.tags.map((tag, index) => (
+            <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+              <span>{tag}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeTag(tag)}
+                className="h-4 w-4 p-0 hover:bg-transparent"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

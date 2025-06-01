@@ -15,25 +15,23 @@ interface FeedFiltersProps {
 
 const FeedFilters = ({ activeFilter, onFilterChange, postCounts }: FeedFiltersProps) => {
   const filters = [
-    { key: "all", label: "All Posts", count: postCounts.all },
-    { key: "help-needed", label: "Help Needed", count: postCounts["help-needed"] },
-    { key: "help-offered", label: "Help Offered", count: postCounts["help-offered"] },
-    { key: "success-story", label: "Success Stories", count: postCounts["success-story"] }
+    { id: "all", label: "All Posts", icon: "📋", count: postCounts.all },
+    { id: "help-needed", label: "Help Needed", icon: "🙋‍♂️", count: postCounts["help-needed"] },
+    { id: "help-offered", label: "Help Offered", icon: "🤝", count: postCounts["help-offered"] },
+    { id: "success-story", label: "Success Stories", icon: "🎉", count: postCounts["success-story"] },
   ];
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2 p-4 bg-white rounded-lg shadow-sm">
       {filters.map((filter) => (
         <Button
-          key={filter.key}
-          variant={activeFilter === filter.key ? "default" : "outline"}
-          onClick={() => onFilterChange(filter.key)}
-          className={`flex items-center space-x-2 transition-all ${
-            activeFilter === filter.key 
-              ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe]" 
-              : "hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white"
-          }`}
+          key={filter.id}
+          variant={activeFilter === filter.id ? "default" : "outline"}
+          size="sm"
+          onClick={() => onFilterChange(filter.id)}
+          className="flex items-center space-x-2"
         >
+          <span>{filter.icon}</span>
           <span>{filter.label}</span>
           <Badge variant="secondary" className="ml-1">
             {filter.count}
