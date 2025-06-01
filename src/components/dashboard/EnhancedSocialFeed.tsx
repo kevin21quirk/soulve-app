@@ -201,34 +201,26 @@ const EnhancedSocialFeed = () => {
                         author: post.author_profile && typeof post.author_profile === 'object' && 'first_name' in post.author_profile
                           ? `${post.author_profile.first_name || ''} ${post.author_profile.last_name || ''}`.trim() || 'Anonymous'
                           : 'Anonymous',
-                        avatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
+                        authorAvatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
                           ? post.author_profile.avatar_url || ''
                           : '',
                         title: post.title,
                         description: post.content,
                         category: post.category as any,
-                        timestamp: new Date(post.created_at).toLocaleDateString(),
+                        date: new Date(post.created_at),
                         location: post.location || 'Location not specified',
                         responses: post.interactions?.comment_count || 0,
                         likes: post.interactions?.like_count || 0,
-                        isLiked: post.interactions?.user_liked || false,
+                        shares: 0,
                         urgency: post.urgency as any,
                         tags: post.tags || [],
-                        visibility: post.visibility as any,
-                        shares: 0,
-                        isShared: false,
-                        isBookmarked: false,
                         comments: post.comments?.map(comment => ({
                           id: comment.id,
                           author: comment.author,
-                          avatar: comment.avatar,
-                          content: comment.content,
-                          timestamp: comment.timestamp,
+                          text: comment.content, // Use text property as expected by FeedPostCard
                           likes: comment.likes,
-                          isLiked: comment.isLiked,
                           reactions: []
-                        })) || [],
-                        reactions: []
+                        })) || []
                       }}
                       onLike={() => handleLike(post.id)}
                       onShare={() => {}}

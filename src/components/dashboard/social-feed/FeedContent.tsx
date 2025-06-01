@@ -59,12 +59,11 @@ const FeedContent = ({
             ...post,
             urgency: post.urgency || 'medium',
             tags: post.tags || [],
-            visibility: post.visibility || 'public',
             // Transform comments to match expected format
             comments: (post.comments || []).map(comment => ({
               id: comment.id,
               author: comment.author,
-              text: comment.content || comment.text || '', // Handle both content and text properties
+              text: comment.content || '', // Use content as text for compatibility
               likes: comment.likes,
               reactions: comment.reactions || []
             })),
