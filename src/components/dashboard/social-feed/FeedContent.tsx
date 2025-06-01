@@ -60,7 +60,14 @@ const FeedContent = ({
             urgency: post.urgency || 'medium',
             tags: post.tags || [],
             visibility: post.visibility || 'public',
-            comments: post.comments || [],
+            // Transform comments to match expected format
+            comments: (post.comments || []).map(comment => ({
+              id: comment.id,
+              author: comment.author,
+              text: comment.content || comment.text || '', // Handle both content and text properties
+              likes: comment.likes,
+              reactions: comment.reactions || []
+            })),
             reactions: post.reactions || []
           }}
           onLike={() => onLike(post.id)}

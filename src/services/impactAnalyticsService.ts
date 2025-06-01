@@ -235,7 +235,9 @@ export class ImpactAnalyticsService {
           cumulativeHelp++;
           dayData.helpProvided = cumulativeHelp;
         } else if (activity.activity_type === 'volunteer') {
-          const hours = activity.metadata?.hours || 1;
+          // Safely extract hours from metadata
+          const metadata = activity.metadata as Record<string, any>;
+          const hours = typeof metadata?.hours === 'number' ? metadata.hours : 1;
           cumulativeVolunteer += hours;
           dayData.volunteerHours = cumulativeVolunteer;
         }
@@ -372,7 +374,7 @@ export class ImpactAnalyticsService {
         activityType: activity.activity_type,
         pointsEarned: activity.points_earned,
         description: activity.description,
-        metadata: activity.metadata || {},
+        metadata: (activity.metadata as Record<string, any>) || {},
         createdAt: activity.created_at,
         verified: activity.verified
       }));

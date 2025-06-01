@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -110,6 +111,18 @@ const FeedPostCard = ({ post, onLike, onShare, onRespond, onBookmark, onReaction
     );
   };
 
+  // Get user display name safely
+  const getUserDisplayName = () => {
+    if (!user) return 'Guest';
+    // Try to get first_name and last_name from user profile
+    const firstName = (user as any)?.user_metadata?.first_name || (user as any)?.first_name || '';
+    const lastName = (user as any)?.user_metadata?.last_name || (user as any)?.last_name || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || user.email?.split('@')[0] || 'User';
+  };
+
+  const userDisplayName = getUserDisplayName();
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -213,17 +226,8 @@ const FeedPostCard = ({ post, onLike, onShare, onRespond, onBookmark, onReaction
       )}
       <CardFooter className="flex items-center space-x-2 py-2">
         <Avatar className="h-7 w-7">
-          {user ? (
-            <>
-              <AvatarImage src={`https://avatar.vercel.sh/${user.name}.png`} alt={user.name} />
-              <AvatarFallback>{user.name?.substring(0, 2)}</AvatarFallback>
-            </>
-          ) : (
-            <>
-              <AvatarImage src="https://avatar.vercel.sh/guest.png" alt="Guest" />
-              <AvatarFallback>G?</AvatarFallback>
-            </>
-          )}
+          <AvatarImage src={`https://avatar.vercel.sh/${userDisplayName}.png`} alt={userDisplayName} />
+          <AvatarFallback>{userDisplayName.substring(0, 2)}</AvatarFallback>
         </Avatar>
         <Input
           type="text"
