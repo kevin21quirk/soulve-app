@@ -38,8 +38,12 @@ const PostActions = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1">
           <PostReactions 
-            post={post} 
-            onReaction={(reactionType: string) => onReaction(post.id, reactionType)} 
+            post={post}
+            onLike={onLike}
+            onShare={onShare}
+            onRespond={() => setShowComments(!showComments)}
+            onBookmark={onBookmark}
+            onReaction={onReaction}
           />
           
           <Button 
@@ -136,6 +140,7 @@ const PostActions = ({
           onAddComment={(content: string) => onAddComment(post.id, content)}
           onLikeComment={(commentId: string) => onLikeComment(post.id, commentId)}
           onCommentReaction={(commentId: string, reactionType: string) => onCommentReaction?.(post.id, commentId, reactionType)}
+          isExpanded={showComments}
         />
       )}
     </div>
