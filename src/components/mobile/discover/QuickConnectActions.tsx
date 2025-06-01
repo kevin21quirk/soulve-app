@@ -54,7 +54,7 @@ const QuickConnectActions = ({ onAction }: QuickConnectActionsProps) => {
                   variant="gradient"
                   size="sm"
                   onClick={() => onAction(action.id)}
-                  className="w-full h-12 rounded-lg p-2 flex flex-col items-center justify-center space-y-1"
+                  className="w-full h-12"
                 >
                   <IconComponent className="h-4 w-4" />
                 </Button>
