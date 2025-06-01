@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Users2, Heart, TrendingUp, Crown, Search, Filter, BarChart3 } from "lucide-react";
-import { useConnections } from "@/hooks/useConnections";
+import { useRealConnections, useSuggestedConnections, useSendConnectionRequest, useRespondToConnection } from "@/services/realConnectionsService";
 import PendingRequests from "./PendingRequests";
 import ConnectedPeople from "./ConnectedPeople";
 import SuggestedConnections from "./SuggestedConnections";
@@ -15,33 +15,67 @@ import NetworkSearch from "./connections/NetworkSearch";
 import NetworkAnalytics from "./connections/NetworkAnalytics";
 import ConnectionInsights from "./connections/ConnectionInsights";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EnhancedConnections = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showSearch, setShowSearch] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   
-  const {
-    pendingRequests,
-    connectedPeople,
-    suggestedConnections,
-    myGroups,
-    suggestedGroups,
-    campaigns,
-    peopleYouMayKnow,
-    champions,
-    handleAcceptConnection,
-    handleDeclineConnection,
-    handleSendRequest,
-    handleJoinGroup,
-    handleLeaveGroup,
-    handleJoinCampaign,
-    handleLeaveCampaign,
-    handleSendPersonRequest,
-    handleDismissPerson,
-    handleFollowChampion,
-    getTrustScoreColor,
-  } = useConnections();
+  // Real database connections
+  const { data: connections = [], isLoading: connectionsLoading } = useRealConnections();
+  const { data: suggestedConnections = [], isLoading: suggestionsLoading } = useSuggestedConnections();
+  const sendConnectionRequest = useSendConnectionRequest();
+  const respondToConnection = useRespondToConnection();
+
+  // Process connections data
+  const pendingRequests = connections.filter(conn => 
+    conn.status === 'pending' && conn.addressee_id === user?.id
+  );
+  
+  const connectedPeople = connections
+    .filter(conn => conn.status === 'accepted')
+    .map(conn => ({
+      id: conn.id,
+      partner_id: conn.requester_id === user?.id ? conn.addressee_id : conn.requester_id,
+      partner_profile: conn.requester_id === user?.id ? conn.addressee : conn.requester
+    }));
+
+  const handleAcceptConnection = (connectionId: string) => {
+    respondToConnection.mutate({ connectionId, status: 'accepted' });
+  };
+
+  const handleDeclineConnection = (connectionId: string) => {
+    respondToConnection.mutate({ connectionId, status: 'declined' });
+  };
+
+  const handleSendRequest = (userId: string) => {
+    sendConnectionRequest.mutate(userId);
+  };
+
+  const getTrustScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  // Mock data for sections not yet implemented
+  const mockGroups = { myGroups: [], suggestedGroups: [] };
+  const mockCampaigns = { campaigns: [] };
+  const mockPeople = { peopleYouMayKnow: [] };
+  const mockChampions = { champions: [] };
+
+  if (connectionsLoading || suggestionsLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your network...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -83,7 +117,7 @@ const EnhancedConnections = () => {
       {showAnalytics && (
         <NetworkAnalytics
           connectedPeople={connectedPeople}
-          myGroups={myGroups}
+          myGroups={mockGroups.myGroups}
           onClose={() => setShowAnalytics(false)}
         />
       )}
@@ -120,8 +154,8 @@ const EnhancedConnections = () => {
           <ConnectionStats
             totalConnections={connectedPeople.length}
             pendingRequests={pendingRequests.length}
-            groupsJoined={myGroups.length}
-            campaignsActive={campaigns.filter(c => c.isParticipating).length}
+            groupsJoined={0}
+            campaignsActive={0}
             weeklyGrowth={12}
           />
 
@@ -139,11 +173,11 @@ const EnhancedConnections = () => {
             />
           )}
 
-          {peopleYouMayKnow.length > 0 && (
+          {mockPeople.peopleYouMayKnow.length > 0 && (
             <PeopleYouMayKnow
-              people={peopleYouMayKnow.slice(0, 3)}
-              onSendRequest={handleSendPersonRequest}
-              onDismiss={handleDismissPerson}
+              people={mockPeople.peopleYouMayKnow.slice(0, 3)}
+              onSendRequest={() => {}}
+              onDismiss={() => {}}
             />
           )}
         </TabsContent>
@@ -172,33 +206,33 @@ const EnhancedConnections = () => {
 
         <TabsContent value="groups" className="space-y-6">
           <GroupsSection
-            suggestedGroups={suggestedGroups}
-            myGroups={myGroups}
-            onJoinGroup={handleJoinGroup}
-            onLeaveGroup={handleLeaveGroup}
+            suggestedGroups={mockGroups.suggestedGroups}
+            myGroups={mockGroups.myGroups}
+            onJoinGroup={() => {}}
+            onLeaveGroup={() => {}}
           />
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-6">
           <CampaignsSection
-            campaigns={campaigns}
-            onJoinCampaign={handleJoinCampaign}
-            onLeaveCampaign={handleLeaveCampaign}
+            campaigns={mockCampaigns.campaigns}
+            onJoinCampaign={() => {}}
+            onLeaveCampaign={() => {}}
           />
         </TabsContent>
 
         <TabsContent value="discover" className="space-y-6">
-          <PeopleYouMayKnow
-            people={peopleYouMayKnow}
-            onSendRequest={handleSendPersonRequest}
-            onDismiss={handleDismissPerson}
+          <SuggestedConnections
+            suggestedConnections={suggestedConnections}
+            onSendRequest={handleSendRequest}
+            getTrustScoreColor={getTrustScoreColor}
           />
         </TabsContent>
 
         <TabsContent value="champions" className="space-y-6">
           <CommunityChampions
-            champions={champions}
-            onFollowChampion={handleFollowChampion}
+            champions={mockChampions.champions}
+            onFollowChampion={() => {}}
           />
         </TabsContent>
       </Tabs>

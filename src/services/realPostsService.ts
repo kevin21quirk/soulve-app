@@ -103,35 +103,44 @@ export const usePosts = (category?: string, urgency?: string) => {
               .eq('user_id', user.user.id)
               .eq('interaction_type', 'like')
               .single() : Promise.resolve({ data: null }),
-            // Fetch actual comments with user profiles
+            // Fetch actual comments with user profiles - fixed relation
             supabase
               .from('post_interactions')
               .select(`
                 id,
                 content,
                 created_at,
-                user_id,
-                profiles!post_interactions_user_id_fkey(first_name, last_name, avatar_url)
+                user_id
               `)
               .eq('post_id', post.id)
               .eq('interaction_type', 'comment')
               .order('created_at', { ascending: true })
           ]);
 
-          // Transform comments to match expected format
-          const transformedComments: PostComment[] = (commentsResult.data || []).map(comment => ({
-            id: comment.id,
-            author: comment.profiles 
-              ? `${comment.profiles.first_name || ''} ${comment.profiles.last_name || ''}`.trim() || 'Anonymous'
-              : 'Anonymous',
-            avatar: comment.profiles?.avatar_url || '',
-            content: comment.content || '',
-            timestamp: new Date(comment.created_at).toLocaleDateString(),
-            likes: 0, // We'll implement comment likes later
-            isLiked: false,
-            user_id: comment.user_id,
-            created_at: comment.created_at
-          }));
+          // For each comment, fetch the user profile separately
+          const commentsWithProfiles = await Promise.all(
+            (commentsResult.data || []).map(async (comment) => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('first_name, last_name, avatar_url')
+                .eq('id', comment.user_id)
+                .single();
+
+              return {
+                id: comment.id,
+                author: profile 
+                  ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
+                  : 'Anonymous',
+                avatar: profile?.avatar_url || '',
+                content: comment.content || '',
+                timestamp: new Date(comment.created_at).toLocaleDateString(),
+                likes: 0, // We'll implement comment likes later
+                isLiked: false,
+                user_id: comment.user_id,
+                created_at: comment.created_at
+              };
+            })
+          );
 
           return {
             ...post,
@@ -141,7 +150,7 @@ export const usePosts = (category?: string, urgency?: string) => {
               comment_count: commentCountResult.count || 0,
               user_liked: !!userLikeResult.data,
             },
-            comments: transformedComments,
+            comments: commentsWithProfiles,
           };
         })
       );
