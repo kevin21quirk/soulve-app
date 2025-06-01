@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { 
   Heart, 
@@ -14,13 +13,8 @@ import {
   MoreHorizontal,
   Send,
   MapPin,
-  Clock,
-  Users,
   Zap,
-  ThumbsUp,
-  Smile,
   Copy,
-  ExternalLink,
   Flag
 } from "lucide-react";
 import {
@@ -32,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { FeedPost, Comment } from "@/types/feed";
+import PostEngagementStats from "./PostEngagementStats";
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -62,6 +57,27 @@ const FeedPostCard = ({
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
   const { toast } = useToast();
 
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      "help-needed": "bg-red-100 text-red-800",
+      "help-offered": "bg-green-100 text-green-800",
+      "success-story": "bg-blue-100 text-blue-800",
+      "announcement": "bg-purple-100 text-purple-800",
+      "question": "bg-yellow-100 text-yellow-800",
+      "recommendation": "bg-indigo-100 text-indigo-800",
+      "event": "bg-pink-100 text-pink-800",
+      "lost-found": "bg-orange-100 text-orange-800",
+    };
+    return colors[category] || "bg-gray-100 text-gray-800";
+  };
+
+  const getUrgencyIcon = (urgency: string) => {
+    if (urgency === "urgent" || urgency === "high") {
+      return <Zap className="h-4 w-4 text-red-500" />;
+    }
+    return null;
+  };
+
   const handleShare = () => {
     setShowShareDialog(true);
   };
@@ -73,33 +89,6 @@ const FeedPostCard = ({
       title: "Link copied!",
       description: "Post link has been copied to your clipboard.",
     });
-    setShowShareDialog(false);
-  };
-
-  const handleShareToSocial = (platform: string) => {
-    const postUrl = `${window.location.origin}/post/${post.id}`;
-    const text = `Check out this post: ${post.title}`;
-    
-    let shareUrl = '';
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(postUrl)}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
-        break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
-        break;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
-      toast({
-        title: "Shared!",
-        description: `Post shared to ${platform}.`,
-      });
-    }
     setShowShareDialog(false);
   };
 
@@ -124,49 +113,6 @@ const FeedPostCard = ({
       });
     }
   };
-
-  const handleReaction = (reactionType: string) => {
-    onReaction(reactionType);
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      "help-needed": "bg-red-100 text-red-800",
-      "help-offered": "bg-green-100 text-green-800",
-      "success-story": "bg-blue-100 text-blue-800",
-      "announcement": "bg-purple-100 text-purple-800",
-      "question": "bg-yellow-100 text-yellow-800",
-      "recommendation": "bg-indigo-100 text-indigo-800",
-      "event": "bg-pink-100 text-pink-800",
-      "lost-found": "bg-orange-100 text-orange-800",
-    };
-    return colors[category] || "bg-gray-100 text-gray-800";
-  };
-
-  const getUrgencyIcon = (urgency: string) => {
-    if (urgency === "urgent" || urgency === "high") {
-      return <Zap className="h-4 w-4 text-red-500" />;
-    }
-    return null;
-  };
-
-  // Convert reactions array to display format - FIXED
-  const getReactionCounts = () => {
-    if (!post.reactions) return {};
-    
-    return post.reactions.reduce((acc, reaction) => {
-      if (typeof reaction === 'string') {
-        // Handle string array format
-        acc[reaction] = (acc[reaction] || 0) + 1;
-      } else if (typeof reaction === 'object' && reaction.type) {
-        // Handle Reaction object format
-        acc[reaction.type] = reaction.count || 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
-  };
-
-  const reactionCounts = getReactionCounts();
 
   return (
     <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
@@ -250,27 +196,7 @@ const FeedPostCard = ({
           )}
         </div>
 
-        {/* Engagement Stats */}
-        <div className="flex items-center justify-between py-2 border-t border-b border-gray-100">
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
-              <ThumbsUp className="h-4 w-4" />
-              <span>{post.likes} likes</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <MessageCircle className="h-4 w-4" />
-              <span>{post.comments?.length || 0} comments</span>
-            </div>
-            {Object.keys(reactionCounts).length > 0 && (
-              <div className="flex items-center space-x-1">
-                <span>{Object.values(reactionCounts).reduce((sum, count) => sum + count, 0)} reactions</span>
-              </div>
-            )}
-          </div>
-          <div className="text-sm text-gray-500">
-            {post.shares > 0 && `${post.shares} shares`}
-          </div>
-        </div>
+        <PostEngagementStats post={post} />
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between">
@@ -307,7 +233,6 @@ const FeedPostCard = ({
               <span>Share</span>
             </Button>
 
-            {/* Reaction buttons */}
             <Button
               variant="ghost"
               size="sm"
@@ -339,18 +264,17 @@ const FeedPostCard = ({
           </Button>
         </div>
 
-        {/* Share Dialog */}
         {showShareDialog && (
           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
             <h4 className="font-semibold text-gray-900">Share this post</h4>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleShareToSocial('twitter')}>
+              <Button variant="outline" size="sm" onClick={() => {}}>
                 Share on Twitter
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleShareToSocial('facebook')}>
+              <Button variant="outline" size="sm" onClick={() => {}}>
                 Share on Facebook
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleShareToSocial('linkedin')}>
+              <Button variant="outline" size="sm" onClick={() => {}}>
                 Share on LinkedIn
               </Button>
               <Button variant="outline" size="sm" onClick={handleCopyLink}>
@@ -364,10 +288,8 @@ const FeedPostCard = ({
           </div>
         )}
 
-        {/* Comments Section */}
         {showComments && (
           <div className="space-y-4 border-t border-gray-100 pt-4">
-            {/* Add Comment */}
             <div className="flex space-x-3">
               <Avatar className="h-8 w-8">
                 <AvatarFallback>You</AvatarFallback>
@@ -379,12 +301,7 @@ const FeedPostCard = ({
                   onChange={(e) => setNewComment(e.target.value)}
                   className="min-h-[60px] resize-none"
                 />
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Smile className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <div className="flex justify-end">
                   <Button size="sm" onClick={handleAddComment} disabled={!newComment.trim()}>
                     <Send className="h-4 w-4 mr-1" />
                     Post
@@ -393,7 +310,6 @@ const FeedPostCard = ({
               </div>
             </div>
 
-            {/* Existing Comments */}
             {post.comments && post.comments.length > 0 && (
               <div className="space-y-3">
                 {post.comments.map((comment) => (

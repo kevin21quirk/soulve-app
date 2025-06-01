@@ -2,42 +2,27 @@
 import { Button } from "@/components/ui/button";
 import { Heart, ThumbsUp, Smile, Frown, Angry } from "lucide-react";
 import { useState } from "react";
-import { FeedPost, Reaction } from "@/types/feed";
+import { FeedPost } from "@/types/feed";
+import { useReactions } from "@/hooks/useReactions";
+import ReactionDisplay from "./ReactionDisplay";
 
 interface PostReactionsProps {
   post: FeedPost;
   onReaction: (reactionType: string) => void;
 }
 
+const reactionTypes = [
+  { type: 'like', emoji: '👍', icon: ThumbsUp, label: 'Like' },
+  { type: 'love', emoji: '❤️', icon: Heart, label: 'Love' },
+  { type: 'laugh', emoji: '😂', icon: Smile, label: 'Laugh' },
+  { type: 'wow', emoji: '😮', icon: null, label: 'Wow' },
+  { type: 'sad', emoji: '😢', icon: Frown, label: 'Sad' },
+  { type: 'angry', emoji: '😠', icon: Angry, label: 'Angry' }
+];
+
 const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
   const [showReactions, setShowReactions] = useState(false);
-
-  const reactionTypes = [
-    { type: 'like', emoji: '👍', icon: ThumbsUp, label: 'Like' },
-    { type: 'love', emoji: '❤️', icon: Heart, label: 'Love' },
-    { type: 'laugh', emoji: '😂', icon: Smile, label: 'Laugh' },
-    { type: 'wow', emoji: '😮', icon: null, label: 'Wow' },
-    { type: 'sad', emoji: '😢', icon: Frown, label: 'Sad' },
-    { type: 'angry', emoji: '😠', icon: Angry, label: 'Angry' }
-  ];
-
-  const getReactionCounts = () => {
-    if (!post.reactions) return {};
-    
-    return post.reactions.reduce((acc, reaction) => {
-      if (typeof reaction === 'string') {
-        // Handle string array format
-        acc[reaction] = (acc[reaction] || 0) + 1;
-      } else if (typeof reaction === 'object' && reaction.type) {
-        // Handle Reaction object format
-        acc[reaction.type] = reaction.count || 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
-  };
-
-  const reactionCounts = getReactionCounts();
-  const hasReacted = post.isLiked; // Simplified for now
+  const { reactionCounts, totalReactions, hasUserReacted } = useReactions(post.reactions);
 
   return (
     <div className="relative">
@@ -48,16 +33,11 @@ const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
         onMouseEnter={() => setShowReactions(true)}
         onMouseLeave={() => setShowReactions(false)}
         className={`flex items-center space-x-1 ${
-          hasReacted ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
+          hasUserReacted ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
         }`}
       >
-        <Heart className={`h-4 w-4 ${hasReacted ? "fill-current" : ""}`} />
-        <span>
-          {Object.keys(reactionCounts).length > 0 
-            ? Object.values(reactionCounts).reduce((sum, count) => sum + count, 0)
-            : post.likes
-          }
-        </span>
+        <Heart className={`h-4 w-4 ${hasUserReacted ? "fill-current" : ""}`} />
+        <span>{totalReactions || post.likes}</span>
       </Button>
 
       {showReactions && (
@@ -84,20 +64,7 @@ const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
         </div>
       )}
 
-      {/* Show reaction counts */}
-      {Object.keys(reactionCounts).length > 0 && (
-        <div className="flex items-center space-x-1 mt-1">
-          {Object.entries(reactionCounts).map(([type, count]) => {
-            const reaction = reactionTypes.find(r => r.type === type);
-            return (
-              <div key={type} className="flex items-center space-x-1 text-xs text-gray-500">
-                <span>{reaction?.emoji}</span>
-                <span>{count}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ReactionDisplay reactionCounts={reactionCounts} className="mt-1" />
     </div>
   );
 };
