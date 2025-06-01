@@ -4,16 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Plus, Target, BarChart3, Settings } from "lucide-react";
+import { Sparkles, Plus, Target, BarChart3, Settings, HelpCircle } from "lucide-react";
 import CampaignTemplates from "./CampaignTemplates";
 import CampaignCreateTab from "./CampaignCreateTab";
 import CampaignManageTab from "./CampaignManageTab";
 import CampaignAnalytics from "./CampaignAnalytics";
+import HelpApprovalTab from "../dashboard/tabs/HelpApprovalTab";
 import { type CampaignTemplate } from "@/services/campaignTemplateService";
 import { useToast } from "@/hooks/use-toast";
+import { useHelpCompletion } from "@/hooks/useHelpCompletion";
 
 const EnhancedCampaignBuilder = () => {
   const { toast } = useToast();
+  const { pendingRequests } = useHelpCompletion();
   const [activeTab, setActiveTab] = useState("templates");
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -49,10 +52,6 @@ const EnhancedCampaignBuilder = () => {
     console.log("Quick update functionality triggered");
   };
 
-  const handleCampaignsUpdate = () => {
-    console.log("Campaigns updated");
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -69,7 +68,7 @@ const EnhancedCampaignBuilder = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger 
             value="templates" 
             className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -98,6 +97,21 @@ const EnhancedCampaignBuilder = () => {
             <BarChart3 className="h-4 w-4" />
             <span>Analytics</span>
           </TabsTrigger>
+          <TabsTrigger 
+            value="help-approvals" 
+            className="relative flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            <HelpCircle className="h-4 w-4" />
+            <span>Help & Approvals</span>
+            {pendingRequests.length > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+              >
+                {pendingRequests.length}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="mt-6">
@@ -123,6 +137,10 @@ const EnhancedCampaignBuilder = () => {
 
         <TabsContent value="analytics" className="mt-6">
           <CampaignAnalytics />
+        </TabsContent>
+
+        <TabsContent value="help-approvals" className="mt-6">
+          <HelpApprovalTab />
         </TabsContent>
       </Tabs>
     </div>
