@@ -13,35 +13,30 @@ const QuickConnectActions = ({ onAction }: QuickConnectActionsProps) => {
       id: "nearby",
       label: "Nearby",
       icon: MapPin,
-      color: "bg-blue-500 hover:bg-blue-600",
       description: "Find people nearby"
     },
     {
       id: "groups",
       label: "Groups",
       icon: Users,
-      color: "bg-green-500 hover:bg-green-600",
       description: "Join communities"
     },
     {
       id: "causes",
       label: "Causes",
       icon: Heart,
-      color: "bg-red-500 hover:bg-red-600",
       description: "Support causes"
     },
     {
       id: "events",
       label: "Events",
       icon: Calendar,
-      color: "bg-purple-500 hover:bg-purple-600",
       description: "Find events"
     },
     {
       id: "urgent",
       label: "Urgent",
       icon: Zap,
-      color: "bg-orange-500 hover:bg-orange-600",
       description: "Help needed now"
     }
   ];
@@ -56,10 +51,9 @@ const QuickConnectActions = ({ onAction }: QuickConnectActionsProps) => {
             return (
               <div key={action.id} className="text-center">
                 <Button
-                  variant="ghost"
                   size="sm"
                   onClick={() => onAction(action.id)}
-                  className={`w-full h-12 ${action.color} text-white rounded-lg p-2 flex flex-col items-center justify-center space-y-1`}
+                  className="w-full h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200 rounded-lg p-2 flex flex-col items-center justify-center space-y-1"
                 >
                   <IconComponent className="h-4 w-4" />
                 </Button>
