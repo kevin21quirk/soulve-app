@@ -1,8 +1,40 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Types
+export interface PostWithProfile {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  urgency: string;
+  location?: string;
+  tags?: string[];
+  created_at: string;
+  author_profile: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+  };
+  interactions?: {
+    like_count: number;
+    comment_count: number;
+    user_liked?: boolean;
+  };
+  comments?: Array<{
+    id: string;
+    author: string;
+    content: string;
+    timestamp: string;
+    likes: number;
+    isLiked: boolean;
+    user_id: string;
+    created_at: string;
+  }>;
+}
 
 // Mock data for now - in a real app this would connect to your backend
-const mockPosts = [
+const mockPosts: PostWithProfile[] = [
   {
     id: '1',
     title: 'Help needed with grocery shopping',
@@ -19,7 +51,8 @@ const mockPosts = [
     },
     interactions: {
       like_count: 12,
-      comment_count: 3
+      comment_count: 3,
+      user_liked: false
     },
     comments: []
   },
@@ -39,7 +72,8 @@ const mockPosts = [
     },
     interactions: {
       like_count: 24,
-      comment_count: 8
+      comment_count: 8,
+      user_liked: false
     },
     comments: []
   }
@@ -48,10 +82,77 @@ const mockPosts = [
 export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
-    queryFn: async () => {
+    queryFn: async (): Promise<PostWithProfile[]> => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       return mockPosts;
+    },
+  });
+};
+
+export const useCreatePost = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (postData: {
+      title: string;
+      content: string;
+      category: string;
+      urgency: string;
+      location?: string;
+      tags?: string[];
+      visibility?: string;
+    }) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const newPost: PostWithProfile = {
+        id: Date.now().toString(),
+        title: postData.title,
+        content: postData.content,
+        category: postData.category,
+        urgency: postData.urgency,
+        location: postData.location,
+        tags: postData.tags || [],
+        created_at: new Date().toISOString(),
+        author_profile: {
+          first_name: 'You',
+          last_name: '',
+          avatar_url: 'https://avatar.vercel.sh/user.png'
+        },
+        interactions: {
+          like_count: 0,
+          comment_count: 0,
+          user_liked: false
+        },
+        comments: []
+      };
+      
+      return newPost;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+};
+
+export const usePostInteraction = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      postId: string;
+      interactionType: 'like' | 'comment';
+      content?: string;
+    }) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      console.log('Post interaction:', data);
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };
