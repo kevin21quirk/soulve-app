@@ -130,9 +130,22 @@ const MobileAnalyticsPoints = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="trust">Trust</TabsTrigger>
-          <TabsTrigger value="points">Points</TabsTrigger>
-          <TabsTrigger value="achievements">
+          <TabsTrigger 
+            value="trust"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Trust
+          </TabsTrigger>
+          <TabsTrigger 
+            value="points"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Points
+          </TabsTrigger>
+          <TabsTrigger 
+            value="achievements"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             Rewards
             {unlockedAchievements.length > 0 && (
               <Badge variant="destructive" className="ml-1 text-xs">
@@ -140,7 +153,12 @@ const MobileAnalyticsPoints = () => {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="leaderboard">Ranks</TabsTrigger>
+          <TabsTrigger 
+            value="leaderboard"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Ranks
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="trust" className="space-y-4 mt-4">
