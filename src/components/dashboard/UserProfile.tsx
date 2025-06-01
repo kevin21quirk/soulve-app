@@ -78,11 +78,17 @@ const UserProfile = () => {
       
       <Tabs defaultValue="view" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="view" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="view" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <User className="h-4 w-4" />
             View Profile
           </TabsTrigger>
-          <TabsTrigger value="manage" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="manage" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <Settings className="h-4 w-4" />
             Manage Profile
           </TabsTrigger>
