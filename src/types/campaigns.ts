@@ -1,5 +1,5 @@
 
-export interface Campaign {
+export interface CampaignData {
   id: string;
   title: string;
   description: string;
@@ -16,3 +16,6 @@ export interface Campaign {
   tags: string[];
   isParticipating: boolean;
 }
+
+// Export as Campaign for backward compatibility
+export type Campaign = CampaignData;

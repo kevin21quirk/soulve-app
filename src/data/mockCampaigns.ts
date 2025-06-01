@@ -1,7 +1,7 @@
 
-import { Campaign } from "@/types/campaigns";
+import { CampaignData } from "@/types/campaigns";
 
-export const mockCampaigns: Campaign[] = [
+export const mockCampaigns: CampaignData[] = [
   {
     id: '1',
     title: 'Winter Warmth Initiative',

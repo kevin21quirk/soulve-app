@@ -1,13 +1,12 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Heart, Calendar, MapPin, Users, Target, Clock } from "lucide-react";
-import { Campaign } from "@/types/campaigns";
+import { CampaignData } from "@/types/campaigns";
 
 interface CampaignsSectionProps {
-  campaigns: Campaign[];
+  campaigns: CampaignData[];
   onJoinCampaign: (campaignId: string) => void;
   onLeaveCampaign: (campaignId: string) => void;
 }
@@ -25,7 +24,7 @@ const CampaignsSection = ({ campaigns, onJoinCampaign, onLeaveCampaign }: Campai
     }
   };
 
-  const renderCampaignCard = (campaign: Campaign, isParticipating: boolean) => (
+  const renderCampaignCard = (campaign: CampaignData, isParticipating: boolean) => (
     <Card key={campaign.id} className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">

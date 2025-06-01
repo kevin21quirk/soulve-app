@@ -1,12 +1,12 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Campaign } from "@/types/campaigns";
+import { CampaignData } from "@/types/campaigns";
 import { mockCampaigns } from "@/data/mockCampaigns";
 
 export const useCampaignsManager = () => {
   const { toast } = useToast();
-  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
+  const [campaigns, setCampaigns] = useState<CampaignData[]>(mockCampaigns);
 
   const handleJoinCampaign = (campaignId: string) => {
     setCampaigns(prev => 
