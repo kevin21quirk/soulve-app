@@ -16,22 +16,28 @@ import {
   Heart,
   Clock,
   DollarSign,
-  Zap
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ImpactAnalyticsService, UserImpactData, CommunityComparison, ImpactGoal } from '@/services/impactAnalyticsService';
+import { useImpactTracking } from '@/hooks/useImpactTracking';
 import ImpactMetricsCard from './ImpactMetricsCard';
 import CommunityComparisonChart from './CommunityComparisonChart';
 import ImpactTrendsChart from './ImpactTrendsChart';
 import GoalsManager from './GoalsManager';
+import ActivityTracker from './ActivityTracker';
+import RecentActivitiesFeed from './RecentActivitiesFeed';
 
 const InteractiveImpactDashboard = () => {
   const { user } = useAuth();
+  const { refreshImpactMetrics } = useImpactTracking();
   const [activeTab, setActiveTab] = useState('overview');
   const [impactData, setImpactData] = useState<UserImpactData | null>(null);
   const [communityComparisons, setCommunityComparisons] = useState<CommunityComparison[]>([]);
   const [goals, setGoals] = useState<ImpactGoal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
   useEffect(() => {
@@ -58,6 +64,20 @@ const InteractiveImpactDashboard = () => {
       console.error('Error loading impact data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (!user?.id) return;
+    
+    setRefreshing(true);
+    try {
+      await refreshImpactMetrics();
+      await loadImpactData();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -95,6 +115,16 @@ const InteractiveImpactDashboard = () => {
         <div className="flex items-center justify-center space-x-3">
           <Award className="h-8 w-8 text-yellow-600" />
           <h1 className="text-3xl font-bold">Your Impact Journey</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="ml-4"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
         <div className="flex items-center justify-center space-x-4">
           <Badge className={`${impactLevel.color} text-white px-4 py-2 text-lg`}>
@@ -128,8 +158,9 @@ const InteractiveImpactDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
@@ -185,7 +216,11 @@ const InteractiveImpactDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-3xl font-bold">{impactData.trustScore}%</span>
-                    <Badge variant="secondary">Very High</Badge>
+                    <Badge variant="secondary">
+                      {impactData.trustScore >= 90 ? 'Excellent' : 
+                       impactData.trustScore >= 70 ? 'Very High' : 
+                       impactData.trustScore >= 50 ? 'Good' : 'Building'}
+                    </Badge>
                   </div>
                   <Progress value={impactData.trustScore} className="h-3" />
                   <p className="text-sm text-gray-600">
@@ -206,21 +241,27 @@ const InteractiveImpactDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-3xl font-bold">{impactData.responsesTime}h</span>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
-                      Fast
+                    <Badge variant="secondary" className={
+                      impactData.responsesTime <= 2 ? 'bg-green-100 text-green-800' :
+                      impactData.responsesTime <= 6 ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {impactData.responsesTime <= 2 ? 'Very Fast' :
+                       impactData.responsesTime <= 6 ? 'Fast' : 'Improving'}
                     </Badge>
                   </div>
                   <div className="text-sm text-gray-600">
                     Average time to respond to help requests
                   </div>
-                  <div className="flex items-center space-x-1 text-green-600">
-                    <TrendingDown className="h-4 w-4" />
-                    <span className="text-sm">18% faster than last month</span>
-                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-6">
+          <ActivityTracker />
+          <RecentActivitiesFeed />
         </TabsContent>
 
         <TabsContent value="community" className="space-y-6">

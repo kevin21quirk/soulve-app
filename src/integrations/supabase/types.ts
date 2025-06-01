@@ -724,6 +724,126 @@ export type Database = {
         }
         Relationships: []
       }
+      impact_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          points_earned: number
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          points_earned?: number
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          points_earned?: number
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      impact_goals: {
+        Row: {
+          category: string
+          created_at: string
+          current_value: number | null
+          deadline: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          target_value: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_value: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_value?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      impact_metrics: {
+        Row: {
+          calculated_at: string
+          connections_count: number | null
+          donation_amount: number | null
+          help_provided_count: number | null
+          help_received_count: number | null
+          id: string
+          impact_score: number
+          response_time_hours: number | null
+          trust_score: number
+          user_id: string
+          volunteer_hours: number | null
+        }
+        Insert: {
+          calculated_at?: string
+          connections_count?: number | null
+          donation_amount?: number | null
+          help_provided_count?: number | null
+          help_received_count?: number | null
+          id?: string
+          impact_score?: number
+          response_time_hours?: number | null
+          trust_score?: number
+          user_id: string
+          volunteer_hours?: number | null
+        }
+        Update: {
+          calculated_at?: string
+          connections_count?: number | null
+          donation_amount?: number | null
+          help_provided_count?: number | null
+          help_received_count?: number | null
+          id?: string
+          impact_score?: number
+          response_time_hours?: number | null
+          trust_score?: number
+          user_id?: string
+          volunteer_hours?: number | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -1206,6 +1326,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_impact_points: {
+        Args: {
+          target_user_id: string
+          activity_type: string
+          points: number
+          description: string
+          metadata?: Json
+        }
+        Returns: string
+      }
       calculate_campaign_performance_score: {
         Args: { campaign_uuid: string }
         Returns: number
@@ -1213,6 +1343,10 @@ export type Database = {
       calculate_trust_score: {
         Args: { user_uuid: string }
         Returns: number
+      }
+      calculate_user_impact_metrics: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
       calculate_user_similarity: {
         Args: { user1_id: string; user2_id: string }

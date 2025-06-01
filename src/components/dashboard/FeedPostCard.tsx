@@ -1,355 +1,246 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  Heart, 
-  MessageCircle, 
-  Share2, 
-  Bookmark, 
-  BookmarkPlus,
-  MoreHorizontal,
-  Send,
-  MapPin,
-  Zap,
-  Copy,
-  Flag
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, Smile, ThumbsUp, Rocket, Lightbulb, CheckCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
-import { FeedPost, Comment } from "@/types/feed";
-import PostEngagementStats from "./PostEngagementStats";
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/contexts/AuthContext";
+import { formatDistanceToNow } from 'date-fns';
+import { useImpactTracking } from '@/hooks/useImpactTracking';
 
 interface FeedPostCardProps {
-  post: FeedPost;
-  onLike: () => void;
-  onShare: () => void;
-  onRespond: () => void;
-  onBookmark: () => void;
-  onReaction: (reactionType: string) => void;
-  onAddComment: (content: string) => void;
-  onLikeComment: (commentId: string) => void;
-  onCommentReaction?: (commentId: string, reactionType: string) => void;
+  post: {
+    id: string;
+    author: string;
+    authorAvatar: string;
+    title: string;
+    description: string;
+    category: string;
+    urgency?: string;
+    location?: string;
+    date: Date;
+    likes: number;
+    shares: number;
+    responses: number;
+    comments: {
+      id: string;
+      author: string;
+      text: string;
+      likes: number;
+      reactions: { type: string; count: number }[];
+    }[];
+    tags?: string[];
+  };
+  onLike: (postId: string) => void;
+  onShare: (postId: string) => void;
+  onRespond: (postId: string) => void;
+  onBookmark: (postId: string) => void;
+  onReaction: (postId: string, reactionType: string) => void;
+  onAddComment: (postId: string, comment: string) => void;
+  onLikeComment: (postId: string, commentId: string) => void;
+  onCommentReaction: (postId: string, commentId: string, reactionType: string) => void;
 }
 
-const FeedPostCard = ({ 
-  post, 
-  onLike, 
-  onShare, 
-  onRespond, 
-  onBookmark, 
-  onReaction, 
-  onAddComment,
-  onLikeComment,
-  onCommentReaction 
-}: FeedPostCardProps) => {
-  const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState("");
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
-  const { toast } = useToast();
+const FeedPostCard = ({ post, onLike, onShare, onRespond, onBookmark, onReaction, onAddComment, onLikeComment, onCommentReaction }: FeedPostCardProps) => {
+  const { trackCommunityEngagement, trackHelpProvided } = useImpactTracking();
+  const [commentText, setCommentText] = useState("");
+  const { user } = useAuth();
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      "help-needed": "bg-red-100 text-red-800",
-      "help-offered": "bg-green-100 text-green-800",
-      "success-story": "bg-blue-100 text-blue-800",
-      "announcement": "bg-purple-100 text-purple-800",
-      "question": "bg-yellow-100 text-yellow-800",
-      "recommendation": "bg-indigo-100 text-indigo-800",
-      "event": "bg-pink-100 text-pink-800",
-      "lost-found": "bg-orange-100 text-orange-800",
-    };
-    return colors[category] || "bg-gray-100 text-gray-800";
-  };
-
-  const getUrgencyIcon = (urgency: string) => {
-    if (urgency === "urgent" || urgency === "high") {
-      return <Zap className="h-4 w-4 text-red-500" />;
-    }
-    return null;
+  const handleLike = () => {
+    onLike(post.id);
+    trackCommunityEngagement('post_like', `Liked post: ${post.title}`);
   };
 
   const handleShare = () => {
-    setShowShareDialog(true);
+    onShare(post.id);
+    trackCommunityEngagement('post_share', `Shared post: ${post.title}`);
   };
 
-  const handleCopyLink = () => {
-    const postUrl = `${window.location.origin}/post/${post.id}`;
-    navigator.clipboard.writeText(postUrl);
-    toast({
-      title: "Link copied!",
-      description: "Post link has been copied to your clipboard.",
-    });
-    setShowShareDialog(false);
-  };
-
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    onBookmark();
-    toast({
-      title: isBookmarked ? "Removed from bookmarks" : "Bookmarked!",
-      description: isBookmarked 
-        ? "Post removed from your bookmarks." 
-        : "Post saved to your bookmarks.",
-    });
-  };
-
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      onAddComment(newComment);
-      setNewComment("");
-      toast({
-        title: "Comment added!",
-        description: "Your comment has been posted.",
-      });
+  const handleRespond = () => {
+    onRespond(post.id);
+    if (post.category === 'help_needed') {
+      trackHelpProvided(post.title, { postId: post.id, category: post.category });
+    } else {
+      trackCommunityEngagement('help_response', `Responded to: ${post.title}`);
     }
   };
 
-  return (
-    <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={post.avatar} alt={post.author} />
-              <AvatarFallback>{post.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <h4 className="font-semibold text-gray-900">{post.author}</h4>
-                {getUrgencyIcon(post.urgency)}
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <span>{post.timestamp}</span>
-                {post.location && (
-                  <>
-                    <span>•</span>
-                    <MapPin className="h-3 w-3" />
-                    <span>{post.location}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleBookmark}>
-                {isBookmarked ? <Bookmark className="h-4 w-4 mr-2" /> : <BookmarkPlus className="h-4 w-4 mr-2" />}
-                {isBookmarked ? "Remove bookmark" : "Bookmark post"}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleCopyLink}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy link
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
-                <Flag className="h-4 w-4 mr-2" />
-                Report post
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
+  const handleAddComment = (comment: string) => {
+    onAddComment(post.id, comment);
+    trackCommunityEngagement('post_comment', `Commented on: ${post.title}`);
+  };
 
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className={getCategoryColor(post.category)}>
-              {post.category.replace('-', ' ')}
-            </Badge>
-            {post.urgency !== "low" && (
-              <Badge variant="outline" className="text-orange-600 border-orange-200">
-                {post.urgency}
-              </Badge>
-            )}
-            <Badge variant="outline" className="text-gray-600">
-              {post.visibility}
-            </Badge>
-          </div>
-          
-          <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
-          <p className="text-gray-600 leading-relaxed">{post.description}</p>
-          
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {post.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
+  const handleSubmitComment = () => {
+    if (commentText.trim() !== "") {
+      handleAddComment(commentText);
+      setCommentText("");
+    }
+  };
 
-        <PostEngagementStats post={post} />
+  const renderReactions = () => {
+    const reactions = [
+      { type: "thumbsUp", icon: <ThumbsUp className="h-4 w-4 mr-1" /> },
+      { type: "rocket", icon: <Rocket className="h-4 w-4 mr-1" /> },
+      { type: "lightbulb", icon: <Lightbulb className="h-4 w-4 mr-1" /> },
+      { type: "checkCircle", icon: <CheckCircle className="h-4 w-4 mr-1" /> },
+    ];
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLike}
-              className={`flex items-center space-x-1 ${
-                post.isLiked ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${post.isLiked ? "fill-current" : ""}`} />
-              <span>Like</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowComments(!showComments)}
-              className="flex items-center space-x-1 text-gray-600 hover:text-blue-600"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span>Comment</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShare}
-              className="flex items-center space-x-1 text-gray-600 hover:text-green-600"
-            >
-              <Share2 className="h-4 w-4" />
-              <span>Share</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReaction('love')}
-              className="flex items-center space-x-1 text-gray-600 hover:text-pink-600"
-            >
-              ❤️
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReaction('support')}
-              className="flex items-center space-x-1 text-gray-600 hover:text-blue-600"
-            >
-              🤝
-            </Button>
-          </div>
-          
+    return (
+      <div className="flex items-center space-x-2">
+        {reactions.map((reaction) => (
           <Button
+            key={reaction.type}
             variant="ghost"
-            size="sm"
-            onClick={handleBookmark}
-            className={`${
-              isBookmarked ? "text-blue-600 hover:text-blue-700" : "text-gray-600 hover:text-blue-600"
-            }`}
+            size="icon"
+            onClick={() => onReaction(post.id, reaction.type)}
           >
-            <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+            {reaction.icon}
           </Button>
-        </div>
+        ))}
+      </div>
+    );
+  };
 
-        {showShareDialog && (
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <h4 className="font-semibold text-gray-900">Share this post</h4>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={() => {}}>
-                Share on Twitter
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => {}}>
-                Share on Facebook
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => {}}>
-                Share on LinkedIn
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleCopyLink}>
-                <Copy className="h-4 w-4 mr-1" />
-                Copy Link
-              </Button>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setShowShareDialog(false)}>
-              Cancel
-            </Button>
+  return (
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex items-center space-x-3">
+          <Avatar>
+            <AvatarImage src={post.authorAvatar} alt={post.author} />
+            <AvatarFallback>{post.author.substring(0, 2)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <CardTitle className="text-sm font-medium">{post.author}</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              {formatDistanceToNow(post.date, { addSuffix: true })}
+            </CardDescription>
           </div>
-        )}
-
-        {showComments && (
-          <div className="space-y-4 border-t border-gray-100 pt-4">
-            <div className="flex space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>You</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-2">
-                <Textarea
-                  placeholder="Write a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="min-h-[60px] resize-none"
-                />
-                <div className="flex justify-end">
-                  <Button size="sm" onClick={handleAddComment} disabled={!newComment.trim()}>
-                    <Send className="h-4 w-4 mr-1" />
-                    Post
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {post.comments && post.comments.length > 0 && (
-              <div className="space-y-3">
-                {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex space-x-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={comment.avatar} alt={comment.author} />
-                      <AvatarFallback>{comment.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <h5 className="font-medium text-sm text-gray-900">{comment.author}</h5>
-                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                        </div>
-                        <p className="text-sm text-gray-700">{comment.content}</p>
-                      </div>
-                      <div className="flex items-center space-x-3 mt-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onLikeComment(comment.id)}
-                          className={`text-xs ${
-                            comment.isLiked ? "text-red-600" : "text-gray-500"
-                          }`}
-                        >
-                          <Heart className={`h-3 w-3 mr-1 ${comment.isLiked ? "fill-current" : ""}`} />
-                          {comment.likes > 0 && comment.likes}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-xs text-gray-500">
-                          Reply
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => onBookmark(post.id)}>
+              Bookmark
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Report</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
+      <CardContent className="py-2">
+        <div className="text-sm font-medium">{post.title}</div>
+        <p className="text-sm text-muted-foreground">
+          {post.description}
+        </p>
+        {post.tags && post.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {post.tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
           </div>
         )}
       </CardContent>
+      <CardFooter className="flex items-center justify-between text-xs">
+        <div className="flex space-x-4">
+          <Button variant="ghost" size="sm" onClick={handleLike}>
+            <Heart className="h-4 w-4 mr-2" />
+            <span>{post.likes} Likes</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleShare}>
+            <Share className="h-4 w-4 mr-2" />
+            <span>{post.shares} Shares</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleRespond}>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            <span>{post.responses} Respond</span>
+          </Button>
+        </div>
+        {renderReactions()}
+      </CardFooter>
+      {post.comments && post.comments.length > 0 && (
+        <CardContent className="py-2">
+          <div className="text-sm font-medium">Comments:</div>
+          {post.comments.map((comment) => (
+            <div key={comment.id} className="mt-2 flex items-start">
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={`https://avatar.vercel.sh/${comment.author}.png`} alt={comment.author} />
+                <AvatarFallback>{comment.author.substring(0, 2)}</AvatarFallback>
+              </Avatar>
+              <div className="ml-2 flex-1">
+                <div className="text-xs font-semibold">{comment.author}</div>
+                <div className="text-xs text-gray-700">{comment.text}</div>
+                <div className="mt-1 flex items-center justify-between text-xs">
+                  <Button variant="ghost" size="icon" onClick={() => onLikeComment(post.id, comment.id)}>
+                    <Heart className="h-3 w-3 mr-1" />
+                    <span>{comment.likes}</span>
+                  </Button>
+                  <div className="flex items-center space-x-1">
+                    {comment.reactions.map((reaction) => (
+                      <Button
+                        key={reaction.type}
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onCommentReaction(post.id, comment.id, reaction.type)}
+                      >
+                        {reaction.type === "thumbsUp" && <ThumbsUp className="h-3 w-3 mr-1" />}
+                        {reaction.type === "rocket" && <Rocket className="h-3 w-3 mr-1" />}
+                        <span>{reaction.count}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      )}
+      <CardFooter className="flex items-center space-x-2 py-2">
+        <Avatar className="h-7 w-7">
+          {user ? (
+            <>
+              <AvatarImage src={`https://avatar.vercel.sh/${user.name}.png`} alt={user.name} />
+              <AvatarFallback>{user.name?.substring(0, 2)}</AvatarFallback>
+            </>
+          ) : (
+            <>
+              <AvatarImage src="https://avatar.vercel.sh/guest.png" alt="Guest" />
+              <AvatarFallback>G?</AvatarFallback>
+            </>
+          )}
+        </Avatar>
+        <Input
+          type="text"
+          placeholder="Add a comment..."
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSubmitComment();
+            }
+          }}
+          className="flex-1 text-xs"
+        />
+        <Button size="sm" onClick={handleSubmitComment} disabled={commentText.trim() === ""}>
+          Post
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

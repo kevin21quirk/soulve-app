@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface UserImpactData {
@@ -41,141 +42,412 @@ export interface ImpactGoal {
   isActive: boolean;
 }
 
-// Helper function to safely parse metadata
-const parseMetadata = (metadata: any): Record<string, any> => {
-  if (typeof metadata === 'string') {
-    try {
-      return JSON.parse(metadata);
-    } catch {
-      return {};
-    }
-  }
-  if (typeof metadata === 'object' && metadata !== null) {
-    return metadata;
-  }
-  return {};
-};
+export interface ImpactActivity {
+  id: string;
+  activityType: string;
+  pointsEarned: number;
+  description: string;
+  metadata: Record<string, any>;
+  createdAt: string;
+  verified: boolean;
+}
 
 export class ImpactAnalyticsService {
   static async getUserImpactData(userId: string): Promise<UserImpactData> {
     try {
-      // Get user's help activity
-      const { data: helpProvided } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('author_id', userId)
-        .eq('category', 'help_needed');
-
-      const { data: helpReceived } = await supabase
-        .from('post_interactions')
+      // Get or create user metrics
+      let { data: metrics } = await supabase
+        .from('impact_metrics')
         .select('*')
         .eq('user_id', userId)
-        .eq('interaction_type', 'help_completed');
+        .single();
 
-      // Get connections
-      const { data: connections } = await supabase
-        .from('connections')
-        .select('*')
-        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
-        .eq('status', 'accepted');
+      if (!metrics) {
+        // Calculate metrics for first time
+        await this.calculateUserMetrics(userId);
+        
+        const { data: newMetrics } = await supabase
+          .from('impact_metrics')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+        
+        metrics = newMetrics;
+      }
 
-      // Get user activities for volunteer hours and donations
-      const { data: activities } = await supabase
-        .from('user_activities')
+      if (!metrics) {
+        return this.getMockUserImpactData(userId);
+      }
+
+      // Get community rank and percentile
+      const { rank, percentile } = await this.getUserRankAndPercentile(userId, metrics.impact_score);
+
+      // Get groups count for communities joined
+      const { data: userGroups } = await supabase
+        .from('group_members')
         .select('*')
         .eq('user_id', userId);
 
-      // Calculate metrics with proper metadata parsing
-      const volunteerHours = activities?.filter(a => a.activity_type === 'volunteer')
-        .reduce((sum, a) => {
-          const metadata = parseMetadata(a.metadata);
-          return sum + (metadata.hours || 0);
-        }, 0) || 0;
-
-      const donationAmount = activities?.filter(a => a.activity_type === 'donation')
-        .reduce((sum, a) => {
-          const metadata = parseMetadata(a.metadata);
-          return sum + (metadata.amount || 0);
-        }, 0) || 0;
-
-      // Calculate impact score
-      const impactScore = this.calculateImpactScore({
-        helpProvided: helpProvided?.length || 0,
-        helpReceived: helpReceived?.length || 0,
-        volunteerHours,
-        donationAmount,
-        connectionsCount: connections?.length || 0
-      });
-
-      // Get community rank
-      const rank = await this.getUserRank(userId, impactScore);
-      const percentile = await this.getUserPercentile(userId, impactScore);
-
       return {
         userId,
-        totalHelpProvided: helpProvided?.length || 0,
-        totalHelpReceived: helpReceived?.length || 0,
-        volunteerHours,
-        donationAmount,
-        communitiesJoined: 0, // Will be calculated from groups
-        connectionsCount: connections?.length || 0,
-        responsesTime: 2.5, // Mock for now
-        trustScore: 85, // Mock for now
-        impactScore,
+        totalHelpProvided: metrics.help_provided_count || 0,
+        totalHelpReceived: metrics.help_received_count || 0,
+        volunteerHours: metrics.volunteer_hours || 0,
+        donationAmount: Number(metrics.donation_amount) || 0,
+        communitiesJoined: userGroups?.length || 0,
+        connectionsCount: metrics.connections_count || 0,
+        responsesTime: Number(metrics.response_time_hours) || 2.5,
+        trustScore: metrics.trust_score || 50,
+        impactScore: metrics.impact_score || 0,
         rank,
         percentile
       };
     } catch (error) {
       console.error('Error fetching user impact data:', error);
-      // Return mock data for development
       return this.getMockUserImpactData(userId);
     }
   }
 
+  static async calculateUserMetrics(userId: string): Promise<void> {
+    try {
+      await supabase.rpc('calculate_user_impact_metrics', {
+        target_user_id: userId
+      });
+    } catch (error) {
+      console.error('Error calculating user metrics:', error);
+    }
+  }
+
+  static async getUserRankAndPercentile(userId: string, userScore: number): Promise<{ rank: number; percentile: number }> {
+    try {
+      // Get all users with impact scores
+      const { data: allMetrics } = await supabase
+        .from('impact_metrics')
+        .select('user_id, impact_score')
+        .order('impact_score', { ascending: false });
+
+      if (!allMetrics || allMetrics.length === 0) {
+        return { rank: 1, percentile: 100 };
+      }
+
+      const userIndex = allMetrics.findIndex(m => m.user_id === userId);
+      const rank = userIndex >= 0 ? userIndex + 1 : allMetrics.length;
+      const percentile = Math.round(((allMetrics.length - rank + 1) / allMetrics.length) * 100);
+
+      return { rank, percentile };
+    } catch (error) {
+      console.error('Error calculating rank and percentile:', error);
+      return { rank: Math.floor(Math.random() * 100) + 1, percentile: Math.floor(Math.random() * 30) + 70 };
+    }
+  }
+
   static async getCommunityComparisons(userId: string): Promise<CommunityComparison[]> {
-    const userImpact = await this.getUserImpactData(userId);
+    try {
+      const userImpact = await this.getUserImpactData(userId);
+      
+      // Get community averages from all users
+      const { data: allMetrics } = await supabase
+        .from('impact_metrics')
+        .select('*');
+
+      if (!allMetrics || allMetrics.length === 0) {
+        return this.getMockCommunityComparisons(userImpact);
+      }
+
+      const metrics = [
+        {
+          metric: 'Help Provided',
+          userValue: userImpact.totalHelpProvided,
+          communityAverage: this.calculateAverage(allMetrics.map(m => m.help_provided_count)),
+          communityMedian: this.calculateMedian(allMetrics.map(m => m.help_provided_count)),
+          userPercentile: this.calculatePercentile(allMetrics.map(m => m.help_provided_count), userImpact.totalHelpProvided),
+          trend: userImpact.totalHelpProvided > this.calculateAverage(allMetrics.map(m => m.help_provided_count)) ? 'above' : 'below'
+        },
+        {
+          metric: 'Volunteer Hours',
+          userValue: userImpact.volunteerHours,
+          communityAverage: this.calculateAverage(allMetrics.map(m => m.volunteer_hours)),
+          communityMedian: this.calculateMedian(allMetrics.map(m => m.volunteer_hours)),
+          userPercentile: this.calculatePercentile(allMetrics.map(m => m.volunteer_hours), userImpact.volunteerHours),
+          trend: userImpact.volunteerHours > this.calculateAverage(allMetrics.map(m => m.volunteer_hours)) ? 'above' : 'below'
+        },
+        {
+          metric: 'Response Time (hours)',
+          userValue: userImpact.responsesTime,
+          communityAverage: this.calculateAverage(allMetrics.map(m => Number(m.response_time_hours))),
+          communityMedian: this.calculateMedian(allMetrics.map(m => Number(m.response_time_hours))),
+          userPercentile: this.calculatePercentile(allMetrics.map(m => Number(m.response_time_hours)), userImpact.responsesTime, true),
+          trend: userImpact.responsesTime < this.calculateAverage(allMetrics.map(m => Number(m.response_time_hours))) ? 'above' : 'below'
+        },
+        {
+          metric: 'Trust Score',
+          userValue: userImpact.trustScore,
+          communityAverage: this.calculateAverage(allMetrics.map(m => m.trust_score)),
+          communityMedian: this.calculateMedian(allMetrics.map(m => m.trust_score)),
+          userPercentile: this.calculatePercentile(allMetrics.map(m => m.trust_score), userImpact.trustScore),
+          trend: userImpact.trustScore > this.calculateAverage(allMetrics.map(m => m.trust_score)) ? 'above' : 'below'
+        }
+      ] as CommunityComparison[];
+
+      return metrics;
+    } catch (error) {
+      console.error('Error fetching community comparisons:', error);
+      const userImpact = await this.getUserImpactData(userId);
+      return this.getMockCommunityComparisons(userImpact);
+    }
+  }
+
+  static async getImpactTrends(userId: string, days: number = 30): Promise<ImpactTrend[]> {
+    try {
+      // Get impact activities for trend data
+      const { data: activities } = await supabase
+        .from('impact_activities')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
+        .order('created_at', { ascending: true });
+
+      if (!activities || activities.length === 0) {
+        return this.getMockTrends(days);
+      }
+
+      // Group activities by date and calculate cumulative metrics
+      const trendsMap = new Map<string, Record<string, number>>();
+      let cumulativeHelp = 0;
+      let cumulativeVolunteer = 0;
+      let cumulativePoints = 0;
+
+      activities.forEach(activity => {
+        const date = activity.created_at.split('T')[0];
+        
+        if (!trendsMap.has(date)) {
+          trendsMap.set(date, {
+            helpProvided: cumulativeHelp,
+            volunteerHours: cumulativeVolunteer,
+            impactScore: cumulativePoints,
+            trustScore: 0 // Will be filled separately
+          });
+        }
+
+        const dayData = trendsMap.get(date)!;
+        
+        if (activity.activity_type === 'help_provided') {
+          cumulativeHelp++;
+          dayData.helpProvided = cumulativeHelp;
+        } else if (activity.activity_type === 'volunteer') {
+          const hours = activity.metadata?.hours || 1;
+          cumulativeVolunteer += hours;
+          dayData.volunteerHours = cumulativeVolunteer;
+        }
+        
+        cumulativePoints += activity.points_earned;
+        dayData.impactScore = cumulativePoints;
+      });
+
+      // Convert to ImpactTrend array
+      const trends: ImpactTrend[] = [];
+      trendsMap.forEach((metrics, date) => {
+        Object.entries(metrics).forEach(([metric, value]) => {
+          trends.push({
+            date,
+            value,
+            metric
+          });
+        });
+      });
+
+      return trends.length > 0 ? trends : this.getMockTrends(days);
+    } catch (error) {
+      console.error('Error fetching impact trends:', error);
+      return this.getMockTrends(days);
+    }
+  }
+
+  static async getUserGoals(userId: string): Promise<ImpactGoal[]> {
+    try {
+      const { data: goals } = await supabase
+        .from('impact_goals')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (!goals) return [];
+
+      return goals.map(goal => ({
+        id: goal.id,
+        title: goal.title,
+        description: goal.description || '',
+        targetValue: goal.target_value,
+        currentValue: goal.current_value,
+        deadline: goal.deadline || '',
+        category: goal.category,
+        isActive: goal.is_active
+      }));
+    } catch (error) {
+      console.error('Error fetching user goals:', error);
+      return this.getMockGoals();
+    }
+  }
+
+  static async createGoal(userId: string, goal: Omit<ImpactGoal, 'id'>): Promise<ImpactGoal> {
+    try {
+      const { data, error } = await supabase
+        .from('impact_goals')
+        .insert({
+          user_id: userId,
+          title: goal.title,
+          description: goal.description,
+          target_value: goal.targetValue,
+          current_value: goal.currentValue,
+          deadline: goal.deadline || null,
+          category: goal.category,
+          is_active: goal.isActive
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description || '',
+        targetValue: data.target_value,
+        currentValue: data.current_value,
+        deadline: data.deadline || '',
+        category: data.category,
+        isActive: data.is_active
+      };
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      throw error;
+    }
+  }
+
+  static async updateGoalProgress(goalId: string, currentValue: number): Promise<void> {
+    try {
+      await supabase
+        .from('impact_goals')
+        .update({ current_value: currentValue })
+        .eq('id', goalId);
+    } catch (error) {
+      console.error('Error updating goal progress:', error);
+    }
+  }
+
+  static async awardImpactPoints(
+    userId: string,
+    activityType: string,
+    points: number,
+    description: string,
+    metadata: Record<string, any> = {}
+  ): Promise<void> {
+    try {
+      await supabase.rpc('award_impact_points', {
+        target_user_id: userId,
+        activity_type: activityType,
+        points,
+        description,
+        metadata
+      });
+    } catch (error) {
+      console.error('Error awarding impact points:', error);
+    }
+  }
+
+  static async getRecentActivities(userId: string, limit: number = 10): Promise<ImpactActivity[]> {
+    try {
+      const { data: activities } = await supabase
+        .from('impact_activities')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (!activities) return [];
+
+      return activities.map(activity => ({
+        id: activity.id,
+        activityType: activity.activity_type,
+        pointsEarned: activity.points_earned,
+        description: activity.description,
+        metadata: activity.metadata || {},
+        createdAt: activity.created_at,
+        verified: activity.verified
+      }));
+    } catch (error) {
+      console.error('Error fetching recent activities:', error);
+      return [];
+    }
+  }
+
+  // Helper methods
+  private static calculateAverage(values: number[]): number {
+    if (values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + (val || 0), 0) / values.length;
+  }
+
+  private static calculateMedian(values: number[]): number {
+    if (values.length === 0) return 0;
+    const sorted = values.filter(v => v != null).sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+  }
+
+  private static calculatePercentile(values: number[], userValue: number, lowerIsBetter: boolean = false): number {
+    if (values.length === 0) return 50;
+    const filtered = values.filter(v => v != null);
     
-    // Mock community averages for now
-    const metrics = [
+    if (lowerIsBetter) {
+      const betterCount = filtered.filter(v => v > userValue).length;
+      return Math.round((betterCount / filtered.length) * 100);
+    } else {
+      const worseCount = filtered.filter(v => v < userValue).length;
+      return Math.round((worseCount / filtered.length) * 100);
+    }
+  }
+
+  // Mock data methods for fallback
+  private static getMockUserImpactData(userId: string): UserImpactData {
+    return {
+      userId,
+      totalHelpProvided: 0,
+      totalHelpReceived: 0,
+      volunteerHours: 0,
+      donationAmount: 0,
+      communitiesJoined: 0,
+      connectionsCount: 0,
+      responsesTime: 0,
+      trustScore: 50,
+      impactScore: 0,
+      rank: 1,
+      percentile: 50
+    };
+  }
+
+  private static getMockCommunityComparisons(userImpact: UserImpactData): CommunityComparison[] {
+    return [
       {
         metric: 'Help Provided',
         userValue: userImpact.totalHelpProvided,
-        communityAverage: 12.5,
-        communityMedian: 8,
-        userPercentile: 75,
-        trend: userImpact.totalHelpProvided > 12.5 ? 'above' : 'below'
+        communityAverage: 8.5,
+        communityMedian: 6,
+        userPercentile: 60,
+        trend: userImpact.totalHelpProvided > 8.5 ? 'above' : 'below'
       },
       {
         metric: 'Volunteer Hours',
         userValue: userImpact.volunteerHours,
-        communityAverage: 25.3,
-        communityMedian: 18,
-        userPercentile: 82,
-        trend: userImpact.volunteerHours > 25.3 ? 'above' : 'below'
-      },
-      {
-        metric: 'Response Time (hours)',
-        userValue: userImpact.responsesTime,
-        communityAverage: 4.2,
-        communityMedian: 3.8,
-        userPercentile: 88,
-        trend: userImpact.responsesTime < 4.2 ? 'above' : 'below'
-      },
-      {
-        metric: 'Trust Score',
-        userValue: userImpact.trustScore,
-        communityAverage: 76.5,
-        communityMedian: 78,
-        userPercentile: 91,
-        trend: userImpact.trustScore > 76.5 ? 'above' : 'below'
+        communityAverage: 15.3,
+        communityMedian: 12,
+        userPercentile: 70,
+        trend: userImpact.volunteerHours > 15.3 ? 'above' : 'below'
       }
-    ] as CommunityComparison[];
-
-    return metrics;
+    ];
   }
 
-  static async getImpactTrends(userId: string, days: number = 30): Promise<ImpactTrend[]> {
-    // Mock trend data for now
+  private static getMockTrends(days: number): ImpactTrend[] {
     const trends: ImpactTrend[] = [];
     const metrics = ['helpProvided', 'volunteerHours', 'trustScore', 'impactScore'];
     
@@ -186,7 +458,7 @@ export class ImpactAnalyticsService {
       metrics.forEach(metric => {
         trends.push({
           date: date.toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 50) + Math.floor(Math.random() * i / 2),
+          value: Math.floor(Math.random() * 20) + Math.floor(Math.random() * i / 3),
           metric
         });
       });
@@ -195,111 +467,18 @@ export class ImpactAnalyticsService {
     return trends;
   }
 
-  static async getUserGoals(userId: string): Promise<ImpactGoal[]> {
-    try {
-      // For now, return mock goals. In production, these would be stored in database
-      return [
-        {
-          id: '1',
-          title: 'Help 25 People This Month',
-          description: 'Complete help requests from 25 different community members',
-          targetValue: 25,
-          currentValue: 18,
-          deadline: '2024-12-31',
-          category: 'helping',
-          isActive: true
-        },
-        {
-          id: '2',
-          title: 'Volunteer 40 Hours',
-          description: 'Contribute 40 hours of volunteer work to community projects',
-          targetValue: 40,
-          currentValue: 28,
-          deadline: '2024-12-31',
-          category: 'volunteering',
-          isActive: true
-        },
-        {
-          id: '3',
-          title: 'Reach Trust Score 90',
-          description: 'Achieve a community trust score of 90%',
-          targetValue: 90,
-          currentValue: 85,
-          deadline: '2024-12-31',
-          category: 'trust',
-          isActive: true
-        }
-      ];
-    } catch (error) {
-      console.error('Error fetching user goals:', error);
-      return [];
-    }
-  }
-
-  static async createGoal(userId: string, goal: Omit<ImpactGoal, 'id'>): Promise<ImpactGoal> {
-    // Mock implementation - in production, save to database
-    const newGoal: ImpactGoal = {
-      ...goal,
-      id: Date.now().toString()
-    };
-    return newGoal;
-  }
-
-  static async updateGoalProgress(goalId: string, currentValue: number): Promise<void> {
-    // Mock implementation - in production, update database
-    console.log(`Updated goal ${goalId} progress to ${currentValue}`);
-  }
-
-  private static calculateImpactScore(metrics: {
-    helpProvided: number;
-    helpReceived: number;
-    volunteerHours: number;
-    donationAmount: number;
-    connectionsCount: number;
-  }): number {
-    const {
-      helpProvided,
-      helpReceived,
-      volunteerHours,
-      donationAmount,
-      connectionsCount
-    } = metrics;
-
-    // Weighted scoring algorithm
-    const helpScore = helpProvided * 10;
-    const volunteerScore = volunteerHours * 2;
-    const donationScore = donationAmount * 0.1;
-    const connectionScore = connectionsCount * 1;
-    const receivedPenalty = helpReceived * -2; // Small penalty for receiving help
-
-    const totalScore = helpScore + volunteerScore + donationScore + connectionScore + receivedPenalty;
-    return Math.max(0, Math.min(1000, Math.round(totalScore)));
-  }
-
-  private static async getUserRank(userId: string, impactScore: number): Promise<number> {
-    // Mock implementation - in production, query database for actual ranks
-    return Math.floor(Math.random() * 100) + 1;
-  }
-
-  private static async getUserPercentile(userId: string, impactScore: number): Promise<number> {
-    // Mock implementation - in production, calculate based on all users
-    return Math.floor(Math.random() * 30) + 70; // 70-99th percentile
-  }
-
-  private static getMockUserImpactData(userId: string): UserImpactData {
-    return {
-      userId,
-      totalHelpProvided: 23,
-      totalHelpReceived: 5,
-      volunteerHours: 35,
-      donationAmount: 450,
-      communitiesJoined: 3,
-      connectionsCount: 67,
-      responsesTime: 2.1,
-      trustScore: 89,
-      impactScore: 342,
-      rank: 45,
-      percentile: 85
-    };
+  private static getMockGoals(): ImpactGoal[] {
+    return [
+      {
+        id: '1',
+        title: 'Help 10 People This Month',
+        description: 'Complete help requests from community members',
+        targetValue: 10,
+        currentValue: 0,
+        deadline: '2024-12-31',
+        category: 'helping',
+        isActive: true
+      }
+    ];
   }
 }

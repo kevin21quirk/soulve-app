@@ -1,16 +1,17 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConnectionRequest } from "@/types/connections";
 import { MapPin, Users, Clock, UserPlus, UserCheck, UserX } from "lucide-react";
+import { useImpactTracking } from '@/hooks/useImpactTracking';
 
 interface ConnectionCardProps {
   connection: ConnectionRequest;
   onSendRequest?: (id: string) => void;
   onAccept?: (id: string) => void;
   onDecline?: (id: string) => void;
+  onMessage?: (id: string) => void;
   getTrustScoreColor: (score: number) => string;
   variant: "suggested" | "pending" | "connected";
 }
@@ -20,9 +21,12 @@ const ConnectionCard = ({
   onSendRequest, 
   onAccept, 
   onDecline, 
+  onMessage, 
   getTrustScoreColor, 
   variant 
 }: ConnectionCardProps) => {
+  const { trackConnection } = useImpactTracking();
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
@@ -89,7 +93,7 @@ const ConnectionCard = ({
             {variant === "pending" && onAccept && onDecline && (
               <>
                 <Button 
-                  onClick={() => onAccept(connection.id)}
+                  onClick={handleAccept}
                   variant="gradient"
                   className="flex-1"
                   size="sm"
