@@ -19,6 +19,18 @@ export interface DatabasePost {
   updated_at: string;
 }
 
+export interface PostComment {
+  id: string;
+  author: string;
+  avatar: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+  isLiked: boolean;
+  user_id: string;
+  created_at: string;
+}
+
 export interface PostWithProfile extends DatabasePost {
   author_profile?: {
     first_name?: string;
@@ -30,6 +42,7 @@ export interface PostWithProfile extends DatabasePost {
     comment_count: number;
     user_liked: boolean;
   };
+  comments?: PostComment[];
 }
 
 // Hook to get posts for the feed with optimized queries
@@ -67,7 +80,7 @@ export const usePosts = (category?: string, urgency?: string) => {
           const { data: user } = await supabase.auth.getUser();
           
           // Get all required data in parallel for better performance
-          const [profileResult, likeCountResult, commentCountResult, userLikeResult] = await Promise.all([
+          const [profileResult, likeCountResult, commentCountResult, userLikeResult, commentsResult] = await Promise.all([
             supabase
               .from('profiles')
               .select('first_name, last_name, avatar_url')
@@ -89,8 +102,36 @@ export const usePosts = (category?: string, urgency?: string) => {
               .eq('post_id', post.id)
               .eq('user_id', user.user.id)
               .eq('interaction_type', 'like')
-              .single() : Promise.resolve({ data: null })
+              .single() : Promise.resolve({ data: null }),
+            // Fetch actual comments with user profiles
+            supabase
+              .from('post_interactions')
+              .select(`
+                id,
+                content,
+                created_at,
+                user_id,
+                profiles!post_interactions_user_id_fkey(first_name, last_name, avatar_url)
+              `)
+              .eq('post_id', post.id)
+              .eq('interaction_type', 'comment')
+              .order('created_at', { ascending: true })
           ]);
+
+          // Transform comments to match expected format
+          const transformedComments: PostComment[] = (commentsResult.data || []).map(comment => ({
+            id: comment.id,
+            author: comment.profiles 
+              ? `${comment.profiles.first_name || ''} ${comment.profiles.last_name || ''}`.trim() || 'Anonymous'
+              : 'Anonymous',
+            avatar: comment.profiles?.avatar_url || '',
+            content: comment.content || '',
+            timestamp: new Date(comment.created_at).toLocaleDateString(),
+            likes: 0, // We'll implement comment likes later
+            isLiked: false,
+            user_id: comment.user_id,
+            created_at: comment.created_at
+          }));
 
           return {
             ...post,
@@ -100,11 +141,12 @@ export const usePosts = (category?: string, urgency?: string) => {
               comment_count: commentCountResult.count || 0,
               user_liked: !!userLikeResult.data,
             },
+            comments: transformedComments,
           };
         })
       );
 
-      console.log('Enhanced posts with interaction data');
+      console.log('Enhanced posts with interaction data and comments');
       return postsWithInteractions;
     },
     staleTime: 1000 * 30, // 30 seconds - posts can be stale for a bit since we have real-time updates
@@ -260,15 +302,25 @@ export const usePostInteraction = () => {
           return { action: 'liked', data };
         }
       } else if (interactionType === 'comment') {
+        if (!content || !content.trim()) {
+          throw new Error('Comment content is required');
+        }
+
         const { data, error } = await supabase
           .from('post_interactions')
           .insert({
             post_id: postId,
             user_id: user.user.id,
             interaction_type: 'comment',
-            content: content || '',
+            content: content.trim(),
           })
-          .select()
+          .select(`
+            id,
+            content,
+            created_at,
+            user_id,
+            profiles!post_interactions_user_id_fkey(first_name, last_name, avatar_url)
+          `)
           .single();
 
         if (error) throw error;
@@ -288,18 +340,25 @@ export const usePostInteraction = () => {
               sender_id: user.user.id,
               type: 'post_interaction',
               title: 'Someone commented on your post',
-              message: content?.substring(0, 50) + (content && content.length > 50 ? '...' : ''),
+              message: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
               metadata: { post_id: postId, interaction_type: 'comment' }
             });
         }
 
-        console.log('Comment added');
+        console.log('Comment added:', data);
         return { action: 'commented', data };
       }
     },
-    onSuccess: () => {
-      // Real-time updates will handle the refresh, but we can also invalidate for immediate feedback
+    onSuccess: (result) => {
+      // Invalidate posts to trigger refetch and get the latest comments
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      
+      if (result?.action === 'commented') {
+        toast({
+          title: "Comment added!",
+          description: "Your comment has been posted.",
+        });
+      }
     },
     onError: (error: any) => {
       console.error('Interaction error:', error);

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import FeedPostCard from "./FeedPostCard";
 import { usePosts, usePostInteraction } from "@/services/realPostsService";
 import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
+import { supabase } from "@/integrations/supabase/client";
 
 const EnhancedSocialFeed = () => {
   const [activeTab, setActiveTab] = useState("for-you");
@@ -75,8 +75,21 @@ const EnhancedSocialFeed = () => {
 
   const handleComment = async (postId: string, content: string) => {
     try {
+      // Get current user profile for optimistic update
+      const { data: user } = await supabase.auth.getUser();
+      let userProfile = null;
+      
+      if (user.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar_url')
+          .eq('id', user.user.id)
+          .single();
+        userProfile = profile;
+      }
+      
       // Apply optimistic update
-      optimisticComment(postId);
+      optimisticComment(postId, content, userProfile);
       
       // Perform actual API call
       await postInteraction.mutateAsync({
@@ -205,7 +218,16 @@ const EnhancedSocialFeed = () => {
                         shares: 0,
                         isShared: false,
                         isBookmarked: false,
-                        comments: [],
+                        comments: post.comments?.map(comment => ({
+                          id: comment.id,
+                          author: comment.author,
+                          avatar: comment.avatar,
+                          content: comment.content,
+                          timestamp: comment.timestamp,
+                          likes: comment.likes,
+                          isLiked: comment.isLiked,
+                          reactions: []
+                        })) || [],
                         reactions: []
                       }}
                       onLike={() => handleLike(post.id)}

@@ -58,8 +58,16 @@ export const useRealTimeUpdates = () => {
         },
         (payload) => {
           console.log('New interaction:', payload);
-          // Invalidate posts query to update interaction counts
+          // Invalidate posts query to update interaction counts and comments
           queryClient.invalidateQueries({ queryKey: ['posts'] });
+          
+          // Show toast for new comments (but not for likes to avoid spam)
+          if (payload.new?.interaction_type === 'comment') {
+            toast({
+              title: "New comment!",
+              description: "Someone just commented on a post.",
+            });
+          }
         }
       )
       .on(
@@ -71,6 +79,18 @@ export const useRealTimeUpdates = () => {
         },
         (payload) => {
           console.log('Interaction removed:', payload);
+          queryClient.invalidateQueries({ queryKey: ['posts'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'post_interactions'
+        },
+        (payload) => {
+          console.log('Interaction updated:', payload);
           queryClient.invalidateQueries({ queryKey: ['posts'] });
         }
       )
