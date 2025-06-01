@@ -57,7 +57,9 @@ const FeedContent = ({
           key={post.id}
           post={{
             ...post,
-            urgency: post.urgency || 'medium' // Provide default value for required urgency field
+            urgency: post.urgency || 'medium',
+            tags: post.tags || [],
+            reactions: post.reactions || []
           }}
           onLike={() => onLike(post.id)}
           onShare={() => onShare(post.id)}

@@ -38,8 +38,8 @@ export const useConversations = () => {
         .from('messages')
         .select(`
           *,
-          sender_profile:profiles!messages_sender_id_fkey(first_name, last_name, avatar_url),
-          recipient_profile:profiles!messages_recipient_id_fkey(first_name, last_name, avatar_url)
+          sender_profile:profiles!sender_id(first_name, last_name, avatar_url),
+          recipient_profile:profiles!recipient_id(first_name, last_name, avatar_url)
         `)
         .or(`sender_id.eq.${user.user.id},recipient_id.eq.${user.user.id}`)
         .order('created_at', { ascending: false });
@@ -83,7 +83,7 @@ export const useMessages = (partnerId: string) => {
         .from('messages')
         .select(`
           *,
-          sender_profile:profiles!messages_sender_id_fkey(first_name, last_name, avatar_url)
+          sender_profile:profiles!sender_id(first_name, last_name, avatar_url)
         `)
         .or(`and(sender_id.eq.${user.user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.user.id})`)
         .order('created_at', { ascending: true });
