@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Users2, Heart, TrendingUp, Crown, Search, Filter, BarChart3 } from "lucide-react";
@@ -26,7 +27,7 @@ const EnhancedConnections = () => {
   
   // Real database connections
   const { data: connections = [], isLoading: connectionsLoading } = useRealConnections();
-  const { data: suggestedConnections = [], isLoading: suggestionsLoading } = useSuggestedConnections();
+  const { data: suggestedProfiles = [], isLoading: suggestionsLoading } = useSuggestedConnections();
   const sendConnectionRequest = useSendConnectionRequest();
   const respondToConnection = useRespondToConnection();
 
@@ -42,6 +43,21 @@ const EnhancedConnections = () => {
       partner_id: conn.requester_id === user?.id ? conn.addressee_id : conn.requester_id,
       partner_profile: conn.requester_id === user?.id ? conn.addressee : conn.requester
     }));
+
+  // Transform suggested profiles to match SuggestedConnection interface
+  const suggestedConnections = suggestedProfiles.map(profile => ({
+    id: `suggestion-${profile.id}`,
+    target_user_id: profile.id,
+    target_profile: {
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+      avatar_url: profile.avatar_url,
+      location: profile.location,
+    },
+    recommendation_type: 'similar_interests',
+    confidence_score: 85,
+    reasoning: 'Based on shared interests and location',
+  }));
 
   const handleAcceptConnection = (connectionId: string) => {
     respondToConnection.mutate({ connectionId, status: 'accepted' });
