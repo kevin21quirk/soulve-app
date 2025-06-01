@@ -61,7 +61,7 @@ const FeedContent = ({
             tags: post.tags || [],
             visibility: post.visibility || 'public',
             comments: post.comments || [],
-            reactions: post.reactions ? post.reactions.map(r => typeof r === 'string' ? r : r.type || 'like') : []
+            reactions: post.reactions || []
           }}
           onLike={() => onLike(post.id)}
           onShare={() => onShare(post.id)}

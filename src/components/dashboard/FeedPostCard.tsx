@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,47 +32,18 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-
-interface Comment {
-  id: string;
-  author: string;
-  avatar: string;
-  content: string;
-  timestamp: string;
-  likes: number;
-  isLiked: boolean;
-}
+import { FeedPost, Comment } from "@/types/feed";
 
 interface FeedPostCardProps {
-  post: {
-    id: string;
-    author: string;
-    avatar: string;
-    title: string;
-    description: string;
-    category: string;
-    timestamp: string;
-    location: string;
-    responses: number;
-    likes: number;
-    isLiked: boolean;
-    urgency: string;
-    tags: string[];
-    visibility: string;
-    shares: number;
-    isShared: boolean;
-    isBookmarked: boolean;
-    comments: Comment[];
-    reactions: string[];
-  };
+  post: FeedPost;
   onLike: () => void;
   onShare: () => void;
   onRespond: () => void;
   onBookmark: () => void;
-  onReaction: () => void;
+  onReaction: (reactionType: string) => void;
   onAddComment: (content: string) => void;
   onLikeComment: (commentId: string) => void;
-  onCommentReaction: (commentId: string, reaction: string) => void;
+  onCommentReaction?: (commentId: string, reactionType: string) => void;
 }
 
 const FeedPostCard = ({ 
@@ -154,6 +126,10 @@ const FeedPostCard = ({
     }
   };
 
+  const handleReaction = (reactionType: string) => {
+    onReaction(reactionType);
+  };
+
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       "help-needed": "bg-red-100 text-red-800",
@@ -174,6 +150,29 @@ const FeedPostCard = ({
     }
     return null;
   };
+
+  // Convert reactions array to display format
+  const getReactionCounts = () => {
+    if (!post.reactions) return {};
+    
+    if (typeof post.reactions[0] === 'string') {
+      // Handle string array format
+      return post.reactions.reduce((acc, reaction) => {
+        acc[reaction] = (acc[reaction] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+    } else {
+      // Handle Reaction object format
+      return post.reactions.reduce((acc, reaction) => {
+        if (typeof reaction === 'object' && reaction.type) {
+          acc[reaction.type] = reaction.count || 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+    }
+  };
+
+  const reactionCounts = getReactionCounts();
 
   return (
     <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
@@ -266,8 +265,13 @@ const FeedPostCard = ({
             </div>
             <div className="flex items-center space-x-1">
               <MessageCircle className="h-4 w-4" />
-              <span>{post.responses} comments</span>
+              <span>{post.comments?.length || 0} comments</span>
             </div>
+            {Object.keys(reactionCounts).length > 0 && (
+              <div className="flex items-center space-x-1">
+                <span>{Object.values(reactionCounts).reduce((sum, count) => sum + count, 0)} reactions</span>
+              </div>
+            )}
           </div>
           <div className="text-sm text-gray-500">
             {post.shares > 0 && `${post.shares} shares`}
@@ -307,6 +311,25 @@ const FeedPostCard = ({
             >
               <Share2 className="h-4 w-4" />
               <span>Share</span>
+            </Button>
+
+            {/* Reaction buttons */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleReaction('love')}
+              className="flex items-center space-x-1 text-gray-600 hover:text-pink-600"
+            >
+              ❤️
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleReaction('support')}
+              className="flex items-center space-x-1 text-gray-600 hover:text-blue-600"
+            >
+              🤝
             </Button>
           </div>
           

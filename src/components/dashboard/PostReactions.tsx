@@ -1,156 +1,105 @@
 
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Heart, ThumbsUp, Smile, Frown, Angry } from "lucide-react";
 import { useState } from "react";
 import { FeedPost, Reaction } from "@/types/feed";
 
 interface PostReactionsProps {
   post: FeedPost;
-  onReaction: (postId: string, reactionType: string) => void;
+  onReaction: (reactionType: string) => void;
 }
-
-const reactionTypes = [
-  { type: 'like', emoji: '👍', label: 'Like' },
-  { type: 'love', emoji: '❤️', label: 'Love' },
-  { type: 'support', emoji: '🤝', label: 'Support' },
-  { type: 'laugh', emoji: '😂', label: 'Laugh' },
-  { type: 'wow', emoji: '😮', label: 'Wow' },
-  { type: 'sad', emoji: '😢', label: 'Sad' },
-  { type: 'angry', emoji: '😠', label: 'Angry' },
-];
 
 const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
   const [showReactions, setShowReactions] = useState(false);
-  const [showReactionDetails, setShowReactionDetails] = useState(false);
 
-  const totalReactions = post.reactions?.reduce((sum, r) => sum + r.count, 0) || 0;
-  const userReaction = post.reactions?.find(r => r.hasReacted);
+  const reactionTypes = [
+    { type: 'like', emoji: '👍', icon: ThumbsUp, label: 'Like' },
+    { type: 'love', emoji: '❤️', icon: Heart, label: 'Love' },
+    { type: 'laugh', emoji: '😂', icon: Smile, label: 'Laugh' },
+    { type: 'wow', emoji: '😮', icon: null, label: 'Wow' },
+    { type: 'sad', emoji: '😢', icon: Frown, label: 'Sad' },
+    { type: 'angry', emoji: '😠', icon: Angry, label: 'Angry' }
+  ];
 
-  const handleReaction = (reactionType: string) => {
-    onReaction(post.id, reactionType);
-    setShowReactions(false);
-  };
-
-  // Mock users who reacted for demonstration
-  const getReactionUsers = (reactionType: string) => {
-    const reaction = post.reactions?.find(r => r.type === reactionType);
-    if (!reaction || reaction.count === 0) return [];
+  const getReactionCounts = () => {
+    if (!post.reactions) return {};
     
-    // Generate mock users based on reaction count
-    return Array.from({ length: Math.min(reaction.count, 5) }, (_, i) => ({
-      id: `user-${reactionType}-${i}`,
-      name: `User ${i + 1}`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${reactionType}-${i}`,
-    }));
+    if (typeof post.reactions[0] === 'string') {
+      return post.reactions.reduce((acc, reaction) => {
+        acc[reaction] = (acc[reaction] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+    } else {
+      return post.reactions.reduce((acc, reaction) => {
+        if (typeof reaction === 'object' && reaction.type) {
+          acc[reaction.type] = reaction.count || 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+    }
   };
+
+  const reactionCounts = getReactionCounts();
+  const hasReacted = post.isLiked; // Simplified for now
 
   return (
-    <div className="flex items-center space-x-2">
-      <Popover open={showReactions} onOpenChange={setShowReactions}>
-        <PopoverTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className={`transition-all duration-200 ${userReaction ? "text-blue-600" : "hover:scale-105"}`}
-            onMouseEnter={() => setShowReactions(true)}
-          >
-            {userReaction ? (
-              <>
-                <span className="mr-2">{reactionTypes.find(r => r.type === userReaction.type)?.emoji}</span>
-                <span>{reactionTypes.find(r => r.type === userReaction.type)?.label}</span>
-              </>
-            ) : (
-              <>
-                <span className="mr-2">👍</span>
-                <span>React</span>
-              </>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-auto p-2 bg-white shadow-lg border rounded-full"
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setShowReactions(!showReactions)}
+        onMouseEnter={() => setShowReactions(true)}
+        onMouseLeave={() => setShowReactions(false)}
+        className={`flex items-center space-x-1 ${
+          hasReacted ? "text-red-600 hover:text-red-700" : "text-gray-600 hover:text-red-600"
+        }`}
+      >
+        <Heart className={`h-4 w-4 ${hasReacted ? "fill-current" : ""}`} />
+        <span>
+          {Object.keys(reactionCounts).length > 0 
+            ? Object.values(reactionCounts).reduce((sum, count) => sum + count, 0)
+            : post.likes
+          }
+        </span>
+      </Button>
+
+      {showReactions && (
+        <div 
+          className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex space-x-1 z-10"
+          onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
-          <div className="flex space-x-1">
-            {reactionTypes.map((reaction) => (
-              <Button
-                key={reaction.type}
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 rounded-full hover:scale-125 transition-transform"
-                onClick={() => handleReaction(reaction.type)}
-                title={reaction.label}
-              >
-                <span className="text-xl">{reaction.emoji}</span>
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-
-      {/* Reaction Summary with clickable details */}
-      {totalReactions > 0 && (
-        <Popover open={showReactionDetails} onOpenChange={setShowReactionDetails}>
-          <PopoverTrigger asChild>
+          {reactionTypes.map((reaction) => (
             <Button
+              key={reaction.type}
               variant="ghost"
               size="sm"
-              className="flex items-center space-x-1 text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
+              onClick={() => {
+                onReaction(reaction.type);
+                setShowReactions(false);
+              }}
+              className="h-8 w-8 p-0 hover:bg-gray-100"
+              title={reaction.label}
             >
-              <div className="flex -space-x-1">
-                {post.reactions?.slice(0, 3).map((reaction) => (
-                  <span key={reaction.type} className="text-sm">
-                    {reactionTypes.find(r => r.type === reaction.type)?.emoji}
-                  </span>
-                ))}
-              </div>
-              <span>{totalReactions}</span>
+              <span className="text-lg">{reaction.emoji}</span>
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-4 bg-white shadow-lg border">
-            <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">Reactions</h4>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {post.reactions?.filter(r => r.count > 0).map((reaction) => {
-                  const reactionType = reactionTypes.find(r => r.type === reaction.type);
-                  const users = getReactionUsers(reaction.type);
-                  
-                  return (
-                    <div key={reaction.type} className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{reactionType?.emoji}</span>
-                        <span className="font-medium text-sm">{reactionType?.label}</span>
-                        <span className="text-xs text-gray-500">({reaction.count})</span>
-                      </div>
-                      <div className="ml-8 space-y-1">
-                        {users.map((user) => (
-                          <div key={user.id} className="flex items-center space-x-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src={user.avatar} alt={user.name} />
-                              <AvatarFallback className="text-xs">
-                                {user.name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-gray-700">{user.name}</span>
-                            {reaction.hasReacted && user.id === 'user-like-0' && (
-                              <span className="text-xs text-blue-600">(You)</span>
-                            )}
-                          </div>
-                        ))}
-                        {reaction.count > 5 && (
-                          <div className="text-xs text-gray-500 ml-8">
-                            and {reaction.count - 5} others...
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+          ))}
+        </div>
+      )}
+
+      {/* Show reaction counts */}
+      {Object.keys(reactionCounts).length > 0 && (
+        <div className="flex items-center space-x-1 mt-1">
+          {Object.entries(reactionCounts).map(([type, count]) => {
+            const reaction = reactionTypes.find(r => r.type === type);
+            return (
+              <div key={type} className="flex items-center space-x-1 text-xs text-gray-500">
+                <span>{reaction?.emoji}</span>
+                <span>{count}</span>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            );
+          })}
+        </div>
       )}
     </div>
   );
