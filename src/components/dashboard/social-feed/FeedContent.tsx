@@ -55,15 +55,18 @@ const FeedContent = ({
       {posts.map((post) => (
         <FeedPostCard
           key={post.id}
-          post={post}
-          onLike={onLike}
-          onShare={onShare}
-          onRespond={onRespond}
-          onBookmark={onBookmark}
-          onReaction={onReaction}
-          onAddComment={onAddComment}
-          onLikeComment={onLikeComment}
-          onCommentReaction={onCommentReaction}
+          post={{
+            ...post,
+            urgency: post.urgency || 'medium' // Provide default value for required urgency field
+          }}
+          onLike={() => onLike(post.id)}
+          onShare={() => onShare(post.id)}
+          onRespond={() => onRespond(post.id)}
+          onBookmark={() => onBookmark(post.id)}
+          onReaction={(reactionType: string) => onReaction(post.id, reactionType)}
+          onAddComment={(content: string) => onAddComment(post.id, content)}
+          onLikeComment={(commentId: string) => onLikeComment(post.id, commentId)}
+          onCommentReaction={(commentId: string, reactionType: string) => onCommentReaction?.(post.id, commentId, reactionType)}
         />
       ))}
     </div>
