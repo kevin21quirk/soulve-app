@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, MapPin, Lock, Globe, Calendar, UserPlus } from "lucide-react";
-import { useConnections } from "@/hooks/useConnections";
+import { useGroupsManager } from "@/hooks/useGroupsManager";
 
 interface DiscoverGroupsProps {
   searchQuery: string;
 }
 
 const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
-  const { suggestedGroups, handleJoinGroup } = useConnections();
+  const { suggestedGroups, handleJoinGroup } = useGroupsManager();
 
   const filteredGroups = suggestedGroups.filter(group => {
     if (!searchQuery) return true;
@@ -72,13 +72,13 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
                       )}
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>Active {group.lastActivity}</span>
+                        <span>{group.recentActivity}</span>
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
                       <Badge variant="outline" className="text-xs">
-                        {group.category}
+                        {group.category.replace('-', ' ')}
                       </Badge>
                       {group.tags.slice(0, 2).map((tag, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
@@ -91,12 +91,10 @@ const DiscoverGroups = ({ searchQuery }: DiscoverGroupsProps) => {
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <img 
-                      src={group.adminAvatar} 
-                      alt={group.adminName}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-xs text-gray-500">Admin: {group.adminName}</span>
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                      <span className="text-xs text-white font-medium">A</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Admin: Group Leader</span>
                   </div>
                   
                   <Button

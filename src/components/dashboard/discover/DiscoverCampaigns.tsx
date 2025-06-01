@@ -5,14 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Heart, MapPin, Calendar, Users, Target, Zap } from "lucide-react";
-import { useConnections } from "@/hooks/useConnections";
+import { useCampaignsManager } from "@/hooks/useCampaignsManager";
 
 interface DiscoverCampaignsProps {
   searchQuery: string;
 }
 
 const DiscoverCampaigns = ({ searchQuery }: DiscoverCampaignsProps) => {
-  const { campaigns, handleJoinCampaign } = useConnections();
+  const { campaigns, handleJoinCampaign } = useCampaignsManager();
 
   const filteredCampaigns = campaigns.filter(campaign => {
     if (!searchQuery) return true;
@@ -23,16 +23,20 @@ const DiscoverCampaigns = ({ searchQuery }: DiscoverCampaignsProps) => {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      "fundraising": "bg-green-100 text-green-800",
-      "volunteer": "bg-blue-100 text-blue-800",
-      "awareness": "bg-purple-100 text-purple-800",
-      "community": "bg-yellow-100 text-yellow-800",
+      "emergency-relief": "bg-red-100 text-red-800",
+      "education": "bg-blue-100 text-blue-800",
+      "environment": "bg-green-100 text-green-800",
+      "healthcare": "bg-purple-100 text-purple-800",
+      "community-development": "bg-yellow-100 text-yellow-800",
+      "disaster-relief": "bg-orange-100 text-orange-800",
+      "social-justice": "bg-indigo-100 text-indigo-800",
+      "animal-welfare": "bg-pink-100 text-pink-800",
     };
     return colors[category] || "bg-gray-100 text-gray-800";
   };
 
   const getUrgencyIcon = (urgency: string) => {
-    if (urgency === "high") {
+    if (urgency === "urgent" || urgency === "high") {
       return <Zap className="h-4 w-4 text-red-500" />;
     }
     return null;
@@ -54,21 +58,14 @@ const DiscoverCampaigns = ({ searchQuery }: DiscoverCampaignsProps) => {
         ) : (
           filteredCampaigns.map((campaign) => (
             <div key={campaign.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-              {campaign.coverImage && (
-                <div className="h-32 bg-gradient-to-r from-pink-500 to-red-600 relative">
-                  <img 
-                    src={campaign.coverImage} 
-                    alt={campaign.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 flex space-x-1">
-                    {getUrgencyIcon(campaign.urgency)}
-                    <Badge variant="secondary" className="bg-white/90">
-                      {campaign.urgency}
-                    </Badge>
-                  </div>
+              <div className="h-32 bg-gradient-to-r from-pink-500 to-red-600 relative">
+                <div className="absolute top-2 right-2 flex space-x-1">
+                  {getUrgencyIcon(campaign.urgency)}
+                  <Badge variant="secondary" className="bg-white/90">
+                    {campaign.urgency}
+                  </Badge>
                 </div>
-              )}
+              </div>
               
               <div className="p-4">
                 <div className="flex items-start justify-between mb-3">
@@ -89,28 +86,27 @@ const DiscoverCampaigns = ({ searchQuery }: DiscoverCampaignsProps) => {
                       )}
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>Ends {campaign.endDate}</span>
+                        <span>{campaign.timeLeft}</span>
                       </div>
                     </div>
                     
-                    {campaign.goalAmount && campaign.currentAmount !== undefined && (
-                      <div className="mb-3">
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Progress</span>
-                          <span className="font-medium">
-                            ${campaign.currentAmount.toLocaleString()} / ${campaign.goalAmount.toLocaleString()}
-                          </span>
-                        </div>
-                        <Progress 
-                          value={(campaign.currentAmount / campaign.goalAmount) * 100} 
-                          className="h-2"
-                        />
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-medium">
+                          {campaign.progress}% of {campaign.goal}
+                        </span>
                       </div>
-                    )}
+                      <Progress 
+                        value={campaign.progress} 
+                        className="h-2"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">{campaign.impact}</p>
+                    </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
                       <Badge className={getCategoryColor(campaign.category)}>
-                        {campaign.category}
+                        {campaign.category.replace('-', ' ')}
                       </Badge>
                       {campaign.tags.slice(0, 2).map((tag, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
@@ -124,7 +120,6 @@ const DiscoverCampaigns = ({ searchQuery }: DiscoverCampaignsProps) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Avatar className="w-6 h-6">
-                      <AvatarImage src={campaign.organizerAvatar} alt={campaign.organizer} />
                       <AvatarFallback className="text-xs">
                         {campaign.organizer.charAt(0)}
                       </AvatarFallback>
