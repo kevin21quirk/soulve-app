@@ -16,7 +16,7 @@ const MobileRealTimeMessaging = () => {
     messages,
     activeConversation,
     setActiveConversation,
-    loading,
+    conversationsLoading,
     loadMessages,
     sendMessage
   } = useRealTimeMessaging();
@@ -135,7 +135,7 @@ const MobileRealTimeMessaging = () => {
       </div>
 
       <div className="p-4">
-        {loading ? (
+        {conversationsLoading ? (
           <div className="text-center py-8 text-gray-500">Loading conversations...</div>
         ) : conversations.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
