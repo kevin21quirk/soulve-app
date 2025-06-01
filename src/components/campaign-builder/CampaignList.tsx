@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -156,7 +155,7 @@ const CampaignList = () => {
                       <div className="flex items-center space-x-2">
                         <Progress 
                           value={campaign.progress} 
-                          className="flex-1 [&>div]:bg-gradient-to-r [&>div]:from-[#0ce4af] [&>div]:to-[#18a5fe]" 
+                          className="flex-1" 
                         />
                         <span className="text-sm font-medium">{campaign.progress}%</span>
                       </div>
