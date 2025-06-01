@@ -724,6 +724,59 @@ export type Database = {
         }
         Relationships: []
       }
+      help_completion_requests: {
+        Row: {
+          completion_evidence: Json | null
+          created_at: string
+          expires_at: string | null
+          feedback_message: string | null
+          feedback_rating: number | null
+          helper_id: string
+          helper_message: string | null
+          id: string
+          post_id: string
+          requester_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          completion_evidence?: Json | null
+          created_at?: string
+          expires_at?: string | null
+          feedback_message?: string | null
+          feedback_rating?: number | null
+          helper_id: string
+          helper_message?: string | null
+          id?: string
+          post_id: string
+          requester_id: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          completion_evidence?: Json | null
+          created_at?: string
+          expires_at?: string | null
+          feedback_message?: string | null
+          feedback_rating?: number | null
+          helper_id?: string
+          helper_message?: string | null
+          id?: string
+          post_id?: string
+          requester_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_completion_requests_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impact_activities: {
         Row: {
           activity_type: string

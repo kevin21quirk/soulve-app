@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SocialFeed from "./SocialFeed";
@@ -15,8 +14,12 @@ import {
   Target, 
   TrendingUp,
   Trophy, 
-  User
+  User,
+  CheckCircle
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import HelpApprovalTab from './tabs/HelpApprovalTab';
+import { useHelpCompletion } from '@/hooks/useHelpCompletion';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -24,6 +27,7 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
+  const { pendingRequests } = useHelpCompletion();
   const tabs = [
     { id: "feed", label: "Feed", icon: Home, component: SocialFeed },
     { id: "discover", label: "Discover & Connect", icon: Users, component: RealDiscoverConnectTab },
@@ -37,7 +41,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TooltipProvider>
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-8">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
             return (
@@ -56,6 +60,21 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
               </Tooltip>
             );
           })}
+          <TabsTrigger 
+            value="help-approvals" 
+            className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Approvals
+            {pendingRequests.length > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+              >
+                {pendingRequests.length}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
       </TooltipProvider>
 
@@ -64,6 +83,9 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
           <tab.component />
         </TabsContent>
       ))}
+      <TabsContent value="help-approvals">
+        <HelpApprovalTab />
+      </TabsContent>
     </Tabs>
   );
 };
