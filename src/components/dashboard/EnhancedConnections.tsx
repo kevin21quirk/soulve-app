@@ -14,6 +14,8 @@ import ConnectionStats from "./connections/ConnectionStats";
 import NetworkSearch from "./connections/NetworkSearch";
 import NetworkAnalytics from "./connections/NetworkAnalytics";
 import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights";
+import DatabaseNetworkSearch from "./connections/DatabaseNetworkSearch";
+import DatabaseNetworkAnalytics from "./connections/DatabaseNetworkAnalytics";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
