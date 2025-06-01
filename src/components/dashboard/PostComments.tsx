@@ -20,10 +20,10 @@ interface TaggedUser {
 
 interface PostCommentsProps {
   post: FeedPost;
-  onAddComment: (postId: string, content: string, taggedUsers?: TaggedUser[]) => void;
-  onLikeComment: (postId: string, commentId: string) => void;
-  onReaction?: (postId: string, reactionType: string) => void;
-  onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
+  onAddComment: (content: string, taggedUsers?: TaggedUser[]) => void;
+  onLikeComment: (commentId: string) => void;
+  onReaction?: (reactionType: string) => void;
+  onCommentReaction?: (commentId: string, reactionType: string) => void;
 }
 
 const PostComments = ({ 
@@ -42,7 +42,7 @@ const PostComments = ({
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
     
-    onAddComment(post.id, newComment, commentTaggedUsers);
+    onAddComment(newComment, commentTaggedUsers);
     setNewComment("");
     setCommentTaggedUsers([]);
     
@@ -59,7 +59,7 @@ const PostComments = ({
 
   const handleCommentReaction = (commentId: string, reactionType: string) => {
     if (onCommentReaction) {
-      onCommentReaction(post.id, commentId, reactionType);
+      onCommentReaction(commentId, reactionType);
     }
   };
 
@@ -104,7 +104,7 @@ const PostComments = ({
                 id: comment.id,
                 reactions: comment.reactions || []
               } as any}
-              onReaction={(_, reactionType) => handleCommentReaction(comment.id, reactionType)}
+              onReaction={(reactionType) => handleCommentReaction(comment.id, reactionType)}
             />
           )}
           
@@ -114,7 +114,7 @@ const PostComments = ({
               variant="ghost"
               size="sm"
               className="h-6 p-0 text-xs"
-              onClick={() => onLikeComment(post.id, comment.id)}
+              onClick={() => onLikeComment(comment.id)}
             >
               <Heart className={`h-3 w-3 mr-1 ${comment.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
               {comment.likes > 0 && comment.likes}

@@ -24,19 +24,16 @@ const PostReactions = ({ post, onReaction }: PostReactionsProps) => {
   const getReactionCounts = () => {
     if (!post.reactions) return {};
     
-    if (typeof post.reactions[0] === 'string') {
-      return post.reactions.reduce((acc, reaction) => {
+    return post.reactions.reduce((acc, reaction) => {
+      if (typeof reaction === 'string') {
+        // Handle string array format
         acc[reaction] = (acc[reaction] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-    } else {
-      return post.reactions.reduce((acc, reaction) => {
-        if (typeof reaction === 'object' && reaction.type) {
-          acc[reaction.type] = reaction.count || 1;
-        }
-        return acc;
-      }, {} as Record<string, number>);
-    }
+      } else if (typeof reaction === 'object' && reaction.type) {
+        // Handle Reaction object format
+        acc[reaction.type] = reaction.count || 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
   };
 
   const reactionCounts = getReactionCounts();

@@ -37,7 +37,10 @@ const PostActions = ({
       {/* Main Action Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1">
-          <PostReactions post={post} onReaction={onReaction} />
+          <PostReactions 
+            post={post} 
+            onReaction={(reactionType: string) => onReaction(post.id, reactionType)} 
+          />
           
           <Button 
             variant="ghost" 
@@ -113,7 +116,7 @@ const PostActions = ({
       <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t">
         <div className="flex items-center space-x-4">
           {post.reactions && post.reactions.length > 0 && (
-            <span>{post.reactions.reduce((sum, r) => sum + r.count, 0)} reactions</span>
+            <span>{post.reactions.reduce((sum, r) => sum + (typeof r === 'object' ? r.count : 1), 0)} reactions</span>
           )}
           <span>{post.comments?.length || 0} comments</span>
           <span>{post.shares} shares</span>
@@ -130,9 +133,9 @@ const PostActions = ({
       {showComments && (
         <PostComments 
           post={post}
-          onAddComment={onAddComment}
-          onLikeComment={onLikeComment}
-          onCommentReaction={onCommentReaction}
+          onAddComment={(content: string) => onAddComment(post.id, content)}
+          onLikeComment={(commentId: string) => onLikeComment(post.id, commentId)}
+          onCommentReaction={(commentId: string, reactionType: string) => onCommentReaction?.(post.id, commentId, reactionType)}
         />
       )}
     </div>
