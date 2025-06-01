@@ -11,11 +11,13 @@ import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Settings } from "lucide-react";
+import { useRealTimeProfile } from "@/hooks/useRealTimeProfile";
 
 const UserProfile = () => {
   const { toast } = useToast();
   const { profileData, loading, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
+  const { profileUpdates } = useRealTimeProfile();
 
   const handleViewPointsDetails = () => {
     console.log("Trust score button clicked - showing points details");

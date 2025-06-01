@@ -5,12 +5,16 @@ import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 import { UseUserProfileReturn } from './profile/types';
 import { createDefaultProfile, mapDatabaseProfileToUserProfile, mapUserProfileToDatabase } from './profile/profileUtils';
 import { fetchUserProfile, upsertUserProfile } from './profile/profileService';
+import { useRealTimeProfile } from './useRealTimeProfile';
+import { useProfileSync } from './useProfileSync';
 
 export const useUserProfile = (): UseUserProfileReturn => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { profileUpdates } = useRealTimeProfile();
+  const { syncProfileToPreferences, calculateImpactMetrics } = useProfileSync();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -51,6 +55,9 @@ export const useUserProfile = (): UseUserProfileReturn => {
           const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
           setProfileData(userProfileData);
         }
+
+        // Calculate impact metrics on profile load
+        await calculateImpactMetrics();
       } catch (err) {
         console.error('Error in loadProfile:', err);
         // Fallback to default profile if everything fails
@@ -62,7 +69,15 @@ export const useUserProfile = (): UseUserProfileReturn => {
     };
 
     loadProfile();
-  }, [user]);
+  }, [user, calculateImpactMetrics]);
+
+  // Apply real-time updates
+  useEffect(() => {
+    if (profileUpdates[user?.id || ''] && profileData) {
+      const updatedProfile = mapDatabaseProfileToUserProfile(user, profileUpdates[user?.id || '']);
+      setProfileData(updatedProfile);
+    }
+  }, [profileUpdates, user, profileData]);
 
   const updateProfile = async (updatedData: UserProfileData) => {
     if (!user) return;
@@ -77,6 +92,12 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
 
       setProfileData(updatedData);
+      
+      // Sync to preferences for recommendations
+      await syncProfileToPreferences(updatedData);
+      
+      // Recalculate impact metrics
+      await calculateImpactMetrics();
     } catch (err) {
       console.error('Error in updateProfile:', err);
       throw err;

@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
+import { useProfileSync } from './useProfileSync';
 
 interface PrivacySettings {
   profileVisibility: 'public' | 'friends' | 'private';
@@ -19,6 +20,7 @@ export const useProfileManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { syncProfileToPreferences, calculateImpactMetrics } = useProfileSync();
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
     profileVisibility: 'public',
     showLocation: true,
@@ -28,61 +30,6 @@ export const useProfileManagement = () => {
     showOnlineStatus: true,
     allowTagging: true,
   });
-
-  // Sync user skills and interests to preferences table for recommendations
-  const syncUserPreferences = async (profileData: UserProfileData) => {
-    if (!user) return;
-
-    try {
-      // Clear existing preferences
-      await supabase
-        .from('user_preferences')
-        .delete()
-        .eq('user_id', user.id);
-
-      const preferences: any[] = [];
-
-      // Add skills as preferences
-      profileData.skills.forEach(skill => {
-        preferences.push({
-          user_id: user.id,
-          preference_type: 'skill',
-          preference_value: skill.toLowerCase(),
-          weight: 3.0
-        });
-      });
-
-      // Add interests as preferences
-      profileData.interests.forEach(interest => {
-        preferences.push({
-          user_id: user.id,
-          preference_type: 'interest',
-          preference_value: interest.toLowerCase(),
-          weight: 2.0
-        });
-      });
-
-      // Add location preference
-      if (profileData.location) {
-        preferences.push({
-          user_id: user.id,
-          preference_type: 'location_preference',
-          preference_value: profileData.location.toLowerCase(),
-          weight: 1.5
-        });
-      }
-
-      if (preferences.length > 0) {
-        await supabase
-          .from('user_preferences')
-          .insert(preferences);
-      }
-
-      console.log(`Synced ${preferences.length} preferences for recommendations`);
-    } catch (error) {
-      console.error('Error syncing user preferences:', error);
-    }
-  };
 
   const updateProfile = async (profileData: UserProfileData): Promise<void> => {
     if (!user) throw new Error('User not authenticated');
@@ -114,7 +61,10 @@ export const useProfileManagement = () => {
       if (error) throw error;
 
       // Sync preferences for recommendations
-      await syncUserPreferences(profileData);
+      await syncProfileToPreferences(profileData);
+
+      // Recalculate impact metrics
+      await calculateImpactMetrics();
 
       toast({
         title: "Profile updated successfully",
