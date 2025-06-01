@@ -24,6 +24,19 @@ interface Conversation {
   unread_count: number;
 }
 
+// Type helper to convert database message to our Message interface
+const convertToMessage = (dbMessage: any): Message => ({
+  id: dbMessage.id,
+  content: dbMessage.content,
+  sender_id: dbMessage.sender_id,
+  recipient_id: dbMessage.recipient_id,
+  created_at: dbMessage.created_at,
+  is_read: dbMessage.is_read,
+  message_type: (dbMessage.message_type as 'text' | 'image' | 'file') || 'text',
+  file_url: dbMessage.file_url,
+  file_name: dbMessage.file_name,
+});
+
 export const useRealTimeMessaging = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -64,8 +77,8 @@ export const useRealTimeMessaging = () => {
       // Group by conversation partner
       const conversationMap = new Map<string, Conversation>();
       
-      for (const message of messageData || []) {
-        const partnerId = message.sender_id === user.id ? message.recipient_id : message.sender_id;
+      for (const dbMessage of messageData || []) {
+        const partnerId = dbMessage.sender_id === user.id ? dbMessage.recipient_id : dbMessage.sender_id;
         
         if (!conversationMap.has(partnerId)) {
           // Get partner profile
@@ -81,13 +94,13 @@ export const useRealTimeMessaging = () => {
             user_id: partnerId,
             user_name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
             avatar_url: profile?.avatar_url,
-            last_message: message as Message,
+            last_message: convertToMessage(dbMessage),
             unread_count: 0
           });
         }
 
         // Update unread count
-        if (message.recipient_id === user.id && !message.is_read) {
+        if (dbMessage.recipient_id === user.id && !dbMessage.is_read) {
           const conv = conversationMap.get(partnerId)!;
           conv.unread_count++;
         }
@@ -128,9 +141,12 @@ export const useRealTimeMessaging = () => {
 
       console.log('Loaded messages for conversation:', data);
       
+      // Convert database messages to our Message interface
+      const convertedMessages = (data || []).map(convertToMessage);
+      
       setMessages(prev => ({
         ...prev,
-        [partnerId]: data || []
+        [partnerId]: convertedMessages
       }));
 
       // Mark messages as read
@@ -176,13 +192,14 @@ export const useRealTimeMessaging = () => {
 
       console.log('Message sent successfully:', data);
 
-      // Update local state immediately for optimistic UI
+      // Convert and update local state immediately for optimistic UI
+      const convertedMessage = convertToMessage(data);
       setMessages(prev => ({
         ...prev,
-        [recipientId]: [...(prev[recipientId] || []), data]
+        [recipientId]: [...(prev[recipientId] || []), convertedMessage]
       }));
 
-      return data;
+      return convertedMessage;
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -211,7 +228,7 @@ export const useRealTimeMessaging = () => {
         },
         (payload) => {
           console.log('Received new message via realtime:', payload);
-          const newMessage = payload.new as Message;
+          const newMessage = convertToMessage(payload.new);
           
           // Add to conversation messages
           setMessages(prev => ({
