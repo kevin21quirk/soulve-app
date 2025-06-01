@@ -3,7 +3,6 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Conversation } from './types';
-import { convertToMessage } from './utils';
 
 export const useConversations = (userId: string | undefined) => {
   const { toast } = useToast();
@@ -17,70 +16,71 @@ export const useConversations = (userId: string | undefined) => {
     try {
       console.log('Loading conversations for user:', userId);
       
-      // Get all unique conversation partners
-      const { data: messageData, error } = await supabase
+      // Get latest message with each user - simplified query
+      const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-          id,
-          sender_id,
-          recipient_id,
-          content,
-          created_at,
-          is_read,
-          message_type,
-          file_url,
-          file_name
-        `)
+        .select('*')
         .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching messages:', error);
+        console.error('Error fetching conversations:', error);
         throw error;
       }
 
-      console.log('Fetched messages:', messageData);
+      // Get unique partner IDs and fetch their profiles separately
+      const partnerIds = new Set<string>();
+      (messages || []).forEach((message: any) => {
+        const partnerId = message.sender_id === userId ? message.recipient_id : message.sender_id;
+        partnerIds.add(partnerId);
+      });
 
-      // Group by conversation partner
-      const conversationMap = new Map<string, Conversation>();
+      // Fetch profiles separately
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', Array.from(partnerIds));
+
+      const profileMap = new Map();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Group by conversation partner and get latest message
+      const conversationsMap = new Map();
       
-      for (const dbMessage of messageData || []) {
-        const partnerId = dbMessage.sender_id === userId ? dbMessage.recipient_id : dbMessage.sender_id;
+      (messages || []).forEach((message: any) => {
+        const partnerId = message.sender_id === userId ? message.recipient_id : message.sender_id;
+        const partnerProfile = profileMap.get(partnerId);
         
-        if (!conversationMap.has(partnerId)) {
-          // Get partner profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, avatar_url')
-            .eq('id', partnerId)
-            .single();
+        if (!conversationsMap.has(partnerId)) {
+          const partnerName = partnerProfile 
+            ? `${partnerProfile.first_name || ''} ${partnerProfile.last_name || ''}`.trim() || 'Anonymous'
+            : 'Anonymous';
 
-          console.log('Fetched profile for partner:', partnerId, profile);
-
-          conversationMap.set(partnerId, {
+          conversationsMap.set(partnerId, {
+            id: partnerId,
             user_id: partnerId,
-            user_name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
-            avatar_url: profile?.avatar_url,
-            last_message: convertToMessage(dbMessage),
-            unread_count: 0
+            user_name: partnerName,
+            avatar_url: partnerProfile?.avatar_url,
+            last_message: {
+              content: message.content,
+              created_at: message.created_at
+            },
+            unread_count: 0,
           });
         }
+      });
 
-        // Update unread count
-        if (dbMessage.recipient_id === userId && !dbMessage.is_read) {
-          const conv = conversationMap.get(partnerId)!;
-          conv.unread_count++;
-        }
-      }
+      const conversationsList = Array.from(conversationsMap.values());
+      console.log('Loaded conversations:', conversationsList);
+      setConversations(conversationsList);
 
-      const conversationList = Array.from(conversationMap.values());
-      console.log('Final conversations:', conversationList);
-      setConversations(conversationList);
     } catch (error) {
       console.error('Error loading conversations:', error);
       toast({
-        title: "Error loading conversations",
-        description: "Please try again later",
+        title: "Failed to load conversations",
+        description: "Please try refreshing the page",
         variant: "destructive"
       });
     } finally {

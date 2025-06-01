@@ -1,9 +1,26 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle } from 'lucide-react';
-import { Conversation } from '@/hooks/messaging/types';
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
+import { useState } from "react";
+
+interface Conversation {
+  id: string;
+  partner_id: string;
+  partner_profile?: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+  };
+  last_message: string;
+  last_message_time: string;
+  is_read: boolean;
+  unread_count: number;
+}
 
 interface ConversationsListProps {
   conversations: Conversation[];
@@ -18,64 +35,100 @@ const ConversationsList = ({
   loading,
   onConversationSelect
 }: ConversationsListProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredConversations = conversations.filter(conv => {
+    const partnerName = conv.partner_profile 
+      ? `${conv.partner_profile.first_name || ''} ${conv.partner_profile.last_name || ''}`.trim()
+      : 'Anonymous';
+    return partnerName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  if (loading) {
+    return (
+      <Card className="w-full lg:w-96">
+        <CardContent className="p-6 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <div className="w-full md:w-1/3 border-r bg-gray-50">
-      <div className="p-4 border-b bg-white">
-        <h3 className="font-semibold flex items-center gap-2">
-          <MessageCircle className="h-5 w-5" />
-          Messages
-        </h3>
-      </div>
-      
-      <ScrollArea className="h-[calc(600px-73px)]">
-        {loading ? (
-          <div className="p-4 text-center text-gray-500">Loading conversations...</div>
-        ) : conversations.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            No conversations yet. Start connecting with people!
-          </div>
-        ) : (
-          <div className="p-2">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.user_id}
-                onClick={() => onConversationSelect(conversation.user_id)}
-                className={`p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
-                  activeConversation === conversation.user_id
-                    ? 'bg-blue-100 border-blue-200'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={conversation.avatar_url} alt={conversation.user_name} />
-                    <AvatarFallback>
-                      {conversation.user_name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium truncate">{conversation.user_name}</p>
-                      {conversation.unread_count > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                          {conversation.unread_count}
-                        </Badge>
-                      )}
+    <Card className="w-full lg:w-96">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">Messages</CardTitle>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[480px]">
+          {filteredConversations.length === 0 ? (
+            <div className="p-6 text-center text-gray-500">
+              <p>No conversations yet.</p>
+              <p className="text-sm mt-1">Start connecting with people to begin messaging!</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {filteredConversations.map((conversation) => {
+                const partnerName = conversation.partner_profile 
+                  ? `${conversation.partner_profile.first_name || ''} ${conversation.partner_profile.last_name || ''}`.trim() || 'Anonymous'
+                  : 'Anonymous';
+
+                return (
+                  <div
+                    key={conversation.id}
+                    onClick={() => onConversationSelect(conversation.partner_id)}
+                    className={`p-4 hover:bg-gray-50 cursor-pointer border-l-4 transition-colors ${
+                      activeConversation === conversation.partner_id
+                        ? "bg-blue-50 border-l-blue-500"
+                        : "border-l-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={conversation.partner_profile?.avatar_url || ''} alt={partnerName} />
+                          <AvatarFallback>
+                            {partnerName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {conversation.is_read === false && (
+                          <div className="absolute -top-1 -right-1 h-3 w-3 bg-blue-600 rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold text-gray-900 truncate">{partnerName}</h4>
+                          <span className="text-xs text-gray-500">
+                            {format(new Date(conversation.last_message_time), 'MMM d')}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 truncate mt-1">
+                          {conversation.last_message}
+                        </p>
+                        {conversation.unread_count > 0 && (
+                          <Badge variant="secondary" className="mt-1 text-xs">
+                            {conversation.unread_count} new
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    {conversation.last_message && (
-                      <p className="text-sm text-gray-600 truncate">
-                        {conversation.last_message.content}
-                      </p>
-                    )}
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-    </div>
+                );
+              })}
+            </div>
+          )}
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 

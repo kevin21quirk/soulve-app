@@ -41,15 +41,22 @@ const MobileRealTimeMessaging = () => {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
   const activePartner = conversations.find(c => c.user_id === activeConversation);
 
   if (activeConversation) {
     // Chat view
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen bg-white">
         {/* Header */}
-        <div className="bg-white border-b p-4 flex items-center gap-3">
+        <div className="bg-white border-b p-4 flex items-center gap-3 sticky top-0 z-10">
           <Button
             variant="ghost"
             size="sm"
@@ -61,7 +68,7 @@ const MobileRealTimeMessaging = () => {
           <Avatar className="h-8 w-8">
             <AvatarImage src={activePartner?.avatar_url} alt={activePartner?.user_name} />
             <AvatarFallback>
-              {activePartner?.user_name.split(' ').map(n => n[0]).join('') || '?'}
+              {activePartner?.user_name?.split(' ').map(n => n[0]).join('') || '?'}
             </AvatarFallback>
           </Avatar>
           
@@ -69,7 +76,7 @@ const MobileRealTimeMessaging = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
           {activeMessages.map((message) => (
             <div
               key={message.id}
@@ -93,8 +100,8 @@ const MobileRealTimeMessaging = () => {
           ))}
         </div>
 
-        {/* Input */}
-        <div className="bg-white border-t p-4">
+        {/* Input - Fixed at bottom */}
+        <div className="bg-white border-t p-4 fixed bottom-0 left-0 right-0">
           <div className="flex gap-2">
             <Input
               value={newMessage}
@@ -102,6 +109,7 @@ const MobileRealTimeMessaging = () => {
               placeholder="Type a message..."
               disabled={sending}
               className="flex-1"
+              onKeyPress={handleKeyPress}
             />
             <Button
               onClick={handleSendMessage}
@@ -119,7 +127,7 @@ const MobileRealTimeMessaging = () => {
   // Conversations list view
   return (
     <div className="h-screen bg-gray-50">
-      <div className="bg-white border-b p-4">
+      <div className="bg-white border-b p-4 sticky top-0 z-10">
         <h1 className="text-xl font-bold flex items-center gap-2">
           <MessageCircle className="h-6 w-6" />
           Messages
@@ -141,13 +149,13 @@ const MobileRealTimeMessaging = () => {
               <div
                 key={conversation.user_id}
                 onClick={() => handleConversationSelect(conversation.user_id)}
-                className="bg-white p-4 rounded-lg border active:bg-gray-50"
+                className="bg-white p-4 rounded-lg border active:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={conversation.avatar_url} alt={conversation.user_name} />
                     <AvatarFallback>
-                      {conversation.user_name.split(' ').map(n => n[0]).join('')}
+                      {conversation.user_name?.split(' ').map(n => n[0]).join('') || '?'}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -163,6 +171,11 @@ const MobileRealTimeMessaging = () => {
                     {conversation.last_message && (
                       <p className="text-sm text-gray-600 truncate">
                         {conversation.last_message.content}
+                      </p>
+                    )}
+                    {conversation.last_message && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        {formatDistanceToNow(new Date(conversation.last_message.created_at), { addSuffix: true })}
                       </p>
                     )}
                   </div>

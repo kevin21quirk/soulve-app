@@ -1,13 +1,13 @@
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Send } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Send } from "lucide-react";
 
 interface MessageInputProps {
   newMessage: string;
-  setNewMessage: (message: string) => void;
+  setNewMessage: (value: string) => void;
   onSendMessage: () => void;
-  onKeyPress: (e: React.KeyboardEvent) => void;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
   sending: boolean;
 }
 
@@ -18,25 +18,30 @@ const MessageInput = ({
   onKeyPress,
   sending
 }: MessageInputProps) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSendMessage();
+  };
+
   return (
-    <div className="p-4 border-t bg-white">
-      <div className="flex gap-2">
+    <div className="border-t p-4">
+      <form onSubmit={handleSubmit} className="flex space-x-2">
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={onKeyPress}
           placeholder="Type a message..."
-          disabled={sending}
           className="flex-1"
+          disabled={sending}
+          onKeyPress={onKeyPress}
         />
-        <Button
-          onClick={onSendMessage}
+        <Button 
+          type="submit" 
+          size="sm" 
           disabled={!newMessage.trim() || sending}
-          size="sm"
         >
           <Send className="h-4 w-4" />
         </Button>
-      </div>
+      </form>
     </div>
   );
 };

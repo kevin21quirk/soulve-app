@@ -1,14 +1,14 @@
 
-import { MessageCircle } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
 
 const ChatEmptyState = () => {
   return (
-    <div className="flex-1 flex items-center justify-center text-gray-500">
-      <div className="text-center">
-        <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-        <p>Select a conversation to start messaging</p>
-      </div>
-    </div>
+    <Card className="flex-1 flex items-center justify-center">
+      <CardContent className="text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
+        <p className="text-gray-500">Choose from your existing conversations or start a new one</p>
+      </CardContent>
+    </Card>
   );
 };
 
