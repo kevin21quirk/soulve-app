@@ -19,6 +19,7 @@ import TrustScoreCard from "./network-insights/TrustScoreCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { 
   Trophy,
   Award,
@@ -88,7 +89,7 @@ const NetworkInsights = () => {
       title: "Network Growth",
       value: networkStats.networkGrowth > 0 ? `+${networkStats.networkGrowth}` : "0",
       description: `${networkStats.weeklyGrowth > 0 ? '+' + networkStats.weeklyGrowth : '0'} this week`,
-      trend: networkStats.networkGrowth > networkStats.weeklyGrowth ? "up" : networkStats.networkGrowth < networkStats.weeklyGrowth ? "down" : "neutral",
+      trend: (networkStats.networkGrowth > networkStats.weeklyGrowth ? "up" : networkStats.networkGrowth < networkStats.weeklyGrowth ? "down" : "neutral") as "up" | "down" | "neutral",
       color: networkStats.networkGrowth > 0 ? "text-green-600" : "text-gray-500",
       actionable: networkStats.networkGrowth === 0,
       action: () => navigation.navigateToDiscover(),
@@ -98,7 +99,7 @@ const NetworkInsights = () => {
       title: "Trust Score",
       value: `${networkStats.trustScore}%`,
       description: networkStats.trustScore >= 75 ? "Excellent reputation!" : networkStats.trustScore >= 50 ? "Building trust" : "Get started",
-      trend: "up",
+      trend: "up" as "up" | "down" | "neutral",
       color: networkStats.trustScore >= 75 ? "text-green-600" : networkStats.trustScore >= 50 ? "text-blue-600" : "text-yellow-600",
       actionable: networkStats.trustScore < 75,
       action: () => navigation.navigateToProfile(),
@@ -108,7 +109,7 @@ const NetworkInsights = () => {
       title: "Community Impact",
       value: `${networkStats.helpfulActions}`,
       description: `Level ${userStats.level} • ${analytics.socialProof.helpedPeople} people helped`,
-      trend: "up",
+      trend: "up" as "up" | "down" | "neutral",
       color: networkStats.helpfulActions > 5 ? "text-purple-600" : "text-blue-500",
       actionable: networkStats.helpfulActions === 0,
       action: () => navigation.navigateToCampaigns(),
@@ -118,7 +119,7 @@ const NetworkInsights = () => {
       title: "Geographic Reach",
       value: `${analytics.geographicSpread.locations.length}`,
       description: `${Math.round(analytics.geographicSpread.diversity)}% diversity`,
-      trend: analytics.geographicSpread.locations.length > 1 ? "up" : "neutral",
+      trend: (analytics.geographicSpread.locations.length > 1 ? "up" : "neutral") as "up" | "down" | "neutral",
       color: analytics.geographicSpread.locations.length > 3 ? "text-green-600" : "text-blue-500",
       actionable: analytics.geographicSpread.locations.length <= 1,
       action: () => navigation.navigateToDiscover(),
