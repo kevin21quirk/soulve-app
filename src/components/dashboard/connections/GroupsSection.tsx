@@ -1,164 +1,108 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, MapPin, Lock, Globe, Plus, Search } from "lucide-react";
-import { Group } from "@/types/connections";
+import { Users2, MapPin, Calendar, UserPlus, UserMinus } from "lucide-react";
+import { CommunityGroup } from "@/types/groups";
 
 interface GroupsSectionProps {
-  suggestedGroups: Group[];
-  myGroups: Group[];
+  suggestedGroups: CommunityGroup[];
+  myGroups: CommunityGroup[];
   onJoinGroup: (groupId: string) => void;
   onLeaveGroup: (groupId: string) => void;
 }
 
-const GroupsSection = ({ 
-  suggestedGroups, 
-  myGroups, 
-  onJoinGroup, 
-  onLeaveGroup 
-}: GroupsSectionProps) => {
-  return (
-    <div className="space-y-6">
-      {/* Header with Create Group button */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Groups</h2>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
-            <Search className="h-4 w-4 mr-2" />
-            Discover
-          </Button>
-          <Button 
-            size="sm"
-            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Group
-          </Button>
-        </div>
-      </div>
-
-      {/* My Groups */}
-      {myGroups.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Users className="h-5 w-5 mr-2" />
-            Your Groups ({myGroups.length})
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myGroups.map((group) => (
-              <GroupCard 
-                key={group.id} 
-                group={group} 
-                onAction={onLeaveGroup}
-                actionLabel="Leave"
-                variant="joined"
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Suggested Groups */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Suggested Groups</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedGroups.map((group) => (
-            <GroupCard 
-              key={group.id} 
-              group={group} 
-              onAction={onJoinGroup}
-              actionLabel="Join Group"
-              variant="suggested"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface GroupCardProps {
-  group: Group;
-  onAction: (groupId: string) => void;
-  actionLabel: string;
-  variant: "joined" | "suggested";
-}
-
-const GroupCard = ({ group, onAction, actionLabel, variant }: GroupCardProps) => {
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-lg">
-        {group.coverImage && (
-          <img 
-            src={group.coverImage} 
-            alt={group.name}
-            className="w-full h-full object-cover rounded-t-lg"
-          />
-        )}
-        <div className="absolute top-2 right-2">
-          {group.isPrivate ? (
-            <Lock className="h-4 w-4 text-white" />
-          ) : (
-            <Globe className="h-4 w-4 text-white" />
-          )}
-        </div>
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div>
-            <h4 className="font-semibold text-lg">{group.name}</h4>
-            <p className="text-sm text-gray-600 line-clamp-2">{group.description}</p>
-          </div>
-
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
-              <span>{group.memberCount.toLocaleString()} members</span>
-            </div>
-            {group.location && (
-              <div className="flex items-center space-x-1">
-                <MapPin className="h-4 w-4" />
-                <span>{group.location}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={group.adminAvatar} />
-              <AvatarFallback className="text-xs">
-                {group.adminName.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
+const GroupsSection = ({ suggestedGroups, myGroups, onJoinGroup, onLeaveGroup }: GroupsSectionProps) => {
+  const renderGroupCard = (group: CommunityGroup, isJoined: boolean) => (
+    <Card key={group.id} className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-start space-x-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={group.coverImage} alt={group.name} />
+              <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <span className="text-xs text-gray-500">
-              Admin: {group.adminName}
-            </span>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg">{group.name}</h3>
+              <p className="text-sm text-gray-600 line-clamp-2">{group.description}</p>
+              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                <div className="flex items-center space-x-1">
+                  <Users2 className="h-4 w-4" />
+                  <span>{group.memberCount} members</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <MapPin className="h-4 w-4" />
+                  <span>{group.location}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="h-4 w-4" />
+                  <span>{group.activity}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             <Badge variant="secondary" className="text-xs">
               {group.category}
             </Badge>
-            {group.tags.slice(0, 2).map((tag, index) => (
+            {group.tags.slice(0, 3).map((tag, index) => (
               <Badge key={index} variant="outline" className="text-xs">
                 {tag}
               </Badge>
             ))}
           </div>
 
-          <Button 
-            onClick={() => onAction(group.id)}
-            variant={variant === "suggested" ? "gradient" : "outline"}
-            className="w-full"
-            size="sm"
-          >
-            {actionLabel}
-          </Button>
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              {group.recentActivity}
+            </div>
+            {isJoined ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onLeaveGroup(group.id)}
+              >
+                <UserMinus className="h-4 w-4 mr-1" />
+                Leave
+              </Button>
+            ) : (
+              <Button
+                variant="gradient"
+                size="sm"
+                onClick={() => onJoinGroup(group.id)}
+              >
+                <UserPlus className="h-4 w-4 mr-1" />
+                Join
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* My Groups */}
+      {myGroups.length > 0 && (
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">My Groups ({myGroups.length})</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {myGroups.map(group => renderGroupCard(group, true))}
+          </div>
+        </div>
+      )}
+
+      {/* Suggested Groups */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">Suggested Groups</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {suggestedGroups.map(group => renderGroupCard(group, false))}
+        </div>
+      </div>
+    </div>
   );
 };
 

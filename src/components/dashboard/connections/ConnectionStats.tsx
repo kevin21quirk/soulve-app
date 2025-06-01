@@ -1,6 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserPlus, Heart, TrendingUp } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, UserPlus, Users2, Heart, TrendingUp } from "lucide-react";
 
 interface ConnectionStatsProps {
   totalConnections: number;
@@ -14,71 +14,65 @@ const ConnectionStats = ({
   totalConnections, 
   pendingRequests, 
   groupsJoined, 
-  campaignsActive,
+  campaignsActive, 
   weeklyGrowth 
 }: ConnectionStatsProps) => {
   const stats = [
     {
-      title: "Total Connections",
+      label: "Total Connections",
       value: totalConnections,
       icon: Users,
       color: "text-blue-600",
-      bgColor: "bg-blue-100"
+      bgColor: "bg-blue-100",
+      change: `+${weeklyGrowth}% this week`
     },
     {
-      title: "Pending Requests",
+      label: "Pending Requests",
       value: pendingRequests,
       icon: UserPlus,
       color: "text-orange-600",
-      bgColor: "bg-orange-100"
+      bgColor: "bg-orange-100",
+      change: pendingRequests > 0 ? "Needs attention" : "All caught up"
     },
     {
-      title: "Groups Joined",
+      label: "Groups Joined",
       value: groupsJoined,
-      icon: Users,
+      icon: Users2,
       color: "text-green-600",
-      bgColor: "bg-green-100"
+      bgColor: "bg-green-100",
+      change: "Active communities"
     },
     {
-      title: "Active Campaigns",
+      label: "Active Campaigns",
       value: campaignsActive,
       icon: Heart,
       color: "text-purple-600",
-      bgColor: "bg-purple-100"
+      bgColor: "bg-purple-100",
+      change: "Making impact"
     }
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat, index) => {
+        const IconComponent = stat.icon;
+        return (
           <Card key={index}>
-            <CardContent className="p-4">
+            <CardContent className="p-6">
               <div className="flex items-center space-x-3">
-                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                <div className={`p-3 rounded-full ${stat.bgColor}`}>
+                  <IconComponent className={`h-6 w-6 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-sm text-gray-600">{stat.title}</p>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-xs text-gray-500">{stat.change}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-      
-      {weeklyGrowth > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2 text-sm">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-              <span className="text-green-600 font-medium">+{weeklyGrowth}% growth</span>
-              <span className="text-gray-500">this week</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        );
+      })}
     </div>
   );
 };

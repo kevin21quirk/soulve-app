@@ -1,39 +1,32 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Group } from "@/types/connections";
-import { mockGroups } from "@/data/mockConnections";
+import { CommunityGroup } from "@/types/groups";
+import { mockGroups } from "@/data/mockGroups";
 
 export const useGroupsManager = () => {
   const { toast } = useToast();
-  const [groups, setGroups] = useState<Group[]>(mockGroups);
+  const [groups, setGroups] = useState<CommunityGroup[]>(mockGroups);
+  const [joinedGroupIds, setJoinedGroupIds] = useState<string[]>(['1', '3']);
+
+  const myGroups = groups.filter(group => joinedGroupIds.includes(group.id));
+  const suggestedGroups = groups.filter(group => !joinedGroupIds.includes(group.id));
 
   const handleJoinGroup = (groupId: string) => {
-    setGroups(prev =>
-      prev.map(group =>
-        group.id === groupId ? { ...group, isJoined: true, memberCount: group.memberCount + 1 } : group
-      )
-    );
+    setJoinedGroupIds(prev => [...prev, groupId]);
     toast({
       title: "Joined group!",
-      description: "You've successfully joined the group and can now participate.",
+      description: "You've successfully joined the community group.",
     });
   };
 
   const handleLeaveGroup = (groupId: string) => {
-    setGroups(prev =>
-      prev.map(group =>
-        group.id === groupId ? { ...group, isJoined: false, memberCount: group.memberCount - 1 } : group
-      )
-    );
+    setJoinedGroupIds(prev => prev.filter(id => id !== groupId));
     toast({
       title: "Left group",
-      description: "You've left the group.",
+      description: "You've left the community group.",
     });
   };
-
-  const myGroups = groups.filter(g => g.isJoined);
-  const suggestedGroups = groups.filter(g => !g.isJoined);
 
   return {
     groups,

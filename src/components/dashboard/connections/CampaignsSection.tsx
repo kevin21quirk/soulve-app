@@ -1,10 +1,10 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Users, MapPin, Calendar, TrendingUp, Plus } from "lucide-react";
-import { Campaign } from "@/types/connections";
+import { Heart, Calendar, MapPin, Users, Target, Clock } from "lucide-react";
+import { Campaign } from "@/types/campaigns";
 
 interface CampaignsSectionProps {
   campaigns: Campaign[];
@@ -12,186 +12,136 @@ interface CampaignsSectionProps {
   onLeaveCampaign: (campaignId: string) => void;
 }
 
-const CampaignsSection = ({ 
-  campaigns, 
-  onJoinCampaign, 
-  onLeaveCampaign 
-}: CampaignsSectionProps) => {
+const CampaignsSection = ({ campaigns, onJoinCampaign, onLeaveCampaign }: CampaignsSectionProps) => {
   const activeCampaigns = campaigns.filter(c => c.isParticipating);
-  const suggestedCampaigns = campaigns.filter(c => !c.isParticipating);
+  const availableCampaigns = campaigns.filter(c => !c.isParticipating);
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'urgent': return 'bg-red-100 text-red-700 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const renderCampaignCard = (campaign: Campaign, isParticipating: boolean) => (
+    <Card key={campaign.id} className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg mb-2">{campaign.title}</CardTitle>
+            <p className="text-sm text-gray-600 line-clamp-2">{campaign.description}</p>
+          </div>
+          <Badge className={`text-xs ${getUrgencyColor(campaign.urgency)}`}>
+            {campaign.urgency}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="flex items-center space-x-4 text-sm text-gray-500">
+          <div className="flex items-center space-x-1">
+            <MapPin className="h-4 w-4" />
+            <span>{campaign.location}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Calendar className="h-4 w-4" />
+            <span>{campaign.timeframe}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Users className="h-4 w-4" />
+            <span>{campaign.participantCount} joined</span>
+          </div>
+        </div>
+
+        {/* Progress */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium">Progress</span>
+            <span>{campaign.progress}%</span>
+          </div>
+          <Progress value={campaign.progress} className="h-2" />
+          <div className="flex items-center space-x-4 text-xs text-gray-500">
+            <div className="flex items-center space-x-1">
+              <Target className="h-3 w-3" />
+              <span>Goal: {campaign.goal}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Clock className="h-3 w-3" />
+              <span>{campaign.timeLeft}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Impact Preview */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <h4 className="text-sm font-medium text-blue-800 mb-1">Expected Impact</h4>
+          <p className="text-xs text-blue-700">{campaign.impact}</p>
+        </div>
+
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary" className="text-xs">
+            {campaign.category}
+          </Badge>
+          {campaign.tags.slice(0, 2).map((tag, index) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            by {campaign.organizer}
+          </div>
+          {isParticipating ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onLeaveCampaign(campaign.id)}
+            >
+              <Heart className="h-4 w-4 mr-1 fill-current text-red-500" />
+              Participating
+            </Button>
+          ) : (
+            <Button
+              variant="gradient"
+              size="sm"
+              onClick={() => onJoinCampaign(campaign.id)}
+            >
+              <Heart className="h-4 w-4 mr-1" />
+              Join Campaign
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Campaigns & Causes</h2>
-        <Button 
-          size="sm"
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe] transition-all"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Start Campaign
-        </Button>
-      </div>
-
       {/* Active Campaigns */}
       {activeCampaigns.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Heart className="h-5 w-5 mr-2 text-red-500" />
-            Your Active Campaigns ({activeCampaigns.length})
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            My Active Campaigns ({activeCampaigns.length})
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {activeCampaigns.map((campaign) => (
-              <CampaignCard 
-                key={campaign.id} 
-                campaign={campaign} 
-                onAction={onLeaveCampaign}
-                actionLabel="Leave Campaign"
-                variant="active"
-              />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {activeCampaigns.map(campaign => renderCampaignCard(campaign, true))}
           </div>
         </div>
       )}
 
-      {/* Suggested Campaigns */}
+      {/* Available Campaigns */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Discover Campaigns</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {suggestedCampaigns.map((campaign) => (
-            <CampaignCard 
-              key={campaign.id} 
-              campaign={campaign} 
-              onAction={onJoinCampaign}
-              actionLabel="Join Campaign"
-              variant="suggested"
-            />
-          ))}
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">Available Campaigns</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {availableCampaigns.map(campaign => renderCampaignCard(campaign, false))}
         </div>
       </div>
     </div>
-  );
-};
-
-interface CampaignCardProps {
-  campaign: Campaign;
-  onAction: (campaignId: string) => void;
-  actionLabel: string;
-  variant: "active" | "suggested";
-}
-
-const CampaignCard = ({ campaign, onAction, actionLabel, variant }: CampaignCardProps) => {
-  const progressPercentage = campaign.goalAmount 
-    ? (campaign.currentAmount || 0) / campaign.goalAmount * 100 
-    : 0;
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case "high": return "bg-red-100 text-red-800 border-red-200";
-      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default: return "bg-green-100 text-green-800 border-green-200";
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "fundraising": return "💰";
-      case "volunteer": return "🤝";
-      case "awareness": return "📢";
-      default: return "🏘️";
-    }
-  };
-
-  return (
-    <Card className={`hover:shadow-md transition-shadow ${variant === "active" ? "border-blue-200" : ""}`}>
-      <div className="relative h-32 bg-gradient-to-r from-green-500 to-blue-500 rounded-t-lg">
-        {campaign.coverImage && (
-          <img 
-            src={campaign.coverImage} 
-            alt={campaign.title}
-            className="w-full h-full object-cover rounded-t-lg"
-          />
-        )}
-        <div className="absolute top-2 right-2">
-          <Badge className={`text-xs ${getUrgencyColor(campaign.urgency)}`}>
-            {campaign.urgency} priority
-          </Badge>
-        </div>
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-lg">{getCategoryIcon(campaign.category)}</span>
-              <h4 className="font-semibold text-lg">{campaign.title}</h4>
-            </div>
-            <p className="text-sm text-gray-600 line-clamp-2">{campaign.description}</p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={campaign.organizerAvatar} />
-              <AvatarFallback className="text-xs">
-                {campaign.organizer.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-gray-500">
-              by {campaign.organizer}
-            </span>
-          </div>
-
-          {campaign.goalAmount && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span className="font-medium">
-                  ${campaign.currentAmount?.toLocaleString()} / ${campaign.goalAmount.toLocaleString()}
-                </span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Users className="h-3 w-3" />
-              <span>{campaign.participantCount} joined</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <MapPin className="h-3 w-3" />
-              <span>{campaign.location}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Calendar className="h-3 w-3" />
-              <span>Ends {campaign.endDate}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <TrendingUp className="h-3 w-3" />
-              <span className="capitalize">{campaign.category}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-1">
-            {campaign.tags.slice(0, 3).map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-
-          <Button 
-            onClick={() => onAction(campaign.id)}
-            variant={variant === "suggested" ? "gradient" : "outline"}
-            className="w-full"
-            size="sm"
-          >
-            {actionLabel}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 };
 
