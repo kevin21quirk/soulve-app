@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface UserImpactData {
@@ -42,6 +41,21 @@ export interface ImpactGoal {
   isActive: boolean;
 }
 
+// Helper function to safely parse metadata
+const parseMetadata = (metadata: any): Record<string, any> => {
+  if (typeof metadata === 'string') {
+    try {
+      return JSON.parse(metadata);
+    } catch {
+      return {};
+    }
+  }
+  if (typeof metadata === 'object' && metadata !== null) {
+    return metadata;
+  }
+  return {};
+};
+
 export class ImpactAnalyticsService {
   static async getUserImpactData(userId: string): Promise<UserImpactData> {
     try {
@@ -71,12 +85,18 @@ export class ImpactAnalyticsService {
         .select('*')
         .eq('user_id', userId);
 
-      // Calculate metrics
+      // Calculate metrics with proper metadata parsing
       const volunteerHours = activities?.filter(a => a.activity_type === 'volunteer')
-        .reduce((sum, a) => sum + (a.metadata?.hours || 0), 0) || 0;
+        .reduce((sum, a) => {
+          const metadata = parseMetadata(a.metadata);
+          return sum + (metadata.hours || 0);
+        }, 0) || 0;
 
       const donationAmount = activities?.filter(a => a.activity_type === 'donation')
-        .reduce((sum, a) => sum + (a.metadata?.amount || 0), 0) || 0;
+        .reduce((sum, a) => {
+          const metadata = parseMetadata(a.metadata);
+          return sum + (metadata.amount || 0);
+        }, 0) || 0;
 
       // Calculate impact score
       const impactScore = this.calculateImpactScore({

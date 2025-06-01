@@ -45,6 +45,17 @@ const ImpactTrendsChart = ({ userId, timeRange }: ImpactTrendsChartProps) => {
     return acc;
   }, []);
 
+  const formatLegendValue = (value: string | number) => {
+    const stringValue = typeof value === 'string' ? value : String(value);
+    return stringValue.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
+
+  const formatTooltipValue = (value: any, name: string | number) => {
+    const stringName = typeof name === 'string' ? name : String(name);
+    const formattedName = stringName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    return [value, formattedName];
+  };
+
   if (loading) {
     return (
       <Card>
@@ -79,10 +90,10 @@ const ImpactTrendsChart = ({ userId, timeRange }: ImpactTrendsChartProps) => {
                 <YAxis />
                 <Tooltip 
                   labelFormatter={(date) => new Date(date).toLocaleDateString()}
-                  formatter={(value, name) => [value, name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())]}
+                  formatter={formatTooltipValue}
                 />
                 <Legend 
-                  formatter={(value) => value.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  formatter={formatLegendValue}
                 />
                 <Line 
                   type="monotone" 
