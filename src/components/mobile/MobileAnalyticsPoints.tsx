@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -116,10 +115,9 @@ const MobileAnalyticsPoints = () => {
               ))}
             </div>
             <Button 
-              variant="outline" 
               size="sm" 
               onClick={handleDemoPoints}
-              className="mt-3 w-full"
+              className="mt-3 w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
               disabled={!user}
             >
               {user ? "Demo: Earn More Points" : "Log in to Earn Points"}
@@ -312,7 +310,10 @@ const MobileAnalyticsPoints = () => {
                     <div className="text-right">
                       <Button 
                         size="sm" 
-                        variant={userStats.totalPoints >= reward.pointsCost ? "default" : "outline"}
+                        className={`${userStats.totalPoints >= reward.pointsCost 
+                          ? 'bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200' 
+                          : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+                        }`}
                         disabled={userStats.totalPoints < reward.pointsCost || !user}
                       >
                         {reward.pointsCost} pts
