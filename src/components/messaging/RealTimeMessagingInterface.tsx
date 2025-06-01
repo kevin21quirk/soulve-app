@@ -2,30 +2,47 @@
 import { useState } from 'react';
 import { useRealTimeMessaging } from '@/hooks/useRealTimeMessaging';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import ConversationsList from './ConversationsList';
 import ChatHeader from './ChatHeader';
 import MessagesList from './MessagesList';
 import MessageInput from './MessageInput';
 import ChatEmptyState from './ChatEmptyState';
+import { Card } from '@/components/ui/card';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const RealTimeMessagingInterface = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const {
     conversations,
     messages,
     activeConversation,
+    conversationsLoading,
+    messageLoading,
+    conversationsError,
+    messageError,
     setActiveConversation,
-    loading,
-    loadMessages,
-    sendMessage
+    sendMessage,
+    refreshConversations,
+    isLoading,
+    hasError
   } = useRealTimeMessaging();
   
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
 
   const handleConversationSelect = async (partnerId: string) => {
-    setActiveConversation(partnerId);
-    await loadMessages(partnerId);
+    try {
+      await setActiveConversation(partnerId);
+    } catch (error) {
+      toast({
+        title: "Failed to load conversation",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSendMessage = async () => {
@@ -35,6 +52,8 @@ const RealTimeMessagingInterface = () => {
     try {
       await sendMessage(activeConversation, newMessage);
       setNewMessage('');
+    } catch (error) {
+      // Error is already handled in the hook with toast
     } finally {
       setSending(false);
     }
@@ -50,6 +69,25 @@ const RealTimeMessagingInterface = () => {
   const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
   const activePartner = conversations.find(c => c.user_id === activeConversation);
 
+  // Error state for conversations
+  if (conversationsError) {
+    return (
+      <Card className="h-[600px] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+          <div>
+            <h3 className="text-lg font-semibold">Failed to load conversations</h3>
+            <p className="text-gray-600 mt-1">{conversationsError}</p>
+          </div>
+          <Button onClick={() => refreshConversations()} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div className="flex h-[600px] border rounded-lg overflow-hidden">
       {/* Conversations List */}
@@ -57,7 +95,7 @@ const RealTimeMessagingInterface = () => {
         <ConversationsList
           conversations={conversations}
           activeConversation={activeConversation}
-          loading={loading}
+          loading={conversationsLoading}
           onConversationSelect={handleConversationSelect}
         />
       </div>
@@ -74,9 +112,29 @@ const RealTimeMessagingInterface = () => {
               showBackButton={true}
             />
 
+            {/* Message Error State */}
+            {messageError && (
+              <div className="bg-red-50 border-b border-red-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <span className="text-sm text-red-700">{messageError}</span>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setActiveConversation(activeConversation)}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <MessagesList
               messages={activeMessages}
               userId={user?.id}
+              loading={messageLoading}
             />
 
             <MessageInput
@@ -85,6 +143,7 @@ const RealTimeMessagingInterface = () => {
               onSendMessage={handleSendMessage}
               onKeyPress={handleKeyPress}
               sending={sending}
+              disabled={!!messageError}
             />
           </>
         )}

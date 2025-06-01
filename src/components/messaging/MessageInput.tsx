@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 
 interface MessageInputProps {
   newMessage: string;
@@ -9,6 +9,7 @@ interface MessageInputProps {
   onSendMessage: () => void;
   onKeyPress?: (e: React.KeyboardEvent) => void;
   sending: boolean;
+  disabled?: boolean;
 }
 
 const MessageInput = ({
@@ -16,11 +17,14 @@ const MessageInput = ({
   setNewMessage,
   onSendMessage,
   onKeyPress,
-  sending
+  sending,
+  disabled = false
 }: MessageInputProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSendMessage();
+    if (!disabled && !sending && newMessage.trim()) {
+      onSendMessage();
+    }
   };
 
   return (
@@ -29,17 +33,21 @@ const MessageInput = ({
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
+          placeholder={disabled ? "Unable to send messages" : "Type a message..."}
           className="flex-1"
-          disabled={sending}
+          disabled={disabled || sending}
           onKeyPress={onKeyPress}
         />
         <Button 
           type="submit" 
           size="sm" 
-          disabled={!newMessage.trim() || sending}
+          disabled={!newMessage.trim() || sending || disabled}
         >
-          <Send className="h-4 w-4" />
+          {sending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </form>
     </div>

@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Conversation } from './types';
@@ -8,24 +8,35 @@ export const useConversations = (userId: string | undefined) => {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const loadingRef = useRef(false);
 
-  const loadConversations = useCallback(async () => {
+  const loadConversations = useCallback(async (showLoading = true) => {
     if (!userId) return;
 
-    setLoading(true);
+    // Prevent duplicate loading requests
+    if (loadingRef.current) {
+      console.log('Already loading conversations');
+      return;
+    }
+
+    loadingRef.current = true;
+    if (showLoading) setLoading(true);
+    setError(null);
+
     try {
       console.log('Loading conversations for user:', userId);
       
       // Get latest message with each user - simplified query
-      const { data: messages, error } = await supabase
+      const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
         .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching conversations:', error);
-        throw error;
+      if (messagesError) {
+        console.error('Error fetching conversations:', messagesError);
+        throw new Error(`Failed to load conversations: ${messagesError.message}`);
       }
 
       // Get unique partner IDs and fetch their profiles separately
@@ -35,11 +46,22 @@ export const useConversations = (userId: string | undefined) => {
         partnerIds.add(partnerId);
       });
 
-      // Fetch profiles separately
-      const { data: profiles } = await supabase
+      if (partnerIds.size === 0) {
+        console.log('No conversations found');
+        setConversations([]);
+        return;
+      }
+
+      // Fetch profiles separately with error handling
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, avatar_url')
         .in('id', Array.from(partnerIds));
+
+      if (profilesError) {
+        console.warn('Error fetching profiles:', profilesError);
+        // Continue without profiles rather than failing completely
+      }
 
       const profileMap = new Map();
       (profiles || []).forEach(profile => {
@@ -58,6 +80,13 @@ export const useConversations = (userId: string | undefined) => {
             ? `${partnerProfile.first_name || ''} ${partnerProfile.last_name || ''}`.trim() || 'Anonymous'
             : 'Anonymous';
 
+          // Count unread messages from this partner
+          const unreadCount = (messages || []).filter((msg: any) => 
+            msg.sender_id === partnerId && 
+            msg.recipient_id === userId && 
+            !msg.is_read
+          ).length;
+
           conversationsMap.set(partnerId, {
             id: partnerId,
             user_id: partnerId,
@@ -67,8 +96,7 @@ export const useConversations = (userId: string | undefined) => {
               content: message.content,
               created_at: message.created_at
             },
-            unread_count: 0,
-            // Additional properties for compatibility
+            unread_count: unreadCount,
             partner_id: partnerId,
             partner_profile: partnerProfile,
             last_message_time: message.created_at,
@@ -77,25 +105,69 @@ export const useConversations = (userId: string | undefined) => {
         }
       });
 
-      const conversationsList = Array.from(conversationsMap.values());
-      console.log('Loaded conversations:', conversationsList);
+      const conversationsList = Array.from(conversationsMap.values())
+        .sort((a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime());
+      
+      console.log('Loaded conversations:', conversationsList.length);
       setConversations(conversationsList);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading conversations:', error);
+      setError(error.message || 'Failed to load conversations');
       toast({
         title: "Failed to load conversations",
-        description: "Please try refreshing the page",
+        description: "Please check your connection and try again",
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      loadingRef.current = false;
+      if (showLoading) setLoading(false);
     }
   }, [userId, toast]);
+
+  const updateConversationOnNewMessage = useCallback((senderId: string, message: string) => {
+    setConversations(prev => {
+      const updated = [...prev];
+      const existingIndex = updated.findIndex(conv => conv.partner_id === senderId);
+      
+      if (existingIndex >= 0) {
+        // Update existing conversation
+        const conversation = { ...updated[existingIndex] };
+        conversation.last_message = {
+          content: message,
+          created_at: new Date().toISOString()
+        };
+        conversation.last_message_time = new Date().toISOString();
+        conversation.unread_count += 1;
+        conversation.is_read = false;
+        
+        // Move to top
+        updated.splice(existingIndex, 1);
+        updated.unshift(conversation);
+      } else {
+        // This shouldn't happen often, but trigger a reload if needed
+        console.log('New conversation detected, reloading...');
+        loadConversations(false);
+      }
+      
+      return updated;
+    });
+  }, [loadConversations]);
+
+  const markConversationAsRead = useCallback((partnerId: string) => {
+    setConversations(prev => prev.map(conv => 
+      conv.partner_id === partnerId 
+        ? { ...conv, unread_count: 0, is_read: true }
+        : conv
+    ));
+  }, []);
 
   return {
     conversations,
     loading,
-    loadConversations
+    error,
+    loadConversations,
+    updateConversationOnNewMessage,
+    markConversationAsRead
   };
 };

@@ -2,6 +2,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 interface Message {
   id: string;
@@ -17,13 +18,21 @@ interface Message {
 interface MessagesListProps {
   messages: Message[];
   userId?: string;
+  loading?: boolean;
 }
 
-const MessagesList = ({ messages, userId }: MessagesListProps) => {
+const MessagesList = ({ messages, userId, loading = false }: MessagesListProps) => {
   return (
     <CardContent className="flex-1 overflow-hidden p-0">
       <ScrollArea className="h-[400px] p-4">
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <p>Loading messages...</p>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <p>No messages yet. Start the conversation!</p>
           </div>
