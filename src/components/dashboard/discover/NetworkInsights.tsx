@@ -1,38 +1,34 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, 
-  Users, 
-  Globe, 
-  Star, 
-  Award, 
-  Target,
-  Calendar,
-  BarChart3,
-  UserPlus,
-  MessageSquare,
-  ArrowRight,
-  Sparkles,
-  Trophy,
-  Zap,
-  MapPin,
-  TrendingDown,
-  Crown,
-  Brain,
-  Clock
-} from "lucide-react";
+import { useMemo, useEffect, useState } from "react";
 import { useRealConnections } from "@/services/realConnectionsService";
 import { useUserGroups } from "@/services/groupsService";
 import { useUserCampaignParticipation } from "@/services/campaignsService";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemo, useEffect, useState } from "react";
 import { useNetworkNavigation } from "@/hooks/useNetworkNavigation";
 import { useNetworkRecommendations } from "@/hooks/useNetworkRecommendations";
 import { useNetworkAnalytics } from "@/hooks/useNetworkAnalytics";
 import { useNetworkGamification } from "@/hooks/useNetworkGamification";
+
+// Refactored components
+import NetworkOverviewCard from "./network-insights/NetworkOverviewCard";
+import SmartRecommendationsCard from "./network-insights/SmartRecommendationsCard";
+import NetworkAnalyticsCard from "./network-insights/NetworkAnalyticsCard";
+import DailyChallengesCard from "./network-insights/DailyChallengesCard";
+import TrustScoreCard from "./network-insights/TrustScoreCard";
+
+// Keep remaining components inline for now
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  Trophy,
+  Award,
+  Star,
+  Calendar,
+  UserPlus,
+  Users,
+  Globe,
+  MapPin
+} from "lucide-react";
 
 const NetworkInsights = () => {
   const { user } = useAuth();
@@ -50,7 +46,7 @@ const NetworkInsights = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setLastUpdate(Date.now());
-    }, 30000); // Update every 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
@@ -86,58 +82,7 @@ const NetworkInsights = () => {
     return { acceptedConnections: accepted, pendingConnections: pending, networkStats: stats };
   }, [connections, userGroups, userCampaigns, user?.id, analytics.growthTrends, lastUpdate]);
 
-  // Enhanced achievements with more comprehensive tracking
-  const achievements = [
-    { 
-      icon: Users, 
-      title: "First Connection", 
-      description: "Made your first meaningful connection", 
-      earned: networkStats.totalConnections >= 1,
-      progress: Math.min(networkStats.totalConnections, 1),
-      maxProgress: 1
-    },
-    { 
-      icon: Globe, 
-      title: "Community Explorer", 
-      description: "Joined your first community group", 
-      earned: networkStats.communitiesJoined >= 1,
-      progress: Math.min(networkStats.communitiesJoined, 1),
-      maxProgress: 1
-    },
-    { 
-      icon: Star, 
-      title: "Trusted Member", 
-      description: "Reached 75% trust score", 
-      earned: networkStats.trustScore >= 75,
-      progress: Math.min(networkStats.trustScore / 75, 1),
-      maxProgress: 1
-    },
-    { 
-      icon: Award, 
-      title: "Active Participant", 
-      description: "Participated in 2+ community campaigns", 
-      earned: userCampaigns.length >= 2,
-      progress: Math.min(userCampaigns.length / 2, 1),
-      maxProgress: 2
-    },
-    {
-      icon: Crown,
-      title: "Network Builder",
-      description: "Connected with 10+ community members",
-      earned: networkStats.totalConnections >= 10,
-      progress: Math.min(networkStats.totalConnections / 10, 1),
-      maxProgress: 10
-    },
-    {
-      icon: Trophy,
-      title: "Community Champion",
-      description: "Reached Level 5 in community rankings",
-      earned: userStats.level >= 5,
-      progress: Math.min(userStats.level / 5, 1),
-      maxProgress: 5
-    }
-  ];
-
+  // Enhanced insights with actions
   const insights = [
     {
       title: "Network Growth",
@@ -214,6 +159,58 @@ const NetworkInsights = () => {
       .slice(0, 5);
   }, [acceptedConnections, userGroups, user?.id]);
 
+  // Enhanced achievements
+  const achievements = [
+    { 
+      icon: Users, 
+      title: "First Connection", 
+      description: "Made your first meaningful connection", 
+      earned: networkStats.totalConnections >= 1,
+      progress: Math.min(networkStats.totalConnections, 1),
+      maxProgress: 1
+    },
+    { 
+      icon: Globe, 
+      title: "Community Explorer", 
+      description: "Joined your first community group", 
+      earned: networkStats.communitiesJoined >= 1,
+      progress: Math.min(networkStats.communitiesJoined, 1),
+      maxProgress: 1
+    },
+    { 
+      icon: Star, 
+      title: "Trusted Member", 
+      description: "Reached 75% trust score", 
+      earned: networkStats.trustScore >= 75,
+      progress: Math.min(networkStats.trustScore / 75, 1),
+      maxProgress: 1
+    },
+    { 
+      icon: Award, 
+      title: "Active Participant", 
+      description: "Participated in 2+ community campaigns", 
+      earned: userCampaigns.length >= 2,
+      progress: Math.min(userCampaigns.length / 2, 1),
+      maxProgress: 2
+    },
+    {
+      icon: Trophy,
+      title: "Community Champion",
+      description: "Reached Level 5 in community rankings",
+      earned: userStats.level >= 5,
+      progress: Math.min(userStats.level / 5, 1),
+      maxProgress: 5
+    },
+    {
+      icon: Trophy,
+      title: "Network Builder",
+      description: "Connected with 10+ community members",
+      earned: networkStats.totalConnections >= 10,
+      progress: Math.min(networkStats.totalConnections / 10, 1),
+      maxProgress: 10
+    }
+  ];
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -227,241 +224,29 @@ const NetworkInsights = () => {
 
   return (
     <div className="space-y-6">
-      {/* Real-time Network Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
-              <span>Network Overview</span>
-              <div className="flex items-center space-x-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Live</span>
-              </div>
-            </div>
-            {networkStats.totalConnections > 0 && (
-              <Badge variant="secondary" className="bg-green-50 text-green-700">
-                <Sparkles className="h-3 w-3 mr-1" />
-                {networkStats.networkGrowth > 0 ? 'Growing' : 'Active'}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center p-4 rounded-lg bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors" onClick={navigation.navigateToConnections}>
-              <div className="text-3xl font-bold text-blue-600">{networkStats.totalConnections}</div>
-              <div className="text-sm text-gray-600">Total Connections</div>
-              {networkStats.weeklyGrowth > 0 && (
-                <div className="text-xs text-green-600 flex items-center justify-center mt-1">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  +{networkStats.weeklyGrowth} this week
-                </div>
-              )}
-            </div>
-            <div className="text-center p-4 rounded-lg bg-orange-50 cursor-pointer hover:bg-orange-100 transition-colors" onClick={navigation.navigateToConnections}>
-              <div className="text-3xl font-bold text-orange-600">{networkStats.pendingRequests}</div>
-              <div className="text-sm text-gray-600">Pending Requests</div>
-              {networkStats.pendingRequests > 0 && (
-                <Button variant="outline" size="sm" className="mt-2" onClick={(e) => { e.stopPropagation(); navigation.navigateToConnections(); }}>
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Review Now
-                </Button>
-              )}
-            </div>
-            <div className="text-center p-4 rounded-lg bg-green-50 cursor-pointer hover:bg-green-100 transition-colors" onClick={navigation.navigateToGroups}>
-              <div className="text-3xl font-bold text-green-600">{networkStats.communitiesJoined}</div>
-              <div className="text-sm text-gray-600">Communities Joined</div>
-              <div className="text-xs text-gray-500 mt-1">
-                {analytics.geographicSpread.locations.length} locations
-              </div>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-purple-50 cursor-pointer hover:bg-purple-100 transition-colors">
-              <div className="text-3xl font-bold text-purple-600">{userStats.level}</div>
-              <div className="text-sm text-gray-600">Community Level</div>
-              <div className="w-full bg-purple-200 rounded-full h-1 mt-2">
-                <div 
-                  className="bg-purple-600 h-1 rounded-full transition-all duration-300" 
-                  style={{ width: `${((userStats.totalScore % 500) / 500) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Network Overview */}
+      <NetworkOverviewCard 
+        networkStats={networkStats}
+        userStats={userStats}
+        analyticsData={analytics}
+      />
 
       {/* AI-Powered Smart Recommendations */}
-      {recommendations.length > 0 && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Brain className="h-5 w-5 text-blue-500" />
-              <span>Smart Recommendations</span>
-              <Badge className="bg-blue-600 text-white">AI</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recommendations.slice(0, 3).map((rec) => (
-                <div key={rec.id} className="p-4 bg-white rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant={rec.type === 'person' ? 'default' : rec.type === 'group' ? 'secondary' : 'outline'}>
-                      {rec.type}
-                    </Badge>
-                    <div className="text-xs text-green-600 font-medium">{rec.confidence}% match</div>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-1">{rec.title}</h4>
-                  <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
-                  <p className="text-xs text-blue-600 mb-3">{rec.reason}</p>
-                  <Button size="sm" variant="gradient" className="w-full" 
-                    onClick={rec.type === 'person' ? navigation.navigateToDiscover : 
-                             rec.type === 'group' ? navigation.navigateToGroups : 
-                             navigation.navigateToCampaigns}>
-                    <ArrowRight className="h-4 w-4 mr-1" />
-                    Connect
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <SmartRecommendationsCard recommendations={recommendations} />
 
       {/* Enhanced Key Insights with Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-green-500" />
-            <span>Network Analytics</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {insights.map((insight, index) => (
-            <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition-shadow group">
-              <div className="flex-1">
-                <h4 className="font-medium text-gray-900">{insight.title}</h4>
-                <p className="text-sm text-gray-500">{insight.description}</p>
-                {insight.actionable && insight.action && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="mt-1 p-0 h-auto text-blue-600 hover:text-blue-800 group-hover:translate-x-1 transition-transform"
-                    onClick={insight.action}
-                  >
-                    {insight.actionLabel} <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                )}
-              </div>
-              <div className={`text-right ${insight.color}`}>
-                <div className="text-2xl font-bold flex items-center space-x-1">
-                  <span>{insight.value}</span>
-                  {insight.trend === "up" && <TrendingUp className="h-4 w-4" />}
-                  {insight.trend === "down" && <TrendingDown className="h-4 w-4" />}
-                </div>
-                {insight.trend === "up" && (
-                  <div className="flex items-center justify-end space-x-1">
-                    <span className="text-xs">Growing</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <NetworkAnalyticsCard insights={insights} />
 
       {/* Gamification: Daily Challenges */}
-      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Zap className="h-5 w-5 text-yellow-500" />
-            <span>Daily Challenges</span>
-            <Badge className="bg-yellow-600 text-white">Active</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {challenges.slice(0, 3).map((challenge) => (
-              <div key={challenge.id} className="p-4 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge variant={challenge.type === 'daily' ? 'destructive' : challenge.type === 'weekly' ? 'default' : 'secondary'}>
-                    {challenge.type}
-                  </Badge>
-                  <div className="flex items-center space-x-1 text-xs text-gray-500">
-                    <Clock className="h-3 w-3" />
-                    <span>{challenge.deadline}</span>
-                  </div>
-                </div>
-                <h4 className="font-semibold text-gray-900 mb-1">{challenge.title}</h4>
-                <p className="text-sm text-gray-600 mb-3">{challenge.description}</p>
-                <div className="mb-2">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>Progress</span>
-                    <span>{challenge.current}/{challenge.target}</span>
-                  </div>
-                  <Progress value={(challenge.current / challenge.target) * 100} className="h-2" />
-                </div>
-                <div className="text-xs text-green-600 font-medium">Reward: {challenge.reward}</div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <DailyChallengesCard challenges={challenges} />
 
       {/* Enhanced Trust Score Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Star className="h-5 w-5 text-yellow-500" />
-            <span>Trust Score Progress</span>
-            <Badge variant="outline">{networkStats.trustScore >= 75 ? 'Excellent' : networkStats.trustScore >= 50 ? 'Good' : 'Building'}</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Current Trust Score</span>
-              <span className="text-lg font-bold text-blue-600">{networkStats.trustScore}%</span>
-            </div>
-            <Progress value={networkStats.trustScore} className="h-3" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h5 className="font-medium text-gray-900 mb-2">Quick actions to improve:</h5>
-                <ul className="space-y-1 text-gray-600">
-                  <li className="flex items-center justify-between">
-                    <span>• Meaningful connections</span>
-                    <Badge variant="outline" className="text-xs">{networkStats.totalConnections}/10</Badge>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <span>• Community groups</span>
-                    <Badge variant="outline" className="text-xs">{networkStats.communitiesJoined}/3</Badge>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <span>• Active campaigns</span>
-                    <Badge variant="outline" className="text-xs">{userCampaigns.length}/2</Badge>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-medium text-gray-900 mb-2">Trust benefits unlocked:</h5>
-                <ul className="space-y-1 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${networkStats.trustScore >= 50 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <span>Priority in help requests</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${networkStats.trustScore >= 75 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <span>Access to exclusive groups</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${networkStats.trustScore >= 90 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <span>Featured in recommendations</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <TrustScoreCard 
+        trustScore={networkStats.trustScore}
+        totalConnections={networkStats.totalConnections}
+        communitiesJoined={networkStats.communitiesJoined}
+        userCampaigns={userCampaigns.length}
+      />
 
       {/* Community Leaderboard */}
       <Card>
