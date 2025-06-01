@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,7 +95,10 @@ const GoalsManager = ({ goals, onGoalsChange }: GoalsManagerProps) => {
             </div>
             <Dialog open={isCreating} onOpenChange={setIsCreating}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button 
+                  size="sm"
+                  className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   New Goal
                 </Button>
@@ -178,7 +180,10 @@ const GoalsManager = ({ goals, onGoalsChange }: GoalsManagerProps) => {
                     <Button variant="outline" onClick={() => setIsCreating(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={handleCreateGoal}>
+                    <Button 
+                      onClick={handleCreateGoal}
+                      className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+                    >
                       Create Goal
                     </Button>
                   </div>
@@ -264,7 +269,10 @@ const GoalsManager = ({ goals, onGoalsChange }: GoalsManagerProps) => {
             <p className="text-gray-600 mb-4">
               Create your first impact goal to start tracking your community contributions
             </p>
-            <Button onClick={() => setIsCreating(true)}>
+            <Button 
+              onClick={() => setIsCreating(true)}
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Goal
             </Button>
