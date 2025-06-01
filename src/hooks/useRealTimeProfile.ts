@@ -1,14 +1,33 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 
 export const useRealTimeProfile = (profileId?: string) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profileUpdates, setProfileUpdates] = useState<Record<string, any>>({});
+  const debounceRef = useRef<NodeJS.Timeout>();
+  const lastUpdateRef = useRef<Record<string, any>>({});
+
+  const debouncedProfileUpdate = useCallback((targetId: string, newData: any) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      // Check if data actually changed
+      const lastData = lastUpdateRef.current[targetId];
+      if (JSON.stringify(lastData) !== JSON.stringify(newData)) {
+        setProfileUpdates(prev => ({
+          ...prev,
+          [targetId]: newData
+        }));
+        lastUpdateRef.current[targetId] = newData;
+      }
+    }, 300); // 300ms debounce
+  }, []);
 
   useEffect(() => {
     if (!profileId && !user?.id) return;
@@ -28,17 +47,18 @@ export const useRealTimeProfile = (profileId?: string) => {
         },
         (payload) => {
           console.log('Profile updated:', payload);
-          setProfileUpdates(prev => ({
-            ...prev,
-            [targetId]: payload.new || payload.old
-          }));
-
-          // Only show toast for other users' updates, not own updates
-          if (payload.eventType === 'UPDATE' && targetId !== user?.id) {
-            toast({
-              title: "Profile Updated",
-              description: "This user's profile has been updated.",
-            });
+          const newData = payload.new || payload.old;
+          
+          if (newData) {
+            debouncedProfileUpdate(targetId, newData);
+            
+            // Only show toast for other users' updates, not own updates
+            if (payload.eventType === 'UPDATE' && targetId !== user?.id) {
+              toast({
+                title: "Profile Updated",
+                description: "This user's profile has been updated.",
+              });
+            }
           }
         }
       )
@@ -85,14 +105,22 @@ export const useRealTimeProfile = (profileId?: string) => {
       .subscribe();
 
     return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
       supabase.removeChannel(profileChannel);
       supabase.removeChannel(verificationChannel);
       supabase.removeChannel(metricsChannel);
     };
-  }, [profileId, user?.id, toast]);
+  }, [profileId, user?.id, toast, debouncedProfileUpdate]);
+
+  const clearUpdates = useCallback(() => {
+    setProfileUpdates({});
+    lastUpdateRef.current = {};
+  }, []);
 
   return {
     profileUpdates,
-    clearUpdates: () => setProfileUpdates({})
+    clearUpdates
   };
 };

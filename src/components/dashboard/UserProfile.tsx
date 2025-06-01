@@ -11,13 +11,11 @@ import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import { mockTrustFootprint } from "@/data/mockTrustFootprint";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Settings } from "lucide-react";
-import { useRealTimeProfile } from "@/hooks/useRealTimeProfile";
 
 const UserProfile = () => {
   const { toast } = useToast();
-  const { profileData, loading, error, updateProfile } = useUserProfile();
+  const { profileData, loading, updating, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
-  const { profileUpdates } = useRealTimeProfile();
 
   const handleViewPointsDetails = () => {
     console.log("Trust score button clicked - showing points details");
@@ -71,6 +69,13 @@ const UserProfile = () => {
 
   return (
     <div className="space-y-6">
+      {/* Show subtle updating indicator */}
+      {updating && (
+        <div className="fixed top-4 right-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm z-50">
+          Updating profile...
+        </div>
+      )}
+      
       <Tabs defaultValue="view" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="view" className="flex items-center gap-2">

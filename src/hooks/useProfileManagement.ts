@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,7 +31,7 @@ export const useProfileManagement = () => {
     allowTagging: true,
   });
 
-  const updateProfile = async (profileData: UserProfileData): Promise<void> => {
+  const updateProfile = useCallback(async (profileData: UserProfileData): Promise<void> => {
     if (!user) throw new Error('User not authenticated');
 
     setIsLoading(true);
@@ -60,11 +60,11 @@ export const useProfileManagement = () => {
 
       if (error) throw error;
 
-      // Sync preferences for recommendations
-      await syncProfileToPreferences(profileData);
-
-      // Recalculate impact metrics
-      await calculateImpactMetrics();
+      // Sync preferences and metrics in background (don't await to prevent blocking)
+      Promise.all([
+        syncProfileToPreferences(profileData),
+        calculateImpactMetrics()
+      ]).catch(console.error);
 
       toast({
         title: "Profile updated successfully",
@@ -81,15 +81,14 @@ export const useProfileManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, syncProfileToPreferences, calculateImpactMetrics, toast]);
 
-  const updatePrivacySettings = async (settings: PrivacySettings): Promise<void> => {
+  const updatePrivacySettings = useCallback(async (settings: PrivacySettings): Promise<void> => {
     if (!user) throw new Error('User not authenticated');
 
     setIsLoading(true);
     try {
-      // Store privacy settings in user metadata or separate table
-      // For now, we'll store in local state and could extend to database later
+      // Store privacy settings in local state and could extend to database later
       setPrivacySettings(settings);
       
       toast({
@@ -107,7 +106,7 @@ export const useProfileManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, toast]);
 
   return {
     isLoading,

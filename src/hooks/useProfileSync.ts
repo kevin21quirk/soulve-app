@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
@@ -7,7 +7,7 @@ import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 export const useProfileSync = () => {
   const { user } = useAuth();
 
-  const syncProfileToPreferences = async (profileData: UserProfileData) => {
+  const syncProfileToPreferences = useCallback(async (profileData: UserProfileData) => {
     if (!user) return;
 
     try {
@@ -59,9 +59,9 @@ export const useProfileSync = () => {
     } catch (error) {
       console.error('Error syncing profile to preferences:', error);
     }
-  };
+  }, [user]);
 
-  const calculateImpactMetrics = async () => {
+  const calculateImpactMetrics = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -72,7 +72,7 @@ export const useProfileSync = () => {
     } catch (error) {
       console.error('Error calculating impact metrics:', error);
     }
-  };
+  }, [user?.id]);
 
   return {
     syncProfileToPreferences,

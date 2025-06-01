@@ -24,6 +24,7 @@ export interface DatabaseProfile {
 export interface UseUserProfileReturn {
   profileData: UserProfileData | null;
   loading: boolean;
+  updating?: boolean;
   error: string | null;
   updateProfile: (updatedData: UserProfileData) => Promise<void>;
 }
