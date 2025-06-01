@@ -10,7 +10,67 @@ export const useRealTimePoints = () => {
   const { toast } = useToast();
   const [recentTransactions, setRecentTransactions] = useState<PointTransaction[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // Load initial data
+  useEffect(() => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    loadInitialData();
+  }, [user?.id]);
+
+  const loadInitialData = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Load recent transactions
+      const { data: activities, error: activitiesError } = await supabase
+        .from('impact_activities')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (activitiesError) throw activitiesError;
+
+      // Convert to PointTransaction format
+      const transactions: PointTransaction[] = (activities || []).map(activity => ({
+        id: activity.id,
+        userId: activity.user_id,
+        category: activity.activity_type as any,
+        points: activity.points_earned,
+        multiplier: 1,
+        basePoints: activity.points_earned,
+        description: activity.description,
+        timestamp: activity.created_at,
+        verified: activity.verified,
+        metadata: activity.metadata
+      }));
+
+      setRecentTransactions(transactions);
+
+      // Calculate total points
+      const totalPointsEarned = transactions
+        .filter(t => t.verified)
+        .reduce((sum, t) => sum + t.points, 0);
+      
+      setTotalPoints(totalPointsEarned);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load points data. Please refresh the page.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Set up real-time subscription
   useEffect(() => {
     if (!user?.id) return;
 
@@ -28,7 +88,7 @@ export const useRealTimePoints = () => {
         (payload) => {
           const newActivity = payload.new;
           
-          // Create a mock transaction from the activity
+          // Create a transaction from the activity
           const transaction: PointTransaction = {
             id: newActivity.id,
             userId: newActivity.user_id,
@@ -42,7 +102,7 @@ export const useRealTimePoints = () => {
             metadata: newActivity.metadata
           };
 
-          setRecentTransactions(prev => [transaction, ...prev.slice(0, 4)]);
+          setRecentTransactions(prev => [transaction, ...prev.slice(0, 9)]);
           setTotalPoints(prev => prev + newActivity.points_earned);
 
           // Show toast notification
@@ -65,7 +125,14 @@ export const useRealTimePoints = () => {
     description: string,
     metadata?: Record<string, any>
   ) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to earn points.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -93,6 +160,7 @@ export const useRealTimePoints = () => {
   return {
     recentTransactions,
     totalPoints,
-    awardPoints
+    awardPoints,
+    loading
   };
 };

@@ -5,49 +5,74 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges, mockPointTransactions } from "@/data/mockPointsData";
+import { useRealTimePoints } from "@/hooks/useRealTimePoints";
+import { useUserAchievements } from "@/hooks/useUserAchievements";
+import { useSeasonalChallenges } from "@/hooks/useSeasonalChallenges";
+import { useAuth } from "@/contexts/AuthContext";
 import { PointsCalculator } from "@/services/pointsService";
 import { LeaderboardService } from "@/services/leaderboardService";
 import { PointRedemptionService } from "@/services/pointRedemptionService";
-import { useProgressTracking } from "@/hooks/useProgressTracking";
-import { useRealTimePoints } from "@/hooks/useRealTimePoints";
 import TrustScoreCard from "./analytics/points/TrustScoreCard";
 import QuickStatsGrid from "./analytics/points/QuickStatsGrid";
 import PointsBreakdownCard from "./analytics/points/PointsBreakdownCard";
 import LeaderboardCard from "./analytics/points/LeaderboardCard";
 
 const MobileAnalyticsPoints = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("trust");
-  const { recentTransactions, totalPoints, awardPoints } = useRealTimePoints();
+  const { recentTransactions, totalPoints, awardPoints, loading: pointsLoading } = useRealTimePoints();
+  const { achievements, loading: achievementsLoading } = useUserAchievements();
+  const { challenges, loading: challengesLoading } = useSeasonalChallenges();
   
-  // Use real-time total points if available, otherwise use mock data
+  // Calculate user stats from real data
   const userStats = {
-    ...mockEnhancedUserStats,
-    totalPoints: totalPoints || mockEnhancedUserStats.totalPoints
+    totalPoints: totalPoints,
+    level: Math.floor(totalPoints / 100) + 1,
+    nextLevelPoints: ((Math.floor(totalPoints / 100) + 1) * 100),
+    helpedCount: recentTransactions.filter(t => t.category === 'help_completed').length,
+    connectionsCount: 0, // This would come from connections table
+    postsCount: 0, // This would come from posts table
+    likesReceived: 0, // This would come from post interactions
+    trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
+    trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any
   };
   
   const trustLevelConfig = PointsCalculator.getTrustLevelConfig(userStats.trustLevel);
   const nextLevel = PointsCalculator.getNextTrustLevel(userStats.totalPoints);
 
-  // Use progress tracking hook
-  const {
-    achievements,
-    progressAnimations,
-    nextLevelProgress,
-    weeklyProgress,
-    unlockedAchievements,
-    inProgressAchievements
-  } = useProgressTracking(userStats, [...recentTransactions, ...mockPointTransactions]);
-
   // Get leaderboard data
   const leaderboard = LeaderboardService.getLeaderboard();
-  const userRank = LeaderboardService.getUserRank('current-user');
+  const userRank = LeaderboardService.getUserRank(user?.id || 'anonymous');
 
   // Get redemption rewards
   const availableRewards = PointRedemptionService.getAvailableRewards(userStats.level);
 
-  // Demo function
+  // Calculate progress metrics
+  const nextLevelProgress = {
+    percentage: ((userStats.totalPoints % 100) / 100) * 100,
+    pointsNeeded: userStats.nextLevelPoints - userStats.totalPoints
+  };
+
+  const weeklyProgress = {
+    points: recentTransactions
+      .filter(t => new Date(t.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+      .reduce((sum, t) => sum + t.points, 0),
+    goal: 200,
+    percentage: 0,
+    transactionCount: recentTransactions.length
+  };
+  weeklyProgress.percentage = Math.min((weeklyProgress.points / weeklyProgress.goal) * 100, 100);
+
+  const unlockedAchievements = achievements.filter(a => a.unlocked);
+  const inProgressAchievements = achievements.filter(a => !a.unlocked && a.progress > 0);
+
+  // Demo function - functional now
   const handleDemoPoints = () => {
+    if (!user) {
+      alert("Please log in to earn points!");
+      return;
+    }
+
     const demoActions = [
       { category: 'help_completed', points: 25, description: 'Helped community member with groceries' },
       { category: 'donation', points: 10, description: 'Donated to local food bank' },
@@ -57,6 +82,21 @@ const MobileAnalyticsPoints = () => {
     const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
     awardPoints(randomAction.category, randomAction.points, randomAction.description);
   };
+
+  if (pointsLoading || achievementsLoading || challengesLoading) {
+    return (
+      <div className="p-4 space-y-4">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-4"></div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-4">
@@ -80,8 +120,9 @@ const MobileAnalyticsPoints = () => {
               size="sm" 
               onClick={handleDemoPoints}
               className="mt-3 w-full"
+              disabled={!user}
             >
-              Demo: Earn More Points
+              {user ? "Demo: Earn More Points" : "Log in to Earn Points"}
             </Button>
           </CardContent>
         </Card>
@@ -148,7 +189,7 @@ const MobileAnalyticsPoints = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockSeasonalChallenges.slice(0, 2).map((challenge) => {
+                {challenges.slice(0, 2).map((challenge) => {
                   const progressPercentage = (challenge.progress / challenge.maxProgress) * 100;
                   
                   return (
@@ -172,6 +213,11 @@ const MobileAnalyticsPoints = () => {
                     </div>
                   );
                 })}
+                {challenges.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No active challenges at the moment
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -249,7 +295,7 @@ const MobileAnalyticsPoints = () => {
                       <Button 
                         size="sm" 
                         variant={userStats.totalPoints >= reward.pointsCost ? "default" : "outline"}
-                        disabled={userStats.totalPoints < reward.pointsCost}
+                        disabled={userStats.totalPoints < reward.pointsCost || !user}
                       >
                         {reward.pointsCost} pts
                       </Button>

@@ -922,6 +922,36 @@ export type Database = {
         }
         Relationships: []
       }
+      point_redemptions: {
+        Row: {
+          id: string
+          metadata: Json | null
+          points_cost: number
+          redeemed_at: string
+          reward_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          points_cost: number
+          redeemed_at?: string
+          reward_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          points_cost?: number
+          redeemed_at?: string
+          reward_id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_interactions: {
         Row: {
           content: string | null
@@ -1140,6 +1170,48 @@ export type Database = {
         }
         Relationships: []
       }
+      seasonal_challenges: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          max_progress: number | null
+          point_multiplier: number | null
+          reward_description: string | null
+          start_date: string
+          target_categories: string[] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          max_progress?: number | null
+          point_multiplier?: number | null
+          reward_description?: string | null
+          start_date: string
+          target_categories?: string[] | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          max_progress?: number | null
+          point_multiplier?: number | null
+          reward_description?: string | null
+          start_date?: string
+          target_categories?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       trust_score_history: {
         Row: {
           change_reason: string
@@ -1178,6 +1250,36 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          max_progress: number | null
+          metadata: Json | null
+          progress: number | null
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          max_progress?: number | null
+          metadata?: Json | null
+          progress?: number | null
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          max_progress?: number | null
+          metadata?: Json | null
+          progress?: number | null
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_activities: {
         Row: {
           activity_type: string
@@ -1210,6 +1312,41 @@ export type Database = {
           visibility?: string
         }
         Relationships: []
+      }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress: number | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_interaction_scores: {
         Row: {
@@ -1336,6 +1473,16 @@ export type Database = {
         }
         Returns: string
       }
+      award_user_points: {
+        Args: {
+          target_user_id: string
+          activity_type: string
+          points: number
+          description: string
+          metadata?: Json
+        }
+        Returns: string
+      }
       calculate_campaign_performance_score: {
         Args: { campaign_uuid: string }
         Returns: number
@@ -1361,6 +1508,10 @@ export type Database = {
           reasoning: string
           metadata: Json
         }[]
+      }
+      get_user_total_points: {
+        Args: { target_user_id: string }
+        Returns: number
       }
     }
     Enums: {

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,30 +13,57 @@ import { EnhancedAchievementsService } from "@/services/enhancedAchievementsServ
 import { BackendDataService } from "@/services/backendDataService";
 import { useToast } from "@/hooks/use-toast";
 import { useRealTimePoints } from "@/hooks/useRealTimePoints";
+import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useAuth } from "@/contexts/AuthContext";
 
 const EnhancedGamificationPanel = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { recentTransactions, totalPoints, awardPoints } = useRealTimePoints();
+  const { recentTransactions, totalPoints, awardPoints, loading: pointsLoading } = useRealTimePoints();
+  const { achievements, loading: achievementsLoading } = useUserAchievements();
   const [isLoading, setIsLoading] = useState(false);
   const [activeAnalytics, setActiveAnalytics] = useState<any>(null);
 
-  // Get enhanced achievement stats
-  const achievementStats = EnhancedAchievementsService.getAchievementStats();
+  // Calculate achievement stats from real data
+  const achievementStats = {
+    total: achievements.length,
+    unlocked: achievements.filter(a => a.unlocked).length,
+    byCategory: {
+      helping: achievements.filter(a => a.unlocked && a.id.includes('helper')).length,
+      social: achievements.filter(a => a.unlocked && a.id.includes('social')).length,
+      donation: achievements.filter(a => a.unlocked && a.id.includes('giver')).length,
+      trust: achievements.filter(a => a.unlocked && a.id.includes('trusted')).length,
+      community: achievements.filter(a => a.unlocked && a.id.includes('community')).length
+    }
+  };
 
   const handleGenerateAnalytics = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to generate analytics.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Simulate loading real analytics
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const mockTransactions = await BackendDataService.getUserTransactions("current-user");
-      const mockUserStats = await BackendDataService.getUserStats("current-user");
+      // Use real transaction data for analytics
+      const mockUserStats = {
+        totalPoints,
+        helpedCount: recentTransactions.filter(t => t.category === 'help_completed').length,
+        donationAmount: recentTransactions
+          .filter(t => t.category === 'donation')
+          .reduce((sum, t) => sum + (t.metadata?.amount || 10), 0)
+      };
       
-      const trends = AdvancedAnalyticsService.analyzeTrends(mockTransactions);
-      const predictions = AdvancedAnalyticsService.generatePredictions(mockTransactions, mockUserStats);
-      const behavior = AdvancedAnalyticsService.analyzeBehavior(mockTransactions, mockUserStats);
+      const trends = AdvancedAnalyticsService.analyzeTrends(recentTransactions);
+      const predictions = AdvancedAnalyticsService.generatePredictions(recentTransactions, mockUserStats);
+      const behavior = AdvancedAnalyticsService.analyzeBehavior(recentTransactions, mockUserStats);
       
       setActiveAnalytics({ trends, predictions, behavior });
       
@@ -57,6 +84,15 @@ const EnhancedGamificationPanel = () => {
 
   // Demo function to show real-time points
   const handleDemoPoints = () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to earn points.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const demoActions = [
       { category: 'help_completed', points: 25, description: 'Helped community member with groceries' },
       { category: 'donation', points: 10, description: 'Donated to local food bank' },
@@ -66,6 +102,21 @@ const EnhancedGamificationPanel = () => {
     const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
     awardPoints(randomAction.category, randomAction.points, randomAction.description);
   };
+
+  if (pointsLoading || achievementsLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -98,7 +149,7 @@ const EnhancedGamificationPanel = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Points</p>
-                <p className="text-2xl font-bold">{totalPoints || 1247}</p>
+                <p className="text-2xl font-bold">{totalPoints}</p>
               </div>
               <Trophy className="h-8 w-8 text-yellow-500" />
             </div>
@@ -108,8 +159,9 @@ const EnhancedGamificationPanel = () => {
                 size="sm" 
                 onClick={handleDemoPoints}
                 className="text-xs"
+                disabled={!user}
               >
-                Demo +Points
+                {user ? "Demo +Points" : "Login to Earn"}
               </Button>
             </div>
           </CardContent>
@@ -163,10 +215,10 @@ const EnhancedGamificationPanel = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleGenerateAnalytics}
-                disabled={isLoading}
+                disabled={isLoading || !user}
                 className="text-xs"
               >
-                {isLoading ? 'Generating...' : 'Generate'}
+                {isLoading ? 'Generating...' : user ? 'Generate' : 'Login Required'}
               </Button>
             </div>
           </CardContent>

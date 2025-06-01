@@ -9,114 +9,54 @@ import AchievementsList from "./AchievementsList";
 import LeaderboardCard from "./LeaderboardCard";
 import SeasonalChallengesCard from "./SeasonalChallengesCard";
 import PointsTransactionHistory from "./PointsTransactionHistory";
-import { mockEnhancedUserStats, mockPointBreakdown, mockLeaderboard, mockSeasonalChallenges, mockPointTransactions } from "@/data/mockPointsData";
+import { useRealTimePoints } from "@/hooks/useRealTimePoints";
+import { useUserAchievements } from "@/hooks/useUserAchievements";
+import { useSeasonalChallenges } from "@/hooks/useSeasonalChallenges";
+import { mockPointBreakdown, mockLeaderboard } from "@/data/mockPointsData";
 
 const GamificationPanel = () => {
   const { toast } = useToast();
-  const [userStats] = useState(mockEnhancedUserStats);
+  const { recentTransactions, totalPoints, loading: pointsLoading } = useRealTimePoints();
+  const { achievements, loading: achievementsLoading } = useUserAchievements();
+  const { challenges, loading: challengesLoading } = useSeasonalChallenges();
 
-  const [achievements, setAchievements] = useState<Achievement[]>([
-    {
-      id: "1",
-      title: "First Helper",
-      description: "Help your first community member",
-      icon: "🤝",
-      points: 50,
-      pointsReward: 50,
-      unlocked: true,
-      progress: 1,
-      maxProgress: 1,
-      rarity: "common"
-    },
-    {
-      id: "2",
-      title: "Social Butterfly",
-      description: "Make 10 connections",
-      icon: "🦋",
-      points: 100,
-      pointsReward: 100,
-      unlocked: true,
-      progress: 10,
-      maxProgress: 10,
-      rarity: "common"
-    },
-    {
-      id: "3",
-      title: "Community Champion",
-      description: "Help 25 people",
-      icon: "🏆",
-      points: 250,
-      pointsReward: 250,
-      unlocked: false,
-      progress: 23,
-      maxProgress: 25,
-      rarity: "rare"
-    },
-    {
-      id: "4",
-      title: "Trusted Helper",
-      description: "Reach Trusted Helper status",
-      icon: "⭐",
-      points: 300,
-      pointsReward: 300,
-      unlocked: true,
-      progress: 1,
-      maxProgress: 1,
-      rarity: "epic"
-    },
-    {
-      id: "5",
-      title: "Master Networker",
-      description: "Connect with 100 people",
-      icon: "👑",
-      points: 500,
-      pointsReward: 500,
-      unlocked: false,
-      progress: 42,
-      maxProgress: 100,
-      rarity: "legendary"
-    },
-    {
-      id: "6",
-      title: "Emergency Hero",
-      description: "Complete 5 emergency help requests",
-      icon: "🚨",
-      points: 500,
-      pointsReward: 500,
-      unlocked: false,
-      progress: 1,
-      maxProgress: 5,
-      rarity: "epic"
-    },
-    {
-      id: "7",
-      title: "Generous Giver",
-      description: "Donate £500 total",
-      icon: "💝",
-      points: 200,
-      pointsReward: 200,
-      unlocked: false,
-      progress: 350,
-      maxProgress: 500,
-      rarity: "rare"
-    }
-  ]);
+  // Calculate user stats from real data
+  const userStats = {
+    totalPoints: totalPoints,
+    level: Math.floor(totalPoints / 100) + 1,
+    nextLevelPoints: ((Math.floor(totalPoints / 100) + 1) * 100),
+    helpedCount: recentTransactions.filter(t => t.category === 'help_completed').length,
+    connectionsCount: 0, // This would come from connections table when implemented
+    postsCount: 0, // This would come from posts table when implemented
+    likesReceived: 0, // This would come from post interactions when implemented
+    trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
+    trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any
+  };
 
   const claimReward = (achievementId: string) => {
     const achievement = achievements.find(a => a.id === achievementId);
     if (achievement && achievement.progress >= achievement.maxProgress && !achievement.unlocked) {
-      setAchievements(prev => 
-        prev.map(a => 
-          a.id === achievementId ? { ...a, unlocked: true } : a
-        )
-      );
-      
       toast({
         title: "Achievement Unlocked! 🎉",
         description: `You earned "${achievement.title}" and gained ${achievement.points} points!`,
       });
     }
   };
+
+  if (pointsLoading || achievementsLoading || challengesLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-32 bg-gray-200 rounded mb-6"></div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-48 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -127,9 +67,9 @@ const GamificationPanel = () => {
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         <LeaderboardCard leaderboard={mockLeaderboard} timeframe="all-time" />
-        <SeasonalChallengesCard challenges={mockSeasonalChallenges} />
+        <SeasonalChallengesCard challenges={challenges} />
       </div>
-      <PointsTransactionHistory transactions={mockPointTransactions} />
+      <PointsTransactionHistory transactions={recentTransactions} />
       <AchievementsList achievements={achievements} onClaimReward={claimReward} />
     </div>
   );
