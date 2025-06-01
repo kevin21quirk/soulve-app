@@ -17,7 +17,11 @@ import {
   Clock,
   DollarSign,
   Zap,
-  RefreshCw
+  RefreshCw,
+  Map,
+  Network,
+  Trophy,
+  Share2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ImpactAnalyticsService, UserImpactData, CommunityComparison, ImpactGoal } from '@/services/impactAnalyticsService';
@@ -28,6 +32,10 @@ import ImpactTrendsChart from './ImpactTrendsChart';
 import GoalsManager from './GoalsManager';
 import ActivityTracker from './ActivityTracker';
 import RecentActivitiesFeed from './RecentActivitiesFeed';
+import ImpactStoriesTimeline from './ImpactStoriesTimeline';
+import GeographicImpactMap from './GeographicImpactMap';
+import NetworkEffectVisualization from './NetworkEffectVisualization';
+import GamificationHub from './GamificationHub';
 
 const InteractiveImpactDashboard = () => {
   const { user } = useAuth();
@@ -158,10 +166,12 @@ const InteractiveImpactDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="community">Community</TabsTrigger>
+          <TabsTrigger value="stories">Stories</TabsTrigger>
+          <TabsTrigger value="geographic">Geographic</TabsTrigger>
+          <TabsTrigger value="network">Network</TabsTrigger>
+          <TabsTrigger value="gamification">Rewards</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
         </TabsList>
@@ -259,13 +269,20 @@ const InteractiveImpactDashboard = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="activity" className="space-y-6">
-          <ActivityTracker />
-          <RecentActivitiesFeed />
+        <TabsContent value="stories" className="space-y-6">
+          <ImpactStoriesTimeline />
         </TabsContent>
 
-        <TabsContent value="community" className="space-y-6">
-          <CommunityComparisonChart comparisons={communityComparisons} />
+        <TabsContent value="geographic" className="space-y-6">
+          <GeographicImpactMap />
+        </TabsContent>
+
+        <TabsContent value="network" className="space-y-6">
+          <NetworkEffectVisualization />
+        </TabsContent>
+
+        <TabsContent value="gamification" className="space-y-6">
+          <GamificationHub />
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-6">
