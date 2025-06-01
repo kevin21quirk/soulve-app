@@ -22,6 +22,14 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  const handleSearch = (query: string) => {
+    console.log('Search query:', query);
+  };
+
+  const handleSuggestionSelect = (suggestion: any) => {
+    console.log('Selected suggestion:', suggestion);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -124,7 +132,10 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
           </TabsContent>
 
           <TabsContent value="search" className="space-y-6">
-            <SmartSearchEngine />
+            <SmartSearchEngine 
+              onSearch={handleSearch}
+              onSuggestionSelect={handleSuggestionSelect}
+            />
           </TabsContent>
 
           <TabsContent value="help" className="space-y-6">

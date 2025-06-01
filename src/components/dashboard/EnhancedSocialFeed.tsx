@@ -153,10 +153,12 @@ const EnhancedSocialFeed = () => {
                       key={post.id}
                       post={{
                         id: post.id,
-                        author: post.author_profile?.first_name && post.author_profile?.last_name 
-                          ? `${post.author_profile.first_name} ${post.author_profile.last_name}`
+                        author: post.author_profile && typeof post.author_profile === 'object' && 'first_name' in post.author_profile
+                          ? `${post.author_profile.first_name || ''} ${post.author_profile.last_name || ''}`.trim() || 'Anonymous'
                           : 'Anonymous',
-                        avatar: post.author_profile?.avatar_url || '',
+                        avatar: post.author_profile && typeof post.author_profile === 'object' && 'avatar_url' in post.author_profile
+                          ? post.author_profile.avatar_url || ''
+                          : '',
                         title: post.title,
                         description: post.content,
                         category: post.category as any,
@@ -168,8 +170,6 @@ const EnhancedSocialFeed = () => {
                         urgency: post.urgency as any,
                         tags: post.tags || [],
                         visibility: post.visibility as any,
-                        allowComments: true,
-                        allowSharing: true,
                         shares: 0,
                         isShared: false,
                         isBookmarked: false,

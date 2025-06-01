@@ -37,11 +37,11 @@ export const usePosts = (category?: string, urgency?: string) => {
   return useQuery({
     queryKey: ['posts', category, urgency],
     queryFn: async () => {
+      // First, get posts with basic author info
       let query = supabase
         .from('posts')
         .select(`
-          *,
-          author_profile:profiles!posts_author_id_fkey(first_name, last_name, avatar_url)
+          *
         `)
         .eq('is_active', true)
         .eq('visibility', 'public')
@@ -59,10 +59,17 @@ export const usePosts = (category?: string, urgency?: string) => {
 
       if (error) throw error;
 
-      // Get interaction counts for each post
+      // Get interaction counts and profile data for each post
       const postsWithInteractions = await Promise.all(
         (posts || []).map(async (post) => {
           const { data: user } = await supabase.auth.getUser();
+          
+          // Get profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, avatar_url')
+            .eq('id', post.author_id)
+            .single();
           
           // Get like count
           const { count: likeCount } = await supabase
@@ -94,6 +101,7 @@ export const usePosts = (category?: string, urgency?: string) => {
 
           return {
             ...post,
+            author_profile: profile,
             interactions: {
               like_count: likeCount || 0,
               comment_count: commentCount || 0,
