@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, MapPin, Users, Target, Clock } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 
 interface DiscoverSearchBarProps {
   onSearch: (query: string, filters: string[]) => void;
@@ -13,27 +13,25 @@ interface DiscoverSearchBarProps {
 const DiscoverSearchBar = ({ onSearch, onClearFilters }: DiscoverSearchBarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   const filterOptions = [
-    { id: "nearby", label: "Nearby", icon: MapPin },
-    { id: "popular", label: "Popular", icon: Users },
-    { id: "urgent", label: "Urgent", icon: Clock },
-    { id: "campaigns", label: "Campaigns", icon: Target },
+    { id: "nearby", label: "Nearby", color: "bg-blue-100 text-blue-800" },
+    { id: "urgent", label: "Urgent", color: "bg-red-100 text-red-800" },
+    { id: "popular", label: "Popular", color: "bg-green-100 text-green-800" },
+    { id: "new", label: "New", color: "bg-purple-100 text-purple-800" }
   ];
 
-  const handleFilterToggle = (filterId: string) => {
+  const handleSearch = () => {
+    onSearch(searchQuery, activeFilters);
+  };
+
+  const toggleFilter = (filterId: string) => {
     const newFilters = activeFilters.includes(filterId)
       ? activeFilters.filter(f => f !== filterId)
       : [...activeFilters, filterId];
     
     setActiveFilters(newFilters);
     onSearch(searchQuery, newFilters);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    onSearch(query, activeFilters);
   };
 
   const handleClearAll = () => {
@@ -48,65 +46,51 @@ const DiscoverSearchBar = ({ onSearch, onClearFilters }: DiscoverSearchBarProps)
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Search people, groups, campaigns..."
+          placeholder="Search people, groups, causes..."
           value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10 pr-10"
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          className="pl-10 pr-4"
         />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
+        {searchQuery && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSearchQuery("")}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
-      {/* Active Filters */}
-      {activeFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2 items-center">
-          {activeFilters.map((filterId) => {
-            const filter = filterOptions.find(f => f.id === filterId);
-            return (
-              <Badge 
-                key={filterId} 
-                variant="secondary" 
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={() => handleFilterToggle(filterId)}
-              >
-                {filter && <filter.icon className="h-3 w-3" />}
-                <span>{filter?.label}</span>
-                <X className="h-3 w-3" />
-              </Badge>
-            );
-          })}
-          <Button variant="ghost" size="sm" onClick={handleClearAll}>
-            Clear all
+      {/* Filter Tags */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <Filter className="h-4 w-4 text-gray-500" />
+        {filterOptions.map((filter) => (
+          <Badge
+            key={filter.id}
+            variant={activeFilters.includes(filter.id) ? "default" : "outline"}
+            onClick={() => toggleFilter(filter.id)}
+            className={`cursor-pointer transition-colors ${
+              activeFilters.includes(filter.id) ? filter.color : ""
+            }`}
+          >
+            {filter.label}
+          </Badge>
+        ))}
+        
+        {(searchQuery || activeFilters.length > 0) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAll}
+            className="text-xs"
+          >
+            Clear All
           </Button>
-        </div>
-      )}
-
-      {/* Filter Options */}
-      {showFilters && (
-        <div className="grid grid-cols-2 gap-2">
-          {filterOptions.map((filter) => {
-            const isActive = activeFilters.includes(filter.id);
-            return (
-              <Button
-                key={filter.id}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleFilterToggle(filter.id)}
-                className="flex items-center space-x-2"
-              >
-                <filter.icon className="h-4 w-4" />
-                <span>{filter.label}</span>
-              </Button>
-            );
-          })}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

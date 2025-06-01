@@ -1,149 +1,129 @@
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Users, Star, Clock, MessageCircle } from "lucide-react";
+import { MapPin, Users, Calendar, Target, UserPlus } from "lucide-react";
 
 interface EnhancedDiscoverCardProps {
   type: "person" | "group" | "campaign" | "event";
   data: any;
-  onAction: (id: string, type: string) => void;
-  onViewProfile?: (id: string) => void;
+  onAction: (id: string, actionType: string) => void;
+  onViewProfile?: (userId: string) => void;
 }
 
-const EnhancedDiscoverCard = ({ type, data, onAction, onViewProfile }: EnhancedDiscoverCardProps) => {
-  const getCardContent = () => {
+const EnhancedDiscoverCard = ({ 
+  type, 
+  data, 
+  onAction, 
+  onViewProfile 
+}: EnhancedDiscoverCardProps) => {
+  const getTypeIcon = () => {
+    switch (type) {
+      case "person": return Users;
+      case "group": return Users;
+      case "campaign": return Target;
+      case "event": return Calendar;
+      default: return Users;
+    }
+  };
+
+  const getActionButton = () => {
     switch (type) {
       case "person":
         return (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={data.avatar} />
-                <AvatarFallback>{data.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm">{data.name}</h3>
-                <div className="flex items-center space-x-1 text-xs text-gray-500">
-                  <MapPin className="h-3 w-3" />
-                  <span>{data.location}</span>
-                </div>
-                <div className="flex items-center space-x-1 text-xs text-gray-500">
-                  <Star className="h-3 w-3 text-yellow-500" />
-                  <span>{data.trustScore}% Trust</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-1">
-              {data.skills?.slice(0, 3).map((skill: string) => (
-                <Badge key={skill} variant="outline" className="text-xs">
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-
-            <div className="flex space-x-2">
-              <Button 
-                size="sm" 
-                variant="gradient" 
-                className="flex-1"
-                onClick={() => onAction(data.id, "connect")}
-              >
-                Connect
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => onViewProfile?.(data.id)}
-              >
-                <MessageCircle className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onAction(data.id, "connect")}
+            className="border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af] hover:text-white"
+          >
+            <UserPlus className="h-4 w-4 mr-1" />
+            Connect
+          </Button>
         );
-
       case "group":
-        return (
-          <div className="space-y-3">
-            <div>
-              <h3 className="font-semibold text-sm">{data.name}</h3>
-              <p className="text-xs text-gray-600 line-clamp-2">{data.description}</p>
-            </div>
-            
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Users className="h-3 w-3" />
-                <span>{data.memberCount} members</span>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {data.category}
-              </Badge>
-            </div>
-
-            <Button 
-              size="sm" 
-              variant="gradient" 
-              className="w-full"
-              onClick={() => onAction(data.id, "join")}
-            >
-              {data.isJoined ? "Joined" : "Join Group"}
-            </Button>
-          </div>
-        );
-
       case "campaign":
+      case "event":
         return (
-          <div className="space-y-3">
-            <div>
-              <h3 className="font-semibold text-sm">{data.title}</h3>
-              <p className="text-xs text-gray-600 line-clamp-2">{data.description}</p>
-            </div>
-            
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Users className="h-3 w-3" />
-                <span>{data.participantCount} joined</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3" />
-                <span>{data.endDate}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Badge 
-                variant={data.urgency === "high" ? "destructive" : "outline"} 
-                className="text-xs"
-              >
-                {data.urgency} priority
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {data.category}
-              </Badge>
-            </div>
-
-            <Button 
-              size="sm" 
-              variant="gradient" 
-              className="w-full"
-              onClick={() => onAction(data.id, "join")}
-            >
-              {data.isParticipating ? "Participating" : "Join Campaign"}
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="gradient"
+            onClick={() => onAction(data.id, "join")}
+          >
+            Join
+          </Button>
         );
-
       default:
         return null;
     }
   };
 
+  const IconComponent = getTypeIcon();
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="w-full">
       <CardContent className="p-4">
-        {getCardContent()}
+        <div className="flex items-start space-x-3">
+          {type === "person" ? (
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={data.avatar || data.avatar_url} />
+              <AvatarFallback>
+                {data.name?.charAt(0) || data.first_name?.charAt(0) || "U"}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <div className="h-12 w-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full flex items-center justify-center">
+              <IconComponent className="h-6 w-6 text-white" />
+            </div>
+          )}
+          
+          <div className="flex-1 min-w-0">
+            <h3 
+              className="font-medium text-gray-900 truncate cursor-pointer hover:text-[#0ce4af]"
+              onClick={() => type === "person" && onViewProfile?.(data.id)}
+            >
+              {data.name || data.title || `${data.first_name} ${data.last_name}`}
+            </h3>
+            
+            {data.location && (
+              <div className="flex items-center text-gray-500 text-sm mt-1">
+                <MapPin className="h-3 w-3 mr-1" />
+                <span className="truncate">{data.location}</span>
+              </div>
+            )}
+            
+            {data.description && (
+              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                {data.description}
+              </p>
+            )}
+            
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center space-x-2">
+                {data.category && (
+                  <Badge variant="secondary" className="text-xs">
+                    {data.category}
+                  </Badge>
+                )}
+                
+                {data.memberCount && (
+                  <span className="text-xs text-gray-500">
+                    {data.memberCount} members
+                  </span>
+                )}
+                
+                {data.trustScore && (
+                  <Badge variant="outline" className="text-xs">
+                    {data.trustScore}% trust
+                  </Badge>
+                )}
+              </div>
+              
+              {getActionButton()}
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
