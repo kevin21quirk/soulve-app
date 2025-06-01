@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRealConnections, useSuggestedConnections } from '@/services/realConnectionsService';
 import { useUserGroups, useSuggestedGroups } from '@/services/groupsService';
 import { useCampaigns } from '@/services/campaignsService';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 interface NetworkRecommendation {
   id: string;
@@ -23,13 +25,33 @@ export const useNetworkRecommendations = () => {
   const { data: suggestedGroups = [] } = useSuggestedGroups();
   const { data: campaigns = [] } = useCampaigns();
 
+  // Get user profile with interests
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('interests')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   const recommendations = useMemo(() => {
     const recs: NetworkRecommendation[] = [];
 
     // Smart connection recommendations based on mutual interests
     suggestedConnections.slice(0, 3).forEach(profile => {
       const sharedInterests = profile.interests?.filter(interest => 
-        user?.interests?.includes(interest)
+        userProfile?.interests?.includes(interest)
       ) || [];
       
       recs.push({
@@ -48,7 +70,7 @@ export const useNetworkRecommendations = () => {
     // Group recommendations based on user interests
     suggestedGroups.slice(0, 2).forEach(group => {
       const relevanceScore = group.tags.filter(tag => 
-        user?.interests?.includes(tag)
+        userProfile?.interests?.includes(tag)
       ).length;
       
       recs.push({
@@ -78,7 +100,7 @@ export const useNetworkRecommendations = () => {
     });
 
     return recs.sort((a, b) => b.confidence - a.confidence);
-  }, [suggestedConnections, suggestedGroups, campaigns, user]);
+  }, [suggestedConnections, suggestedGroups, campaigns, userProfile]);
 
   return { recommendations };
 };
