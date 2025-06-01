@@ -52,18 +52,25 @@ const EnhancedGamificationPanel = () => {
       // Simulate loading real analytics
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Use real transaction data for analytics
-      const mockUserStats = {
+      // Create complete UserStats object for analytics
+      const completeUserStats = {
         totalPoints,
+        level: Math.floor(totalPoints / 100) + 1,
+        nextLevelPoints: ((Math.floor(totalPoints / 100) + 1) * 100),
         helpedCount: recentTransactions.filter(t => t.category === 'help_completed').length,
+        connectionsCount: 0,
+        postsCount: 0,
+        likesReceived: 0,
+        trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
+        trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any,
         donationAmount: recentTransactions
           .filter(t => t.category === 'donation')
           .reduce((sum, t) => sum + (t.metadata?.amount || 10), 0)
       };
       
       const trends = AdvancedAnalyticsService.analyzeTrends(recentTransactions);
-      const predictions = AdvancedAnalyticsService.generatePredictions(recentTransactions, mockUserStats);
-      const behavior = AdvancedAnalyticsService.analyzeBehavior(recentTransactions, mockUserStats);
+      const predictions = AdvancedAnalyticsService.generatePredictions(recentTransactions, completeUserStats);
+      const behavior = AdvancedAnalyticsService.analyzeBehavior(recentTransactions, completeUserStats);
       
       setActiveAnalytics({ trends, predictions, behavior });
       

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { PointTransaction } from '@/types/gamification';
+import { PointTransaction, PointCategory } from '@/types/gamification';
 
 export const useRealTimePoints = () => {
   const { user } = useAuth();
@@ -40,14 +40,17 @@ export const useRealTimePoints = () => {
       const transactions: PointTransaction[] = (activities || []).map(activity => ({
         id: activity.id,
         userId: activity.user_id,
-        category: activity.activity_type as any,
+        category: activity.activity_type as PointCategory,
         points: activity.points_earned,
         multiplier: 1,
         basePoints: activity.points_earned,
         description: activity.description,
         timestamp: activity.created_at,
         verified: activity.verified,
-        metadata: activity.metadata
+        relatedEntityId: undefined,
+        metadata: typeof activity.metadata === 'object' && activity.metadata !== null 
+          ? activity.metadata as Record<string, any>
+          : {}
       }));
 
       setRecentTransactions(transactions);
@@ -92,14 +95,17 @@ export const useRealTimePoints = () => {
           const transaction: PointTransaction = {
             id: newActivity.id,
             userId: newActivity.user_id,
-            category: newActivity.activity_type as any,
+            category: newActivity.activity_type as PointCategory,
             points: newActivity.points_earned,
             multiplier: 1,
             basePoints: newActivity.points_earned,
             description: newActivity.description,
             timestamp: newActivity.created_at,
             verified: newActivity.verified,
-            metadata: newActivity.metadata
+            relatedEntityId: undefined,
+            metadata: typeof newActivity.metadata === 'object' && newActivity.metadata !== null 
+              ? newActivity.metadata as Record<string, any>
+              : {}
           };
 
           setRecentTransactions(prev => [transaction, ...prev.slice(0, 9)]);

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { PointCategory } from '@/types/gamification';
 
 interface SeasonalChallenge {
   id: string;
@@ -10,7 +11,7 @@ interface SeasonalChallenge {
   startDate: string;
   endDate: string;
   pointMultiplier: number;
-  targetCategories: string[];
+  targetCategories: PointCategory[];
   progress: number;
   maxProgress: number;
   reward: string;
@@ -45,7 +46,7 @@ export const useSeasonalChallenges = () => {
           startDate: challenge.start_date,
           endDate: challenge.end_date,
           pointMultiplier: challenge.point_multiplier || 1,
-          targetCategories: challenge.target_categories || [],
+          targetCategories: (challenge.target_categories || []) as PointCategory[],
           progress: 0,
           maxProgress: challenge.max_progress || 100,
           reward: challenge.reward_description || '',
@@ -75,7 +76,7 @@ export const useSeasonalChallenges = () => {
           startDate: challenge.start_date,
           endDate: challenge.end_date,
           pointMultiplier: challenge.point_multiplier || 1,
-          targetCategories: challenge.target_categories || [],
+          targetCategories: (challenge.target_categories || []) as PointCategory[],
           progress: progress?.progress || 0,
           maxProgress: challenge.max_progress || 100,
           reward: challenge.reward_description || '',

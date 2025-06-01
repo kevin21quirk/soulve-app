@@ -38,7 +38,7 @@ const GamificationPanel = () => {
     if (achievement && achievement.progress >= achievement.maxProgress && !achievement.unlocked) {
       toast({
         title: "Achievement Unlocked! 🎉",
-        description: `You earned "${achievement.title}" and gained ${achievement.points} points!`,
+        description: `You earned "${achievement.title}" and gained ${achievement.pointsReward} points!`,
       });
     }
   };
