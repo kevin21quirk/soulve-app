@@ -67,7 +67,10 @@ const CampaignTemplates = ({ onTemplateSelect, onCreateFromScratch }: CampaignTe
           <h2 className="text-2xl font-bold text-gray-900">Campaign Templates</h2>
           <p className="text-gray-600 mt-1">Choose from proven templates or start from scratch</p>
         </div>
-        <Button onClick={onCreateFromScratch} className="flex items-center space-x-2">
+        <Button 
+          onClick={onCreateFromScratch} 
+          className="flex items-center space-x-2 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+        >
           <Plus className="h-4 w-4" />
           <span>Create from Scratch</span>
         </Button>
@@ -92,6 +95,11 @@ const CampaignTemplates = ({ onTemplateSelect, onCreateFromScratch }: CampaignTe
               variant={selectedCategory === category.id ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(category.id)}
+              className={`transition-all duration-200 ${
+                selectedCategory === category.id
+                  ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent"
+              }`}
             >
               {category.label}
             </Button>
