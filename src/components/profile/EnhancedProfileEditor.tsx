@@ -10,6 +10,7 @@ import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 import { useProfileEditor } from '@/hooks/profile/useProfileEditor';
 import SkillsManager from './SkillsManager';
 import InterestsManager from './InterestsManager';
+import AvatarUploadManager from './AvatarUploadManager';
 
 interface EnhancedProfileEditorProps {
   profileData: UserProfileData;
@@ -30,6 +31,10 @@ const EnhancedProfileEditor = ({ profileData, onSave }: EnhancedProfileEditorPro
     updateSocialLink,
     saveChanges
   } = useProfileEditor(profileData, onSave);
+
+  const handleAvatarUpdate = (newAvatarUrl: string) => {
+    updateField('avatar', newAvatarUrl);
+  };
 
   return (
     <Card>
@@ -70,6 +75,26 @@ const EnhancedProfileEditor = ({ profileData, onSave }: EnhancedProfileEditorPro
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Profile Picture Section */}
+        <div className="flex items-center space-x-4">
+          <AvatarUploadManager
+            currentAvatar={editState.isEditing ? editData.avatar : profileData.avatar}
+            userName={editState.isEditing ? editData.name : profileData.name}
+            onAvatarUpdate={handleAvatarUpdate}
+            isEditing={editState.isEditing}
+          />
+          {editState.isEditing && (
+            <div className="flex-1">
+              <p className="text-sm text-gray-600">
+                Click on your profile picture to upload a new one. 
+                Supported formats: JPG, PNG, GIF. Max size: 5MB.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
         {/* Basic Information */}
         <div className="space-y-4">
           <h3 className="font-medium text-lg">Basic Information</h3>
