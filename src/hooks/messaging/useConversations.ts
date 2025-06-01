@@ -21,12 +21,15 @@ export const useConversations = (userId: string | undefined) => {
       const { data: messageData, error } = await supabase
         .from('messages')
         .select(`
+          id,
           sender_id,
           recipient_id,
           content,
           created_at,
           is_read,
-          message_type
+          message_type,
+          file_url,
+          file_name
         `)
         .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
         .order('created_at', { ascending: false });

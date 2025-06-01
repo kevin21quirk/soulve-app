@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Message } from './types';
+import { Message, DatabaseMessage } from './types';
 import { convertToMessage } from './utils';
 
 interface UseRealtimeSubscriptionProps {
@@ -37,7 +37,21 @@ export const useRealtimeSubscription = ({
         },
         (payload) => {
           console.log('Received new message via realtime:', payload);
-          const newMessage = convertToMessage(payload.new);
+          
+          // Ensure payload.new has all required DatabaseMessage properties
+          const dbMessage: DatabaseMessage = {
+            id: payload.new.id,
+            content: payload.new.content,
+            sender_id: payload.new.sender_id,
+            recipient_id: payload.new.recipient_id,
+            created_at: payload.new.created_at,
+            is_read: payload.new.is_read,
+            message_type: payload.new.message_type,
+            file_url: payload.new.file_url || null,
+            file_name: payload.new.file_name || null
+          };
+          
+          const newMessage = convertToMessage(dbMessage);
           
           // Add to conversation messages
           onNewMessage(newMessage);
