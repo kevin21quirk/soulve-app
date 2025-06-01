@@ -13,7 +13,7 @@ import CommunityChampions from "./connections/CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
 import NetworkSearch from "./connections/NetworkSearch";
 import NetworkAnalytics from "./connections/NetworkAnalytics";
-import ConnectionInsights from "./connections/ConnectionInsights";
+import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -107,17 +107,16 @@ const EnhancedConnections = () => {
       </div>
 
       {showSearch && (
-        <NetworkSearch
-          connections={connectedPeople}
+        <DatabaseNetworkSearch
+          connectedPeople={connectedPeople}
           suggestedConnections={suggestedConnections}
           onClose={() => setShowSearch(false)}
         />
       )}
 
       {showAnalytics && (
-        <NetworkAnalytics
+        <DatabaseNetworkAnalytics
           connectedPeople={connectedPeople}
-          myGroups={mockGroups.myGroups}
           onClose={() => setShowAnalytics(false)}
         />
       )}
@@ -159,7 +158,7 @@ const EnhancedConnections = () => {
             weeklyGrowth={12}
           />
 
-          <ConnectionInsights
+          <DatabaseConnectionInsights
             connectedPeople={connectedPeople}
             suggestedConnections={suggestedConnections}
           />
