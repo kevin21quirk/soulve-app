@@ -1,107 +1,119 @@
 
-import { UserPlus } from "lucide-react";
-import { DatabaseProfile } from "@/services/realConnectionsService";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { UserPlus, X, MapPin, Users } from "lucide-react";
+import TrustScoreDisplay from "./TrustScoreDisplay";
+
+interface SuggestedConnection {
+  id: string;
+  target_user_id: string;
+  target_profile: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    location?: string;
+  };
+  recommendation_type: string;
+  confidence_score: number;
+  reasoning?: string;
+}
 
 interface SuggestedConnectionsProps {
-  suggestedConnections: DatabaseProfile[];
-  onSendRequest: (id: string) => void;
+  suggestedConnections: SuggestedConnection[];
+  onSendRequest: (userId: string) => void;
   getTrustScoreColor: (score: number) => string;
 }
 
-const SuggestedConnections = ({ 
-  suggestedConnections, 
-  onSendRequest, 
-  getTrustScoreColor 
-}: SuggestedConnectionsProps) => {
+const SuggestedConnections = ({ suggestedConnections, onSendRequest, getTrustScoreColor }: SuggestedConnectionsProps) => {
+  const handleDismiss = (connectionId: string) => {
+    console.log("Dismiss suggestion:", connectionId);
+  };
+
   if (suggestedConnections.length === 0) {
     return (
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-          <UserPlus className="h-5 w-5 mr-2" />
-          Suggested Connections (0)
-        </h3>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No suggestions available right now. Check back later!</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Suggested Connections</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-gray-500">No suggestions available at the moment.</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-        <UserPlus className="h-5 w-5 mr-2" />
-        Suggested Connections ({suggestedConnections.length})
-      </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {suggestedConnections.map((profile) => {
-          const displayName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
-          
-          return (
-            <Card key={profile.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <span>Suggested Connections</span>
+          <Badge variant="outline">{suggestedConnections.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {suggestedConnections.map((suggestion) => {
+            const profile = suggestion.target_profile || {};
+            const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+            
+            return (
+              <div key={suggestion.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-3 flex-1">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile.avatar_url || ''} alt={displayName} />
-                    <AvatarFallback>
-                      {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    <AvatarImage src={profile.avatar_url} alt={name} />
+                    <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                      {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-gray-900 truncate">{displayName}</h4>
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 mt-1">
-                      {profile.location || 'Location not specified'}
-                    </p>
-                    
-                    {profile.bio && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {profile.bio}
-                      </p>
-                    )}
-                    
-                    {profile.skills && profile.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {profile.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {profile.skills.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{profile.skills.length - 3} more
-                          </Badge>
-                        )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    {profile.location && (
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {profile.location}
                       </div>
                     )}
-                    
-                    <div className="flex space-x-2 mt-3">
-                      <Button 
-                        size="sm" 
-                        onClick={() => onSendRequest(profile.id)}
-                        className="flex-1"
-                      >
-                        <UserPlus className="h-4 w-4 mr-1" />
-                        Connect
-                      </Button>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <TrustScoreDisplay score={78} size="sm" showBadge={false} />
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Users className="h-3 w-3 mr-1" />
+                        3 mutual connections
+                      </div>
                     </div>
+                    {suggestion.reasoning && (
+                      <p className="text-xs text-gray-600 mt-1">{suggestion.reasoning}</p>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSendRequest(suggestion.target_user_id)}
+                    className="border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af] hover:text-white"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Connect
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDismiss(suggestion.id)}
+                    className="text-gray-500 hover:text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

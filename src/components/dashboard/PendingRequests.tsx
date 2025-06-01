@@ -1,111 +1,110 @@
 
-import { UserPlus } from "lucide-react";
-import { ConnectionWithProfiles } from "@/services/realConnectionsService";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, MapPin, Clock } from "lucide-react";
+import TrustScoreDisplay from "./TrustScoreDisplay";
+
+interface PendingRequest {
+  id: string;
+  requester_id: string;
+  requester: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    location?: string;
+  };
+  created_at: string;
+}
 
 interface PendingRequestsProps {
-  pendingRequests: ConnectionWithProfiles[];
-  onAccept: (id: string) => void;
-  onDecline: (id: string) => void;
+  pendingRequests: PendingRequest[];
+  onAccept: (connectionId: string) => void;
+  onDecline: (connectionId: string) => void;
   getTrustScoreColor: (score: number) => string;
 }
 
-const PendingRequests = ({ 
-  pendingRequests, 
-  onAccept, 
-  onDecline, 
-  getTrustScoreColor 
-}: PendingRequestsProps) => {
-  if (pendingRequests.length === 0) return null;
+const PendingRequests = ({ pendingRequests, onAccept, onDecline, getTrustScoreColor }: PendingRequestsProps) => {
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  if (pendingRequests.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-        <UserPlus className="h-5 w-5 mr-2" />
-        Pending Requests ({pendingRequests.length})
-      </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {pendingRequests.map((connection) => {
-          const profile = connection.requester;
-          const displayName = profile 
-            ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
-            : 'Anonymous';
-          
-          return (
-            <Card key={connection.id} className="hover:shadow-md transition-shadow border-blue-200">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <span>Connection Requests</span>
+          <Badge variant="secondary">{pendingRequests.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {pendingRequests.map((request) => {
+            const profile = request.requester || {};
+            const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+            
+            return (
+              <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg bg-blue-50/50">
+                <div className="flex items-center space-x-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
-                    <AvatarFallback>
-                      {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    <AvatarImage src={profile.avatar_url} alt={name} />
+                    <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                      {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-gray-900 truncate">{displayName}</h4>
-                      <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
-                        Pending
-                      </Badge>
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 mt-1">
-                      {profile?.location || 'Location not specified'}
-                    </p>
-                    
-                    {profile?.bio && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {profile.bio}
-                      </p>
-                    )}
-                    
-                    {profile?.skills && profile.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {profile.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {profile.skills.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{profile.skills.length - 3} more
-                          </Badge>
-                        )}
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    {profile.location && (
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {profile.location}
                       </div>
                     )}
-                    
-                    <div className="flex space-x-2 mt-3">
-                      <Button 
-                        size="sm" 
-                        onClick={() => onAccept(connection.id)}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        Accept
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => onDecline(connection.id)}
-                        className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Decline
-                      </Button>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <TrustScoreDisplay score={82} size="sm" showBadge={false} />
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatTimeAgo(request.created_at)}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="sm"
+                    onClick={() => onAccept(request.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Accept
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDecline(request.id)}
+                    className="border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Decline
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

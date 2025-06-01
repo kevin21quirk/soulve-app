@@ -1,8 +1,8 @@
 
-import DiscoverContainer from "../../discover/DiscoverContainer";
+import RealDiscoverConnectTab from "./RealDiscoverConnectTab";
 
 const DiscoverTab = () => {
-  return <DiscoverContainer />;
+  return <RealDiscoverConnectTab />;
 };
 
 export default DiscoverTab;

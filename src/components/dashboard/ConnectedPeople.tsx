@@ -1,112 +1,118 @@
 
-import { Users } from "lucide-react";
-import { DatabaseProfile } from "@/services/realConnectionsService";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, UserMinus } from "lucide-react";
+import { MessageCircle, UserX, MapPin, Calendar } from "lucide-react";
+import TrustScoreDisplay from "./TrustScoreDisplay";
+
+interface ConnectedPerson {
+  id: string;
+  partner_id: string;
+  partner_profile: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    location?: string;
+  };
+}
 
 interface ConnectedPeopleProps {
-  connectedPeople: Array<{
-    id: string;
-    partner_id: string;
-    partner_profile: DatabaseProfile | null;
-  }>;
+  connectedPeople: ConnectedPerson[];
   getTrustScoreColor: (score: number) => string;
 }
 
 const ConnectedPeople = ({ connectedPeople, getTrustScoreColor }: ConnectedPeopleProps) => {
+  const handleMessage = (personId: string) => {
+    console.log("Message person:", personId);
+  };
+
+  const handleDisconnect = (personId: string) => {
+    console.log("Disconnect from person:", personId);
+  };
+
   if (connectedPeople.length === 0) {
     return (
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Users className="h-5 w-5 mr-2" />
-          Your Connections (0)
-        </h3>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No connections yet. Start by sending connection requests!</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <span>Your Connections</span>
+            <Badge variant="outline">0</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-gray-500">No connections yet. Start building your network!</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-        <Users className="h-5 w-5 mr-2" />
-        Your Connections ({connectedPeople.length})
-      </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {connectedPeople.map((connection) => {
-          const profile = connection.partner_profile;
-          const displayName = profile 
-            ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
-            : 'Anonymous';
-          
-          return (
-            <Card key={connection.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <span>Your Connections</span>
+          <Badge variant="outline">{connectedPeople.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {connectedPeople.map((connection) => {
+            const profile = connection.partner_profile || {};
+            const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+            
+            return (
+              <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
-                    <AvatarFallback>
-                      {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    <AvatarImage src={profile.avatar_url} alt={name} />
+                    <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                      {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-gray-900 truncate">{displayName}</h4>
-                      <Badge variant="outline" className="ml-2">
-                        Connected
-                      </Badge>
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 mt-1">
-                      {profile?.location || 'Location not specified'}
-                    </p>
-                    
-                    {profile?.bio && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {profile.bio}
-                      </p>
-                    )}
-                    
-                    {profile?.skills && profile.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {profile.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {profile.skills.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{profile.skills.length - 3} more
-                          </Badge>
-                        )}
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    {profile.location && (
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {profile.location}
                       </div>
                     )}
-                    
-                    <div className="flex space-x-2 mt-3">
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        Message
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        <UserMinus className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <TrustScoreDisplay score={75} size="sm" showBadge={false} />
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Connected 2 days ago
+                      </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleMessage(connection.partner_id)}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Message
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDisconnect(connection.partner_id)}
+                    className="text-gray-500 hover:text-red-600"
+                  >
+                    <UserX className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
