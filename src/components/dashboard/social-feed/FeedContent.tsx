@@ -66,8 +66,7 @@ const FeedContent = ({
               text: comment.content || '', // Use content as text for compatibility
               likes: comment.likes,
               reactions: comment.reactions || []
-            })),
-            reactions: post.reactions || []
+            }))
           }}
           onLike={() => onLike(post.id)}
           onShare={() => onShare(post.id)}
