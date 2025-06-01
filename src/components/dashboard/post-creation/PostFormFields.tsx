@@ -30,6 +30,9 @@ const PostFormFields = ({
   return (
     <div className="space-y-6">
       <div>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">
+          Title *
+        </label>
         <UserTagging
           value={formData.title}
           onChange={onTitleChange}
@@ -38,6 +41,9 @@ const PostFormFields = ({
       </div>
 
       <div>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">
+          Description *
+        </label>
         <UserTagging
           value={formData.description}
           onChange={onDescriptionChange}

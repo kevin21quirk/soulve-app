@@ -43,6 +43,8 @@ const PostFormSection = ({
   onSubmit,
   onCancel
 }: PostFormSectionProps) => {
+  const isFormValid = formData.title.trim() && formData.description.trim() && formData.category;
+
   return (
     <Card className="mb-6 border-blue-200">
       <CardHeader className="pb-4">
@@ -54,12 +56,13 @@ const PostFormSection = ({
                 variant="outline" 
                 size="sm" 
                 onClick={onToggleAdvancedOptions}
+                type="button"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Advanced
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={onCancel}>
+            <Button variant="ghost" size="sm" onClick={onCancel} type="button">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -100,7 +103,11 @@ const PostFormSection = ({
                 Use Template
               </Button>
             )}
-            <Button type="submit">
+            <Button 
+              type="submit" 
+              disabled={!isFormValid}
+              className={!isFormValid ? "opacity-50 cursor-not-allowed" : ""}
+            >
               {formData.scheduledFor ? "Schedule Post" : "Share Post"}
             </Button>
           </div>

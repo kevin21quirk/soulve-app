@@ -29,6 +29,11 @@ const PostAdvancedOptions = ({
           maxFiles={5}
           maxFileSize={10}
         />
+        {mediaFiles.length > 0 && (
+          <p className="text-xs text-gray-500 mt-2">
+            {mediaFiles.length} file(s) selected
+          </p>
+        )}
       </div>
 
       {/* Post Options */}
