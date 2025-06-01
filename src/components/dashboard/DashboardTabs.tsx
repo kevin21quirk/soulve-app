@@ -1,5 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SocialFeed from "./SocialFeed";
 import RealDiscoverConnectTab from "./tabs/RealDiscoverConnectTab";
 import MessagesTab from "./tabs/MessagesTab";
@@ -35,18 +36,28 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-7">
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
-          >
-            <tab.icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{tab.label}</span>
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <TooltipProvider>
+        <TabsList className="grid w-full grid-cols-7">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon;
+            return (
+              <Tooltip key={tab.id}>
+                <TooltipTrigger asChild>
+                  <TabsTrigger
+                    value={tab.id}
+                    className="flex items-center justify-center data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                  >
+                    <IconComponent className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{tab.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </TabsList>
+      </TooltipProvider>
 
       {tabs.map((tab) => (
         <TabsContent key={tab.id} value={tab.id} className="mt-6">
