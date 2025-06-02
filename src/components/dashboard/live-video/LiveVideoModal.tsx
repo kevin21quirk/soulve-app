@@ -2,26 +2,36 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, VideoOff, Mic, MicOff, X, Users, MessageCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Video, X, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface LiveVideoModalProps {
-  onClose: () => void;
-  onStartLive: (streamData: any) => void;
+interface LiveVideoData {
+  streamId: string;
+  title: string;
+  startTime: Date;
+  stream?: MediaStream;
 }
 
-const LiveVideoModal = ({ onClose, onStartLive }: LiveVideoModalProps) => {
+interface LiveVideoModalProps {
+  onStartLive: (data: LiveVideoData) => void;
+  onClose: () => void;
+}
+
+const LiveVideoModal = ({ onStartLive, onClose }: LiveVideoModalProps) => {
   const { toast } = useToast();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isStarting, setIsStarting] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isLive, setIsLive] = useState(false);
-  const [viewerCount, setViewerCount] = useState(0);
+  const [streamTitle, setStreamTitle] = useState("");
+  const [streamDescription, setStreamDescription] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState<'internal' | 'youtube' | 'twitch' | 'custom'>('internal');
+  const [customRtmpUrl, setCustomRtmpUrl] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    initializeCamera();
+    checkCameraAccess();
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -29,109 +39,129 @@ const LiveVideoModal = ({ onClose, onStartLive }: LiveVideoModalProps) => {
     };
   }, []);
 
-  const initializeCamera = async () => {
+  const checkCameraAccess = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasVideoDevice = devices.some(device => device.kind === 'videoinput');
+      setHasCamera(hasVideoDevice);
+      
+      if (hasVideoDevice) {
+        await startPreview();
+      }
+    } catch (error) {
+      console.error('Error checking camera access:', error);
+      setHasCamera(false);
+    }
+  };
+
+  const startPreview = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { width: 640, height: 480 },
         audio: true
       });
       
       setStream(mediaStream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (error) {
+      console.error('Error starting preview:', error);
       toast({
         title: "Camera access denied",
-        description: "Please allow camera and microphone access to start live video.",
+        description: "Please allow camera access to start live streaming.",
         variant: "destructive"
       });
     }
   };
 
-  const toggleVideo = () => {
-    if (stream) {
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoEnabled(videoTrack.enabled);
-      }
+  const handleStartLive = async () => {
+    if (!streamTitle.trim()) {
+      toast({
+        title: "Title required",
+        description: "Please enter a title for your live stream.",
+        variant: "destructive"
+      });
+      return;
     }
-  };
 
-  const toggleAudio = () => {
-    if (stream) {
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsAudioEnabled(audioTrack.enabled);
-      }
+    if (!stream) {
+      toast({
+        title: "No camera access",
+        description: "Camera access is required for live streaming.",
+        variant: "destructive"
+      });
+      return;
     }
-  };
 
-  const startLiveStream = async () => {
-    setIsConnecting(true);
-    
+    setIsStarting(true);
+
     try {
-      // Simulate connecting to live streaming service
+      // Simulate stream initialization
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setIsLive(true);
-      setIsConnecting(false);
-      
-      // Simulate viewer count updates
-      const interval = setInterval(() => {
-        setViewerCount(prev => prev + Math.floor(Math.random() * 3));
-      }, 3000);
-      
-      const streamData = {
+
+      const liveData: LiveVideoData = {
         streamId: `live_${Date.now()}`,
-        title: "Live Video Stream",
+        title: streamTitle,
         startTime: new Date(),
         stream: stream
       };
-      
-      onStartLive(streamData);
+
+      onStartLive(liveData);
       
       toast({
-        title: "You're now live!",
-        description: "Your live video stream has started successfully.",
+        title: "Live stream started!",
+        description: "Your live stream is now broadcasting.",
       });
-      
-      // Clean up interval when component unmounts
-      return () => clearInterval(interval);
+
     } catch (error) {
-      setIsConnecting(false);
+      console.error('Error starting live stream:', error);
       toast({
-        title: "Failed to start live stream",
-        description: "Please check your connection and try again.",
+        title: "Failed to start stream",
+        description: "There was an error starting your live stream. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsStarting(false);
     }
   };
 
-  const endLiveStream = () => {
-    setIsLive(false);
-    setViewerCount(0);
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+  const platforms = [
+    {
+      id: 'internal' as const,
+      name: 'SouLVE Live',
+      description: 'Stream directly on our platform',
+      available: true
+    },
+    {
+      id: 'youtube' as const,
+      name: 'YouTube Live',
+      description: 'Stream to YouTube (requires API key)',
+      available: false
+    },
+    {
+      id: 'twitch' as const,
+      name: 'Twitch',
+      description: 'Stream to Twitch (requires stream key)',
+      available: false
+    },
+    {
+      id: 'custom' as const,
+      name: 'Custom RTMP',
+      description: 'Use your own RTMP endpoint',
+      available: true
     }
-    onClose();
-  };
+  ];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-2xl mx-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
               <Video className="h-5 w-5 text-red-500" />
-              <span>{isLive ? "Live Video" : "Start Live Video"}</span>
-              {isLive && (
-                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">
-                  LIVE
-                </span>
-              )}
+              <span>Start Live Stream</span>
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
@@ -139,78 +169,151 @@ const LiveVideoModal = ({ onClose, onStartLive }: LiveVideoModalProps) => {
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-4">
-          {/* Video Preview */}
-          <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            
-            {isLive && (
-              <div className="absolute top-4 left-4 flex items-center space-x-4">
-                <div className="flex items-center space-x-1 bg-black bg-opacity-50 rounded px-2 py-1">
-                  <Users className="h-4 w-4 text-white" />
-                  <span className="text-white text-sm">{viewerCount}</span>
+        <CardContent className="space-y-6">
+          {/* Camera Preview */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700">Camera Preview</label>
+            <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+              {hasCamera ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-white">
+                  <div className="text-center">
+                    <AlertCircle className="h-12 w-12 mx-auto mb-2" />
+                    <p>No camera detected</p>
+                    <p className="text-sm text-gray-400">Please connect a camera to continue</p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1 bg-black bg-opacity-50 rounded px-2 py-1">
-                  <MessageCircle className="h-4 w-4 text-white" />
-                  <span className="text-white text-sm">Comments</span>
-                </div>
+              )}
+              
+              {/* Live indicator */}
+              <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                PREVIEW
               </div>
-            )}
+            </div>
           </div>
-          
-          {/* Controls */}
-          <div className="flex items-center justify-center space-x-4">
-            <Button
-              variant={isVideoEnabled ? "default" : "destructive"}
-              size="sm"
-              onClick={toggleVideo}
-              disabled={isConnecting}
-            >
-              {isVideoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-            </Button>
-            
-            <Button
-              variant={isAudioEnabled ? "default" : "destructive"}
-              size="sm"
-              onClick={toggleAudio}
-              disabled={isConnecting}
-            >
-              {isAudioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-            </Button>
-            
-            {!isLive ? (
-              <Button
-                onClick={startLiveStream}
-                disabled={isConnecting || !stream}
-                className="bg-red-500 hover:bg-red-600 text-white px-6"
-              >
-                {isConnecting ? "Connecting..." : "Go Live"}
-              </Button>
-            ) : (
-              <Button
-                onClick={endLiveStream}
-                variant="destructive"
-                className="px-6"
-              >
-                End Live
-              </Button>
-            )}
+
+          {/* Stream Details */}
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Stream Title *
+              </label>
+              <Input
+                placeholder="Enter your stream title..."
+                value={streamTitle}
+                onChange={(e) => setStreamTitle(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Description (optional)
+              </label>
+              <Textarea
+                placeholder="Describe what you'll be streaming about..."
+                value={streamDescription}
+                onChange={(e) => setStreamDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
           </div>
-          
-          {!stream && (
-            <div className="text-center text-gray-500">
-              <p>Camera and microphone access required</p>
-              <Button onClick={initializeCamera} variant="outline" className="mt-2">
-                Try Again
-              </Button>
+
+          {/* Platform Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700">Streaming Platform</label>
+            <div className="grid grid-cols-1 gap-2">
+              {platforms.map((platform) => (
+                <button
+                  key={platform.id}
+                  onClick={() => platform.available && setSelectedPlatform(platform.id)}
+                  disabled={!platform.available}
+                  className={`text-left p-3 rounded-lg border transition-colors ${
+                    selectedPlatform === platform.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : platform.available
+                        ? 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{platform.name}</div>
+                      <div className="text-sm text-gray-500">{platform.description}</div>
+                    </div>
+                    {!platform.available && (
+                      <span className="text-xs text-orange-500 font-medium">Coming Soon</span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom RTMP URL */}
+          {selectedPlatform === 'custom' && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                RTMP URL
+              </label>
+              <Input
+                placeholder="rtmp://your-server.com/live/stream-key"
+                value={customRtmpUrl}
+                onChange={(e) => setCustomRtmpUrl(e.target.value)}
+              />
             </div>
           )}
+
+          {/* Integration Notice */}
+          {(selectedPlatform === 'youtube' || selectedPlatform === 'twitch') && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <div className="flex items-start space-x-2">
+                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    External Platform Integration
+                  </p>
+                  <p className="text-sm text-amber-700 mt-1">
+                    To stream to {platform.name}, you'll need to configure API keys in your account settings.
+                  </p>
+                  <Button variant="outline" size="sm" className="mt-2">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Configure Integration
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleStartLive}
+              disabled={!hasCamera || isStarting || !streamTitle.trim()}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {isStarting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Starting...
+                </>
+              ) : (
+                <>
+                  <Video className="h-4 w-4 mr-2" />
+                  Go Live
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

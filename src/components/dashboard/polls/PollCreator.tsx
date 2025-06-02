@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, X, BarChart3 } from "lucide-react";
+import { Plus, X, BarChart3, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PollOption {
@@ -16,7 +16,7 @@ interface PollData {
   question: string;
   options: PollOption[];
   allowMultiple: boolean;
-  duration: number; // hours
+  duration: number; // in hours
 }
 
 interface PollCreatorProps {
@@ -27,36 +27,77 @@ interface PollCreatorProps {
 
 const PollCreator = ({ onPollCreate, onClose, initialPoll }: PollCreatorProps) => {
   const { toast } = useToast();
-  const [question, setQuestion] = useState(initialPoll?.question || "");
-  const [options, setOptions] = useState<PollOption[]>(
-    initialPoll?.options || [
+  const [pollData, setPollData] = useState<PollData>({
+    question: initialPoll?.question || "",
+    options: initialPoll?.options || [
       { id: "1", text: "", votes: 0 },
       { id: "2", text: "", votes: 0 }
-    ]
-  );
-  const [allowMultiple, setAllowMultiple] = useState(initialPoll?.allowMultiple || false);
-  const [duration, setDuration] = useState(initialPoll?.duration || 24);
+    ],
+    allowMultiple: initialPoll?.allowMultiple || false,
+    duration: initialPoll?.duration || 24
+  });
 
-  const addOption = () => {
-    if (options.length < 10) {
-      setOptions([...options, { id: Date.now().toString(), text: "", votes: 0 }]);
-    }
-  };
-
-  const removeOption = (id: string) => {
-    if (options.length > 2) {
-      setOptions(options.filter(option => option.id !== id));
-    }
+  const updateQuestion = (question: string) => {
+    setPollData(prev => ({ ...prev, question }));
   };
 
   const updateOption = (id: string, text: string) => {
-    setOptions(options.map(option => 
-      option.id === id ? { ...option, text } : option
-    ));
+    setPollData(prev => ({
+      ...prev,
+      options: prev.options.map(opt => 
+        opt.id === id ? { ...opt, text } : opt
+      )
+    }));
+  };
+
+  const addOption = () => {
+    if (pollData.options.length >= 6) {
+      toast({
+        title: "Maximum options reached",
+        description: "You can add up to 6 poll options.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newOption: PollOption = {
+      id: Date.now().toString(),
+      text: "",
+      votes: 0
+    };
+
+    setPollData(prev => ({
+      ...prev,
+      options: [...prev.options, newOption]
+    }));
+  };
+
+  const removeOption = (id: string) => {
+    if (pollData.options.length <= 2) {
+      toast({
+        title: "Minimum options required",
+        description: "A poll must have at least 2 options.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setPollData(prev => ({
+      ...prev,
+      options: prev.options.filter(opt => opt.id !== id)
+    }));
+  };
+
+  const toggleMultipleChoice = () => {
+    setPollData(prev => ({ ...prev, allowMultiple: !prev.allowMultiple }));
+  };
+
+  const updateDuration = (duration: number) => {
+    setPollData(prev => ({ ...prev, duration }));
   };
 
   const handleCreatePoll = () => {
-    if (!question.trim()) {
+    if (!pollData.question.trim()) {
       toast({
         title: "Question required",
         description: "Please enter a poll question.",
@@ -65,29 +106,36 @@ const PollCreator = ({ onPollCreate, onClose, initialPoll }: PollCreatorProps) =
       return;
     }
 
-    const validOptions = options.filter(option => option.text.trim());
+    const validOptions = pollData.options.filter(opt => opt.text.trim());
     if (validOptions.length < 2) {
       toast({
-        title: "Not enough options",
+        title: "Insufficient options",
         description: "Please provide at least 2 poll options.",
         variant: "destructive"
       });
       return;
     }
 
-    const pollData: PollData = {
-      question: question.trim(),
-      options: validOptions,
-      allowMultiple,
-      duration
+    const finalPollData = {
+      ...pollData,
+      options: validOptions
     };
 
-    onPollCreate(pollData);
+    onPollCreate(finalPollData);
     toast({
       title: "Poll created!",
       description: "Your poll has been added to the post.",
     });
   };
+
+  const durationOptions = [
+    { value: 1, label: "1 hour" },
+    { value: 6, label: "6 hours" },
+    { value: 12, label: "12 hours" },
+    { value: 24, label: "1 day" },
+    { value: 72, label: "3 days" },
+    { value: 168, label: "1 week" }
+  ];
 
   return (
     <Card className="w-full max-w-md">
@@ -111,83 +159,93 @@ const PollCreator = ({ onPollCreate, onClose, initialPoll }: PollCreatorProps) =
           </label>
           <Input
             placeholder="Ask a question..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="w-full"
+            value={pollData.question}
+            onChange={(e) => updateQuestion(e.target.value)}
           />
         </div>
 
         {/* Poll Options */}
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">
-            Poll Options
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 block">
+            Options
           </label>
-          <div className="space-y-2">
-            {options.map((option, index) => (
-              <div key={option.id} className="flex items-center space-x-2">
-                <Input
-                  placeholder={`Option ${index + 1}`}
-                  value={option.text}
-                  onChange={(e) => updateOption(option.id, e.target.value)}
-                  className="flex-1"
-                />
-                {options.length > 2 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeOption(option.id)}
-                    className="text-red-500"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
           
-          {options.length < 10 && (
+          {pollData.options.map((option, index) => (
+            <div key={option.id} className="flex items-center space-x-2">
+              <Input
+                placeholder={`Option ${index + 1}`}
+                value={option.text}
+                onChange={(e) => updateOption(option.id, e.target.value)}
+                className="flex-1"
+              />
+              {pollData.options.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeOption(option.id)}
+                  className="p-2 h-9 w-9"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+          
+          {pollData.options.length < 6 && (
             <Button
               variant="outline"
               size="sm"
               onClick={addOption}
-              className="mt-2 w-full"
+              className="w-full mt-2"
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-4 w-4 mr-2" />
               Add Option
             </Button>
           )}
         </div>
 
         {/* Poll Settings */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-2 border-t">
+          {/* Multiple Choice */}
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-700">
               Allow multiple selections
             </label>
-            <input
-              type="checkbox"
-              checked={allowMultiple}
-              onChange={(e) => setAllowMultiple(e.target.checked)}
-              className="rounded"
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
-              Poll Duration (hours)
-            </label>
-            <select
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full p-2 border rounded-md"
+            <button
+              onClick={toggleMultipleChoice}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                pollData.allowMultiple ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
             >
-              <option value={1}>1 hour</option>
-              <option value={6}>6 hours</option>
-              <option value={12}>12 hours</option>
-              <option value={24}>24 hours</option>
-              <option value={72}>3 days</option>
-              <option value={168}>1 week</option>
-            </select>
+              <span
+                className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                  pollData.allowMultiple ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Poll Duration */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Clock className="h-4 w-4 mr-1" />
+              Poll Duration
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {durationOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => updateDuration(option.value)}
+                  className={`text-xs py-2 px-3 rounded border transition-colors ${
+                    pollData.duration === option.value
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
