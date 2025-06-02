@@ -10,6 +10,7 @@ import CampaignCreateTab from "./CampaignCreateTab";
 import CampaignManageTab from "./CampaignManageTab";
 import CampaignAnalytics from "./CampaignAnalytics";
 import HelpApprovalTab from "../dashboard/tabs/HelpApprovalTab";
+import HelpCenter from "../dashboard/HelpCenter";
 import { type CampaignTemplate } from "@/services/campaignTemplateService";
 import { useToast } from "@/hooks/use-toast";
 import { useHelpCompletion } from "@/hooks/useHelpCompletion";
@@ -57,9 +58,9 @@ const EnhancedCampaignBuilder = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Enhanced Campaign Builder
+            Campaigns & Help Center
           </h1>
-          <p className="text-gray-600 mt-2">Create powerful campaigns with our advanced tools and templates</p>
+          <p className="text-gray-600 mt-2">Create powerful campaigns and get help when you need it</p>
         </div>
         <Badge variant="soulve" className="px-4 py-2">
           <Sparkles className="h-4 w-4 mr-2" />
@@ -68,7 +69,7 @@ const EnhancedCampaignBuilder = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger 
             value="templates" 
             className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -102,7 +103,7 @@ const EnhancedCampaignBuilder = () => {
             className="relative flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
           >
             <HelpCircle className="h-4 w-4" />
-            <span>Help & Approvals</span>
+            <span>Approvals</span>
             {pendingRequests.length > 0 && (
               <Badge 
                 variant="destructive" 
@@ -111,6 +112,13 @@ const EnhancedCampaignBuilder = () => {
                 {pendingRequests.length}
               </Badge>
             )}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="help-center" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            <HelpCircle className="h-4 w-4" />
+            <span>Help Center</span>
           </TabsTrigger>
         </TabsList>
 
@@ -141,6 +149,10 @@ const EnhancedCampaignBuilder = () => {
 
         <TabsContent value="help-approvals" className="mt-6">
           <HelpApprovalTab />
+        </TabsContent>
+
+        <TabsContent value="help-center" className="mt-6">
+          <HelpCenter />
         </TabsContent>
       </Tabs>
     </div>

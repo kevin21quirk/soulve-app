@@ -27,7 +27,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   const tabs = [
     { id: "feed", label: "Feed", icon: Home, component: EnhancedSocialFeed },
     { id: "discover", label: "Discover & Connect", icon: Users, component: RealDiscoverConnectTab },
-    { id: "campaigns", label: "Campaigns", icon: Target, component: EnhancedCampaignBuilder },
+    { id: "campaigns", label: "Campaigns & Help", icon: Target, component: EnhancedCampaignBuilder },
     { id: "messages", label: "Messages", icon: MessageCircle, component: MessagesTab },
     { id: "impact", label: "Impact", icon: TrendingUp, component: InteractiveImpactDashboard },
     { id: "points", label: "Points & Trust", icon: Trophy, component: EnhancedAnalyticsPointsTab },
@@ -37,7 +37,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TooltipProvider>
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-7 h-14 p-1">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
             return (
@@ -45,9 +45,9 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
                 <TooltipTrigger asChild>
                   <TabsTrigger
                     value={tab.id}
-                    className="flex items-center justify-center data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                    className="flex items-center justify-center h-12 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
                   >
-                    <IconComponent className="h-4 w-4" />
+                    <IconComponent className="h-6 w-6" />
                   </TabsTrigger>
                 </TooltipTrigger>
                 <TooltipContent>

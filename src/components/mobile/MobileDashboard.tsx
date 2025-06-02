@@ -100,7 +100,7 @@ const MobileDashboard = () => {
               onClick={() => setActiveTab(item.id)}
               className="flex flex-col items-center p-2 h-auto"
             >
-              <item.icon className="h-4 w-4 mb-1" />
+              <item.icon className="h-5 w-5 mb-1" />
               <span className="text-xs">{item.label}</span>
             </Button>
           ))}
