@@ -1,0 +1,357 @@
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Camera, 
+  Video, 
+  Upload, 
+  Heart, 
+  Star, 
+  Smile, 
+  Sparkles,
+  Users,
+  Clock,
+  Target
+} from 'lucide-react';
+
+interface PostStoryUpdaterProps {
+  postId: string;
+  postTitle: string;
+  onUpdateAdded: () => void;
+}
+
+const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdaterProps) => {
+  const { toast } = useToast();
+  const [updateType, setUpdateType] = useState<'progress' | 'completion' | 'impact' | 'reflection'>('progress');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string>('');
+  const [emotions, setEmotions] = useState<string[]>([]);
+  const [stats, setStats] = useState({
+    helpedCount: '',
+    hoursContributed: '',
+    impactReach: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const emotionOptions = [
+    { emoji: '😊', label: 'Happy' },
+    { emoji: '🙏', label: 'Grateful' },
+    { emoji: '💪', label: 'Empowered' },
+    { emoji: '❤️', label: 'Loved' },
+    { emoji: '🎉', label: 'Celebrating' },
+    { emoji: '😌', label: 'Peaceful' },
+    { emoji: '🌟', label: 'Inspired' },
+    { emoji: '🤝', label: 'Connected' },
+  ];
+
+  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMediaFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setMediaPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const toggleEmotion = (emotion: string) => {
+    setEmotions(prev => 
+      prev.includes(emotion) 
+        ? prev.filter(e => e !== emotion)
+        : [...prev, emotion]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please add both a title and description for your story update.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Here you would upload the media and save the story update
+      // For now, we'll simulate the process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast({
+        title: "Story update added! ✨",
+        description: "Your progress has been captured and will be part of everyone's relive experience.",
+      });
+
+      // Reset form
+      setTitle('');
+      setContent('');
+      setMediaFile(null);
+      setMediaPreview('');
+      setEmotions([]);
+      setStats({ helpedCount: '', hoursContributed: '', impactReach: '' });
+      
+      onUpdateAdded();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add story update. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUpdateTypeInfo = (type: string) => {
+    const info = {
+      progress: {
+        icon: Target,
+        title: 'Progress Update',
+        description: 'Share how things are going',
+        color: 'text-blue-500'
+      },
+      completion: {
+        icon: Star,
+        title: 'Completion',
+        description: 'Celebrate the achievement',
+        color: 'text-green-500'
+      },
+      impact: {
+        icon: Sparkles,
+        title: 'Impact Story',
+        description: 'Show the difference made',
+        color: 'text-purple-500'
+      },
+      reflection: {
+        icon: Heart,
+        title: 'Reflection',
+        description: 'Share thoughts and feelings',
+        color: 'text-pink-500'
+      }
+    };
+    return info[type as keyof typeof info];
+  };
+
+  const typeInfo = getUpdateTypeInfo(updateType);
+  const IconComponent = typeInfo.icon;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Camera className="h-5 w-5 text-blue-500" />
+          <span>Add Story Update</span>
+        </CardTitle>
+        <p className="text-sm text-gray-600">
+          Help others relive this moment by sharing the journey of "{postTitle}"
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Update Type */}
+        <div className="space-y-2">
+          <Label>Update Type</Label>
+          <Select value={updateType} onValueChange={(value: any) => setUpdateType(value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {['progress', 'completion', 'impact', 'reflection'].map(type => {
+                const info = getUpdateTypeInfo(type);
+                const Icon = info.icon;
+                return (
+                  <SelectItem key={type} value={type}>
+                    <div className="flex items-center space-x-2">
+                      <Icon className={`h-4 w-4 ${info.color}`} />
+                      <div>
+                        <div className="font-medium">{info.title}</div>
+                        <div className="text-xs text-gray-500">{info.description}</div>
+                      </div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Title */}
+        <div className="space-y-2">
+          <Label htmlFor="title">Update Title</Label>
+          <Input
+            id="title"
+            placeholder="Give your update a meaningful title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        {/* Content */}
+        <div className="space-y-2">
+          <Label htmlFor="content">Story Content</Label>
+          <Textarea
+            id="content"
+            placeholder="Share the story, progress, or impact. This will be part of the relive experience..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={4}
+          />
+        </div>
+
+        {/* Media Upload */}
+        <div className="space-y-2">
+          <Label>Media (optional)</Label>
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
+            {mediaPreview ? (
+              <div className="relative">
+                {mediaFile?.type.startsWith('video/') ? (
+                  <video src={mediaPreview} controls className="w-full max-h-64 rounded-lg" />
+                ) : (
+                  <img src={mediaPreview} alt="Preview" className="w-full max-h-64 object-cover rounded-lg" />
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setMediaFile(null);
+                    setMediaPreview('');
+                  }}
+                  className="absolute top-2 right-2 bg-black/50 text-white"
+                >
+                  ✕
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <div className="space-y-2">
+                  <Button variant="outline" onClick={() => document.getElementById('media-upload')?.click()}>
+                    <Camera className="h-4 w-4 mr-2" />
+                    Upload Photo/Video
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    Add photos or videos to make the story come alive
+                  </p>
+                </div>
+              </div>
+            )}
+            <input
+              id="media-upload"
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleMediaUpload}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        {/* Emotions */}
+        <div className="space-y-2">
+          <Label>How are you feeling? (optional)</Label>
+          <div className="flex flex-wrap gap-2">
+            {emotionOptions.map((emotion) => (
+              <Button
+                key={emotion.label}
+                variant={emotions.includes(emotion.label) ? "default" : "outline"}
+                size="sm"
+                onClick={() => toggleEmotion(emotion.label)}
+                className="text-sm"
+              >
+                <span className="mr-1">{emotion.emoji}</span>
+                {emotion.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Impact Stats (for completion/impact updates) */}
+        {(updateType === 'completion' || updateType === 'impact') && (
+          <div className="space-y-4">
+            <Label>Impact Numbers (optional)</Label>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="helped" className="text-xs">People Helped</Label>
+                <Input
+                  id="helped"
+                  type="number"
+                  placeholder="0"
+                  value={stats.helpedCount}
+                  onChange={(e) => setStats(prev => ({ ...prev, helpedCount: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="hours" className="text-xs">Hours Contributed</Label>
+                <Input
+                  id="hours"
+                  type="number"
+                  placeholder="0"
+                  value={stats.hoursContributed}
+                  onChange={(e) => setStats(prev => ({ ...prev, hoursContributed: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="reach" className="text-xs">Community Reach</Label>
+                <Input
+                  id="reach"
+                  type="number"
+                  placeholder="0"
+                  value={stats.impactReach}
+                  onChange={(e) => setStats(prev => ({ ...prev, impactReach: e.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Selected emotions display */}
+        {emotions.length > 0 && (
+          <div className="space-y-2">
+            <Label>Selected feelings:</Label>
+            <div className="flex flex-wrap gap-1">
+              {emotions.map((emotion) => {
+                const emotionData = emotionOptions.find(e => e.label === emotion);
+                return (
+                  <Badge key={emotion} variant="secondary" className="text-sm">
+                    {emotionData?.emoji} {emotion}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Submit */}
+        <Button 
+          onClick={handleSubmit} 
+          disabled={loading}
+          className="w-full"
+        >
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Adding Story Update...</span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <IconComponent className="h-4 w-4" />
+              <span>Add Story Update</span>
+            </div>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PostStoryUpdater;

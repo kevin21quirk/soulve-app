@@ -1,9 +1,10 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Clock, Users, DollarSign, CheckCircle, Star, ArrowRight, Calendar, MapPin } from "lucide-react";
+import { Heart, Clock, Users, DollarSign, CheckCircle, Star, ArrowRight, Calendar, MapPin, Play } from "lucide-react";
 import { TrustActivity } from "@/types/trustFootprint";
+import { useState } from "react";
+import ReliveMemoriesDashboard from "../relive/ReliveMemoriesDashboard";
 
 interface ImpactFootprintProps {
   activities: TrustActivity[];
@@ -11,6 +12,8 @@ interface ImpactFootprintProps {
 }
 
 const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
+  const [showReliveMemories, setShowReliveMemories] = useState(false);
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "donation": return DollarSign;
@@ -54,6 +57,22 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  if (showReliveMemories) {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={() => setShowReliveMemories(false)}
+          className="mb-4"
+        >
+          <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+          Back to Impact Timeline
+        </Button>
+        <ReliveMemoriesDashboard />
+      </div>
+    );
+  }
+
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader className="text-center">
@@ -64,6 +83,21 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
         <CardDescription className="text-lg">
           A storyboard of your community contributions and the lives you've touched
         </CardDescription>
+        
+        {/* Relive Memories Button */}
+        <div className="pt-4">
+          <Button
+            onClick={() => setShowReliveMemories(true)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            size="lg"
+          >
+            <Play className="h-5 w-5 mr-2" />
+            Relive Your Memories
+          </Button>
+          <p className="text-sm text-gray-500 mt-2">
+            Experience your journey through immersive story moments
+          </p>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="relative">
@@ -160,6 +194,7 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
                           variant="gradient" 
                           size="sm" 
                           className="text-white"
+                          onClick={() => setShowReliveMemories(true)}
                         >
                           <Heart className="h-4 w-4 mr-2" />
                           Relive this moment
