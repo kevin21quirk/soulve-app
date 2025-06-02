@@ -1,7 +1,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Camera, Smile, Users, Zap } from 'lucide-react';
+import { Camera, Smile, Users, Video, BarChart3, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SocialPostCollapsedProps {
@@ -30,14 +30,14 @@ const SocialPostCollapsed = ({ onExpand }: SocialPostCollapsedProps) => {
         </button>
       </div>
       
-      {/* Quick action buttons */}
-      <div className="flex items-center justify-between">
+      {/* Enhanced quick action buttons with new features */}
+      <div className="grid grid-cols-2 gap-2">
         <div className="flex items-center space-x-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={onExpand}
-            className="flex items-center space-x-2 text-green-600 hover:bg-green-50 px-3 py-2"
+            className="flex items-center space-x-2 text-green-600 hover:bg-green-50 px-3 py-2 flex-1"
           >
             <Camera className="h-4 w-4" />
             <span className="text-xs font-medium">Photo</span>
@@ -47,7 +47,19 @@ const SocialPostCollapsed = ({ onExpand }: SocialPostCollapsedProps) => {
             variant="ghost"
             size="sm"
             onClick={onExpand}
-            className="flex items-center space-x-2 text-yellow-600 hover:bg-yellow-50 px-3 py-2"
+            className="flex items-center space-x-2 text-red-600 hover:bg-red-50 px-3 py-2 flex-1"
+          >
+            <Video className="h-4 w-4" />
+            <span className="text-xs font-medium">Live</span>
+          </Button>
+        </div>
+        
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onExpand}
+            className="flex items-center space-x-2 text-yellow-600 hover:bg-yellow-50 px-3 py-2 flex-1"
           >
             <Smile className="h-4 w-4" />
             <span className="text-xs font-medium">Feeling</span>
@@ -57,22 +69,34 @@ const SocialPostCollapsed = ({ onExpand }: SocialPostCollapsedProps) => {
             variant="ghost"
             size="sm"
             onClick={onExpand}
-            className="flex items-center space-x-2 text-blue-600 hover:bg-blue-50 px-3 py-2"
+            className="flex items-center space-x-2 text-blue-600 hover:bg-blue-50 px-3 py-2 flex-1"
           >
             <Users className="h-4 w-4" />
-            <span className="text-xs font-medium">Help</span>
+            <span className="text-xs font-medium">Tag</span>
           </Button>
         </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onExpand}
-          className="flex items-center space-x-2 text-red-600 hover:bg-red-50 px-3 py-2"
-        >
-          <Zap className="h-4 w-4" />
-          <span className="text-xs font-medium">Urgent</span>
-        </Button>
+        
+        <div className="flex items-center space-x-1 col-span-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onExpand}
+            className="flex items-center space-x-2 text-purple-600 hover:bg-purple-50 px-3 py-2 flex-1"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span className="text-xs font-medium">Poll</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onExpand}
+            className="flex items-center space-x-2 text-indigo-600 hover:bg-indigo-50 px-3 py-2 flex-1"
+          >
+            <Calendar className="h-4 w-4" />
+            <span className="text-xs font-medium">Event</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

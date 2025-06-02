@@ -19,6 +19,15 @@ export interface PostFormData {
   allowComments: boolean;
   allowSharing: boolean;
   scheduledFor?: Date;
+  // New features
+  isLiveVideo?: boolean;
+  hasGif?: boolean;
+  taggedUsers?: string[];
+  hasPoll?: boolean;
+  pollOptions?: string[];
+  isEvent?: boolean;
+  eventDate?: Date;
+  eventLocation?: string;
 }
 
 // Re-export the constants for backward compatibility

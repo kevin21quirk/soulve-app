@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Smile, X, Send } from "lucide-react";
+import { Camera, MapPin, Smile, X, Send, Video, Users, BarChart3, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FEELINGS, POST_CATEGORIES } from "@/components/dashboard/post-options/PostOptionsConfig";
 import { PostFormData } from "@/components/dashboard/CreatePostTypes";
@@ -28,6 +29,13 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
     visibility: 'public',
     allowComments: true,
     allowSharing: true,
+    // New features
+    isLiveVideo: false,
+    hasGif: false,
+    taggedUsers: [],
+    hasPoll: false,
+    pollOptions: [],
+    isEvent: false,
   });
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +53,30 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         () => setFormData(prev => ({ ...prev, location: 'Current Location' })),
         () => setFormData(prev => ({ ...prev, location: 'Location unavailable' }))
       );
+    }
+  };
+
+  const handleFeatureToggle = (feature: string) => {
+    switch (feature) {
+      case 'liveVideo':
+        setFormData(prev => ({ ...prev, isLiveVideo: !prev.isLiveVideo }));
+        break;
+      case 'gif':
+        setFormData(prev => ({ ...prev, hasGif: !prev.hasGif }));
+        break;
+      case 'poll':
+        setFormData(prev => ({ 
+          ...prev, 
+          hasPoll: !prev.hasPoll,
+          pollOptions: prev.hasPoll ? [] : ['Option 1', 'Option 2']
+        }));
+        break;
+      case 'event':
+        setFormData(prev => ({ ...prev, isEvent: !prev.isEvent }));
+        break;
+      case 'tagUsers':
+        console.log('Tag users feature clicked');
+        break;
     }
   };
 
@@ -70,6 +102,12 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       visibility: 'public',
       allowComments: true,
       allowSharing: true,
+      isLiveVideo: false,
+      hasGif: false,
+      taggedUsers: [],
+      hasPoll: false,
+      pollOptions: [],
+      isEvent: false,
     });
     setSelectedImages([]);
     setIsExpanded(false);
@@ -98,14 +136,14 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
           </button>
         </div>
         
-        {/* Quick Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+        {/* Enhanced Quick Actions */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center space-x-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(true)}
-              className="flex items-center space-x-1 text-green-600 hover:bg-green-50"
+              className="flex items-center space-x-1 text-green-600 hover:bg-green-50 flex-1"
             >
               <Camera className="h-4 w-4" />
               <span className="text-xs">Photo</span>
@@ -115,10 +153,32 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(true)}
-              className="flex items-center space-x-1 text-yellow-600 hover:bg-yellow-50"
+              className="flex items-center space-x-1 text-red-600 hover:bg-red-50 flex-1"
             >
-              <Smile className="h-4 w-4" />
-              <span className="text-xs">Feeling</span>
+              <Video className="h-4 w-4" />
+              <span className="text-xs">Live</span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(true)}
+              className="flex items-center space-x-1 text-yellow-600 hover:bg-yellow-50 flex-1"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span className="text-xs">Poll</span>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(true)}
+              className="flex items-center space-x-1 text-blue-600 hover:bg-blue-50 flex-1"
+            >
+              <Calendar className="h-4 w-4" />
+              <span className="text-xs">Event</span>
             </Button>
           </div>
         </div>
@@ -253,6 +313,29 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
               {selectedCategory.label}
             </Badge>
           )}
+          {formData.isLiveVideo && (
+            <Badge variant="destructive" className="text-xs">
+              <Video className="h-3 w-3 mr-1" />
+              Live Video
+            </Badge>
+          )}
+          {formData.hasGif && (
+            <Badge variant="secondary" className="text-xs">
+              GIF Added
+            </Badge>
+          )}
+          {formData.hasPoll && (
+            <Badge variant="outline" className="text-xs">
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Poll
+            </Badge>
+          )}
+          {formData.isEvent && (
+            <Badge variant="outline" className="text-xs">
+              <Calendar className="h-3 w-3 mr-1" />
+              Event
+            </Badge>
+          )}
         </div>
 
         {/* Location Display */}
@@ -271,7 +354,6 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
           </div>
         )}
 
-        {/* Image Preview */}
         {selectedImages.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mb-3">
             {selectedImages.map((image, index) => (
@@ -295,9 +377,9 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         )}
       </div>
 
-      {/* Action Bar */}
+      {/* Enhanced Action Bar */}
       <div className="flex items-center justify-between border-t border-gray-100 p-3">
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 overflow-x-auto">
           <input
             type="file"
             accept="image/*"
@@ -317,10 +399,61 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
+            className={`p-2 ${formData.isLiveVideo ? 'bg-red-50' : ''}`}
+            onClick={() => handleFeatureToggle('liveVideo')}
+            title="Live Video"
+          >
+            <Video className="h-4 w-4 text-red-500" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`p-2 ${formData.hasGif ? 'bg-purple-50' : ''}`}
+            onClick={() => handleFeatureToggle('gif')}
+            title="Add GIF"
+          >
+            <span className="text-xs font-bold text-purple-500">GIF</span>
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="p-2"
+            onClick={() => handleFeatureToggle('tagUsers')}
+            title="Tag People"
+          >
+            <Users className="h-4 w-4 text-blue-500" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
             className="p-2"
             onClick={detectLocation}
+            title="Add Location"
           >
             <MapPin className="h-4 w-4 text-red-500" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`p-2 ${formData.hasPoll ? 'bg-yellow-50' : ''}`}
+            onClick={() => handleFeatureToggle('poll')}
+            title="Create Poll"
+          >
+            <BarChart3 className="h-4 w-4 text-yellow-500" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`p-2 ${formData.isEvent ? 'bg-blue-50' : ''}`}
+            onClick={() => handleFeatureToggle('event')}
+            title="Create Event"
+          >
+            <Calendar className="h-4 w-4 text-blue-500" />
           </Button>
         </div>
         
