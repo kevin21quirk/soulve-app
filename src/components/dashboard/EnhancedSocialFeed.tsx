@@ -146,26 +146,41 @@ const EnhancedSocialFeed = () => {
       {/* Create Post */}
       <CreatePost onPostCreated={handlePostCreated} />
 
-      {/* Enhanced Feed Tabs */}
+      {/* Enhanced Feed Tabs with SouLVE Branding */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="for-you" className="flex items-center space-x-2">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-50 p-1 rounded-lg">
+          <TabsTrigger 
+            value="for-you" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <Sparkles className="h-4 w-4" />
             <span className="hidden sm:inline">For You</span>
           </TabsTrigger>
-          <TabsTrigger value="urgent" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="urgent" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <Zap className="h-4 w-4" />
             <span className="hidden sm:inline">Urgent</span>
           </TabsTrigger>
-          <TabsTrigger value="nearby" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="nearby" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <MapPin className="h-4 w-4" />
             <span className="hidden sm:inline">Nearby</span>
           </TabsTrigger>
-          <TabsTrigger value="trending" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="trending" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Trending</span>
           </TabsTrigger>
-          <TabsTrigger value="following" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="following" 
+            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Following</span>
           </TabsTrigger>
