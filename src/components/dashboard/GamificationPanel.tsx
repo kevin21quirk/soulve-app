@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Achievement } from "@/types/gamification";
+import { useEnhancedPoints } from "@/hooks/useEnhancedPoints";
 import EnhancedUserStatsCard from "./EnhancedUserStatsCard";
 import PointsBreakdownCard from "./PointsBreakdownCard";
 import QuickStatsGrid from "./QuickStatsGrid";
@@ -9,32 +9,34 @@ import AchievementsList from "./AchievementsList";
 import LeaderboardCard from "./LeaderboardCard";
 import SeasonalChallengesCard from "./SeasonalChallengesCard";
 import PointsTransactionHistory from "./PointsTransactionHistory";
-import { useRealTimePoints } from "@/hooks/useRealTimePoints";
+import EvidenceReviewPanel from "../admin/EvidenceReviewPanel";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useSeasonalChallenges } from "@/hooks/useSeasonalChallenges";
 import { mockPointBreakdown, mockLeaderboard } from "@/data/mockPointsData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
 
 const GamificationPanel = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const { recentTransactions, totalPoints, awardPoints, loading: pointsLoading } = useRealTimePoints();
+  const { metrics, recentActivities, awardPoints, loading: pointsLoading } = useEnhancedPoints();
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const { challenges, loading: challengesLoading } = useSeasonalChallenges();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Calculate user stats from real data
   const userStats = {
-    totalPoints: totalPoints,
-    level: Math.floor(totalPoints / 100) + 1,
-    nextLevelPoints: ((Math.floor(totalPoints / 100) + 1) * 100),
-    helpedCount: recentTransactions.filter(t => t.category === 'help_completed').length,
-    connectionsCount: 0, // This would come from connections table when implemented
-    postsCount: 0, // This would come from posts table when implemented
-    likesReceived: 0, // This would come from post interactions when implemented
-    trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
-    trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any
+    totalPoints: metrics?.impact_score || 0,
+    level: Math.floor((metrics?.impact_score || 0) / 100) + 1,
+    nextLevelPoints: ((Math.floor((metrics?.impact_score || 0) / 100) + 1) * 100),
+    helpedCount: metrics?.help_provided_count || 0,
+    connectionsCount: metrics?.connections_count || 0,
+    postsCount: 0,
+    likesReceived: 0,
+    trustScore: metrics?.trust_score || 50,
+    trustLevel: (metrics?.trust_score || 0) > 80 ? 'trusted_helper' : (metrics?.trust_score || 0) > 60 ? 'verified_helper' : 'new_user' as any
   };
 
   const claimReward = (achievementId: string) => {
@@ -47,15 +49,52 @@ const GamificationPanel = () => {
     }
   };
 
-  const handleDemoPoints = () => {
+  const handleDemoPoints = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to earn points!",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const demoActions = [
-      { category: 'help_completed', points: 25, description: 'Demo: Helped community member' },
-      { category: 'donation', points: 10, description: 'Demo: Made a donation' },
-      { category: 'positive_feedback', points: 5, description: 'Demo: Received positive feedback' }
+      { 
+        activityType: 'help_completed', 
+        points: 25, 
+        description: 'Demo: Helped community member with groceries',
+        effortLevel: 4
+      },
+      { 
+        activityType: 'donation', 
+        points: 10, 
+        description: 'Demo: Made a £10 donation',
+        effortLevel: 3
+      },
+      { 
+        activityType: 'positive_feedback', 
+        points: 5, 
+        description: 'Demo: Received 5-star rating',
+        effortLevel: 3
+      },
+      { 
+        activityType: 'volunteer_hour', 
+        points: 15, 
+        description: 'Demo: Completed 5 hours volunteer work',
+        effortLevel: 4
+      }
     ];
     
     const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
-    awardPoints(randomAction.category, randomAction.points, randomAction.description);
+    
+    await awardPoints(
+      randomAction.activityType,
+      randomAction.points,
+      randomAction.description,
+      { demo: true, timestamp: new Date().toISOString() },
+      randomAction.effortLevel
+    );
   };
 
   if (pointsLoading || achievementsLoading || challengesLoading) {
@@ -80,16 +119,20 @@ const GamificationPanel = () => {
         <CardHeader>
           <CardTitle className="text-lg text-blue-800">Demo Controls</CardTitle>
           <CardDescription className="text-blue-600">
-            Test the points and achievement system with demo actions
+            Test the points and achievement system with real database interactions
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button 
             onClick={handleDemoPoints}
+            disabled={pointsLoading || !user}
             className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
           >
-            Demo +Points
+            {pointsLoading ? "Awarding..." : "Demo: Earn Real Points"}
           </Button>
+          {!user && (
+            <p className="text-sm text-blue-600 mt-2">Please log in to test points system</p>
+          )}
         </CardContent>
       </Card>
 
@@ -100,12 +143,6 @@ const GamificationPanel = () => {
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
           >
             Overview
-          </TabsTrigger>
-          <TabsTrigger 
-            value="social-hub"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            Social Hub
           </TabsTrigger>
           <TabsTrigger 
             value="achievements"
@@ -119,6 +156,12 @@ const GamificationPanel = () => {
           >
             Admin Panel
           </TabsTrigger>
+          <TabsTrigger 
+            value="real-time"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Live Feed
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -131,19 +174,6 @@ const GamificationPanel = () => {
             <LeaderboardCard leaderboard={mockLeaderboard} timeframe="all-time" />
             <SeasonalChallengesCard challenges={challenges} />
           </div>
-          <PointsTransactionHistory transactions={recentTransactions} />
-        </TabsContent>
-
-        <TabsContent value="social-hub" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Social Hub</CardTitle>
-              <CardDescription>Connect with the community and share your achievements</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Social features coming soon...</p>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-6">
@@ -151,15 +181,22 @@ const GamificationPanel = () => {
         </TabsContent>
 
         <TabsContent value="admin-panel" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Admin Panel</CardTitle>
-              <CardDescription>Administrative controls and settings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Admin features coming soon...</p>
-            </CardContent>
-          </Card>
+          <EvidenceReviewPanel />
+        </TabsContent>
+
+        <TabsContent value="real-time" className="space-y-6">
+          <PointsTransactionHistory transactions={recentActivities.map(activity => ({
+            id: activity.id,
+            userId: activity.user_id,
+            category: activity.activity_type as any,
+            points: activity.points_earned,
+            multiplier: 1,
+            basePoints: activity.points_earned,
+            description: activity.description,
+            timestamp: activity.created_at,
+            verified: activity.verified,
+            metadata: activity.metadata || {}
+          }))} />
         </TabsContent>
       </Tabs>
     </div>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { EnhancedPointsService } from '@/services/enhancedPointsService';
 import { 
   EnhancedImpactMetrics, 
@@ -34,6 +35,18 @@ export const useEnhancedPoints = () => {
       setMetrics(userMetrics);
       setTrustDomains(domains);
       setRedFlags(flags);
+
+      // Load recent activities
+      const { data: activities } = await supabase
+        .from('impact_activities')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (activities) {
+        setRecentActivities(activities as EnhancedImpactActivity[]);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
       toast({
@@ -45,6 +58,87 @@ export const useEnhancedPoints = () => {
       setLoading(false);
     }
   };
+
+  // Set up real-time subscriptions
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Subscribe to impact activities changes
+    const activitiesChannel = supabase
+      .channel('impact-activities-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'impact_activities',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const newActivity = payload.new as EnhancedImpactActivity;
+          setRecentActivities(prev => [newActivity, ...prev.slice(0, 9)]);
+          
+          // Show real-time notification
+          toast({
+            title: `+${newActivity.points_earned} Points Earned! 🎉`,
+            description: newActivity.description,
+          });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to metrics changes
+    const metricsChannel = supabase
+      .channel('metrics-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'impact_metrics',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Reload metrics when they change
+          loadUserData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to red flags changes
+    const redFlagsChannel = supabase
+      .channel('red-flags-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'red_flags',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newFlag = payload.new as RedFlag;
+            setRedFlags(prev => [newFlag, ...prev]);
+            
+            toast({
+              title: "Security Notice",
+              description: `Your account has been flagged: ${newFlag.description}`,
+              variant: "destructive"
+            });
+          } else {
+            loadUserData(); // Reload for updates/deletes
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(activitiesChannel);
+      supabase.removeChannel(metricsChannel);
+      supabase.removeChannel(redFlagsChannel);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) {
@@ -69,6 +163,7 @@ export const useEnhancedPoints = () => {
       return null;
     }
 
+    setLoading(true);
     try {
       const activity = await EnhancedPointsService.awardPoints(
         user.id,
@@ -80,20 +175,7 @@ export const useEnhancedPoints = () => {
         requiresEvidence
       );
 
-      // Show success notification
-      const pointsEarned = activity.points_earned;
-      const tierInfo = EnhancedPointsService.getTrustTier(
-        (metrics?.impact_score || 0) + pointsEarned
-      );
-
-      toast({
-        title: `+${pointsEarned} Points Earned! 🎉`,
-        description: `${description} | ${tierInfo.name}`,
-      });
-
-      // Reload user data
-      await loadUserData();
-      
+      // Don't show toast here as real-time subscription will handle it
       return activity;
     } catch (error) {
       console.error('Error awarding points:', error);
@@ -103,6 +185,8 @@ export const useEnhancedPoints = () => {
         variant: "destructive"
       });
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,15 +206,6 @@ export const useEnhancedPoints = () => {
         effortLevel,
         isEmergency
       );
-
-      const basePoints = isEmergency ? ENHANCED_POINT_VALUES.emergency_help : ENHANCED_POINT_VALUES.help_completed;
-      const multiplier = effortLevel === 5 ? 2.0 : effortLevel === 4 ? 1.4 : effortLevel === 2 ? 0.6 : effortLevel === 1 ? 0.4 : 1.0;
-      const finalPoints = Math.round(basePoints * multiplier);
-
-      toast({
-        title: `Help Completed! +${finalPoints} Points! 🌟`,
-        description: `${rating}/5 rating | ${isEmergency ? 'Emergency' : 'Standard'} help`,
-      });
 
       await loadUserData();
     } catch (error) {
