@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/auth/AuthHeader";
-import AuthForm from "@/components/auth/AuthForm";
+import EnhancedAuthForm from "@/components/auth/EnhancedAuthForm";
 import AuthToggle from "@/components/auth/AuthToggle";
 
 const Auth = () => {
@@ -35,7 +35,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <AuthHeader isLogin={isLogin} />
         <CardContent>
-          <AuthForm
+          <EnhancedAuthForm
             isLogin={isLogin}
             onToggleMode={handleToggleMode}
             onSuccess={handleAuthSuccess}
