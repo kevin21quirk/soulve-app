@@ -1,7 +1,8 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { PostFormData } from "@/components/dashboard/CreatePostTypes";
+import { createPost } from "@/services/postCreationService";
 import MobilePostHeader from "./post-creation/MobilePostHeader";
 import MobilePostContent from "./post-creation/MobilePostContent";
 import MobilePostOptions from "./post-creation/MobilePostOptions";
@@ -15,10 +16,12 @@ interface MobileCreatePostProps {
 
 const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFeelings, setShowFeelings] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
     description: '',
@@ -81,37 +84,73 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
     }
   };
 
-  const handlePost = () => {
-    if (!formData.description.trim() || !formData.category) return;
+  const handlePost = async () => {
+    if (!formData.description.trim() || !formData.category) {
+      toast({
+        title: "Missing information",
+        description: "Please add content and select a category.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const postData = {
-      ...formData,
-      title: formData.title || formData.description.split('\n')[0] || formData.description.substring(0, 50)
-    };
+    setIsSubmitting(true);
 
-    onPostCreated(postData);
-    
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      category: '',
-      location: '',
-      urgency: 'low',
-      feeling: '',
-      tags: [],
-      visibility: 'public',
-      allowComments: true,
-      allowSharing: true,
-      isLiveVideo: false,
-      hasGif: false,
-      taggedUsers: [],
-      hasPoll: false,
-      pollOptions: [],
-      isEvent: false,
-    });
-    setSelectedImages([]);
-    setIsExpanded(false);
+    try {
+      // Prepare form data with images
+      const postData = {
+        ...formData,
+        title: formData.title || formData.description.split('\n')[0] || formData.description.substring(0, 50),
+        selectedMedia: selectedImages.map((file, index) => ({
+          id: `image-${index}`,
+          file,
+          type: 'image' as const,
+          preview: URL.createObjectURL(file),
+          size: file.size
+        }))
+      };
+
+      const postId = await createPost(postData);
+      
+      onPostCreated({ id: postId, success: true });
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        category: '',
+        location: '',
+        urgency: 'low',
+        feeling: '',
+        tags: [],
+        visibility: 'public',
+        allowComments: true,
+        allowSharing: true,
+        isLiveVideo: false,
+        hasGif: false,
+        taggedUsers: [],
+        hasPoll: false,
+        pollOptions: [],
+        isEvent: false,
+      });
+      setSelectedImages([]);
+      setIsExpanded(false);
+
+      toast({
+        title: "Post shared! ✨",
+        description: "Your post has been shared with the community.",
+      });
+      
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast({
+        title: "Failed to share post",
+        description: error instanceof Error ? error.message : "There was an error sharing your post. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isExpanded) {
@@ -152,7 +191,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         onLocationDetect={detectLocation}
         onFeatureToggle={handleFeatureToggle}
         onPost={handlePost}
-        disabled={!formData.description.trim() || !formData.category}
+        disabled={!formData.description.trim() || !formData.category || isSubmitting}
       />
     </div>
   );

@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import SocialPostCollapsed from "./post-creation/SocialPostCollapsed";
 import SocialPostComposer from "./post-creation/SocialPostComposer";
 import PostTemplateSelector from "./post-creation/PostTemplateSelector";
 import { PostFormData } from "./CreatePostTypes";
-import { useCreatePost } from "@/services/realPostsService";
+import { createPost } from "@/services/postCreationService";
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;
@@ -13,9 +12,9 @@ interface CreatePostProps {
 
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { toast } = useToast();
-  const createPostMutation = useCreatePost();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (formData: PostFormData) => {
     // Validate required fields
@@ -37,24 +36,18 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       // Create post using the real service
-      await createPostMutation.mutateAsync({
-        title: formData.title.trim() || formData.description.split('\n')[0].substring(0, 50),
-        content: formData.description.trim(),
-        category: formData.category,
-        urgency: formData.urgency,
-        location: formData.location,
-        tags: formData.tags,
-        visibility: formData.visibility,
-      });
+      const postId = await createPost(formData);
 
       // Reset state
       setIsExpanded(false);
       setShowTemplates(false);
       
       // Notify parent component
-      onPostCreated({ success: true });
+      onPostCreated({ id: postId, success: true });
       
       toast({
         title: "Post shared! ✨",
@@ -65,9 +58,11 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       console.error('Error creating post:', error);
       toast({
         title: "Failed to share post",
-        description: "There was an error sharing your post. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error sharing your post. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -112,6 +107,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       isExpanded={isExpanded}
+      isSubmitting={isSubmitting}
     />
   );
 };

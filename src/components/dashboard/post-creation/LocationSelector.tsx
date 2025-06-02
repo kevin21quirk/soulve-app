@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ interface LocationData {
     lat: number;
     lng: number;
   };
+  placeId?: string;
 }
 
 interface LocationSelectorProps {
@@ -19,31 +20,66 @@ interface LocationSelectorProps {
   initialLocation?: string;
 }
 
+// Google Places prediction interface
+interface PlacePrediction {
+  place_id: string;
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+}
+
 const LocationSelector = ({ onLocationSelect, initialLocation = "" }: LocationSelectorProps) => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState(initialLocation);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
     initialLocation ? { address: initialLocation } : null
   );
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
 
-  // Mock location suggestions (in real app, use Google Places or similar)
-  const mockSuggestions = [
-    "New York, NY, USA",
-    "Los Angeles, CA, USA", 
-    "Chicago, IL, USA",
-    "Houston, TX, USA",
-    "Phoenix, AZ, USA",
-    "Philadelphia, PA, USA"
-  ];
-
+  // Initialize Google Places services
   useEffect(() => {
-    if (searchQuery.length > 2) {
-      const filtered = mockSuggestions.filter(place => 
-        place.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setSuggestions(filtered.slice(0, 5));
+    if (window.google && window.google.maps && window.google.maps.places) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+      
+      // Create a hidden div for PlacesService
+      const mapDiv = document.createElement('div');
+      const map = new google.maps.Map(mapDiv);
+      placesService.current = new google.maps.places.PlacesService(map);
+    } else {
+      // Load Google Maps if not already loaded
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_PLACES_API_KEY&libraries=places`;
+      script.async = true;
+      script.onload = () => {
+        autocompleteService.current = new google.maps.places.AutocompleteService();
+        const mapDiv = document.createElement('div');
+        const map = new google.maps.Map(mapDiv);
+        placesService.current = new google.maps.places.PlacesService(map);
+      };
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  // Search for place predictions
+  useEffect(() => {
+    if (searchQuery.length > 2 && autocompleteService.current) {
+      const request = {
+        input: searchQuery,
+        types: ['establishment', 'geocode'],
+      };
+
+      autocompleteService.current.getPlacePredictions(request, (predictions, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSuggestions(predictions.slice(0, 5));
+        } else {
+          setSuggestions([]);
+        }
+      });
     } else {
       setSuggestions([]);
     }
@@ -54,26 +90,46 @@ const LocationSelector = ({ onLocationSelect, initialLocation = "" }: LocationSe
     
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // In real app, reverse geocode these coordinates
-          const mockAddress = "Current Location (Detected)";
-          const location: LocationData = {
-            address: mockAddress,
-            coordinates: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          try {
+            // Reverse geocode to get address
+            const geocoder = new google.maps.Geocoder();
+            const response = await geocoder.geocode({
+              location: { lat: latitude, lng: longitude }
+            });
+            
+            if (response.results[0]) {
+              const location: LocationData = {
+                address: response.results[0].formatted_address,
+                coordinates: { lat: latitude, lng: longitude },
+                placeId: response.results[0].place_id
+              };
+              
+              setSelectedLocation(location);
+              setSearchQuery(location.address);
+              onLocationSelect(location);
+              
+              toast({
+                title: "Location detected",
+                description: "Your current location has been detected.",
+              });
             }
-          };
+          } catch (error) {
+            console.error('Geocoding error:', error);
+            // Fallback to coordinates
+            const location: LocationData = {
+              address: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+              coordinates: { lat: latitude, lng: longitude }
+            };
+            
+            setSelectedLocation(location);
+            setSearchQuery(location.address);
+            onLocationSelect(location);
+          }
           
-          setSelectedLocation(location);
-          setSearchQuery(mockAddress);
-          onLocationSelect(location);
           setIsDetecting(false);
-          
-          toast({
-            title: "Location detected",
-            description: "Your current location has been detected.",
-          });
         },
         (error) => {
           setIsDetecting(false);
@@ -94,12 +150,31 @@ const LocationSelector = ({ onLocationSelect, initialLocation = "" }: LocationSe
     }
   };
 
-  const selectSuggestion = (suggestion: string) => {
-    const location: LocationData = { address: suggestion };
-    setSelectedLocation(location);
-    setSearchQuery(suggestion);
-    setSuggestions([]);
-    onLocationSelect(location);
+  const selectSuggestion = async (prediction: PlacePrediction) => {
+    if (!placesService.current) return;
+
+    const request = {
+      placeId: prediction.place_id,
+      fields: ['formatted_address', 'geometry']
+    };
+
+    placesService.current.getDetails(request, (place, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+        const location: LocationData = {
+          address: place.formatted_address || prediction.description,
+          coordinates: place.geometry?.location ? {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+          } : undefined,
+          placeId: prediction.place_id
+        };
+        
+        setSelectedLocation(location);
+        setSearchQuery(location.address);
+        setSuggestions([]);
+        onLocationSelect(location);
+      }
+    });
   };
 
   const clearLocation = () => {
@@ -146,14 +221,17 @@ const LocationSelector = ({ onLocationSelect, initialLocation = "" }: LocationSe
       {suggestions.length > 0 && (
         <Card className="absolute z-10 w-full">
           <CardContent className="p-0">
-            {suggestions.map((suggestion, index) => (
+            {suggestions.map((suggestion) => (
               <button
-                key={index}
+                key={suggestion.place_id}
                 onClick={() => selectSuggestion(suggestion)}
                 className="w-full text-left px-4 py-2 hover:bg-gray-50 border-b last:border-b-0 flex items-center space-x-2"
               >
                 <MapPin className="h-4 w-4 text-gray-400" />
-                <span>{suggestion}</span>
+                <div>
+                  <div className="font-medium">{suggestion.structured_formatting.main_text}</div>
+                  <div className="text-sm text-gray-500">{suggestion.structured_formatting.secondary_text}</div>
+                </div>
               </button>
             ))}
           </CardContent>
