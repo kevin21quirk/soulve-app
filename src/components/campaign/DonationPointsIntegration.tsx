@@ -90,7 +90,7 @@ const DonationPointsIntegration = ({ campaignId, campaignTitle }: DonationPoints
             <Checkbox
               id="recurring"
               checked={isRecurring}
-              onCheckedChange={setIsRecurring}
+              onCheckedChange={(checked) => setIsRecurring(!!checked)}
             />
             <Label htmlFor="recurring" className="text-sm">
               Recurring donation (+20% bonus points)
@@ -101,7 +101,7 @@ const DonationPointsIntegration = ({ campaignId, campaignTitle }: DonationPoints
             <Checkbox
               id="matching"
               checked={isMatching}
-              onCheckedChange={setIsMatching}
+              onCheckedChange={(checked) => setIsMatching(!!checked)}
             />
             <Label htmlFor="matching" className="text-sm">
               Matching donation (2x points)

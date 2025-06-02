@@ -26,6 +26,7 @@ const HelpCompletionButton = ({ postId, requesterId, postTitle }: HelpCompletion
     if (!message.trim()) return;
 
     const completionData = {
+      post_id: postId,
       helper_message: message,
       completion_evidence: {
         effort_level: parseInt(effortLevel),

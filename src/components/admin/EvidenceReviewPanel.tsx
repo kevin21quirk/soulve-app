@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,7 +48,22 @@ const EvidenceReviewPanel = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSubmissions(data as EvidenceSubmission[]);
+      
+      // Transform the data to match our interface
+      const transformedData: EvidenceSubmission[] = (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        activity_id: item.activity_id,
+        evidence_type: item.evidence_type,
+        file_url: item.file_url,
+        metadata: item.metadata || {},
+        verification_status: item.verification_status,
+        created_at: item.created_at,
+        activity: item.activity || undefined,
+        profile: item.profile || undefined
+      }));
+      
+      setSubmissions(transformedData);
     } catch (error) {
       console.error('Error loading submissions:', error);
       toast({
