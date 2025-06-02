@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,18 +50,18 @@ const EvidenceReviewPanel = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our interface
+      // Transform the data to match our interface with proper type handling
       const transformedData: EvidenceSubmission[] = (data || []).map(item => ({
         id: item.id,
         user_id: item.user_id,
         activity_id: item.activity_id,
         evidence_type: item.evidence_type,
         file_url: item.file_url,
-        metadata: item.metadata || {},
+        metadata: typeof item.metadata === 'object' && item.metadata !== null ? item.metadata as Record<string, any> : {},
         verification_status: item.verification_status,
         created_at: item.created_at,
-        activity: item.activity || undefined,
-        profile: item.profile || undefined
+        activity: Array.isArray(item.activity) ? item.activity[0] : item.activity || undefined,
+        profile: Array.isArray(item.profile) ? item.profile[0] : item.profile || undefined
       }));
       
       setSubmissions(transformedData);

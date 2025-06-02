@@ -17,33 +17,37 @@ const HelpApprovalDashboard = () => {
       if (pendingRequests.length === 0) return;
 
       // Load helper profiles
-      const helperIds = [...new Set(pendingRequests.map(req => req.helper_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, avatar_url')
-        .in('id', helperIds);
+      const helperIds = [...new Set(pendingRequests.map(req => req.helper_id))].filter(id => typeof id === 'string') as string[];
+      if (helperIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, avatar_url')
+          .in('id', helperIds);
 
-      if (profiles) {
-        const profilesMap = profiles.reduce((acc, profile) => {
-          acc[profile.id] = profile;
-          return acc;
-        }, {} as Record<string, any>);
-        setHelperProfiles(profilesMap);
+        if (profiles) {
+          const profilesMap = profiles.reduce((acc, profile) => {
+            acc[profile.id] = profile;
+            return acc;
+          }, {} as Record<string, any>);
+          setHelperProfiles(profilesMap);
+        }
       }
 
       // Load post titles
-      const postIds = [...new Set(pendingRequests.map(req => req.post_id))];
-      const { data: posts } = await supabase
-        .from('posts')
-        .select('id, title')
-        .in('id', postIds);
+      const postIds = [...new Set(pendingRequests.map(req => req.post_id))].filter(id => typeof id === 'string') as string[];
+      if (postIds.length > 0) {
+        const { data: posts } = await supabase
+          .from('posts')
+          .select('id, title')
+          .in('id', postIds);
 
-      if (posts) {
-        const titlesMap = posts.reduce((acc, post) => {
-          acc[post.id] = post.title;
-          return acc;
-        }, {} as Record<string, string>);
-        setPostTitles(titlesMap);
+        if (posts) {
+          const titlesMap = posts.reduce((acc, post) => {
+            acc[post.id] = post.title;
+            return acc;
+          }, {} as Record<string, string>);
+          setPostTitles(titlesMap);
+        }
       }
     };
 
