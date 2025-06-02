@@ -1482,6 +1482,53 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          report_type: string
+          reported_post_id: string | null
+          reported_user_id: string | null
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          report_type: string
+          reported_post_id?: string | null
+          reported_user_id?: string | null
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          report_type?: string
+          reported_post_id?: string | null
+          reported_user_id?: string | null
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_reported_post_id_fkey"
+            columns: ["reported_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seasonal_challenges: {
         Row: {
           created_at: string
@@ -1763,6 +1810,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       user_challenge_progress: {
         Row: {
           challenge_id: string
@@ -1863,6 +1934,51 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      user_privacy_settings: {
+        Row: {
+          allow_direct_messages: string
+          allow_tagging: boolean
+          created_at: string
+          id: string
+          profile_visibility: string
+          show_activity_feed: boolean
+          show_email: boolean
+          show_location: boolean
+          show_online_status: boolean
+          show_phone: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_direct_messages?: string
+          allow_tagging?: boolean
+          created_at?: string
+          id?: string
+          profile_visibility?: string
+          show_activity_feed?: boolean
+          show_email?: boolean
+          show_location?: boolean
+          show_online_status?: boolean
+          show_phone?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_direct_messages?: string
+          allow_tagging?: boolean
+          created_at?: string
+          id?: string
+          profile_visibility?: string
+          show_activity_feed?: boolean
+          show_email?: boolean
+          show_location?: boolean
+          show_online_status?: boolean
+          show_phone?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
