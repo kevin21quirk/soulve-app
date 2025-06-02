@@ -89,13 +89,41 @@ export class ReliveStoriesService {
           `)
           .eq('post_id', story.post_id);
 
+        // Parse total_impact JSON if it's a string
+        let totalImpact = story.total_impact;
+        if (typeof totalImpact === 'string') {
+          try {
+            totalImpact = JSON.parse(totalImpact);
+          } catch (e) {
+            totalImpact = {
+              pointsEarned: 0,
+              peopleHelped: 0,
+              hoursContributed: 0,
+              emotionalImpact: ''
+            };
+          }
+        }
+
         return {
           ...story,
-          participants: participants || [],
-          updates: updates?.map(update => ({
+          total_impact: totalImpact as {
+            pointsEarned: number;
+            peopleHelped: number;
+            hoursContributed: number;
+            emotionalImpact: string;
+          },
+          participants: (participants || []).map(p => ({
+            user_id: p.user_id,
+            role: p.role as 'creator' | 'helper' | 'beneficiary' | 'supporter',
+            participation_type: p.participation_type as 'created' | 'helped' | 'received_help' | 'supported',
+            profile: p.profiles as { first_name: string; last_name: string; avatar_url: string }
+          })),
+          updates: (updates || []).map(update => ({
             ...update,
-            author: update.profiles
-          })) || []
+            update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+            emotions: update.emotions || [],
+            author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
+          }))
         };
       })
     );
@@ -135,7 +163,9 @@ export class ReliveStoriesService {
 
     return {
       ...data,
-      author: data.profiles
+      update_type: data.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+      emotions: data.emotions || [],
+      author: data.profiles as { first_name: string; last_name: string; avatar_url: string }
     };
   }
 
@@ -167,13 +197,41 @@ export class ReliveStoriesService {
       `)
       .eq('post_id', postId);
 
+    // Parse total_impact JSON if it's a string
+    let totalImpact = story.total_impact;
+    if (typeof totalImpact === 'string') {
+      try {
+        totalImpact = JSON.parse(totalImpact);
+      } catch (e) {
+        totalImpact = {
+          pointsEarned: 0,
+          peopleHelped: 0,
+          hoursContributed: 0,
+          emotionalImpact: ''
+        };
+      }
+    }
+
     return {
       ...story,
-      participants: participants || [],
-      updates: updates?.map(update => ({
+      total_impact: totalImpact as {
+        pointsEarned: number;
+        peopleHelped: number;
+        hoursContributed: number;
+        emotionalImpact: string;
+      },
+      participants: (participants || []).map(p => ({
+        user_id: p.user_id,
+        role: p.role as 'creator' | 'helper' | 'beneficiary' | 'supporter',
+        participation_type: p.participation_type as 'created' | 'helped' | 'received_help' | 'supported',
+        profile: p.profiles as { first_name: string; last_name: string; avatar_url: string }
+      })),
+      updates: (updates || []).map(update => ({
         ...update,
-        author: update.profiles
-      })) || []
+        update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+        emotions: update.emotions || [],
+        author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
+      }))
     };
   }
 
@@ -211,13 +269,41 @@ export class ReliveStoriesService {
           `)
           .eq('post_id', story.post_id);
 
+        // Parse total_impact JSON if it's a string
+        let totalImpact = story.total_impact;
+        if (typeof totalImpact === 'string') {
+          try {
+            totalImpact = JSON.parse(totalImpact);
+          } catch (e) {
+            totalImpact = {
+              pointsEarned: 0,
+              peopleHelped: 0,
+              hoursContributed: 0,
+              emotionalImpact: ''
+            };
+          }
+        }
+
         return {
           ...story,
-          participants: participants || [],
-          updates: updates?.map(update => ({
+          total_impact: totalImpact as {
+            pointsEarned: number;
+            peopleHelped: number;
+            hoursContributed: number;
+            emotionalImpact: string;
+          },
+          participants: (participants || []).map(p => ({
+            user_id: p.user_id,
+            role: p.role as 'creator' | 'helper' | 'beneficiary' | 'supporter',
+            participation_type: p.participation_type as 'created' | 'helped' | 'received_help' | 'supported',
+            profile: p.profiles as { first_name: string; last_name: string; avatar_url: string }
+          })),
+          updates: (updates || []).map(update => ({
             ...update,
-            author: update.profiles
-          })) || []
+            update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+            emotions: update.emotions || [],
+            author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
+          }))
         };
       })
     );
