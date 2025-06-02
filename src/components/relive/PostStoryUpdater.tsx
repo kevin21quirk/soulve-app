@@ -7,19 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { 
   Camera, 
-  Video, 
   Upload, 
   Heart, 
   Star, 
-  Smile, 
   Sparkles,
-  Users,
-  Clock,
   Target
 } from 'lucide-react';
+import { useReliveStories } from '@/hooks/useReliveStories';
 
 interface PostStoryUpdaterProps {
   postId: string;
@@ -28,7 +24,7 @@ interface PostStoryUpdaterProps {
 }
 
 const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdaterProps) => {
-  const { toast } = useToast();
+  const { createStoryUpdate } = useReliveStories();
   const [updateType, setUpdateType] = useState<'progress' | 'completion' | 'impact' | 'reflection'>('progress');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -75,23 +71,29 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please add both a title and description for your story update.",
-        variant: "destructive"
-      });
       return;
     }
 
     setLoading(true);
     try {
-      // Here you would upload the media and save the story update
-      // For now, we'll simulate the process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // TODO: Upload media file to storage if present
+      const mediaUrl = mediaFile ? '' : undefined; // Will implement media upload later
+      const mediaType = mediaFile?.type.startsWith('video/') ? 'video' : 'image';
 
-      toast({
-        title: "Story update added! ✨",
-        description: "Your progress has been captured and will be part of everyone's relive experience.",
+      const statsData = {
+        helpedCount: stats.helpedCount ? parseInt(stats.helpedCount) : undefined,
+        hoursContributed: stats.hoursContributed ? parseInt(stats.hoursContributed) : undefined,
+        impactReach: stats.impactReach ? parseInt(stats.impactReach) : undefined,
+      };
+
+      await createStoryUpdate(postId, {
+        update_type: updateType,
+        title,
+        content,
+        media_url: mediaUrl,
+        media_type: mediaUrl ? mediaType : undefined,
+        emotions,
+        stats: statsData
       });
 
       // Reset form
@@ -104,11 +106,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
       
       onUpdateAdded();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add story update. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Error creating story update:', error);
     } finally {
       setLoading(false);
     }
@@ -209,7 +207,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
           />
         </div>
 
-        {/* Media Upload */}
+        {/* Media Upload - Simplified for now */}
         <div className="space-y-2">
           <Label>Media (optional)</Label>
           <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
@@ -334,7 +332,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
         {/* Submit */}
         <Button 
           onClick={handleSubmit} 
-          disabled={loading}
+          disabled={loading || !title.trim() || !content.trim()}
           className="w-full"
         >
           {loading ? (

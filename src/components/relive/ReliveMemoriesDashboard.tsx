@@ -12,206 +12,41 @@ import {
   Star, 
   Play, 
   Search, 
-  Filter,
   Sparkles,
-  Clock,
-  MapPin,
-  TrendingUp
+  Loader2
 } from 'lucide-react';
 import ReliveStoryViewer from './ReliveStoryViewer';
 import { motion } from 'framer-motion';
-
-interface ReliveStory {
-  id: string;
-  title: string;
-  category: string;
-  startDate: string;
-  completedDate?: string;
-  coverImage: string;
-  participants: {
-    avatar: string;
-    name: string;
-    role: string;
-  }[];
-  updates: any[];
-  userRole: 'creator' | 'helper' | 'beneficiary' | 'supporter';
-  totalImpact: {
-    pointsEarned: number;
-    peopleHelped: number;
-    hoursContributed: number;
-    emotionalImpact: string;
-  };
-  previewText: string;
-  emotions: string[];
-}
+import { useReliveStories } from '@/hooks/useReliveStories';
+import { ReliveStory } from '@/services/reliveStoriesService';
 
 const ReliveMemoriesDashboard = () => {
-  const [stories, setStories] = useState<ReliveStory[]>([]);
+  const { stories, loading, error, loadPublicStories } = useReliveStories();
   const [selectedStory, setSelectedStory] = useState<ReliveStory | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'my_stories' | 'public'>('my_stories');
 
-  // Mock data - in real app this would come from API
   useEffect(() => {
-    const mockStories: ReliveStory[] = [
-      {
-        id: '1',
-        title: 'Community Garden Project',
-        category: 'volunteer',
-        startDate: '2024-01-15',
-        completedDate: '2024-02-28',
-        coverImage: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
-        participants: [
-          { avatar: 'https://avatar.vercel.sh/sarah.png', name: 'Sarah Chen', role: 'Organizer' },
-          { avatar: 'https://avatar.vercel.sh/mike.png', name: 'Mike Johnson', role: 'Volunteer' },
-          { avatar: 'https://avatar.vercel.sh/emma.png', name: 'Emma Wilson', role: 'Helper' },
-        ],
-        updates: [
-          {
-            id: '1',
-            type: 'progress',
-            title: 'Breaking Ground',
-            content: 'We started by clearing the lot and planning the layout. So exciting to see the vision coming to life!',
-            mediaUrl: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600',
-            mediaType: 'image',
-            timestamp: '2024-01-20',
-            author: 'Sarah Chen',
-            authorAvatar: 'https://avatar.vercel.sh/sarah.png',
-            emotions: ['Excited', 'Hopeful'],
-            stats: { hoursContributed: 8, impactReach: 50 }
-          },
-          {
-            id: '2',
-            type: 'completion',
-            title: 'First Harvest!',
-            content: 'Our first vegetables are ready! The community came together to harvest and share the bounty. This project brought so many people together.',
-            mediaUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600',
-            mediaType: 'image',
-            timestamp: '2024-02-28',
-            author: 'Mike Johnson',
-            authorAvatar: 'https://avatar.vercel.sh/mike.png',
-            emotions: ['Grateful', 'Proud', 'Happy'],
-            stats: { helpedCount: 25, hoursContributed: 40, impactReach: 200 }
-          }
-        ],
-        userRole: 'helper',
-        totalImpact: {
-          pointsEarned: 150,
-          peopleHelped: 25,
-          hoursContributed: 48,
-          emotionalImpact: 'Brought community together through sustainable food'
-        },
-        previewText: 'A journey of growing food and friendships in the heart of our neighborhood',
-        emotions: ['😊', '🌱', '🤝']
-      },
-      {
-        id: '2',
-        title: 'Helping Mrs. Johnson with Groceries',
-        category: 'help-needed',
-        startDate: '2024-02-10',
-        completedDate: '2024-02-10',
-        coverImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
-        participants: [
-          { avatar: 'https://avatar.vercel.sh/johnson.png', name: 'Mrs. Johnson', role: 'Requester' },
-          { avatar: 'https://avatar.vercel.sh/alex.png', name: 'Alex Rodriguez', role: 'Helper' },
-        ],
-        updates: [
-          {
-            id: '1',
-            type: 'completion',
-            title: 'Mission Accomplished',
-            content: 'Successfully helped Mrs. Johnson with her weekly grocery shopping. She was so grateful and we had wonderful conversations!',
-            mediaUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600',
-            mediaType: 'image',
-            timestamp: '2024-02-10',
-            author: 'Alex Rodriguez',
-            authorAvatar: 'https://avatar.vercel.sh/alex.png',
-            emotions: ['Grateful', 'Connected'],
-            stats: { helpedCount: 1, hoursContributed: 2 }
-          }
-        ],
-        userRole: 'helper',
-        totalImpact: {
-          pointsEarned: 25,
-          peopleHelped: 1,
-          hoursContributed: 2,
-          emotionalImpact: 'Made a senior feel supported and less isolated'
-        },
-        previewText: 'A simple act of kindness that created a lasting connection',
-        emotions: ['❤️', '🛒', '👵']
-      },
-      {
-        id: '3',
-        title: 'Book Drive for Local School',
-        category: 'donation',
-        startDate: '2024-01-05',
-        completedDate: '2024-01-30',
-        coverImage: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400',
-        participants: [
-          { avatar: 'https://avatar.vercel.sh/lisa.png', name: 'Lisa Park', role: 'Organizer' },
-          { avatar: 'https://avatar.vercel.sh/david.png', name: 'David Kim', role: 'Donor' },
-          { avatar: 'https://avatar.vercel.sh/maria.png', name: 'Maria Garcia', role: 'Volunteer' },
-        ],
-        updates: [
-          {
-            id: '1',
-            type: 'progress',
-            title: 'Donation Drive Begins',
-            content: 'Started collecting books from the community. The response has been overwhelming!',
-            mediaUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600',
-            mediaType: 'image',
-            timestamp: '2024-01-10',
-            author: 'Lisa Park',
-            authorAvatar: 'https://avatar.vercel.sh/lisa.png',
-            emotions: ['Excited', 'Hopeful']
-          },
-          {
-            id: '2',
-            type: 'completion',
-            title: 'Books Delivered to School',
-            content: 'We collected over 500 books! Seeing the children\'s faces light up when they saw all the new books was priceless.',
-            mediaUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600',
-            mediaType: 'image',
-            timestamp: '2024-01-30',
-            author: 'Maria Garcia',
-            authorAvatar: 'https://avatar.vercel.sh/maria.png',
-            emotions: ['Proud', 'Happy', 'Inspired'],
-            stats: { helpedCount: 300, impactReach: 500 }
-          }
-        ],
-        userRole: 'supporter',
-        totalImpact: {
-          pointsEarned: 75,
-          peopleHelped: 300,
-          hoursContributed: 12,
-          emotionalImpact: 'Opened worlds of knowledge for hundreds of children'
-        },
-        previewText: 'Filling young minds with stories and endless possibilities',
-        emotions: ['📚', '🎉', '✨']
-      }
-    ];
-
-    setTimeout(() => {
-      setStories(mockStories);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    if (viewMode === 'public') {
+      loadPublicStories();
+    }
+  }, [viewMode]);
 
   const filteredStories = stories.filter(story => {
     const matchesSearch = story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         story.previewText.toLowerCase().includes(searchQuery.toLowerCase());
+                         story.preview_text?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === 'all' || story.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'help-needed': 'from-red-400 to-pink-600',
-      'help-offered': 'from-green-400 to-emerald-600',
+      'help_needed': 'from-red-400 to-pink-600',
+      'help_offered': 'from-green-400 to-emerald-600',
       'volunteer': 'from-purple-400 to-indigo-600',
       'donation': 'from-yellow-400 to-orange-600',
-      'success-story': 'from-blue-400 to-purple-600',
+      'success_story': 'from-blue-400 to-purple-600',
     };
     return colors[category as keyof typeof colors] || 'from-gray-400 to-gray-600';
   };
@@ -219,9 +54,9 @@ const ReliveMemoriesDashboard = () => {
   const getTotalStats = () => {
     return stories.reduce(
       (acc, story) => ({
-        totalPoints: acc.totalPoints + story.totalImpact.pointsEarned,
-        totalPeople: acc.totalPeople + story.totalImpact.peopleHelped,
-        totalHours: acc.totalHours + story.totalImpact.hoursContributed,
+        totalPoints: acc.totalPoints + (story.total_impact.pointsEarned || 0),
+        totalPeople: acc.totalPeople + (story.total_impact.peopleHelped || 0),
+        totalHours: acc.totalHours + (story.total_impact.hoursContributed || 0),
         totalStories: acc.totalStories + 1,
       }),
       { totalPoints: 0, totalPeople: 0, totalHours: 0, totalStories: 0 }
@@ -233,14 +68,19 @@ const ReliveMemoriesDashboard = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-            ))}
-          </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <span className="ml-2 text-gray-600">Loading your stories...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-500 mb-4">{error}</div>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
       </div>
     );
   }
@@ -259,25 +99,43 @@ const ReliveMemoriesDashboard = () => {
           </div>
         </div>
 
-        {/* Overall Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-          <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{stats.totalStories}</div>
-            <div className="text-sm text-gray-600">Stories</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{stats.totalPoints}</div>
-            <div className="text-sm text-gray-600">Points Earned</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{stats.totalPeople}</div>
-            <div className="text-sm text-gray-600">People Helped</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-orange-600">{stats.totalHours}</div>
-            <div className="text-sm text-gray-600">Hours Given</div>
-          </div>
+        {/* View Mode Toggle */}
+        <div className="flex justify-center space-x-2">
+          <Button
+            variant={viewMode === 'my_stories' ? 'default' : 'outline'}
+            onClick={() => setViewMode('my_stories')}
+          >
+            My Stories
+          </Button>
+          <Button
+            variant={viewMode === 'public' ? 'default' : 'outline'}
+            onClick={() => setViewMode('public')}
+          >
+            Community Stories
+          </Button>
         </div>
+
+        {/* Overall Stats - only show for user's own stories */}
+        {viewMode === 'my_stories' && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+            <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{stats.totalStories}</div>
+              <div className="text-sm text-gray-600">Stories</div>
+            </div>
+            <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{stats.totalPoints}</div>
+              <div className="text-sm text-gray-600">Points Earned</div>
+            </div>
+            <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{stats.totalPeople}</div>
+              <div className="text-sm text-gray-600">People Helped</div>
+            </div>
+            <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{stats.totalHours}</div>
+              <div className="text-sm text-gray-600">Hours Given</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Search and Filter */}
@@ -297,11 +155,11 @@ const ReliveMemoriesDashboard = () => {
           className="px-4 py-2 border rounded-lg bg-white"
         >
           <option value="all">All Categories</option>
-          <option value="help-needed">Help Needed</option>
-          <option value="help-offered">Help Offered</option>
+          <option value="help_needed">Help Needed</option>
+          <option value="help_offered">Help Offered</option>
           <option value="volunteer">Volunteer</option>
           <option value="donation">Donation</option>
-          <option value="success-story">Success Story</option>
+          <option value="success_story">Success Story</option>
         </select>
       </div>
 
@@ -316,23 +174,29 @@ const ReliveMemoriesDashboard = () => {
           >
             <Card className="h-full overflow-hidden cursor-pointer group hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
               <div className={`h-48 bg-gradient-to-r ${getCategoryColor(story.category)} relative overflow-hidden`}>
-                <img
-                  src={story.coverImage}
-                  alt={story.title}
-                  className="w-full h-full object-cover opacity-80"
-                />
+                {story.cover_image ? (
+                  <img
+                    src={story.cover_image}
+                    alt={story.title}
+                    className="w-full h-full object-cover opacity-80"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Heart className="h-16 w-16 text-white/50" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute top-4 right-4">
                   <Badge variant="secondary" className="bg-black/40 text-white border-0">
-                    {story.category.replace('-', ' ')}
+                    {story.category.replace('_', ' ')}
                   </Badge>
                 </div>
                 <div className="absolute bottom-4 left-4 right-4">
                   <h3 className="text-white font-semibold text-lg mb-2">{story.title}</h3>
                   <div className="flex items-center space-x-2 text-white/80 text-sm">
                     <Calendar className="h-3 w-3" />
-                    <span>{new Date(story.startDate).toLocaleDateString()}</span>
-                    {story.completedDate && (
+                    <span>{new Date(story.start_date).toLocaleDateString()}</span>
+                    {story.completed_date && (
                       <>
                         <span>•</span>
                         <span>Completed</span>
@@ -354,12 +218,12 @@ const ReliveMemoriesDashboard = () => {
               </div>
               <CardContent className="p-4 space-y-4">
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  {story.previewText}
+                  {story.preview_text || 'A journey of community impact and collaboration'}
                 </p>
 
                 {/* Emotions */}
                 <div className="flex space-x-1">
-                  {story.emotions.map((emotion, index) => (
+                  {story.emotions.slice(0, 3).map((emotion, index) => (
                     <span key={index} className="text-lg">{emotion}</span>
                   ))}
                 </div>
@@ -369,8 +233,10 @@ const ReliveMemoriesDashboard = () => {
                   <div className="flex -space-x-2">
                     {story.participants.slice(0, 3).map((participant, index) => (
                       <Avatar key={index} className="w-6 h-6 border-2 border-white">
-                        <AvatarImage src={participant.avatar} />
-                        <AvatarFallback className="text-xs">{participant.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={participant.profile?.avatar_url} />
+                        <AvatarFallback className="text-xs">
+                          {participant.profile?.first_name?.charAt(0) || '?'}
+                        </AvatarFallback>
                       </Avatar>
                     ))}
                     {story.participants.length > 3 && (
@@ -380,22 +246,22 @@ const ReliveMemoriesDashboard = () => {
                     )}
                   </div>
                   <Badge variant="outline" className="text-xs">
-                    {story.userRole}
+                    {story.participants.find(p => p.user_id === story.participants[0]?.user_id)?.role || 'participant'}
                   </Badge>
                 </div>
 
                 {/* Impact Summary */}
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <div className="text-lg font-bold text-green-600">+{story.totalImpact.pointsEarned}</div>
+                    <div className="text-lg font-bold text-green-600">+{story.total_impact.pointsEarned}</div>
                     <div className="text-xs text-gray-500">points</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-blue-600">{story.totalImpact.peopleHelped}</div>
+                    <div className="text-lg font-bold text-blue-600">{story.total_impact.peopleHelped}</div>
                     <div className="text-xs text-gray-500">helped</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-purple-600">{story.totalImpact.hoursContributed}</div>
+                    <div className="text-lg font-bold text-purple-600">{story.total_impact.hoursContributed}</div>
                     <div className="text-xs text-gray-500">hours</div>
                   </div>
                 </div>
@@ -419,7 +285,9 @@ const ReliveMemoriesDashboard = () => {
           <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No memories found</h3>
           <p className="text-gray-600 max-w-md mx-auto">
-            {searchQuery ? 'Try adjusting your search terms' : 'Start helping others to create your first memory!'}
+            {searchQuery ? 'Try adjusting your search terms' : viewMode === 'my_stories' 
+              ? 'Start helping others to create your first memory!' 
+              : 'No public stories available yet.'}
           </p>
         </div>
       )}
@@ -430,10 +298,9 @@ const ReliveMemoriesDashboard = () => {
           story={selectedStory}
           onClose={() => setSelectedStory(null)}
           onShare={(story) => {
-            // Handle sharing logic
             navigator.share?.({
               title: `My Impact Story: ${story.title}`,
-              text: story.totalImpact.emotionalImpact,
+              text: story.total_impact.emotionalImpact,
               url: window.location.href
             });
           }}

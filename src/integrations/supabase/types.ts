@@ -1429,6 +1429,59 @@ export type Database = {
         }
         Relationships: []
       }
+      relive_stories: {
+        Row: {
+          category: string
+          completed_date: string | null
+          cover_image: string | null
+          created_at: string
+          emotions: string[] | null
+          id: string
+          post_id: string
+          preview_text: string | null
+          start_date: string
+          title: string
+          total_impact: Json | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          completed_date?: string | null
+          cover_image?: string | null
+          created_at?: string
+          emotions?: string[] | null
+          id?: string
+          post_id: string
+          preview_text?: string | null
+          start_date: string
+          title: string
+          total_impact?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          completed_date?: string | null
+          cover_image?: string | null
+          created_at?: string
+          emotions?: string[] | null
+          id?: string
+          post_id?: string
+          preview_text?: string | null
+          start_date?: string
+          title?: string
+          total_impact?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "relive_stories_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seasonal_challenges: {
         Row: {
           created_at: string
@@ -1470,6 +1523,108 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      story_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          participation_type: string
+          post_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          participation_type: string
+          post_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          participation_type?: string
+          post_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_participants_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_updates: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          emotions: string[] | null
+          id: string
+          media_type: string | null
+          media_url: string | null
+          post_id: string
+          stats: Json | null
+          title: string
+          update_type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          emotions?: string[] | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          post_id: string
+          stats?: Json | null
+          title: string
+          update_type: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          emotions?: string[] | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          post_id?: string
+          stats?: Json | null
+          title?: string
+          update_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_updates_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_updates_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trust_domains: {
         Row: {
