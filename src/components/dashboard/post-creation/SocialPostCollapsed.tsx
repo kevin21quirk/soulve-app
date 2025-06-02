@@ -16,9 +16,9 @@ const SocialPostCollapsed = ({ onExpand }: SocialPostCollapsedProps) => {
       {/* Main compose area */}
       <div className="flex items-center space-x-3 mb-4">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={user?.avatar_url || ''} />
+          <AvatarImage src={user?.user_metadata?.avatar_url || ''} />
           <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-            {user?.first_name?.charAt(0) || 'U'}
+            {user?.user_metadata?.first_name?.charAt(0) || 'U'}
           </AvatarFallback>
         </Avatar>
         
@@ -26,7 +26,7 @@ const SocialPostCollapsed = ({ onExpand }: SocialPostCollapsedProps) => {
           onClick={onExpand}
           className="flex-1 bg-gray-50 hover:bg-gray-100 rounded-full px-4 py-3 text-left text-gray-500 text-sm transition-colors border border-transparent hover:border-gray-200"
         >
-          What's on your mind, {user?.first_name}?
+          What's on your mind, {user?.user_metadata?.first_name}?
         </button>
       </div>
       

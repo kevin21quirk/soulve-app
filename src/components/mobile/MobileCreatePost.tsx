@@ -85,9 +85,9 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         {/* Quick Action Prompt */}
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar_url || ''} />
+            <AvatarImage src={user?.user_metadata?.avatar_url || ''} />
             <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-              {user?.first_name?.charAt(0) || 'U'}
+              {user?.user_metadata?.first_name?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
           
@@ -95,7 +95,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
             onClick={() => setIsExpanded(true)}
             className="flex-1 bg-gray-50 rounded-full px-4 py-3 text-left text-gray-500 text-sm hover:bg-gray-100 transition-colors"
           >
-            What's on your mind, {user?.first_name}?
+            What's on your mind, {user?.user_metadata?.first_name}?
           </button>
         </div>
         
@@ -133,12 +133,12 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar_url || ''} />
+            <AvatarImage src={user?.user_metadata?.avatar_url || ''} />
             <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-              {user?.first_name?.charAt(0) || 'U'}
+              {user?.user_metadata?.first_name?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
-          <div className="font-medium text-sm">{user?.first_name} {user?.last_name}</div>
+          <div className="font-medium text-sm">{user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</div>
         </div>
         <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
           <X className="h-4 w-4" />
@@ -236,7 +236,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         <textarea
           value={formData.description}
           onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          placeholder={`What's on your mind, ${user?.first_name}?`}
+          placeholder={`What's on your mind, ${user?.user_metadata?.first_name}?`}
           className="w-full border-0 resize-none focus:ring-0 focus:outline-none text-sm min-h-[80px] placeholder-gray-400 bg-transparent"
           rows={3}
         />

@@ -65,14 +65,14 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar_url || ''} />
+            <AvatarImage src={user?.user_metadata?.avatar_url || ''} />
             <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-              {user?.first_name?.charAt(0) || 'U'}
+              {user?.user_metadata?.first_name?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="font-medium text-sm">
-              {user?.first_name} {user?.last_name}
+              {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
             </div>
             <div className="flex items-center space-x-2 mt-1">
               {/* Feeling selector - prominent like Facebook */}
@@ -164,7 +164,6 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
                   <category.icon className="h-4 w-4 mr-2" />
                   <div>
                     <div className="font-medium">{category.label}</div>
-                    <div className="text-xs text-gray-500">{category.description}</div>
                   </div>
                 </Button>
               ))}
@@ -186,7 +185,7 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
 
           {/* Main text area */}
           <Textarea
-            placeholder={`What's on your mind, ${user?.first_name}?`}
+            placeholder={`What's on your mind, ${user?.user_metadata?.first_name}?`}
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             className="border-0 shadow-none resize-none focus-visible:ring-0 text-base placeholder-gray-500 min-h-[80px]"
