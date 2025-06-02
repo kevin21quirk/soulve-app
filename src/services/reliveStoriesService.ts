@@ -121,6 +121,7 @@ export class ReliveStoriesService {
           updates: (updates || []).map(update => ({
             ...update,
             update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+            media_type: update.media_type as 'image' | 'video' | undefined,
             emotions: update.emotions || [],
             author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
           }))
@@ -164,6 +165,7 @@ export class ReliveStoriesService {
     return {
       ...data,
       update_type: data.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+      media_type: data.media_type as 'image' | 'video' | undefined,
       emotions: data.emotions || [],
       author: data.profiles as { first_name: string; last_name: string; avatar_url: string }
     };
@@ -229,6 +231,7 @@ export class ReliveStoriesService {
       updates: (updates || []).map(update => ({
         ...update,
         update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+        media_type: update.media_type as 'image' | 'video' | undefined,
         emotions: update.emotions || [],
         author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
       }))
@@ -301,6 +304,7 @@ export class ReliveStoriesService {
           updates: (updates || []).map(update => ({
             ...update,
             update_type: update.update_type as 'progress' | 'completion' | 'impact' | 'reflection',
+            media_type: update.media_type as 'image' | 'video' | undefined,
             emotions: update.emotions || [],
             author: update.profiles as { first_name: string; last_name: string; avatar_url: string }
           }))
