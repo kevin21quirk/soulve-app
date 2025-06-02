@@ -175,7 +175,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
           >
             {selectedCategory ? (
               <>
-                <selectedCategory.icon className="h-3 w-3 mr-1" />
+                {React.createElement(selectedCategory.icon, { className: "h-3 w-3 mr-1" })}
                 <span className="text-xs">{selectedCategory.label}</span>
               </>
             ) : (
@@ -224,7 +224,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
                   }}
                   className="h-10 justify-start"
                 >
-                  <category.icon className="h-4 w-4 mr-2" />
+                  {React.createElement(category.icon, { className: "h-4 w-4 mr-2" })}
                   <span className="text-xs">{category.label}</span>
                 </Button>
               ))}
@@ -250,7 +250,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
           )}
           {selectedCategory && (
             <Badge variant="outline" className="text-xs">
-              <selectedCategory.icon className="h-3 w-3 mr-1" />
+              {React.createElement(selectedCategory.icon, { className: "h-3 w-3 mr-1" })}
               {selectedCategory.label}
             </Badge>
           )}

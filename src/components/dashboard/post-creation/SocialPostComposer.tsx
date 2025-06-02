@@ -104,7 +104,7 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
               >
                 {selectedCategory ? (
                   <>
-                    <selectedCategory.icon className="h-3 w-3 mr-1" />
+                    {React.createElement(selectedCategory.icon, { className: "h-3 w-3 mr-1" })}
                     <span>{selectedCategory.label}</span>
                   </>
                 ) : (
@@ -161,7 +161,7 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
                   }}
                   className="h-10 px-3 text-xs justify-start"
                 >
-                  <category.icon className="h-4 w-4 mr-2" />
+                  {React.createElement(category.icon, { className: "h-4 w-4 mr-2" })}
                   <div>
                     <div className="font-medium">{category.label}</div>
                   </div>
@@ -217,7 +217,7 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
             )}
             {selectedCategory && (
               <Badge variant="outline" className="text-xs">
-                <selectedCategory.icon className="h-3 w-3 mr-1" />
+                {React.createElement(selectedCategory.icon, { className: "h-3 w-3 mr-1" })}
                 {selectedCategory.label}
               </Badge>
             )}
