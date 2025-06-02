@@ -7,6 +7,38 @@ export interface MediaFile {
   size: number;
 }
 
+export interface GifData {
+  id: string;
+  title: string;
+  url: string;
+  preview: string;
+}
+
+export interface PollData {
+  question: string;
+  options: Array<{ id: string; text: string; votes: number }>;
+  allowMultiple: boolean;
+  duration: number;
+}
+
+export interface EventData {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  maxAttendees?: number;
+  isVirtual: boolean;
+  virtualLink?: string;
+}
+
+export interface LiveVideoData {
+  streamId: string;
+  title: string;
+  startTime: Date;
+  stream?: MediaStream;
+}
+
 export interface PostFormData {
   title: string;
   description: string;
@@ -19,13 +51,17 @@ export interface PostFormData {
   allowComments: boolean;
   allowSharing: boolean;
   scheduledFor?: Date;
-  // New features
+  // Enhanced features
   isLiveVideo?: boolean;
+  liveVideoData?: LiveVideoData;
   hasGif?: boolean;
+  selectedGif?: GifData;
   taggedUsers?: string[];
   hasPoll?: boolean;
   pollOptions?: string[];
+  pollData?: PollData;
   isEvent?: boolean;
+  eventData?: EventData;
   eventDate?: Date;
   eventLocation?: string;
 }
