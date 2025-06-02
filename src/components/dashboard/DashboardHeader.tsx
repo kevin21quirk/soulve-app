@@ -8,7 +8,6 @@ import HeaderOverlays from "./header/HeaderOverlays";
 import MobileHeader from "./header/MobileHeader";
 import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
 
 interface DashboardHeaderProps {
   showSearch: boolean;

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Home, 
   Users, 
@@ -14,7 +13,7 @@ import {
   Shield
 } from "lucide-react";
 
-import SocialFeed from "@/components/dashboard/SocialFeed";
+import EnhancedSocialFeed from "@/components/dashboard/EnhancedSocialFeed";
 import UserProfile from "@/components/dashboard/UserProfile";
 import EnhancedConnections from "@/components/dashboard/EnhancedConnections";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
@@ -31,7 +30,7 @@ const MobileDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "feed":
-        return <SocialFeed />;
+        return <EnhancedSocialFeed />;
       case "connections":
         return <EnhancedConnections />;
       case "discover":
@@ -47,7 +46,7 @@ const MobileDashboard = () => {
       case "settings":
         return <MobileSettings onBack={() => setActiveTab("feed")} />;
       default:
-        return <SocialFeed />;
+        return <EnhancedSocialFeed />;
     }
   };
 

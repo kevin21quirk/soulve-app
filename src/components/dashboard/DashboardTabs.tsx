@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import SocialFeed from "./SocialFeed";
+import EnhancedSocialFeed from "./EnhancedSocialFeed";
 import RealDiscoverConnectTab from "./tabs/RealDiscoverConnectTab";
 import MessagesTab from "./tabs/MessagesTab";
 import EnhancedCampaignBuilder from "../campaign-builder/EnhancedCampaignBuilder";
@@ -25,7 +25,7 @@ interface DashboardTabsProps {
 
 const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
   const tabs = [
-    { id: "feed", label: "Feed", icon: Home, component: SocialFeed },
+    { id: "feed", label: "Feed", icon: Home, component: EnhancedSocialFeed },
     { id: "discover", label: "Discover & Connect", icon: Users, component: RealDiscoverConnectTab },
     { id: "campaigns", label: "Campaigns", icon: Target, component: EnhancedCampaignBuilder },
     { id: "messages", label: "Messages", icon: MessageCircle, component: MessagesTab },
