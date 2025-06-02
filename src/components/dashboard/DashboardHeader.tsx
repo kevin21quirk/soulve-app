@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Plus, BarChart3, HelpCircle, MessageCircle } from "lucide-react";
 import HeaderLogo from "./header/HeaderLogo";
@@ -5,7 +6,6 @@ import HeaderActions from "./header/HeaderActions";
 import UserSection from "./header/UserSection";
 import HeaderOverlays from "./header/HeaderOverlays";
 import MobileHeader from "./header/MobileHeader";
-import NotificationCenter from "@/components/notifications/NotificationCenter";
 import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
@@ -35,7 +35,6 @@ const DashboardHeader = ({
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const { unreadCount } = useRealTimeNotifications();
-  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const isMobile = useIsMobile();
 
   const handleSearchSubmit = (query: string) => {
@@ -43,7 +42,8 @@ const DashboardHeader = ({
   };
 
   const handleNotificationClick = () => {
-    setShowNotificationCenter(true);
+    // Navigate to notifications tab instead of showing modal
+    onNavigateToTab("notifications");
     setShowNotifications(false);
   };
 
@@ -107,11 +107,6 @@ const DashboardHeader = ({
         showActivity={showActivity}
         setShowActivity={setShowActivity}
         onSearchSubmit={handleSearchSubmit}
-      />
-
-      <NotificationCenter 
-        isOpen={showNotificationCenter}
-        onClose={() => setShowNotificationCenter(false)}
       />
     </>
   );

@@ -2,6 +2,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 type ReportType = 'spam' | 'harassment' | 'inappropriate_content' | 'fake_account' | 'other';
 
@@ -14,12 +15,16 @@ interface ReportContentParams {
 
 export const useReportContent = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const reportContent = useMutation({
     mutationFn: async ({ reportedUserId, reportedPostId, reportType, reason }: ReportContentParams) => {
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('reports')
         .insert({
+          reporter_id: user.id,
           reported_user_id: reportedUserId || null,
           reported_post_id: reportedPostId || null,
           report_type: reportType,
