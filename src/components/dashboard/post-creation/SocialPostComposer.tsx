@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,9 +24,10 @@ interface SocialPostComposerProps {
   onSubmit: (data: PostFormData) => void;
   onCancel: () => void;
   isExpanded: boolean;
+  isSubmitting?: boolean;
 }
 
-const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostComposerProps) => {
+const SocialPostComposer = ({ onSubmit, onCancel, isExpanded, isSubmitting }: SocialPostComposerProps) => {
   const { user } = useAuth();
   const [showFeelings, setShowFeelings] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
@@ -89,7 +91,7 @@ const SocialPostComposer = ({ onSubmit, onCancel, isExpanded }: SocialPostCompos
           formData={formData}
           onLocationDetect={handleLocationDetect}
           onUpdateFormData={setFormData}
-          disabled={!formData.description.trim() || !formData.category}
+          disabled={!formData.description.trim() || !formData.category || isSubmitting}
         />
       </form>
     </div>

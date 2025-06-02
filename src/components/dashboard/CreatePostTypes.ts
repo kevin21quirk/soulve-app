@@ -64,6 +64,8 @@ export interface PostFormData {
   eventData?: EventData;
   eventDate?: Date;
   eventLocation?: string;
+  // Media files
+  selectedMedia?: MediaFile[];
 }
 
 // Re-export the constants for backward compatibility
