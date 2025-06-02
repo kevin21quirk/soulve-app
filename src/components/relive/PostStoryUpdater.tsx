@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,9 +12,12 @@ import {
   Heart, 
   Star, 
   Sparkles,
-  Target
+  Target,
+  MapPin,
+  Loader2
 } from 'lucide-react';
 import { useReliveStories } from '@/hooks/useReliveStories';
+import { useToast } from '@/hooks/use-toast';
 
 interface PostStoryUpdaterProps {
   postId: string;
@@ -25,9 +27,11 @@ interface PostStoryUpdaterProps {
 
 const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdaterProps) => {
   const { createStoryUpdate } = useReliveStories();
+  const { toast } = useToast();
   const [updateType, setUpdateType] = useState<'progress' | 'completion' | 'impact' | 'reflection'>('progress');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [location, setLocation] = useState('');
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string>('');
   const [emotions, setEmotions] = useState<string[]>([]);
@@ -37,6 +41,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
     impactReach: ''
   });
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
   const emotionOptions = [
     { emoji: '😊', label: 'Happy' },
@@ -69,6 +74,93 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
     );
   };
 
+  const detectLocation = async () => {
+    setLocationLoading(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Location not supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive"
+      });
+      setLocationLoading(false);
+      return;
+    }
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Use reverse geocoding to get address from coordinates
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const locationString = [
+              data.locality || data.city,
+              data.principalSubdivision || data.countryName
+            ].filter(Boolean).join(', ');
+            
+            setLocation(locationString || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+            
+            toast({
+              title: "Location detected",
+              description: `Current location: ${locationString}`,
+            });
+          } else {
+            // Fallback to coordinates if geocoding fails
+            setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+            toast({
+              title: "Location detected",
+              description: "Location coordinates captured.",
+            });
+          }
+        } catch (error) {
+          // Fallback to coordinates if geocoding service fails
+          setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          toast({
+            title: "Location detected",
+            description: "Location coordinates captured.",
+          });
+        }
+        
+        setLocationLoading(false);
+      },
+      (error) => {
+        setLocationLoading(false);
+        let errorMessage = "Unable to detect location.";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location access denied. Please enable location permissions.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out.";
+            break;
+        }
+        
+        toast({
+          title: "Location detection failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      },
+      options
+    );
+  };
+
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
       return;
@@ -84,6 +176,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
         helpedCount: stats.helpedCount ? parseInt(stats.helpedCount) : undefined,
         hoursContributed: stats.hoursContributed ? parseInt(stats.hoursContributed) : undefined,
         impactReach: stats.impactReach ? parseInt(stats.impactReach) : undefined,
+        location: location || undefined
       };
 
       await createStoryUpdate(postId, {
@@ -99,6 +192,7 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
       // Reset form
       setTitle('');
       setContent('');
+      setLocation('');
       setMediaFile(null);
       setMediaPreview('');
       setEmotions([]);
@@ -205,6 +299,36 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
             onChange={(e) => setContent(e.target.value)}
             rows={4}
           />
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label htmlFor="location">Location (optional)</Label>
+          <div className="flex space-x-2">
+            <Input
+              id="location"
+              placeholder="Add location to your update..."
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={detectLocation}
+              disabled={locationLoading}
+              className="flex items-center space-x-2"
+            >
+              {locationLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {locationLoading ? 'Detecting...' : 'Detect'}
+              </span>
+            </Button>
+          </div>
         </div>
 
         {/* Media Upload - Simplified for now */}
@@ -325,6 +449,25 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
                   </Badge>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Current location display */}
+        {location && (
+          <div className="space-y-2">
+            <Label>Location:</Label>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
+              <MapPin className="h-4 w-4" />
+              <span>{location}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLocation('')}
+                className="ml-auto h-6 w-6 p-0"
+              >
+                ✕
+              </Button>
             </div>
           </div>
         )}
