@@ -7,9 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Rocket, Save, Eye } from "lucide-react";
+import { Rocket, Save, Eye, ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type CampaignTemplate } from "@/services/campaignTemplateService";
+import EnhancedMediaUpload from "@/components/dashboard/post-creation/EnhancedMediaUpload";
+import { MediaFile } from "@/components/dashboard/media-upload/MediaUploadTypes";
 
 interface CampaignFormProps {
   onCampaignCreated: (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => void;
@@ -19,6 +21,7 @@ interface CampaignFormProps {
 
 const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: CampaignFormProps) => {
   const { toast } = useToast();
+  const [selectedMedia, setSelectedMedia] = useState<MediaFile[]>([]);
   const [formData, setFormData] = useState({
     title: selectedTemplate?.template_data.title || "",
     description: selectedTemplate?.template_data.description || "",
@@ -33,6 +36,11 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMediaChange = (files: MediaFile[]) => {
+    setSelectedMedia(files);
+    console.log('Campaign media updated:', files.length, 'files');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +59,9 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
       
       toast({
         title: "Campaign Created Successfully!",
-        description: "Your campaign has been created and will be shared in the community feed.",
+        description: selectedMedia.length > 0 
+          ? `Your campaign has been created with ${selectedMedia.length} media files.`
+          : "Your campaign has been created and will be shared in the community feed.",
       });
       
       onSuccess();
@@ -79,7 +89,7 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
             <Label htmlFor="title">Campaign Title</Label>
@@ -128,6 +138,16 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
               placeholder="60"
             />
           </div>
+
+          <div>
+            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Input
+              id="tags"
+              value={formData.tags}
+              onChange={(e) => handleInputChange("tags", e.target.value)}
+              placeholder="education, community, help"
+            />
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -154,29 +174,48 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
               required
             />
           </div>
-
-          <div>
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
-            <Input
-              id="tags"
-              value={formData.tags}
-              onChange={(e) => handleInputChange("tags", e.target.value)}
-              placeholder="education, community, help"
-            />
-          </div>
         </div>
+      </div>
+
+      {/* Enhanced Media Upload Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <ImageIcon className="h-5 w-5 text-[#0ce4af]" />
+          <Label className="text-lg font-medium">Campaign Media</Label>
+          <Badge variant="outline" className="text-xs">
+            {selectedMedia.length} files selected
+          </Badge>
+        </div>
+        <p className="text-sm text-gray-600">
+          Add images and videos to make your campaign more compelling. High-quality visuals help tell your story better.
+        </p>
+        <EnhancedMediaUpload
+          onMediaChange={handleMediaChange}
+          maxFiles={8}
+          maxFileSize={15}
+          acceptedTypes={['image/*', 'video/*']}
+        />
       </div>
 
       <div className="flex items-center justify-between pt-6 border-t">
         <div className="text-sm text-gray-600">
           {selectedTemplate ? "Customizing template" : "Creating from scratch"}
+          {selectedMedia.length > 0 && (
+            <span className="block text-[#0ce4af] font-medium">
+              {selectedMedia.length} media file{selectedMedia.length !== 1 ? 's' : ''} attached
+            </span>
+          )}
         </div>
         <div className="flex space-x-3">
           <Button type="button" variant="outline">
             <Eye className="h-4 w-4 mr-2" />
             Preview
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
+          >
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

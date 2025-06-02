@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Rocket, Sparkles } from "lucide-react";
+import { Rocket, Sparkles, ImageIcon, Video } from "lucide-react";
 import CampaignForm from "./CampaignForm";
 import { type CampaignTemplate } from "@/services/campaignTemplateService";
 
@@ -40,7 +40,7 @@ const CampaignCreateTab = ({
           {selectedTemplate ? (
             <>Your campaign will be pre-filled with proven content from the selected template. You can customize everything before publishing.</>
           ) : (
-            <>Your campaign will automatically be shared in the community feed to maximize reach and engagement.</>
+            <>Create compelling campaigns with rich media support. Add images, videos, and detailed stories to maximize reach and engagement.</>
           )}
         </p>
         {selectedTemplate && (
@@ -56,11 +56,30 @@ const CampaignCreateTab = ({
             </Badge>
           </div>
         )}
+        
+        {/* Media Features Highlight */}
+        {!showForm && (
+          <div className="bg-gradient-to-r from-[#0ce4af]/10 to-[#18a5fe]/10 p-4 rounded-lg mt-4">
+            <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-[#0ce4af]" />
+              Rich Media Support
+            </h4>
+            <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" /> High-quality images
+              </span>
+              <span className="flex items-center gap-1">
+                <Video className="h-3 w-3" /> Video storytelling
+              </span>
+              <span>Up to 8 files (15MB each)</span>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {!showForm ? (
           <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">Select a template or start from scratch to begin creating your campaign.</p>
+            <p className="text-gray-600 mb-4">Select a template or start from scratch to begin creating your campaign with full media support.</p>
             <Button 
               onClick={onBrowseTemplates}
               className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
