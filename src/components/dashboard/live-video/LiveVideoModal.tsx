@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -280,7 +279,7 @@ const LiveVideoModal = ({ onStartLive, onClose }: LiveVideoModalProps) => {
                     External Platform Integration
                   </p>
                   <p className="text-sm text-amber-700 mt-1">
-                    To stream to {platform.name}, you'll need to configure API keys in your account settings.
+                    To stream to {platforms.find(p => p.id === selectedPlatform)?.name}, you'll need to configure API keys in your account settings.
                   </p>
                   <Button variant="outline" size="sm" className="mt-2">
                     <ExternalLink className="h-4 w-4 mr-2" />

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { EnhancedMediaUpload } from "../post-creation/EnhancedMediaUpload";
+import EnhancedMediaUpload from "../post-creation/EnhancedMediaUpload";
 import { MediaUploadProps } from "./MediaUploadTypes";
 
 const MediaUpload = (props: MediaUploadProps) => {
