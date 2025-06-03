@@ -99,9 +99,13 @@ const FeedTabContent = ({
 
   const config = getTabConfig(activeTab);
 
+  const handlePostCreated = () => {
+    onPostCreated({});
+  };
+
   return (
     <div className="space-y-6">
-      {config.showCreate && <CreatePost onPostCreated={(post) => onPostCreated(post)} />}
+      {config.showCreate && <CreatePost onPostCreated={handlePostCreated} />}
       {config.showRecommendations && <SmartRecommendations />}
       
       <Card className={`border-${config.colour}-200 bg-${config.colour}-50`}>
