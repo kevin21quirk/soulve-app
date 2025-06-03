@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,7 +40,7 @@ export const useRealMessaging = () => {
     if (!user) return;
 
     try {
-      // Get all messages involving the current user
+      // Get all messages involving the current user with profiles data
       const { data: allMessages, error } = await supabase
         .from('messages')
         .select(`
@@ -75,7 +74,7 @@ export const useRealMessaging = () => {
             last_message: message.content,
             last_message_time: message.created_at,
             unread_count: 0,
-            is_online: false // Could be enhanced with presence tracking
+            is_online: false
           });
         }
       });
@@ -133,7 +132,6 @@ export const useRealMessaging = () => {
         [partnerId]: processedMessages
       }));
 
-      // Mark messages as read
       if (messagesData?.length > 0) {
         await supabase
           .from('messages')
@@ -175,7 +173,6 @@ export const useRealMessaging = () => {
 
       if (error) throw error;
 
-      // Add message to local state immediately
       const newMessage: RealMessage = {
         id: data.id,
         sender_id: data.sender_id,
@@ -193,10 +190,8 @@ export const useRealMessaging = () => {
         [recipientId]: [...(prev[recipientId] || []), newMessage]
       }));
 
-      // Update conversation list
       await fetchConversations();
 
-      // Create notification for recipient
       await supabase
         .from('notifications')
         .insert({
@@ -219,7 +214,6 @@ export const useRealMessaging = () => {
     }
   }, [user, fetchConversations, toast]);
 
-  // Real-time subscriptions
   useEffect(() => {
     if (!user) return;
 
@@ -231,10 +225,8 @@ export const useRealMessaging = () => {
         table: 'messages',
         filter: `recipient_id=eq.${user.id}`
       }, (payload: any) => {
-        // Refresh conversations when new message arrives
         fetchConversations();
         
-        // If we have this conversation open, refresh its messages
         const senderId = payload.new.sender_id;
         if (messages[senderId]) {
           fetchMessages(senderId);
