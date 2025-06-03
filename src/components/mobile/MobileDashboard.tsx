@@ -22,6 +22,7 @@ import CreatePostModal from "@/components/dashboard/post-creation/CreatePostModa
 import EnhancedUserDiscovery from "@/components/connections/EnhancedUserDiscovery";
 import MessagingInterface from "@/components/dashboard/messaging/MessagingInterface";
 import MobileSettings from "@/components/mobile/settings/MobileSettings";
+import MobileSafeSpace from "@/components/mobile/safe-space/MobileSafeSpace";
 
 const MobileDashboard = () => {
   const [activeTab, setActiveTab] = useState("feed");
@@ -43,6 +44,8 @@ const MobileDashboard = () => {
         return <UserProfile />;
       case "privacy":
         return <PrivacySettingsPanel />;
+      case "safe-space":
+        return <MobileSafeSpace onBack={() => setActiveTab("feed")} />;
       case "settings":
         return <MobileSettings onBack={() => setActiveTab("feed")} />;
       default:
@@ -90,7 +93,7 @@ const MobileDashboard = () => {
             { id: "discover", icon: Search, label: "Discover" },
             { id: "connections", icon: Users, label: "Network" },
             { id: "messages", icon: MessageSquare, label: "Messages" },
-            { id: "privacy", icon: Shield, label: "Privacy" },
+            { id: "safe-space", icon: Shield, label: "Safe Space" },
             { id: "settings", icon: Settings, label: "Settings" },
           ].map((item) => (
             <Button

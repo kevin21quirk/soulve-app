@@ -1529,6 +1529,170 @@ export type Database = {
           },
         ]
       }
+      safe_space_helpers: {
+        Row: {
+          created_at: string
+          current_sessions: number
+          id: string
+          is_available: boolean
+          last_active: string | null
+          max_concurrent_sessions: number
+          professional_credentials: Json | null
+          specializations: string[]
+          updated_at: string
+          user_id: string | null
+          verification_status: string
+        }
+        Insert: {
+          created_at?: string
+          current_sessions?: number
+          id?: string
+          is_available?: boolean
+          last_active?: string | null
+          max_concurrent_sessions?: number
+          professional_credentials?: Json | null
+          specializations?: string[]
+          updated_at?: string
+          user_id?: string | null
+          verification_status?: string
+        }
+        Update: {
+          created_at?: string
+          current_sessions?: number
+          id?: string
+          is_available?: boolean
+          last_active?: string | null
+          max_concurrent_sessions?: number
+          professional_credentials?: Json | null
+          specializations?: string[]
+          updated_at?: string
+          user_id?: string | null
+          verification_status?: string
+        }
+        Relationships: []
+      }
+      safe_space_messages: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string
+          id: string
+          message_type: string
+          sender_role: string
+          session_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          message_type?: string
+          sender_role: string
+          session_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          message_type?: string
+          sender_role?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      safe_space_queue: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          estimated_wait_minutes: number | null
+          id: string
+          issue_category: string
+          position_in_queue: number | null
+          preferred_helper_type: string | null
+          requester_id: string | null
+          urgency_level: string
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          estimated_wait_minutes?: number | null
+          id?: string
+          issue_category: string
+          position_in_queue?: number | null
+          preferred_helper_type?: string | null
+          requester_id?: string | null
+          urgency_level?: string
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          estimated_wait_minutes?: number | null
+          id?: string
+          issue_category?: string
+          position_in_queue?: number | null
+          preferred_helper_type?: string | null
+          requester_id?: string | null
+          urgency_level?: string
+        }
+        Relationships: []
+      }
+      safe_space_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          feedback_rating: number | null
+          helper_id: string | null
+          id: string
+          issue_category: string
+          metadata: Json | null
+          requester_id: string | null
+          session_token: string
+          started_at: string | null
+          status: string
+          urgency_level: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          feedback_rating?: number | null
+          helper_id?: string | null
+          id?: string
+          issue_category: string
+          metadata?: Json | null
+          requester_id?: string | null
+          session_token: string
+          started_at?: string | null
+          status?: string
+          urgency_level?: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          feedback_rating?: number | null
+          helper_id?: string | null
+          id?: string
+          issue_category?: string
+          metadata?: Json | null
+          requester_id?: string | null
+          session_token?: string
+          started_at?: string | null
+          status?: string
+          urgency_level?: string
+        }
+        Relationships: []
+      }
       seasonal_challenges: {
         Row: {
           created_at: string
@@ -2073,6 +2237,10 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: number
       }
+      cleanup_expired_safe_space_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       detect_fraud_patterns: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -2090,6 +2258,14 @@ export type Database = {
       get_user_total_points: {
         Args: { target_user_id: string }
         Returns: number
+      }
+      match_safe_space_helper: {
+        Args: {
+          p_requester_id: string
+          p_issue_category: string
+          p_urgency_level: string
+        }
+        Returns: string
       }
     }
     Enums: {
