@@ -1,26 +1,52 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWaitlist } from '@/hooks/useWaitlist';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { canAccessDashboard, isAdmin, userStatus, loading: waitlistLoading } = useWaitlist();
   const navigate = useNavigate();
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Only redirect if we're not loading and there's no user
-    if (!loading && !user) {
-      console.log('No authenticated user, redirecting to auth');
-      navigate('/auth', { replace: true });
-    }
-  }, [user, loading, navigate]);
+    const checkAccess = async () => {
+      // Wait for auth to be ready
+      if (authLoading || waitlistLoading) return;
 
-  // Show loading state while auth is initializing
-  if (loading) {
+      // No user, redirect to auth
+      if (!user) {
+        console.log('No authenticated user, redirecting to auth');
+        navigate('/auth', { replace: true });
+        return;
+      }
+
+      // Check if user can access dashboard
+      const hasAccess = await canAccessDashboard();
+      
+      if (hasAccess || isAdmin) {
+        setAccessGranted(true);
+      } else {
+        // User is not approved, redirect to waitlist page
+        console.log('User not approved for dashboard access, redirecting to waitlist');
+        navigate('/waitlist', { replace: true });
+        return;
+      }
+
+      setChecking(false);
+    };
+
+    checkAccess();
+  }, [user, authLoading, waitlistLoading, navigate, canAccessDashboard, isAdmin]);
+
+  // Show loading while checking auth and waitlist status
+  if (authLoading || waitlistLoading || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -32,7 +58,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Don't render anything if no user (will redirect)
-  if (!user) {
+  if (!user || !accessGranted) {
     return null;
   }
 

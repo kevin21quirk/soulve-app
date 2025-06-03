@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_analytics: {
         Row: {
           avg_time_on_page: number | null
@@ -1251,6 +1275,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_notes: string | null
+          approved_at: string | null
           avatar_url: string | null
           banner_type: string | null
           banner_url: string | null
@@ -1268,9 +1294,14 @@ export type Database = {
           skills: string[] | null
           twitter: string | null
           updated_at: string | null
+          waitlist_approved_by: string | null
+          waitlist_notes: string | null
+          waitlist_status: Database["public"]["Enums"]["waitlist_status"] | null
           website: string | null
         }
         Insert: {
+          admin_notes?: string | null
+          approved_at?: string | null
           avatar_url?: string | null
           banner_type?: string | null
           banner_url?: string | null
@@ -1288,9 +1319,16 @@ export type Database = {
           skills?: string[] | null
           twitter?: string | null
           updated_at?: string | null
+          waitlist_approved_by?: string | null
+          waitlist_notes?: string | null
+          waitlist_status?:
+            | Database["public"]["Enums"]["waitlist_status"]
+            | null
           website?: string | null
         }
         Update: {
+          admin_notes?: string | null
+          approved_at?: string | null
           avatar_url?: string | null
           banner_type?: string | null
           banner_url?: string | null
@@ -1308,6 +1346,11 @@ export type Database = {
           skills?: string[] | null
           twitter?: string | null
           updated_at?: string | null
+          waitlist_approved_by?: string | null
+          waitlist_notes?: string | null
+          waitlist_status?:
+            | Database["public"]["Enums"]["waitlist_status"]
+            | null
           website?: string | null
         }
         Relationships: []
@@ -2197,6 +2240,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      approve_waitlist_user: {
+        Args: { target_user_id: string; approving_admin_id: string }
+        Returns: undefined
+      }
       award_impact_points: {
         Args: {
           target_user_id: string
@@ -2237,6 +2284,10 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: number
       }
+      can_access_dashboard: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       cleanup_expired_safe_space_messages: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2259,6 +2310,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
+      is_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       match_safe_space_helper: {
         Args: {
           p_requester_id: string
@@ -2269,7 +2324,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      waitlist_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2384,6 +2439,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      waitlist_status: ["pending", "approved", "denied"],
+    },
   },
 } as const

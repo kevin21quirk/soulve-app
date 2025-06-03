@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ProfileRegistration from "./pages/ProfileRegistration";
 import MobileOnboarding from "./components/mobile/onboarding/MobileOnboarding";
+import WaitlistDashboard from "./pages/WaitlistDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -21,10 +22,22 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/waitlist" element={<WaitlistDashboard />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
       <Route 
         path="/profile-registration" 
-        element={isMobile ? <MobileOnboarding /> : <ProfileRegistration />} 
+        element={
+          <ProtectedRoute>
+            {isMobile ? <MobileOnboarding /> : <ProfileRegistration />}
+          </ProtectedRoute>
+        } 
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

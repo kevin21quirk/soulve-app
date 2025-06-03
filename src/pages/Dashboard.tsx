@@ -62,10 +62,6 @@ const Dashboard = () => {
 
     if (!loading && user) {
       checkOnboardingStatus();
-    } else if (!loading && !user) {
-      // Redirect to auth if not logged in
-      console.log('No user found, redirecting to auth');
-      navigate('/auth', { replace: true });
     }
   }, [user, loading, toast, navigate]);
 
