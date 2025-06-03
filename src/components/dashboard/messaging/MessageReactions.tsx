@@ -1,25 +1,34 @@
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MessageReaction } from "@/types/messaging";
-import { Plus, Smile } from "lucide-react";
+import { Plus } from "lucide-react";
+import { useMessageReactions } from "@/hooks/useMessageReactions";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MessageReactionsProps {
-  reactions?: MessageReaction[];
-  onReact: (emoji: string) => void;
+  messageId: string;
   isOwn: boolean;
 }
 
-const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsProps) => {
+const MessageReactions = ({ messageId, isOwn }: MessageReactionsProps) => {
+  const { user } = useAuth();
+  const { addReaction, getReactions } = useMessageReactions();
   const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
   
+  const reactions = getReactions(messageId);
   const groupedReactions = reactions.reduce((acc, reaction) => {
     if (!acc[reaction.emoji]) {
       acc[reaction.emoji] = [];
     }
     acc[reaction.emoji].push(reaction);
     return acc;
-  }, {} as Record<string, MessageReaction[]>);
+  }, {} as Record<string, typeof reactions>);
+
+  const handleReact = (emoji: string) => {
+    if (user) {
+      addReaction(messageId, emoji, user.id, user.user_metadata?.display_name || 'User');
+    }
+  };
 
   return (
     <div className={`flex items-center space-x-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -29,7 +38,7 @@ const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsPr
           variant="outline"
           size="sm"
           className="h-6 px-2 text-xs"
-          onClick={() => onReact(emoji)}
+          onClick={() => handleReact(emoji)}
         >
           <span className="mr-1">{emoji}</span>
           <span>{reactionList.length}</span>
@@ -50,7 +59,7 @@ const MessageReactions = ({ reactions = [], onReact, isOwn }: MessageReactionsPr
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0"
-                onClick={() => onReact(emoji)}
+                onClick={() => handleReact(emoji)}
               >
                 {emoji}
               </Button>

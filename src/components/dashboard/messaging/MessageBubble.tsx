@@ -7,25 +7,13 @@ import MessageActions from "./MessageActions";
 interface MessageBubbleProps {
   message: Message;
   messages: Message[];
-  onReactToMessage: (messageId: string, emoji: string) => void;
   onReply: (messageId: string) => void;
-  onEdit: (messageId: string) => void;
-  onDelete: (messageId: string) => void;
-  onForward: (messageId: string, conversationIds: string[]) => void;
-  onPin: (messageId: string) => void;
-  onCreateThread: (messageId: string) => void;
 }
 
 const MessageBubble = ({
   message,
   messages,
-  onReactToMessage,
-  onReply,
-  onEdit,
-  onDelete,
-  onForward,
-  onPin,
-  onCreateThread
+  onReply
 }: MessageBubbleProps) => {
   return (
     <div key={message.id}>
@@ -75,8 +63,7 @@ const MessageBubble = ({
           </div>
           
           <MessageReactions
-            reactions={message.reactions}
-            onReact={(emoji) => onReactToMessage(message.id, emoji)}
+            messageId={message.id}
             isOwn={message.isOwn}
           />
           
@@ -89,11 +76,6 @@ const MessageBubble = ({
               messageContent={message.content}
               isOwn={message.isOwn}
               onReply={onReply}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onForward={onForward}
-              onPin={onPin}
-              onCreateThread={onCreateThread}
             />
           </div>
         </div>

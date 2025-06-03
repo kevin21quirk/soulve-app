@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useRealTimeMessaging } from '@/hooks/useRealTimeMessaging';
+import { useUserPresence } from '@/hooks/useUserPresence';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import ConversationsList from './ConversationsList';
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 const RealTimeMessagingInterface = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { getUserPresence, isUserOnline } = useUserPresence();
   const {
     conversations,
     messages,
@@ -93,7 +95,11 @@ const RealTimeMessagingInterface = () => {
       {/* Conversations List */}
       <div className={`${activeConversation ? 'hidden md:block' : 'block'}`}>
         <ConversationsList
-          conversations={conversations}
+          conversations={conversations.map(conv => ({
+            ...conv,
+            isOnline: isUserOnline(conv.user_id),
+            presence: getUserPresence(conv.user_id)
+          }))}
           activeConversation={activeConversation}
           loading={conversationsLoading}
           onConversationSelect={handleConversationSelect}
@@ -107,7 +113,11 @@ const RealTimeMessagingInterface = () => {
         ) : (
           <>
             <ChatHeader
-              activePartner={activePartner}
+              activePartner={{
+                ...activePartner,
+                isOnline: activePartner ? isUserOnline(activePartner.user_id) : false,
+                presence: activePartner ? getUserPresence(activePartner.user_id) : null
+              }}
               onBack={() => setActiveConversation(null)}
               showBackButton={true}
             />

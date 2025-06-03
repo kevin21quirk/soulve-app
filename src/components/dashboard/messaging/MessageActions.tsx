@@ -11,30 +11,29 @@ import {
   MessageSquare,
   Copy
 } from "lucide-react";
+import { useMessageActions } from "@/hooks/useMessageActions";
 
 interface MessageActionsProps {
   messageId: string;
   messageContent: string;
   isOwn: boolean;
   onReply: (messageId: string) => void;
-  onEdit: (messageId: string) => void;
-  onDelete: (messageId: string) => void;
-  onForward: (messageId: string, conversationIds: string[]) => void;
-  onPin: (messageId: string) => void;
-  onCreateThread: (messageId: string) => void;
 }
 
 const MessageActions = ({
   messageId,
   messageContent,
   isOwn,
-  onReply,
-  onEdit,
-  onDelete,
-  onForward,
-  onPin,
-  onCreateThread
+  onReply
 }: MessageActionsProps) => {
+  const {
+    startEditing,
+    deleteMessage,
+    forwardMessage,
+    pinMessage,
+    createThread
+  } = useMessageActions();
+
   const handleCopyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
   };
@@ -62,26 +61,26 @@ const MessageActions = ({
             <Copy className="h-4 w-4 mr-2" />
             Copy
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onCreateThread(messageId)}>
+          <DropdownMenuItem onClick={() => createThread(messageId)}>
             <MessageSquare className="h-4 w-4 mr-2" />
             Start thread
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onForward(messageId, [])}>
+          <DropdownMenuItem onClick={() => forwardMessage(messageId, [])}>
             <Forward className="h-4 w-4 mr-2" />
             Forward
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onPin(messageId)}>
+          <DropdownMenuItem onClick={() => pinMessage(messageId)}>
             <Pin className="h-4 w-4 mr-2" />
             Pin message
           </DropdownMenuItem>
           {isOwn && (
             <>
-              <DropdownMenuItem onClick={() => onEdit(messageId)}>
+              <DropdownMenuItem onClick={() => startEditing(messageId)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => onDelete(messageId)}
+                onClick={() => deleteMessage(messageId)}
                 className="text-red-600"
               >
                 <Trash2 className="h-4 w-4 mr-2" />

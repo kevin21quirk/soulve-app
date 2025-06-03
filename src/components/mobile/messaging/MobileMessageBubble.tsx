@@ -1,7 +1,8 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Message } from "@/types/messaging";
+import { useMobileGestures } from "@/hooks/useMobileGestures";
 import MessageContent from "./MessageContent";
 import MessageInfo from "./MessageInfo";
 import MessageReactions from "./MessageReactions";
@@ -22,8 +23,8 @@ const MobileMessageBubble = ({
   onDelete
 }: MobileMessageBubbleProps) => {
   const [showReactions, setShowReactions] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const messageRef = useRef<HTMLDivElement>(null);
+  const { enableSwipeGestures } = useMobileGestures();
 
   const handleReaction = (emoji: string) => {
     onReaction?.(emoji);
@@ -38,19 +39,18 @@ const MobileMessageBubble = ({
     }
   };
 
-  const handleTouchStart = () => {
-    longPressTimer.current = setTimeout(handleLongPress, 500);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
+  useEffect(() => {
+    if (messageRef.current) {
+      const cleanup = enableSwipeGestures(messageRef.current);
+      return cleanup;
     }
-  };
+  }, [enableSwipeGestures]);
 
   return (
-    <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} group mb-4`}>
+    <div 
+      ref={messageRef}
+      className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} group mb-4`}
+    >
       <div className={`flex max-w-[85%] ${message.isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
         {/* Avatar for received messages */}
         {!message.isOwn && (
