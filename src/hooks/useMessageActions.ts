@@ -1,112 +1,91 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-export interface EditedMessage {
-  id: string;
-  originalContent: string;
-  editedContent: string;
-  editedAt: string;
-}
 
 export const useMessageActions = () => {
   const { toast } = useToast();
-  const [editingMessage, setEditingMessage] = useState<string | null>(null);
-  const [editedMessages, setEditedMessages] = useState<Record<string, EditedMessage>>({});
-  const [deletedMessages, setDeletedMessages] = useState<Set<string>>(new Set());
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
-  const startEditing = useCallback((messageId: string) => {
-    setEditingMessage(messageId);
-  }, []);
+  const startEditing = (messageId: string) => {
+    setEditingMessageId(messageId);
+  };
 
-  const cancelEditing = useCallback(() => {
-    setEditingMessage(null);
-  }, []);
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+  };
 
-  const saveEdit = useCallback((messageId: string, originalContent: string, newContent: string) => {
-    if (newContent.trim() === '') {
+  const deleteMessage = async (messageId: string) => {
+    try {
+      // In a real implementation, this would call the database
+      console.log('Deleting message:', messageId);
+      toast({
+        title: "Message deleted",
+        description: "The message has been removed."
+      });
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Message cannot be empty",
+        description: "Failed to delete message.",
         variant: "destructive"
       });
-      return false;
     }
+  };
 
-    setEditedMessages(prev => ({
-      ...prev,
-      [messageId]: {
-        id: messageId,
-        originalContent,
-        editedContent: newContent,
-        editedAt: new Date().toISOString()
-      }
-    }));
+  const forwardMessage = async (messageId: string, conversationIds: string[]) => {
+    try {
+      console.log('Forwarding message:', messageId, 'to:', conversationIds);
+      toast({
+        title: "Message forwarded",
+        description: `Message forwarded to ${conversationIds.length} conversation(s).`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to forward message.",
+        variant: "destructive"
+      });
+    }
+  };
 
-    setEditingMessage(null);
-    
-    toast({
-      title: "Message updated",
-      description: "Your message has been edited successfully"
-    });
+  const pinMessage = async (messageId: string) => {
+    try {
+      console.log('Pinning message:', messageId);
+      toast({
+        title: "Message pinned",
+        description: "Message has been pinned to the conversation."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to pin message.",
+        variant: "destructive"
+      });
+    }
+  };
 
-    return true;
-  }, [toast]);
-
-  const deleteMessage = useCallback((messageId: string) => {
-    setDeletedMessages(prev => new Set([...prev, messageId]));
-    
-    toast({
-      title: "Message deleted",
-      description: "The message has been removed"
-    });
-  }, [toast]);
-
-  const forwardMessage = useCallback((messageId: string, conversationIds: string[]) => {
-    // Implementation for forwarding messages
-    toast({
-      title: "Message forwarded",
-      description: `Message forwarded to ${conversationIds.length} conversation(s)`
-    });
-  }, [toast]);
-
-  const pinMessage = useCallback((messageId: string) => {
-    toast({
-      title: "Message pinned",
-      description: "Message has been pinned to the conversation"
-    });
-  }, [toast]);
-
-  const createThread = useCallback((messageId: string) => {
-    toast({
-      title: "Thread created",
-      description: "A new thread has been started from this message"
-    });
-  }, [toast]);
-
-  const isMessageEdited = useCallback((messageId: string) => {
-    return messageId in editedMessages;
-  }, [editedMessages]);
-
-  const isMessageDeleted = useCallback((messageId: string) => {
-    return deletedMessages.has(messageId);
-  }, [deletedMessages]);
-
-  const getEditedContent = useCallback((messageId: string) => {
-    return editedMessages[messageId]?.editedContent;
-  }, [editedMessages]);
+  const createThread = async (messageId: string) => {
+    try {
+      console.log('Creating thread from message:', messageId);
+      toast({
+        title: "Thread created",
+        description: "A new thread has been started from this message."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create thread.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return {
-    editingMessage,
+    editingMessageId,
     startEditing,
     cancelEditing,
-    saveEdit,
     deleteMessage,
     forwardMessage,
     pinMessage,
-    createThread,
-    isMessageEdited,
-    isMessageDeleted,
-    getEditedContent
+    createThread
   };
 };

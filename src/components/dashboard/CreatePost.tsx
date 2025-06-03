@@ -1,113 +1,68 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useRealPostCreation } from "@/hooks/useRealPostCreation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
+import CreatePostModal from "./post-creation/CreatePostModal";
 import SocialPostCollapsed from "./post-creation/SocialPostCollapsed";
-import SocialPostComposer from "./post-creation/SocialPostComposer";
-import PostTemplateSelector from "./post-creation/PostTemplateSelector";
-import { PostFormData } from "./CreatePostTypes";
+import { useCreatePost } from "@/hooks/useCreatePost";
 
 interface CreatePostProps {
-  onPostCreated: (post: any) => void;
-  onCancel?: () => void;
+  onPostCreated?: () => void;
 }
 
-const CreatePost = ({ onPostCreated, onCancel }: CreatePostProps) => {
-  const { toast } = useToast();
-  const { createPost, isCreating } = useRealPostCreation();
+const CreatePost = ({ onPostCreated }: CreatePostProps) => {
+  const { user } = useAuth();
+  const { createPost, isSubmitting } = useCreatePost();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const handleSubmit = async (formData: PostFormData) => {
-    // Validate required fields
-    if (!formData.description.trim()) {
-      toast({
-        title: "Content required",
-        description: "Please write something to share.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.category) {
-      toast({
-        title: "Category required",
-        description: "Please select what kind of post this is.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handlePostSubmit = async (data: any) => {
     try {
-      // Create post using the real service
-      const postId = await createPost({
-        title: formData.title || '',
-        content: formData.description,
-        category: formData.category,
-        urgency: formData.urgency || 'medium',
-        location: formData.location,
-        tags: formData.tags || [],
-        visibility: formData.visibility || 'public',
-        media_urls: []
-      });
-
-      // Reset state
+      await createPost(data);
       setIsExpanded(false);
-      setShowTemplates(false);
-      
-      // Notify parent component
-      onPostCreated({ id: postId, success: true });
-      
+      setShowModal(false);
+      onPostCreated?.();
     } catch (error) {
-      console.error('Error creating post:', error);
-      // Error toast is already shown in the hook
+      console.error('Failed to create post:', error);
     }
   };
 
-  const handleTemplateSelect = (template: any) => {
-    console.log("Template selected:", template);
-    setShowTemplates(false);
-    setIsExpanded(true);
-  };
-
-  const handleExpand = () => {
-    setIsExpanded(true);
-  };
-
-  const handleCancel = () => {
-    setIsExpanded(false);
-    setShowTemplates(false);
-    onCancel?.();
-  };
-
-  const handleShowTemplates = () => {
-    setShowTemplates(true);
-  };
-
-  const handleCancelTemplates = () => {
-    setShowTemplates(false);
-  };
-
-  if (showTemplates) {
-    return (
-      <PostTemplateSelector
-        onTemplateSelect={handleTemplateSelect}
-        onCancel={handleCancelTemplates}
-      />
-    );
-  }
-
-  if (!isExpanded) {
-    return <SocialPostCollapsed onExpand={handleExpand} />;
-  }
+  if (!user) return null;
 
   return (
-    <SocialPostComposer
-      onSubmit={handleSubmit}
-      onCancel={handleCancel}
-      isExpanded={isExpanded}
-      isSubmitting={isCreating}
-    />
+    <>
+      <Card className="mb-6 border-teal-100 bg-gradient-to-r from-teal-50 to-blue-50">
+        <CardHeader className="pb-3">
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user.user_metadata?.avatar_url} />
+              <AvatarFallback className="bg-gradient-to-r from-teal-500 to-blue-500 text-white">
+                {user.user_metadata?.display_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <Button
+              variant="outline"
+              className="flex-1 justify-start text-gray-500 hover:bg-white/60"
+              onClick={() => setShowModal(true)}
+            >
+              What's happening in your community?
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <SocialPostCollapsed onExpand={() => setShowModal(true)} />
+        </CardContent>
+      </Card>
+
+      <CreatePostModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handlePostSubmit}
+        isSubmitting={isSubmitting}
+      />
+    </>
   );
 };
 

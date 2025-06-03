@@ -2,107 +2,189 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 
 interface CreatePostModalProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  isSubmitting?: boolean;
 }
 
-const CreatePostModal = ({ isOpen, onOpenChange }: CreatePostModalProps) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
-  const [urgency, setUrgency] = useState("medium");
-  const [location, setLocation] = useState("");
-  const { toast } = useToast();
+const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePostModalProps) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    category: '',
+    urgency: 'medium',
+    location: '',
+    tags: [] as string[],
+    visibility: 'public'
+  });
+  const [newTag, setNewTag] = useState('');
+
+  const categories = [
+    { value: 'help_needed', label: 'Help Needed' },
+    { value: 'help_offered', label: 'Help Offered' },
+    { value: 'community_event', label: 'Community Event' },
+    { value: 'resource_sharing', label: 'Resource Sharing' },
+    { value: 'volunteer', label: 'Volunteer Opportunity' },
+    { value: 'announcement', label: 'Announcement' }
+  ];
+
+  const urgencyLevels = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+    { value: 'urgent', label: 'Urgent' }
+  ];
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) {
-      toast({
-        title: "Content required",
-        description: "Please add some content to your post",
-        variant: "destructive",
-      });
+    if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
       return;
     }
-
-    // Mock post creation
-    toast({
-      title: "Post created",
-      description: "Your post has been shared with the community",
-    });
-    
-    // Reset form
-    setTitle("");
-    setContent("");
-    setCategory("");
-    setUrgency("medium");
-    setLocation("");
-    onOpenChange(false);
+    onSubmit(formData);
   };
 
+  const isValid = formData.title.trim() && formData.content.trim() && formData.category;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Post</DialogTitle>
+          <DialogTitle>Create New Post</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            placeholder="Post title (optional)"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          
-          <Textarea
-            placeholder="What's on your mind?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[100px]"
-            required
-          />
-          
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="help_needed">Help Needed</SelectItem>
-              <SelectItem value="announcement">Announcement</SelectItem>
-              <SelectItem value="event">Event</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={urgency} onValueChange={setUrgency}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Low Priority</SelectItem>
-              <SelectItem value="medium">Medium Priority</SelectItem>
-              <SelectItem value="high">High Priority</SelectItem>
-              <SelectItem value="urgent">Urgent</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Input
-            placeholder="Location (optional)"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Title *</label>
+            <Input
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="What's this about?"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Content *</label>
+            <Textarea
+              value={formData.content}
+              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+              placeholder="Share more details..."
+              rows={4}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Category *</label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(cat => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Urgency</label>
+              <Select
+                value={formData.urgency}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, urgency: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {urgencyLevels.map(level => (
+                    <SelectItem key={level.value} value={level.value}>
+                      {level.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Location</label>
+            <Input
+              value={formData.location}
+              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              placeholder="Where is this happening?"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Tags</label>
+            <div className="flex gap-2 mb-2">
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Add a tag"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+              />
+              <Button type="button" onClick={handleAddTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.tags.map(tag => (
+                <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                  {tag}
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => handleRemoveTag(tag)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              Create Post
+            <Button
+              type="submit"
+              disabled={!isValid || isSubmitting}
+              className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600"
+            >
+              {isSubmitting ? 'Creating...' : 'Create Post'}
             </Button>
           </div>
         </form>
