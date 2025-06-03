@@ -45,11 +45,11 @@ export const useAdvancedSearch = () => {
     // Simulate search API call
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Mock search results
+    // Mock search results with correct types
     const mockResults: SearchResult[] = [
       {
         id: '1',
-        type: 'post',
+        type: 'post' as const,
         title: 'Help needed with moving',
         content: 'Looking for help to move furniture this weekend...',
         author: 'John Doe',
@@ -59,7 +59,7 @@ export const useAdvancedSearch = () => {
       },
       {
         id: '2',
-        type: 'campaign',
+        type: 'campaign' as const,
         title: 'Food Drive Campaign',
         content: 'Organizing a food drive for local families...',
         author: 'Jane Smith',
