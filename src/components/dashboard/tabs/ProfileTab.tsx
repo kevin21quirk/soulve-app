@@ -25,7 +25,6 @@ const ProfileTab = () => {
       website: "https://johndoe.com"
     },
     organizationInfo: {
-      name: "Tech for Good",
       role: "Volunteer Coordinator",
       website: "https://techforgood.org"
     },

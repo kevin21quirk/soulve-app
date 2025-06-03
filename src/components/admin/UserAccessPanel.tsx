@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, UserPlus, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Search, UserPlus, Clock, CheckCircle } from 'lucide-react';
 
 interface PendingUser {
   id: string;
