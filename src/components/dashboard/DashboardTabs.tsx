@@ -8,6 +8,7 @@ import CampaignsTab from "./tabs/CampaignsTab";
 import MessagingTab from "./tabs/MessagingTab";
 import ProfileTab from "./tabs/ProfileTab";
 import NotificationsTab from "./tabs/NotificationsTab";
+import ImpactTab from "./tabs/ImpactTab";
 import MainTabsList from "./tabs/MainTabsList";
 
 interface DashboardTabsProps {
@@ -43,10 +44,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
       </TabsContent>
 
       <TabsContent value="impact" className="space-y-6">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Impact Dashboard</h2>
-          <p className="text-gray-600">Track your community impact and contributions</p>
-        </div>
+        <ImpactTab />
       </TabsContent>
 
       <TabsContent value="analytics-points" className="space-y-6">
