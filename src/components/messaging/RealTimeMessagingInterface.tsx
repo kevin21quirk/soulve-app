@@ -101,7 +101,9 @@ const RealTimeMessagingInterface = () => {
     last_message: conv.last_message ? {
       content: conv.last_message,
       created_at: conv.last_message_time || new Date().toISOString()
-    } : undefined
+    } : undefined,
+    last_message_time: conv.last_message_time || new Date().toISOString(),
+    unread_count: 0
   }));
 
   return (

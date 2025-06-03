@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
 import { useRealPostCreation } from "@/hooks/useRealPostCreation";
@@ -10,6 +11,7 @@ import MobileFloatingActionButton from "./MobileFloatingActionButton";
 import MobileQuickStats from "./MobileQuickStats";
 import MobileSwipeGestures from "./MobileSwipeGestures";
 import MobileLiveUpdates from "./MobileLiveUpdates";
+import { transformSocialPostToFeedPost } from "@/utils/socialPostTransformers";
 
 const MobileFeed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);

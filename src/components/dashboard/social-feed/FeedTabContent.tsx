@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
 import CreatePost from "../CreatePost";
@@ -100,7 +101,7 @@ const FeedTabContent = ({
 
   return (
     <div className="space-y-6">
-      {config.showCreate && <CreatePost onPostCreated={() => onPostCreated()} />}
+      {config.showCreate && <CreatePost onPostCreated={(post) => onPostCreated(post)} />}
       {config.showRecommendations && <SmartRecommendations />}
       
       <Card className={`border-${config.colour}-200 bg-${config.colour}-50`}>

@@ -38,7 +38,12 @@ export const transformSocialPostToFeedPost = (socialPost: SocialPost): FeedPost 
     tags: socialPost.tags,
     visibility: 'public',
     feeling: undefined,
-    media: socialPost.media_urls.map(url => ({ type: 'image' as const, url })),
+    media: socialPost.media_urls.map((url, index) => ({ 
+      id: `${socialPost.id}-media-${index}`,
+      type: 'image' as const, 
+      url,
+      filename: `image-${index + 1}.jpg`
+    })),
     reactions: [],
     comments: [],
     taggedUsers: []
