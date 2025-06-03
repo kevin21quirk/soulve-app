@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormData, MediaFile, GifData, PollData, EventData } from "@/components/dashboard/CreatePostTypes";
+import { mapCategoryToDb } from "@/utils/categoryMapping";
 
 export interface CreatePostRequest {
   title: string;
@@ -31,11 +32,14 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
     mediaUrls = await uploadMediaFiles(formData.selectedMedia);
   }
 
+  // Map the display category to database category
+  const dbCategory = mapCategoryToDb(formData.category);
+
   // Prepare post data
   const postData: CreatePostRequest = {
     title: formData.title || formData.description.split('\n')[0].substring(0, 100),
     content: formData.description,
-    category: formData.category,
+    category: dbCategory, // Use mapped category
     location: formData.location,
     urgency: formData.urgency,
     tags: formData.tags,

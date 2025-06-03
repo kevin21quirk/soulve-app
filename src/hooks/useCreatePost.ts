@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { mapCategoryToDb } from '@/utils/categoryMapping';
 
 export interface CreatePostData {
   title: string;
@@ -28,12 +29,15 @@ export const useCreatePost = () => {
     setIsSubmitting(true);
 
     try {
+      // Map the display category to database category
+      const dbCategory = mapCategoryToDb(postData.category);
+
       const { data, error } = await supabase
         .from('posts')
         .insert({
           title: postData.title,
           content: postData.content,
-          category: postData.category,
+          category: dbCategory, // Use mapped category
           urgency: postData.urgency,
           location: postData.location || null,
           tags: postData.tags || [],

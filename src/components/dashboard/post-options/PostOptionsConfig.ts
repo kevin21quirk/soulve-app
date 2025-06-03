@@ -19,6 +19,7 @@ export const URGENCY_LEVELS = [
   { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-700', icon: '🚨' }
 ];
 
+// Updated to use database-compatible values
 export const POST_CATEGORIES = [
   { value: 'help-needed', label: 'Help Needed', icon: '🙋‍♂️' },
   { value: 'help-offered', label: 'Help Offered', icon: '🤝' },
