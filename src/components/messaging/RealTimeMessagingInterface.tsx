@@ -114,9 +114,9 @@ const RealTimeMessagingInterface = () => {
           <>
             <ChatHeader
               activePartner={activePartner ? {
-                ...activePartner,
-                isOnline: isUserOnline(activePartner.user_id),
-                presence: getUserPresence(activePartner.user_id)
+                user_id: activePartner.user_id,
+                user_name: activePartner.user_name,
+                avatar_url: activePartner.avatar_url
               } : undefined}
               onBack={() => setActiveConversation(null)}
               showBackButton={true}
