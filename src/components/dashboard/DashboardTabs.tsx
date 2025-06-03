@@ -9,6 +9,7 @@ import MessagingTab from "./tabs/MessagingTab";
 import ProfileTab from "./tabs/ProfileTab";
 import NotificationsTab from "./tabs/NotificationsTab";
 import ImpactTab from "./tabs/ImpactTab";
+import AnalyticsTab from "./tabs/AnalyticsTab";
 import MainTabsList from "./tabs/MainTabsList";
 
 interface DashboardTabsProps {
@@ -48,10 +49,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
       </TabsContent>
 
       <TabsContent value="analytics-points" className="space-y-6">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Analytics & Points</h2>
-          <p className="text-gray-600">View your analytics and point system</p>
-        </div>
+        <AnalyticsTab />
       </TabsContent>
 
       <TabsContent value="profile" className="space-y-6">
