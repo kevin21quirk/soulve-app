@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, Users } from "lucide-react";
+import { Heart, Users, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import SouLVELogo from "./SouLVELogo";
@@ -11,57 +11,94 @@ const HeroSection = () => {
 
   const handleTryDemo = () => {
     if (user) {
-      // If user is logged in, go to dashboard
       navigate("/dashboard");
     } else {
-      // If not logged in, go to auth page to login first
       navigate("/auth");
     }
   };
 
   const handleBecomeSoulver = () => {
-    // Always go to auth page for signup/login
     navigate("/auth");
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white min-h-screen flex items-center">
+    <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white">
       <div className="absolute inset-0 bg-black/10"></div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center animate-fade-in">
-          <div className="flex justify-center items-center mb-8">
-            <SouLVELogo size="large" />
+      
+      {/* Main Hero Content */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Column - Content */}
+          <div className="text-center lg:text-left space-y-8 animate-fade-in">
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Connect.
+                <br />
+                <span className="text-cyan-200">Support.</span>
+                <br />
+                Transform.
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                The community platform where help meets hope. Connect with people who need support and those ready to provide it.
+              </p>
+            </div>
+            
+            {/* CTA Buttons - Prominently Placed */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button 
+                size="lg" 
+                className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl group"
+                onClick={handleTryDemo}
+              >
+                <Heart className="mr-3 h-6 w-6" />
+                Try SouLVE Demo
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              
+              <Button 
+                size="lg" 
+                className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl"
+                onClick={handleBecomeSoulver}
+              >
+                <Users className="mr-3 h-6 w-6" />
+                Become a Soulver
+              </Button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-cyan-100">Verified Community</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-cyan-100">Safe & Secure</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-cyan-100">Real Impact</span>
+              </div>
+            </div>
           </div>
           
-          <div className="max-w-5xl mx-auto space-y-8">
-            <p className="text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed">
-              The social media platform that bridges the human gap AI cannot reach
-            </p>
-            <p className="text-lg md:text-xl max-w-4xl mx-auto text-cyan-100 leading-relaxed">
-              Connect people who need help with those who can provide it. Build trust, track impact, and transform your community one connection at a time.
-            </p>
+          {/* Right Column - Logo */}
+          <div className="flex justify-center lg:justify-end">
+            <div className="relative">
+              <div className="absolute inset-0 bg-white/10 rounded-3xl blur-3xl"></div>
+              <div className="relative bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                <SouLVELogo size="medium" />
+              </div>
+            </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12">
-            <Button 
-              size="lg" 
-              className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl"
-              onClick={handleTryDemo}
-            >
-              <Heart className="mr-3 h-6 w-6" />
-              Try SouLVE Demo
-            </Button>
-            <Button 
-              size="lg" 
-              className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-10 py-5 font-semibold shadow-xl rounded-xl"
-              onClick={handleBecomeSoulver}
-            >
-              <Users className="mr-3 h-6 w-6" />
-              Become a Soulver
-            </Button>
-          </div>
         </div>
       </div>
+
+      {/* Bottom Gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white/10 to-transparent"></div>
     </div>
   );
 };
