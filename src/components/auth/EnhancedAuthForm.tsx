@@ -53,6 +53,21 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
     if (passwordError) setPasswordError("");
   };
 
+  const checkIfUserNeedsOnboarding = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('questionnaire_responses')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      return !data; // Return true if no questionnaire response exists
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      return true; // Default to requiring onboarding if error
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -135,11 +150,20 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
             });
           }
         } else if (data.user) {
+          // Check if user needs onboarding
+          const needsOnboarding = await checkIfUserNeedsOnboarding(data.user.id);
+          
           toast({
             title: "Welcome back!",
             description: "You have successfully logged in.",
           });
-          onSuccess();
+          
+          // Redirect based on onboarding status
+          if (needsOnboarding) {
+            window.location.href = '/profile-registration';
+          } else {
+            onSuccess();
+          }
         }
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -151,7 +175,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
               last_name: lastName.trim(),
               username: username.trim(),
             },
-            emailRedirectTo: `${window.location.origin}/dashboard`
+            emailRedirectTo: `${window.location.origin}/profile-registration`
           },
         });
 
@@ -174,12 +198,12 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           }
         } else if (data.user) {
           toast({
-            title: "Account Created!",
-            description: "Please check your email to verify your account before signing in.",
+            title: "Welcome to SouLVE!",
+            description: "Account created! You'll be guided through a quick setup to personalize your experience.",
           });
-          // Switch to login mode after successful signup
-          onToggleMode();
-          setPassword("");
+          
+          // For new signups, always go to onboarding
+          window.location.href = '/profile-registration';
         }
       }
     } catch (error) {
