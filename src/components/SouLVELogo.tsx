@@ -25,7 +25,7 @@ const SouLVELogo = ({ size = "large", clickable = false }: SouLVELogoProps) => {
     },
     header: {
       width: "w-auto",
-      height: "h-12"
+      height: "h-14"
     }
   };
 
