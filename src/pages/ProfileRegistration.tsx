@@ -18,12 +18,12 @@ const ProfileRegistration = () => {
 
   // Store questionnaire data across steps
   const [questionnaireData, setQuestionnaireData] = useState({
+    userType: "individual", // Store user type from step 1
     motivation: "",
     personalInfo: {},
     interests: [],
     skills: [],
-    preferences: {},
-    userType: "standard_user" // Default user type
+    preferences: {}
   });
 
   const handleNext = (stepData?: any) => {
@@ -108,6 +108,7 @@ const ProfileRegistration = () => {
             onPrevious={handlePrevious}
             currentStep={currentStep}
             totalSteps={totalSteps}
+            userType={questionnaireData.userType}
           />
         );
       case 3:
@@ -117,6 +118,7 @@ const ProfileRegistration = () => {
             onPrevious={handlePrevious}
             currentStep={currentStep}
             totalSteps={totalSteps}
+            userType={questionnaireData.userType}
           />
         );
       case 4:
@@ -127,6 +129,7 @@ const ProfileRegistration = () => {
             currentStep={currentStep}
             totalSteps={totalSteps}
             isSubmitting={isSubmitting}
+            userType={questionnaireData.userType}
           />
         );
       default:

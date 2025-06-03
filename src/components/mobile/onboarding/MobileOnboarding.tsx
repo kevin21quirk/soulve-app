@@ -16,12 +16,12 @@ const MobileOnboarding = () => {
   const totalSteps = 4;
 
   const [onboardingData, setOnboardingData] = useState({
+    userType: "individual", // Store user type from step 1
     motivation: "",
     personalInfo: {},
     interests: [],
     skills: [],
-    preferences: {},
-    userType: "standard_user"
+    preferences: {}
   });
 
   const handleNext = (stepData?: any) => {
@@ -102,6 +102,7 @@ const MobileOnboarding = () => {
             onPrevious={handlePrevious}
             currentStep={currentStep}
             totalSteps={totalSteps}
+            userType={onboardingData.userType}
           />
         );
       case 3:
@@ -111,6 +112,7 @@ const MobileOnboarding = () => {
             onPrevious={handlePrevious}
             currentStep={currentStep}
             totalSteps={totalSteps}
+            userType={onboardingData.userType}
           />
         );
       case 4:
@@ -121,6 +123,7 @@ const MobileOnboarding = () => {
             currentStep={currentStep}
             totalSteps={totalSteps}
             isSubmitting={isSubmitting}
+            userType={onboardingData.userType}
           />
         );
       default:
