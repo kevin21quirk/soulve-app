@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -72,7 +71,8 @@ const MobileOnboarding = () => {
         description: "Your profile is ready. Let's start building community together!",
       });
 
-      navigate('/dashboard');
+      // Use replace to prevent going back to onboarding
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error saving onboarding:', error);
       toast({

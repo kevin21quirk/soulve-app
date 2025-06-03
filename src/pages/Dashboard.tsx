@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   const { user, loading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("feed");
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   
@@ -36,7 +38,8 @@ const Dashboard = () => {
         setHasCompletedOnboarding(completed);
 
         if (!completed) {
-          window.location.href = '/profile-registration';
+          console.log('User has not completed onboarding, redirecting to profile registration');
+          navigate('/profile-registration', { replace: true });
           return;
         }
 
@@ -59,8 +62,12 @@ const Dashboard = () => {
 
     if (!loading && user) {
       checkOnboardingStatus();
+    } else if (!loading && !user) {
+      // Redirect to auth if not logged in
+      console.log('No user found, redirecting to auth');
+      navigate('/auth', { replace: true });
     }
-  }, [user, loading, toast]);
+  }, [user, loading, toast, navigate]);
 
   const handleNavigateToTab = (tab: string) => {
     setActiveTab(tab);
@@ -83,9 +90,8 @@ const Dashboard = () => {
     );
   }
 
-  // Redirect to auth if not logged in
-  if (!user) {
-    window.location.href = '/auth';
+  // Don't render dashboard if user hasn't completed onboarding
+  if (!hasCompletedOnboarding) {
     return null;
   }
 

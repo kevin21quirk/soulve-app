@@ -2,16 +2,25 @@
 import { Button } from "@/components/ui/button";
 import { Heart, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import SouLVELogo from "./SouLVELogo";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleTryDemo = () => {
-    navigate("/dashboard");
+    if (user) {
+      // If user is logged in, go to dashboard
+      navigate("/dashboard");
+    } else {
+      // If not logged in, go to auth page to login first
+      navigate("/auth");
+    }
   };
 
   const handleBecomeSoulver = () => {
+    // Always go to auth page for signup/login
     navigate("/auth");
   };
 

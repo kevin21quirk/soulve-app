@@ -21,6 +21,8 @@ const ProfileRegistration = () => {
     motivation: "",
     personalInfo: {},
     interests: [],
+    skills: [],
+    preferences: {},
     userType: "standard_user" // Default user type
   });
 
@@ -58,26 +60,30 @@ const ProfileRegistration = () => {
           motivation: completeData.motivation,
           personalInfo: completeData.personalInfo,
           interests: completeData.interests,
-          completedSteps: totalSteps
+          skills: completeData.skills,
+          preferences: completeData.preferences,
+          completedSteps: totalSteps,
+          platform: 'web'
         },
         motivation: completeData.motivation,
-        agree_to_terms: true
+        agree_to_terms: completeData.agreeToTerms || true
       });
 
       // Store registration completion status locally as backup
-      localStorage.setItem('registrationCompleted', 'true');
+      localStorage.setItem('onboardingCompleted', 'true');
       
       toast({
-        title: "Registration Complete!",
-        description: "Your profile has been successfully created.",
+        title: "Welcome to SouLVE! 🎉",
+        description: "Your profile has been successfully created. Let's start building community together!",
       });
 
-      navigate('/dashboard');
+      // Use replace to prevent going back to registration
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error saving questionnaire:', error);
       toast({
-        title: "Error",
-        description: "There was an error saving your registration. Please try again.",
+        title: "Setup Error",
+        description: "We couldn't complete your setup. Please try again.",
         variant: "destructive",
       });
     } finally {
