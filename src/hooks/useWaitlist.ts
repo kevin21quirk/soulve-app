@@ -23,9 +23,15 @@ export const useWaitlist = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Developer override - you should always be recognized as admin
+  const isDeveloper = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
+
   // Check if current user is admin
   const checkAdminStatus = async () => {
     if (!user) return false;
+    
+    // Developer override
+    if (isDeveloper) return true;
     
     const { data } = await supabase
       .from('admin_roles')
@@ -39,6 +45,9 @@ export const useWaitlist = () => {
   // Get current user's waitlist status
   const getUserStatus = async () => {
     if (!user) return null;
+    
+    // Developer override - always approved
+    if (isDeveloper) return 'approved';
     
     const { data } = await supabase
       .from('profiles')
@@ -171,6 +180,9 @@ export const useWaitlist = () => {
   const canAccessDashboard = async () => {
     if (!user) return false;
     
+    // Developer override
+    if (isDeveloper) return true;
+    
     const { data, error } = await supabase.rpc('can_access_dashboard', {
       user_uuid: user.id
     });
@@ -206,7 +218,7 @@ export const useWaitlist = () => {
     };
 
     initializeWaitlist();
-  }, [user]);
+  }, [user, isDeveloper]);
 
   return {
     waitlistUsers,

@@ -15,6 +15,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [accessGranted, setAccessGranted] = useState(false);
   const [checking, setChecking] = useState(true);
 
+  // Developer override - you should always have access
+  const isDeveloper = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
+
   useEffect(() => {
     const checkAccess = async () => {
       // Wait for auth to be ready
@@ -24,6 +27,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       if (!user) {
         console.log('No authenticated user, redirecting to auth');
         navigate('/auth', { replace: true });
+        return;
+      }
+
+      // Developer override - always grant access
+      if (isDeveloper) {
+        console.log('Developer access granted');
+        setAccessGranted(true);
+        setChecking(false);
         return;
       }
 
@@ -43,7 +54,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     };
 
     checkAccess();
-  }, [user, authLoading, waitlistLoading, navigate, canAccessDashboard, isAdmin]);
+  }, [user, authLoading, waitlistLoading, navigate, canAccessDashboard, isAdmin, isDeveloper]);
 
   // Show loading while checking auth and waitlist status
   if (authLoading || waitlistLoading || checking) {
