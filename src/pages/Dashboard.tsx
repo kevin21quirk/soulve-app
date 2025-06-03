@@ -14,6 +14,7 @@ const Dashboard = () => {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("feed");
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   
   // Header overlay states
@@ -65,6 +66,7 @@ const Dashboard = () => {
   }, [user, loading, toast, navigate]);
 
   const handleNavigateToTab = (tab: string) => {
+    setActiveTab(tab);
     // Close any open overlays when navigating
     setShowSearch(false);
     setShowNotifications(false);
@@ -108,7 +110,10 @@ const Dashboard = () => {
       />
       
       <main className="container mx-auto px-4 py-6">
-        <DashboardTabs />
+        <DashboardTabs 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+        />
       </main>
     </div>
   );
