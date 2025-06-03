@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Send, ArrowLeft, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-const MobileMessaging = () => {
+const MessagingTab = () => {
   const { 
     conversations, 
     messages, 
@@ -43,9 +43,11 @@ const MobileMessaging = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">Loading conversations...</div>
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">Loading conversations...</div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -54,9 +56,8 @@ const MobileMessaging = () => {
     const conversationMessages = messages[selectedConversation] || [];
 
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header */}
-        <div className="bg-white border-b p-4 sticky top-0 z-10">
+      <Card className="h-[600px] flex flex-col">
+        <CardHeader className="border-b">
           <div className="flex items-center space-x-3">
             <Button 
               variant="ghost" 
@@ -71,12 +72,11 @@ const MobileMessaging = () => {
                 {conversation?.partner_name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <h2 className="font-semibold text-lg">{conversation?.partner_name}</h2>
+            <CardTitle className="text-lg">{conversation?.partner_name}</CardTitle>
           </div>
-        </div>
+        </CardHeader>
         
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <CardContent className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {conversationMessages.map((message) => (
               <div
@@ -84,10 +84,10 @@ const MobileMessaging = () => {
                 className={`flex ${message.is_own ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-2xl ${
+                  className={`max-w-[70%] p-3 rounded-lg ${
                     message.is_own
-                      ? 'bg-blue-600 text-white rounded-br-md'
-                      : 'bg-white text-gray-900 rounded-bl-md shadow-sm'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-900'
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
@@ -100,88 +100,93 @@ const MobileMessaging = () => {
               </div>
             ))}
           </div>
-        </div>
+        </CardContent>
         
-        {/* Message Input */}
-        <div className="bg-white border-t p-4">
+        <div className="border-t p-4">
           <div className="flex space-x-2">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type a message..."
-              className="flex-1 rounded-full"
+              className="flex-1"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || sendingMessage}
-              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white rounded-full p-3"
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
             >
               <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b p-4 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900">Messages</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
       </div>
 
       {conversations.length === 0 ? (
-        <div className="p-8 text-center">
-          <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h3>
-          <p className="text-gray-600">
-            Start connecting with people to begin messaging.
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-12 text-center">
+            <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h3>
+            <p className="text-gray-600">
+              Start connecting with people to begin messaging.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="p-4">
-          <div className="space-y-3">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                onClick={() => handleConversationSelect(conversation.partner_id)}
-                className="flex items-center space-x-3 p-4 rounded-lg bg-white shadow-sm border active:bg-gray-50"
-              >
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={conversation.partner_avatar} />
-                  <AvatarFallback>
-                    {conversation.partner_name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {conversation.partner_name}
-                    </h3>
-                    <span className="text-xs text-gray-500">
-                      {formatDistanceToNow(new Date(conversation.last_message_time), { addSuffix: true })}
-                    </span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Conversations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => handleConversationSelect(conversation.partner_id)}
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border"
+                >
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={conversation.partner_avatar} />
+                    <AvatarFallback>
+                      {conversation.partner_name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {conversation.partner_name}
+                      </h3>
+                      <span className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(conversation.last_message_time), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {conversation.last_message}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">
-                    {conversation.last_message}
-                  </p>
+                  
+                  {conversation.unread_count > 0 && (
+                    <Badge className="bg-blue-600 text-white">
+                      {conversation.unread_count}
+                    </Badge>
+                  )}
                 </div>
-                
-                {conversation.unread_count > 0 && (
-                  <Badge className="bg-blue-600 text-white">
-                    {conversation.unread_count}
-                  </Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 };
 
-export default MobileMessaging;
+export default MessagingTab;

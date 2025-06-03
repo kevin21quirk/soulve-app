@@ -2314,6 +2314,14 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      is_campaign_creator: {
+        Args: { campaign_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_user_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       match_safe_space_helper: {
         Args: {
           p_requester_id: string

@@ -1,22 +1,13 @@
 
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import EnhancedSocialFeed from "./EnhancedSocialFeed";
-import RealDiscoverConnectTab from "./tabs/RealDiscoverConnectTab";
-import MessagesTab from "./tabs/MessagesTab";
-import EnhancedCampaignBuilder from "../campaign-builder/EnhancedCampaignBuilder";
-import EnhancedAnalyticsPointsTab from "./tabs/EnhancedAnalyticsPointsTab";
-import UserProfile from "./UserProfile";
-import InteractiveImpactDashboard from "../impact/InteractiveImpactDashboard";
-import { 
-  Home, 
-  Users, 
-  MessageCircle, 
-  Target, 
-  TrendingUp,
-  Trophy, 
-  User
-} from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import FeedTab from "./tabs/FeedTab";
+import DiscoverTab from "./tabs/DiscoverTab";
+import CampaignsTab from "./tabs/CampaignsTab";
+import MessagingTab from "./tabs/MessagingTab";
+import ProfileTab from "./tabs/ProfileTab";
+import NotificationsTab from "./tabs/NotificationsTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -24,46 +15,47 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
-  const tabs = [
-    { id: "feed", label: "Feed", icon: Home, component: EnhancedSocialFeed },
-    { id: "discover", label: "Discover & Connect", icon: Users, component: RealDiscoverConnectTab },
-    { id: "campaigns", label: "Campaigns & Help", icon: Target, component: EnhancedCampaignBuilder },
-    { id: "messages", label: "Messages", icon: MessageCircle, component: MessagesTab },
-    { id: "impact", label: "Impact", icon: TrendingUp, component: InteractiveImpactDashboard },
-    { id: "points", label: "Points & Trust", icon: Trophy, component: EnhancedAnalyticsPointsTab },
-    { id: "profile", label: "Profile", icon: User, component: UserProfile },
-  ];
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    // Mobile tabs are handled by MobileDashboard
+    return null;
+  }
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TooltipProvider>
-        <TabsList className="grid w-full grid-cols-7 h-14 p-1">
-          {tabs.map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <Tooltip key={tab.id}>
-                <TooltipTrigger asChild>
-                  <TabsTrigger
-                    value={tab.id}
-                    className="flex items-center justify-center h-12 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-                  >
-                    <IconComponent className="h-6 w-6" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{tab.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </TabsList>
-      </TooltipProvider>
+      <TabsList className="grid w-full grid-cols-6 mb-6">
+        <TabsTrigger value="feed">Feed</TabsTrigger>
+        <TabsTrigger value="discover">Discover</TabsTrigger>
+        <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+        <TabsTrigger value="messaging">Messages</TabsTrigger>
+        <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsTrigger value="profile">Profile</TabsTrigger>
+      </TabsList>
 
-      {tabs.map((tab) => (
-        <TabsContent key={tab.id} value={tab.id} className="mt-6">
-          <tab.component />
-        </TabsContent>
-      ))}
+      <TabsContent value="feed" className="space-y-6">
+        <FeedTab />
+      </TabsContent>
+
+      <TabsContent value="discover" className="space-y-6">
+        <DiscoverTab />
+      </TabsContent>
+
+      <TabsContent value="campaigns" className="space-y-6">
+        <CampaignsTab />
+      </TabsContent>
+
+      <TabsContent value="messaging" className="space-y-6">
+        <MessagingTab />
+      </TabsContent>
+
+      <TabsContent value="notifications" className="space-y-6">
+        <NotificationsTab />
+      </TabsContent>
+
+      <TabsContent value="profile" className="space-y-6">
+        <ProfileTab />
+      </TabsContent>
     </Tabs>
   );
 };
