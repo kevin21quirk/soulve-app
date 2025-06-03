@@ -14,14 +14,9 @@ const HomeHeader = () => {
     <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10">
-              <SouLVELogo size="small" />
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
-              SouLVE
-            </h1>
+          {/* Logo - Clickable and properly sized */}
+          <div className="flex items-center">
+            <SouLVELogo size="header" clickable={true} />
           </div>
 
           {/* Auth Section */}
