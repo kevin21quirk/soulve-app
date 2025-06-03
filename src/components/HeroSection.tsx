@@ -86,12 +86,7 @@ const HeroSection = () => {
           
           {/* Right Column - Logo */}
           <div className="flex justify-center lg:justify-end">
-            <div className="relative">
-              <div className="absolute inset-0 bg-white/10 rounded-3xl blur-3xl"></div>
-              <div className="relative bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                <SouLVELogo size="medium" />
-              </div>
-            </div>
+            <SouLVELogo size="medium" />
           </div>
           
         </div>
