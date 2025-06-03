@@ -41,7 +41,7 @@ export const useRealSocialFeed = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const transformDatabasePost = useCallback((dbPost: DatabasePost): FeedPost => {
+  const transformDatabasePost = useCallback((dbPost: any): FeedPost => {
     const authorName = dbPost.author_profile?.first_name && dbPost.author_profile?.last_name 
       ? `${dbPost.author_profile.first_name} ${dbPost.author_profile.last_name}`.trim()
       : dbPost.author_profile?.first_name || 'Anonymous';
@@ -64,7 +64,7 @@ export const useRealSocialFeed = () => {
       urgency: dbPost.urgency as any,
       tags: dbPost.tags || [],
       visibility: dbPost.visibility as any,
-      media: dbPost.media_urls?.map((url, index) => ({
+      media: dbPost.media_urls?.map((url: string, index: number) => ({
         id: `${dbPost.id}-media-${index}`,
         type: url.includes('.mp4') || url.includes('.mov') ? 'video' : 'image',
         url,
@@ -335,9 +335,9 @@ export const useRealSocialFeed = () => {
     }
   }, [user, fetchPosts, toast]);
 
-  const refreshFeed = useCallback(() => {
+  const refreshFeed = useCallback(async () => {
     setRefreshing(true);
-    fetchPosts(false);
+    await fetchPosts(false);
   }, [fetchPosts]);
 
   // Setup real-time subscriptions

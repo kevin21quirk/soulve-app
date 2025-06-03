@@ -119,7 +119,7 @@ export const useRealMessaging = () => {
           sender_name: senderName,
           sender_avatar: msg.sender_profile?.avatar_url || '',
           content: msg.content,
-          message_type: msg.message_type,
+          message_type: msg.message_type as 'text' | 'image' | 'file',
           file_url: msg.file_url,
           file_name: msg.file_name,
           created_at: msg.created_at,
@@ -182,7 +182,7 @@ export const useRealMessaging = () => {
         sender_name: 'You',
         sender_avatar: data.sender_profile?.avatar_url || '',
         content: data.content,
-        message_type: data.message_type,
+        message_type: data.message_type as 'text' | 'image' | 'file',
         created_at: data.created_at,
         is_read: false,
         is_own: true
