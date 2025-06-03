@@ -8,12 +8,24 @@ interface MessageBubbleProps {
   message: Message;
   messages: Message[];
   onReply: (messageId: string) => void;
+  onReactToMessage?: (messageId: string, emoji: string) => void;
+  onEdit?: (messageId: string) => void;
+  onDelete?: (messageId: string) => void;
+  onForward?: (messageId: string, conversationIds: string[]) => void;
+  onPin?: (messageId: string) => void;
+  onCreateThread?: (messageId: string) => void;
 }
 
 const MessageBubble = ({
   message,
   messages,
-  onReply
+  onReply,
+  onReactToMessage,
+  onEdit,
+  onDelete,
+  onForward,
+  onPin,
+  onCreateThread
 }: MessageBubbleProps) => {
   return (
     <div key={message.id}>
