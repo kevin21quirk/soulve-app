@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { POST_CATEGORIES, URGENCY_LEVELS } from "../post-options/PostOptionsConfig";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -26,22 +27,6 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
     visibility: 'public'
   });
   const [newTag, setNewTag] = useState('');
-
-  const categories = [
-    { value: 'help_needed', label: 'Help Needed' },
-    { value: 'help_offered', label: 'Help Offered' },
-    { value: 'community_event', label: 'Community Event' },
-    { value: 'resource_sharing', label: 'Resource Sharing' },
-    { value: 'volunteer', label: 'Volunteer Opportunity' },
-    { value: 'announcement', label: 'Announcement' }
-  ];
-
-  const urgencyLevels = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' }
-  ];
 
   const handleAddTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
@@ -65,6 +50,10 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
     if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
       return;
     }
+    
+    // Debug logging to see what category value is being sent
+    console.log('CreatePostModal - Submitting category:', formData.category);
+    
     onSubmit(formData);
   };
 
@@ -104,14 +93,17 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
               <label className="text-sm font-medium mb-2 block">Category *</label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                onValueChange={(value) => {
+                  console.log('CreatePostModal - Category selected:', value);
+                  setFormData(prev => ({ ...prev, category: value }));
+                }}
                 required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(cat => (
+                  {POST_CATEGORIES.map(cat => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {cat.label}
                     </SelectItem>
@@ -130,7 +122,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {urgencyLevels.map(level => (
+                  {URGENCY_LEVELS.map(level => (
                     <SelectItem key={level.value} value={level.value}>
                       {level.label}
                     </SelectItem>

@@ -56,7 +56,7 @@ const MobilePostOptions = ({
         >
           {selectedCategory ? (
             <>
-              {React.createElement(selectedCategory.icon, { className: "h-3 w-3 mr-1" })}
+              <span className="mr-1">{selectedCategory.icon}</span>
               <span className="text-xs">{selectedCategory.label}</span>
             </>
           ) : (
@@ -100,12 +100,13 @@ const MobilePostOptions = ({
                 variant={formData.category === category.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => {
+                  console.log('MobilePostOptions - Category selected:', category.value);
                   onUpdateFormData(prev => ({ ...prev, category: category.value }));
                   onToggleCategories();
                 }}
                 className="h-10 justify-start"
               >
-                {React.createElement(category.icon, { className: "h-4 w-4 mr-2" })}
+                <span className="h-4 w-4 mr-2">{category.icon}</span>
                 <span className="text-xs">{category.label}</span>
               </Button>
             ))}

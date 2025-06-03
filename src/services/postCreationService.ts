@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormData, MediaFile, GifData, PollData, EventData } from "@/components/dashboard/CreatePostTypes";
 import { mapCategoryToDb } from "@/utils/categoryMapping";
@@ -26,6 +25,8 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
     throw new Error('User must be authenticated to create posts');
   }
 
+  console.log('postCreationService - Original formData.category:', formData.category);
+
   // Upload media files if any
   let mediaUrls: string[] = [];
   if (formData.selectedMedia && formData.selectedMedia.length > 0) {
@@ -34,6 +35,7 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
 
   // Map the display category to database category
   const dbCategory = mapCategoryToDb(formData.category);
+  console.log('postCreationService - Final dbCategory:', dbCategory);
 
   // Prepare post data
   const postData: CreatePostRequest = {
@@ -51,6 +53,8 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
     tagged_users: formData.taggedUsers,
     live_video_data: formData.liveVideoData
   };
+
+  console.log('postCreationService - About to insert post with category:', postData.category);
 
   // Insert post into database
   const { data, error } = await supabase
@@ -72,8 +76,13 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
 
   if (error) {
     console.error('Error creating post:', error);
-    throw new Error('Failed to create post');
+    console.error('Error details:', error.details);
+    console.error('Error hint:', error.hint);
+    console.error('Error message:', error.message);
+    throw new Error('Failed to create post: ' + error.message);
   }
+
+  console.log('postCreationService - Post created successfully:', data.id);
 
   // Store additional data in separate tables if needed
   if (postData.gif_data) {
