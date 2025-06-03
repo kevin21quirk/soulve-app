@@ -1,9 +1,7 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { PostFormData } from "@/components/dashboard/CreatePostTypes";
-import { createUnifiedPost } from "@/services/unifiedPostService";
+import { useUnifiedPostCreation } from "@/hooks/useUnifiedPostCreation";
 import MobilePostHeader from "./post-creation/MobilePostHeader";
 import MobilePostContent from "./post-creation/MobilePostContent";
 import MobilePostOptions from "./post-creation/MobilePostOptions";
@@ -17,12 +15,13 @@ interface MobileCreatePostProps {
 
 const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const { createPost, isCreating } = useUnifiedPostCreation(() => {
+    onPostCreated({ success: true });
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFeelings, setShowFeelings] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
     description: '',
@@ -89,27 +88,15 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
     console.log('MobileCreatePost - Form data:', formData);
 
     if (!formData.description.trim()) {
-      toast({
-        title: "Missing content",
-        description: "Please add some content to your post.",
-        variant: "destructive"
-      });
       return;
     }
 
     if (!formData.category) {
-      toast({
-        title: "Missing category",
-        description: "Please select a category for your post.",
-        variant: "destructive"
-      });
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      const postId = await createUnifiedPost({
+      await createPost({
         title: formData.title || formData.description.split('\n')[0] || formData.description.substring(0, 50),
         content: formData.description,
         category: formData.category,
@@ -118,8 +105,6 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         tags: formData.tags,
         visibility: formData.visibility
       });
-      
-      onPostCreated({ id: postId, success: true });
       
       // Reset form
       setFormData({
@@ -142,33 +127,9 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       });
       setSelectedImages([]);
       setIsExpanded(false);
-
-      toast({
-        title: "Post shared! ✨",
-        description: "Your post has been shared with the community.",
-      });
       
     } catch (error) {
       console.error('MobileCreatePost - Error:', error);
-      
-      let errorMessage = "There was an error sharing your post. Please try again.";
-      if (error instanceof Error) {
-        if (error.message.includes('category')) {
-          errorMessage = "Please select a valid category.";
-        } else if (error.message.includes('content')) {
-          errorMessage = "Please add content to your post.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
-      toast({
-        title: "Failed to share post",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -210,7 +171,7 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
         onLocationDetect={detectLocation}
         onFeatureToggle={handleFeatureToggle}
         onPost={handlePost}
-        disabled={!formData.description.trim() || !formData.category || isSubmitting}
+        disabled={!formData.description.trim() || !formData.category || isCreating}
       />
     </div>
   );

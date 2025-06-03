@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import CreatePostModal from "./post-creation/CreatePostModal";
 import SocialPostCollapsed from "./post-creation/SocialPostCollapsed";
-import { useCreatePost } from "@/hooks/useCreatePost";
+import { useUnifiedPostCreation } from "@/hooks/useUnifiedPostCreation";
 
 interface CreatePostProps {
   onPostCreated?: () => void;
@@ -14,7 +14,7 @@ interface CreatePostProps {
 
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { user } = useAuth();
-  const { createPost, isSubmitting } = useCreatePost();
+  const { createPost, isCreating } = useUnifiedPostCreation(onPostCreated);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -27,15 +27,8 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       
       setIsExpanded(false);
       setShowModal(false);
-      
-      // Trigger refresh callback if provided
-      if (onPostCreated) {
-        console.log('CreatePost - Triggering onPostCreated callback');
-        onPostCreated();
-      }
     } catch (error) {
       console.error('CreatePost - Failed to create post:', error);
-      // Error handling is done in the hook
     }
   };
 
@@ -56,8 +49,9 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               variant="outline"
               className="flex-1 justify-start text-gray-500 hover:bg-white/60"
               onClick={() => setShowModal(true)}
+              disabled={isCreating}
             >
-              What's happening in your community?
+              {isCreating ? "Creating post..." : "What's happening in your community?"}
             </Button>
           </div>
         </CardHeader>
@@ -70,7 +64,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSubmit={handlePostSubmit}
-        isSubmitting={isSubmitting}
+        isSubmitting={isCreating}
       />
     </>
   );

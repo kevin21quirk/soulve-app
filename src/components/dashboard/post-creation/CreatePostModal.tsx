@@ -62,6 +62,18 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
     console.log('CreatePostModal - Full form data:', formData);
     
     onSubmit(formData);
+    
+    // Reset form after submission
+    setFormData({
+      title: '',
+      content: '',
+      category: '',
+      urgency: 'medium',
+      location: '',
+      tags: [],
+      visibility: 'public'
+    });
+    setNewTag('');
   };
 
   const isValid = formData.content.trim() && formData.category;
@@ -80,6 +92,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="What's this about? (optional)"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -91,6 +104,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
               placeholder="Share more details..."
               rows={4}
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -104,6 +118,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                   setFormData(prev => ({ ...prev, category: value }));
                 }}
                 required
+                disabled={isSubmitting}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -124,6 +139,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
               <Select
                 value={formData.urgency}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, urgency: value }))}
+                disabled={isSubmitting}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -146,6 +162,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
               value={formData.location}
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
               placeholder="Where is this happening?"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -157,8 +174,9 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Add a tag"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                disabled={isSubmitting}
               />
-              <Button type="button" onClick={handleAddTag} variant="outline">
+              <Button type="button" onClick={handleAddTag} variant="outline" disabled={isSubmitting}>
                 Add
               </Button>
             </div>
@@ -168,7 +186,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                   {tag}
                   <X
                     className="h-3 w-3 cursor-pointer"
-                    onClick={() => handleRemoveTag(tag)}
+                    onClick={() => !isSubmitting && handleRemoveTag(tag)}
                   />
                 </Badge>
               ))}
@@ -176,7 +194,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button

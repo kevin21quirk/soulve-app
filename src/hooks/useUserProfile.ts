@@ -18,10 +18,11 @@ export const useUserProfile = (): UseUserProfileReturn => {
   const { syncProfileToPreferences, calculateImpactMetrics } = useProfileSync();
   const hasInitializedRef = useRef(false);
 
-  // Memoize the profile loading function
   const loadProfile = useCallback(async () => {
     if (!user || hasInitializedRef.current) return;
 
+    console.log('useUserProfile - Loading profile for user:', user.id);
+    
     try {
       setInitialLoading(true);
       setError(null);
@@ -29,38 +30,40 @@ export const useUserProfile = (): UseUserProfileReturn => {
       const { data: profile, error: profileError } = await fetchUserProfile(user.id);
 
       if (profileError) {
-        console.error('Error fetching profile:', profileError);
+        console.error('useUserProfile - Error fetching profile:', profileError);
         setError(profileError.message);
+        // Still create default profile for display
+        const defaultProfile = createDefaultProfile(user);
+        setProfileData(defaultProfile);
+        hasInitializedRef.current = true;
         return;
       }
 
-      // If no profile exists, create a default one from user data
+      console.log('useUserProfile - Profile data from DB:', profile);
+      
+      // Always use database profile data if it exists, otherwise create default
+      const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
+      console.log('useUserProfile - Mapped profile data:', userProfileData);
+      setProfileData(userProfileData);
+
+      // If no profile exists in database, create one
       if (!profile) {
-        console.log('No profile found, creating default profile');
+        console.log('useUserProfile - No profile found, creating default profile in DB');
         const defaultProfile = createDefaultProfile(user);
-        
-        // Try to create the profile in the database
         const profileDataForDB = mapUserProfileToDatabase(defaultProfile);
         const { error: createError } = await upsertUserProfile(profileDataForDB);
         
         if (createError) {
-          console.error('Error creating profile:', createError);
-          // Still show the default profile even if DB save fails
+          console.error('useUserProfile - Error creating profile:', createError);
         }
-        
-        setProfileData(defaultProfile);
-      } else {
-        // Create profile data object with real user data
-        const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
-        setProfileData(userProfileData);
       }
 
-      // Calculate impact metrics only on initial load
       await calculateImpactMetrics();
       hasInitializedRef.current = true;
     } catch (err) {
-      console.error('Error in loadProfile:', err);
-      // Fallback to default profile if everything fails
+      console.error('useUserProfile - Error in loadProfile:', err);
+      setError('Failed to load profile');
+      // Fallback to default profile
       const defaultProfile = createDefaultProfile(user);
       setProfileData(defaultProfile);
       hasInitializedRef.current = true;
@@ -74,21 +77,19 @@ export const useUserProfile = (): UseUserProfileReturn => {
     if (user && !hasInitializedRef.current) {
       loadProfile();
     } else if (!user) {
-      // Reset when user logs out
       hasInitializedRef.current = false;
       setProfileData(null);
       setInitialLoading(true);
     }
   }, [user, loadProfile]);
 
-  // Apply real-time updates with shallow comparison
+  // Apply real-time updates
   useEffect(() => {
     const currentUserUpdates = profileUpdates[user?.id || ''];
     if (currentUserUpdates && profileData && user) {
-      // Check if the update is actually different
+      console.log('useUserProfile - Applying real-time updates:', currentUserUpdates);
       const updatedProfile = mapDatabaseProfileToUserProfile(user, currentUserUpdates);
       
-      // Simple shallow comparison for key fields to prevent unnecessary updates
       if (
         updatedProfile.name !== profileData.name ||
         updatedProfile.bio !== profileData.bio ||
@@ -97,7 +98,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
         JSON.stringify(updatedProfile.interests) !== JSON.stringify(profileData.interests)
       ) {
         setProfileData(updatedProfile);
-        clearUpdates(); // Clear the update after applying it
+        clearUpdates();
       }
     }
   }, [profileUpdates, user, profileData, clearUpdates]);
@@ -105,26 +106,24 @@ export const useUserProfile = (): UseUserProfileReturn => {
   const updateProfile = useCallback(async (updatedData: UserProfileData) => {
     if (!user) return;
 
+    console.log('useUserProfile - Updating profile:', updatedData);
+    
     try {
       setUpdating(true);
       const profileData = mapUserProfileToDatabase(updatedData);
       const { error } = await upsertUserProfile(profileData);
 
       if (error) {
-        console.error('Error updating profile:', error);
+        console.error('useUserProfile - Error updating profile:', error);
         throw error;
       }
 
-      // Optimistically update the profile data
       setProfileData(updatedData);
       
-      // Sync to preferences for recommendations (don't await to prevent blocking)
       syncProfileToPreferences(updatedData).catch(console.error);
-      
-      // Recalculate impact metrics (don't await to prevent blocking)
       calculateImpactMetrics().catch(console.error);
     } catch (err) {
-      console.error('Error in updateProfile:', err);
+      console.error('useUserProfile - Error in updateProfile:', err);
       throw err;
     } finally {
       setUpdating(false);
