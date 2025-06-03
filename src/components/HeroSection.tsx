@@ -22,7 +22,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 text-white">
+    <div className="relative overflow-hidden bg-gradient-to-br from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] text-white">
       <div className="absolute inset-0 bg-black/10"></div>
       
       {/* Main Hero Content */}
@@ -49,7 +49,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg" 
-                className="bg-white text-teal-600 hover:bg-teal-50 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl group"
+                className="bg-white text-[#18a5fe] hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl group border-none"
                 onClick={handleTryDemo}
               >
                 <Heart className="mr-3 h-6 w-6" />
@@ -59,7 +59,7 @@ const HeroSection = () => {
               
               <Button 
                 size="lg" 
-                className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-teal-600 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl"
+                className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-[#18a5fe] transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl"
                 onClick={handleBecomeSoulver}
               >
                 <Users className="mr-3 h-6 w-6" />

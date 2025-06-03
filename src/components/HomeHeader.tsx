@@ -19,7 +19,7 @@ const HomeHeader = () => {
             <div className="h-10 w-10">
               <SouLVELogo size="small" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
               SouLVE
             </h1>
           </div>
@@ -33,7 +33,7 @@ const HomeHeader = () => {
                 </span>
                 <Button 
                   onClick={() => navigate("/dashboard")} 
-                  className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white shadow-lg"
+                  className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none"
                 >
                   Dashboard
                 </Button>
@@ -42,7 +42,7 @@ const HomeHeader = () => {
               <Button 
                 onClick={() => navigate("/auth")} 
                 variant="outline"
-                className="border-teal-600 text-teal-600 hover:bg-teal-50"
+                className="border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10"
               >
                 Sign In
               </Button>
