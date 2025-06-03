@@ -39,25 +39,27 @@ const MobileFeed = () => {
   // Transform SocialPost to FeedPost format for MobileFeedContent
   const transformedPosts = filteredPosts.map(post => ({
     id: post.id,
-    author: {
-      id: post.author_id,
-      name: post.author_name,
-      avatar: post.author_avatar
-    },
+    author: post.author_name,
     avatar: post.author_avatar,
-    content: post.content,
+    title: post.title,
     description: post.content,
-    timestamp: new Date(post.created_at),
+    category: post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found",
+    timestamp: new Date(post.created_at).toLocaleDateString(),
+    location: post.location || '',
+    responses: post.comments_count,
     likes: post.likes_count,
-    comments: post.comments_count,
-    shares: post.shares_count,
-    category: post.category,
-    urgency: post.urgency,
-    location: post.location,
-    tags: post.tags,
-    media: post.media_urls,
     isLiked: post.is_liked,
-    isBookmarked: post.is_bookmarked
+    shares: post.shares_count,
+    isBookmarked: post.is_bookmarked,
+    isShared: false,
+    urgency: post.urgency as 'low' | 'medium' | 'high' | 'urgent',
+    tags: post.tags,
+    media: post.media_urls.map(url => ({
+      id: url,
+      type: 'image' as const,
+      url,
+      filename: url.split('/').pop() || ''
+    }))
   }));
 
   const handleFilterToggle = (filter: string) => {
@@ -79,7 +81,7 @@ const MobileFeed = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PullToRefresh onRefresh={async () => refreshFeed()} disabled={refreshing}>
+      <PullToRefresh onRefresh={async () => refreshFeed()}>
         <div className="space-y-4">
           {/* Stories Section */}
           <MobileStories />
