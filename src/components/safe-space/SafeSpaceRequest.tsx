@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Clock, Users, Shield } from "lucide-react";
+import { Heart, Clock, Users, Shield, Construction, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
@@ -51,20 +51,11 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
       return;
     }
 
-    try {
-      await requestSupport(formData.issueCategory, formData.urgencyLevel, formData.additionalInfo);
-      
-      toast({
-        title: "Support Request Submitted",
-        description: "We're connecting you with a verified helper. You'll be notified when matched.",
-      });
-    } catch (error) {
-      toast({
-        title: "Request Failed",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
-    }
+    // Show development message instead of actual submission
+    toast({
+      title: "Feature In Development",
+      description: "Support request matching is currently being built. This will connect you with real helpers soon!",
+    });
   };
 
   if (queuePosition !== undefined && queuePosition > 0) {
@@ -112,6 +103,22 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
         </p>
       </CardHeader>
       <CardContent>
+        {/* Matching Development Notice */}
+        <Card className="border-blue-200 bg-blue-50 mb-6">
+          <CardContent className="pt-4">
+            <div className="flex items-start space-x-3">
+              <Construction className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Matching System - Coming Soon</p>
+                <p>
+                  Helper matching and real-time notifications are currently in development. 
+                  You can preview the request form below.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Label htmlFor="issueCategory">What would you like support with?</Label>
@@ -198,7 +205,7 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
             ) : (
               <>
                 <Heart className="h-4 w-4 mr-2" />
-                Request Support
+                Preview Request (In Development)
               </>
             )}
           </Button>

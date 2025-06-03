@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Heart, Users, ArrowLeft } from "lucide-react";
+import { Shield, Heart, Users, ArrowLeft, Construction } from "lucide-react";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 import MobileSafeSpaceRequest from "./MobileSafeSpaceRequest";
 import MobileSafeSpaceHelper from "./MobileSafeSpaceHelper";
@@ -43,6 +43,17 @@ const MobileSafeSpace = ({ onBack }: MobileSafeSpaceProps) => {
         <p className="text-sm text-gray-600 mt-2">
           Anonymous peer support with verified helpers
         </p>
+      </div>
+
+      {/* Development Status Notice */}
+      <div className="bg-amber-50 border-b border-amber-200 p-3">
+        <div className="flex items-start space-x-2">
+          <Construction className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-800">
+            <span className="font-medium">In Development:</span> Real-time matching and notifications coming soon. 
+            UI preview available below.
+          </p>
+        </div>
       </div>
 
       {/* Tab Navigation */}

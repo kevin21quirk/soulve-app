@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Clock, Shield, AlertTriangle } from "lucide-react";
+import { Heart, Clock, Shield, AlertTriangle, Construction } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
@@ -40,15 +40,11 @@ const MobileSafeSpaceRequest = () => {
       return;
     }
 
-    try {
-      await requestSupport(selectedCategory, selectedUrgency, additionalInfo);
-    } catch (error) {
-      toast({
-        title: "Request Failed",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
-    }
+    // Show development message instead of actual submission
+    toast({
+      title: "Feature In Development",
+      description: "Support request matching is currently being built. This will connect you with real helpers soon!",
+    });
   };
 
   if (queuePosition !== undefined && queuePosition > 0) {
@@ -79,6 +75,17 @@ const MobileSafeSpaceRequest = () => {
 
   return (
     <div className="space-y-6">
+      {/* Development Notice */}
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="flex items-start space-x-3">
+          <Construction className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-800">
+            <p className="font-medium mb-1">Matching System - Coming Soon</p>
+            <p>Helper matching and notifications are in development. You can preview the request form below.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Safety Notice */}
       <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
         <div className="flex items-start space-x-3">
@@ -174,7 +181,7 @@ const MobileSafeSpaceRequest = () => {
         ) : (
           <>
             <Heart className="h-4 w-4 mr-2" />
-            Request Support
+            Preview Request (In Development)
           </>
         )}
       </Button>

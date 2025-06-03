@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Star, Clock, Users, CheckCircle, AlertCircle, UserCheck } from "lucide-react";
+import { Shield, Star, Clock, Users, CheckCircle, AlertCircle, UserCheck, Construction } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
@@ -38,15 +38,21 @@ const SafeSpaceHelperDashboard = () => {
   ];
 
   const handleToggleAvailability = async (available: boolean) => {
+    if (available) {
+      toast({
+        title: "Feature In Development",
+        description: "Helper notifications and matching are currently being built. This feature will be available soon!",
+      });
+      return;
+    }
+
     try {
       await updateHelperAvailability(available);
       setAvailability(prev => ({ ...prev, isAvailable: available }));
       
       toast({
-        title: available ? "You're now available" : "You're now unavailable",
-        description: available 
-          ? "You'll receive notifications when someone needs support."
-          : "You won't receive new support requests.",
+        title: "Availability updated",
+        description: "You're now unavailable for support sessions.",
       });
     } catch (error) {
       toast({
@@ -58,19 +64,10 @@ const SafeSpaceHelperDashboard = () => {
   };
 
   const handleStartVerification = async () => {
-    try {
-      await startVerificationProcess();
-      toast({
-        title: "Verification Started",
-        description: "We'll review your application and contact you within 48 hours.",
-      });
-    } catch (error) {
-      toast({
-        title: "Verification Failed",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
-    }
+    toast({
+      title: "Verification Process - In Development",
+      description: "The full verification system including ID checks and background screening is being built. Coming soon!",
+    });
   };
 
   // If not a helper yet, show application process
@@ -87,24 +84,40 @@ const SafeSpaceHelperDashboard = () => {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Verification Development Notice */}
+          <Card className="border-orange-200 bg-orange-50">
+            <CardContent className="pt-4">
+              <div className="flex items-start space-x-3">
+                <Construction className="h-5 w-5 text-orange-600 mt-0.5" />
+                <div className="text-sm text-orange-800">
+                  <p className="font-medium mb-1">Verification System - In Development</p>
+                  <p>
+                    The full verification process including ID checks, background screening, and training modules 
+                    is currently being built. You can preview the requirements below.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">Requirements to become a helper:</h4>
             <ul className="space-y-2 text-sm text-blue-800">
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>Complete identity verification (ID check)</span>
+                <span>Complete identity verification (ID check) - Coming Soon</span>
               </li>
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>Pass background screening (CRB/DBS check)</span>
+                <span>Pass background screening (CRB/DBS check) - Coming Soon</span>
               </li>
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>Complete online training modules</span>
+                <span>Complete online training modules - Coming Soon</span>
               </li>
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>Demonstrate relevant experience or qualifications</span>
+                <span>Demonstrate relevant experience or qualifications - Coming Soon</span>
               </li>
             </ul>
           </div>
@@ -127,7 +140,7 @@ const SafeSpaceHelperDashboard = () => {
             className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
           >
             <UserCheck className="h-4 w-4 mr-2" />
-            Start Verification Process
+            Preview Verification Process (In Development)
           </Button>
         </CardContent>
       </Card>
@@ -167,6 +180,22 @@ const SafeSpaceHelperDashboard = () => {
   // Verified helper dashboard
   return (
     <div className="space-y-6">
+      {/* Notifications Development Notice */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="pt-4">
+          <div className="flex items-start space-x-3">
+            <Construction className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className="text-sm text-blue-800">
+              <p className="font-medium mb-1">Helper Notifications - Coming Soon</p>
+              <p>
+                Real-time notifications when someone needs support are being developed. 
+                The availability toggle will be functional once this system is complete.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Status Card */}
       <Card>
         <CardHeader>
@@ -187,7 +216,7 @@ const SafeSpaceHelperDashboard = () => {
                 Available for sessions
               </Label>
               <p className="text-sm text-gray-600">
-                Toggle to start receiving support requests
+                Toggle to start receiving support requests (Coming Soon)
               </p>
             </div>
             <Switch

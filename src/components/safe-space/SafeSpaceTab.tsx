@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Heart, Users, Clock, Star, AlertTriangle } from "lucide-react";
+import { Shield, Heart, Users, Clock, Star, AlertTriangle, Construction } from "lucide-react";
 import SafeSpaceRequest from "./SafeSpaceRequest";
 import SafeSpaceHelperDashboard from "./SafeSpaceHelperDashboard";
 import SafeSpaceSession from "./SafeSpaceSession";
@@ -27,6 +27,22 @@ const SafeSpaceTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Development Status Banner */}
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="pt-6">
+          <div className="flex items-start space-x-3">
+            <Construction className="h-5 w-5 text-amber-600 mt-0.5" />
+            <div className="text-sm text-amber-800">
+              <p className="font-medium mb-1">Safe Space - In Development</p>
+              <p>
+                This feature is currently being developed. UI and basic flow are complete, but real-time matching, 
+                notifications, and verification processes are coming soon.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-3">

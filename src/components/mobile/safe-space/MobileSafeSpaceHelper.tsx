@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Shield, Star, Clock, Users, CheckCircle, AlertCircle, UserCheck } from "lucide-react";
+import { Shield, Star, Clock, Users, CheckCircle, AlertCircle, UserCheck, Construction } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
@@ -18,29 +18,26 @@ const MobileSafeSpaceHelper = () => {
   } = useSafeSpace();
 
   const handleStartVerification = async () => {
-    try {
-      await startVerificationProcess();
-      toast({
-        title: "Verification Started",
-        description: "We'll review your application within 48 hours.",
-      });
-    } catch (error) {
-      toast({
-        title: "Verification Failed",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
-    }
+    toast({
+      title: "Verification Process - In Development",
+      description: "The full verification system including ID checks and background screening is being built. Coming soon!",
+    });
   };
 
   const handleToggleAvailability = async (available: boolean) => {
+    if (available) {
+      toast({
+        title: "Feature In Development",
+        description: "Helper notifications and matching are currently being built. This feature will be available soon!",
+      });
+      return;
+    }
+
     try {
       await updateHelperAvailability(available);
       toast({
-        title: available ? "You're now available" : "You're now unavailable",
-        description: available 
-          ? "You'll receive support requests."
-          : "You won't receive new requests.",
+        title: "Availability updated",
+        description: "You're now unavailable for support sessions.",
       });
     } catch (error) {
       toast({
@@ -55,24 +52,35 @@ const MobileSafeSpaceHelper = () => {
   if (!isHelper) {
     return (
       <div className="space-y-6">
+        {/* Verification Development Notice */}
+        <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+          <div className="flex items-start space-x-3">
+            <Construction className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-orange-800">
+              <p className="font-medium mb-1">Verification System - In Development</p>
+              <p>Full verification including ID checks and background screening is being built. Preview requirements below.</p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-blue-50 p-4 rounded-lg">
           <h3 className="font-medium text-blue-900 mb-3">Become a Verified Helper</h3>
           <div className="space-y-2 text-sm text-blue-800">
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              <span>Identity verification (ID check)</span>
+              <span>Identity verification (ID check) - Coming Soon</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              <span>Background screening (CRB/DBS)</span>
+              <span>Background screening (CRB/DBS) - Coming Soon</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              <span>Complete training modules</span>
+              <span>Complete training modules - Coming Soon</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              <span>Relevant experience/qualifications</span>
+              <span>Relevant experience/qualifications - Coming Soon</span>
             </div>
           </div>
         </div>
@@ -92,7 +100,7 @@ const MobileSafeSpaceHelper = () => {
           className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white h-12"
         >
           <UserCheck className="h-4 w-4 mr-2" />
-          Start Verification Process
+          Preview Verification Process (In Development)
         </Button>
       </div>
     );
@@ -124,6 +132,17 @@ const MobileSafeSpaceHelper = () => {
   // Verified helper dashboard
   return (
     <div className="space-y-6">
+      {/* Notifications Development Notice */}
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="flex items-start space-x-3">
+          <Construction className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-800">
+            <p className="font-medium mb-1">Helper Notifications - Coming Soon</p>
+            <p>Real-time notifications when someone needs support are being developed.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Status */}
       <div className="bg-white p-4 rounded-lg border">
         <div className="flex items-center justify-between mb-3">
@@ -139,7 +158,7 @@ const MobileSafeSpaceHelper = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Available for sessions</p>
-            <p className="text-sm text-gray-600">Toggle to receive requests</p>
+            <p className="text-sm text-gray-600">Toggle to receive requests (Coming Soon)</p>
           </div>
           <Switch
             onCheckedChange={handleToggleAvailability}
