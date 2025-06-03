@@ -11,6 +11,7 @@ import MobileFloatingActionButton from "./MobileFloatingActionButton";
 const MobileFeed = () => {
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   
   const { 
     posts, 
@@ -35,9 +36,50 @@ const MobileFeed = () => {
     return post.category === activeFilter;
   });
 
+  // Transform SocialPost to FeedPost format for MobileFeedContent
+  const transformedPosts = filteredPosts.map(post => ({
+    id: post.id,
+    author: {
+      id: post.author_id,
+      name: post.author_name,
+      avatar: post.author_avatar
+    },
+    avatar: post.author_avatar,
+    content: post.content,
+    description: post.content,
+    timestamp: new Date(post.created_at),
+    likes: post.likes_count,
+    comments: post.comments_count,
+    shares: post.shares_count,
+    category: post.category,
+    urgency: post.urgency,
+    location: post.location,
+    tags: post.tags,
+    media: post.media_urls,
+    isLiked: post.is_liked,
+    isBookmarked: post.is_bookmarked
+  }));
+
+  const handleFilterToggle = (filter: string) => {
+    setActiveFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setActiveFilters([]);
+  };
+
+  const handleQuickPost = (type: string) => {
+    console.log('Quick post type:', type);
+    setIsCreatingPost(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <PullToRefresh onRefresh={refreshFeed} disabled={refreshing}>
+      <PullToRefresh onRefresh={async () => refreshFeed()} disabled={refreshing}>
         <div className="space-y-4">
           {/* Stories Section */}
           <MobileStories />
@@ -67,23 +109,24 @@ const MobileFeed = () => {
 
           {/* Feed Filters */}
           <MobileFeedFilters
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
+            activeFilters={activeFilters}
+            onFilterToggle={handleFilterToggle}
+            onClearFilters={handleClearFilters}
             postCounts={{
-              all: posts.length,
-              "help-needed": posts.filter(p => p.category === "help-needed").length,
-              "help-offered": posts.filter(p => p.category === "help-offered").length,
-              "success-story": posts.filter(p => p.category === "success-story").length,
+              urgent: posts.filter(p => p.urgency === "urgent").length,
+              nearby: posts.filter(p => p.location).length,
+              recent: posts.filter(p => Date.now() - new Date(p.created_at).getTime() < 86400000).length,
+              trending: posts.filter(p => p.likes_count > 5).length,
             }}
           />
 
           {/* Feed Content */}
           <MobileFeedContent
-            posts={filteredPosts}
-            loading={loading}
+            posts={transformedPosts}
+            isLoading={loading}
             onLike={handleLike}
             onShare={handleShare}
-            onRespond={handleAddComment}
+            onRespond={(postId: string) => handleAddComment(postId, "")}
             onBookmark={handleBookmark}
             onReaction={(postId: string, reactionType: string) => {
               console.log('Mobile reaction:', postId, reactionType);
@@ -98,10 +141,7 @@ const MobileFeed = () => {
 
       {/* Floating Action Button */}
       <MobileFloatingActionButton
-        onCreatePost={() => setIsCreatingPost(true)}
-        onCreateCampaign={() => {
-          console.log('Create campaign clicked');
-        }}
+        onQuickPost={handleQuickPost}
       />
     </div>
   );
