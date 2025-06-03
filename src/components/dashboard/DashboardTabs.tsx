@@ -10,8 +10,17 @@ import AnalyticsTab from "./tabs/AnalyticsTab";
 import ProfileTab from "./tabs/ProfileTab";
 import AdminTab from "./tabs/AdminTab";
 
-const DashboardTabs = () => {
-  const [activeTab, setActiveTab] = useState("feed");
+interface DashboardTabsProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+const DashboardTabs = ({ activeTab: externalActiveTab, onTabChange: externalOnTabChange }: DashboardTabsProps) => {
+  const [internalActiveTab, setInternalActiveTab] = useState("feed");
+  
+  // Use external state if provided, otherwise use internal state
+  const activeTab = externalActiveTab ?? internalActiveTab;
+  const setActiveTab = externalOnTabChange ?? setInternalActiveTab;
 
   return (
     <Tabs value={activeTab} className="w-full">
