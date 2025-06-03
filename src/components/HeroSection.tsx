@@ -37,7 +37,7 @@ const HeroSection = () => {
                 <br />
                 <span className="text-cyan-200">Support.</span>
                 <br />
-                Transform.
+                SouLVE.
               </h1>
               
               <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
