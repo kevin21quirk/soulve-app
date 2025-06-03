@@ -38,13 +38,6 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         <MessagingTab />
       </TabsContent>
 
-      <TabsContent value="help-center" className="space-y-6">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Help Center</h2>
-          <p className="text-gray-600">Coming soon...</p>
-        </div>
-      </TabsContent>
-
       <TabsContent value="campaigns" className="space-y-6">
         <CampaignsTab />
       </TabsContent>
