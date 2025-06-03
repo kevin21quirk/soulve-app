@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Heart, Users, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import SouLVELogo from "./SouLVELogo";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -82,11 +81,6 @@ const HeroSection = () => {
                 <span className="text-sm text-cyan-100">Real Impact</span>
               </div>
             </div>
-          </div>
-          
-          {/* Right Column - Logo */}
-          <div className="flex justify-center lg:justify-end">
-            <SouLVELogo size="medium" />
           </div>
           
         </div>
