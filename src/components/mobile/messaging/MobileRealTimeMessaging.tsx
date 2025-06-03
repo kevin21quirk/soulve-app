@@ -17,7 +17,6 @@ const MobileRealTimeMessaging = () => {
     activeConversation,
     setActiveConversation,
     conversationsLoading,
-    loadMessages,
     sendMessage
   } = useRealTimeMessaging();
   
@@ -26,7 +25,6 @@ const MobileRealTimeMessaging = () => {
 
   const handleConversationSelect = async (partnerId: string) => {
     setActiveConversation(partnerId);
-    await loadMessages(partnerId);
   };
 
   const handleSendMessage = async () => {
@@ -170,12 +168,12 @@ const MobileRealTimeMessaging = () => {
                     </div>
                     {conversation.last_message && (
                       <p className="text-sm text-gray-600 truncate">
-                        {conversation.last_message.content}
+                        {conversation.last_message}
                       </p>
                     )}
-                    {conversation.last_message && (
+                    {conversation.last_message_time && (
                       <p className="text-xs text-gray-400 mt-1">
-                        {formatDistanceToNow(new Date(conversation.last_message.created_at), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(conversation.last_message_time), { addSuffix: true })}
                       </p>
                     )}
                   </div>

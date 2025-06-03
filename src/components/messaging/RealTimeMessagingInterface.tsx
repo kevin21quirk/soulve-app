@@ -90,16 +90,22 @@ const RealTimeMessagingInterface = () => {
     );
   }
 
+  // Transform conversations to match expected interface
+  const transformedConversations = conversations.map(conv => ({
+    ...conv,
+    id: conv.user_id,
+    partner_id: conv.user_id,
+    is_read: true,
+    isOnline: isUserOnline(conv.user_id),
+    presence: getUserPresence(conv.user_id)
+  }));
+
   return (
     <div className="flex h-[600px] border rounded-lg overflow-hidden">
       {/* Conversations List */}
       <div className={`${activeConversation ? 'hidden md:block' : 'block'}`}>
         <ConversationsList
-          conversations={conversations.map(conv => ({
-            ...conv,
-            isOnline: isUserOnline(conv.user_id),
-            presence: getUserPresence(conv.user_id)
-          }))}
+          conversations={transformedConversations}
           activeConversation={activeConversation}
           loading={conversationsLoading}
           onConversationSelect={handleConversationSelect}

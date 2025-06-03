@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
-import { useRealPostCreation } from '@/hooks/useRealPostCreation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Plus } from 'lucide-react';
@@ -21,28 +20,10 @@ const RealSocialFeed = () => {
     handleShare, 
     handleAddComment 
   } = useRealSocialFeed();
-  
-  const { createPost } = useRealPostCreation();
 
-  const handlePostCreated = async (formData: any) => {
-    try {
-      await createPost({
-        title: formData.title || '',
-        content: formData.description,
-        category: formData.category,
-        urgency: formData.urgency,
-        location: formData.location,
-        tags: formData.tags || [],
-        visibility: formData.visibility || 'public',
-        media_urls: formData.media_urls || []
-      });
-      
-      setShowCreatePost(false);
-      // Posts will auto-refresh via real-time subscription
-      
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
+  const handlePostCreated = () => {
+    setShowCreatePost(false);
+    refreshFeed();
   };
 
   if (loading && posts.length === 0) {
@@ -92,7 +73,6 @@ const RealSocialFeed = () => {
           {showCreatePost ? (
             <CreatePost 
               onPostCreated={handlePostCreated}
-              onCancel={() => setShowCreatePost(false)}
             />
           ) : (
             <div className="flex items-center justify-between">
