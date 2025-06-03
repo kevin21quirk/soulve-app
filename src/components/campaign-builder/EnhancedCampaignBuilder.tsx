@@ -18,7 +18,7 @@ import { useHelpCompletion } from "@/hooks/useHelpCompletion";
 const EnhancedCampaignBuilder = () => {
   const { toast } = useToast();
   const { pendingRequests } = useHelpCompletion();
-  const [activeTab, setActiveTab] = useState("templates");
+  const [activeTab, setActiveTab] = useState("create");
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [campaigns] = useState([]);
@@ -26,13 +26,11 @@ const EnhancedCampaignBuilder = () => {
   const handleTemplateSelect = (template: CampaignTemplate) => {
     setSelectedTemplate(template);
     setShowForm(true);
-    setActiveTab("create");
   };
 
   const handleCreateFromScratch = () => {
     setSelectedTemplate(null);
     setShowForm(true);
-    setActiveTab("create");
   };
 
   const handleCampaignCreated = (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => {
@@ -69,19 +67,12 @@ const EnhancedCampaignBuilder = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger 
-            value="templates" 
-            className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Templates</span>
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger 
             value="create" 
             className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
           >
-            <Target className="h-4 w-4" />
+            <Plus className="h-4 w-4" />
             <span>Create</span>
           </TabsTrigger>
           <TabsTrigger 
@@ -122,21 +113,21 @@ const EnhancedCampaignBuilder = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="templates" className="mt-6">
-          <CampaignTemplates 
-            onTemplateSelect={handleTemplateSelect}
-            onCreateFromScratch={handleCreateFromScratch}
-          />
-        </TabsContent>
-
         <TabsContent value="create" className="mt-6">
-          <CampaignCreateTab
-            selectedTemplate={selectedTemplate}
-            showForm={showForm}
-            onCampaignCreated={handleCampaignCreated}
-            onSuccess={handleSuccess}
-            onBrowseTemplates={() => setActiveTab("templates")}
-          />
+          {!showForm ? (
+            <CampaignTemplates 
+              onTemplateSelect={handleTemplateSelect}
+              onCreateFromScratch={handleCreateFromScratch}
+            />
+          ) : (
+            <CampaignCreateTab
+              selectedTemplate={selectedTemplate}
+              showForm={showForm}
+              onCampaignCreated={handleCampaignCreated}
+              onSuccess={handleSuccess}
+              onBrowseTemplates={() => setShowForm(false)}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="manage" className="mt-6">
