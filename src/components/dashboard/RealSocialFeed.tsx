@@ -7,6 +7,7 @@ import { RefreshCw, Plus } from 'lucide-react';
 import CreatePost from './CreatePost';
 import SocialPostCard from './SocialPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
 
 const RealSocialFeed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -129,7 +130,7 @@ const RealSocialFeed = () => {
           {posts.map((post) => (
             <SocialPostCard
               key={post.id}
-              post={post}
+              post={transformSocialPostToFeedPost(post)}
               onLike={() => handleLike(post.id)}
               onShare={() => handleShare(post.id)}
               onBookmark={() => handleBookmark(post.id)}

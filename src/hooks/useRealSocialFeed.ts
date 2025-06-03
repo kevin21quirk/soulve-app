@@ -50,28 +50,35 @@ export const useRealSocialFeed = () => {
       if (error) throw error;
 
       // Transform posts with author information
-      const transformedPosts: SocialPost[] = (postsData || []).map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        author_id: post.author_id,
-        author_name: post.profiles 
-          ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() || 'Anonymous'
-          : 'Anonymous',
-        author_avatar: post.profiles?.avatar_url || '',
-        category: post.category,
-        urgency: post.urgency,
-        location: post.location,
-        tags: post.tags || [],
-        media_urls: post.media_urls || [],
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        likes_count: 0,
-        comments_count: 0,
-        shares_count: 0,
-        is_liked: false,
-        is_bookmarked: false
-      }));
+      const transformedPosts: SocialPost[] = (postsData || []).map(post => {
+        // Handle profiles data correctly - it's an object, not an array
+        const profile = post.profiles as any;
+        const authorName = profile 
+          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
+          : 'Anonymous';
+        const avatarUrl = profile?.avatar_url || '';
+
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          author_id: post.author_id,
+          author_name: authorName,
+          author_avatar: avatarUrl,
+          category: post.category,
+          urgency: post.urgency,
+          location: post.location,
+          tags: post.tags || [],
+          media_urls: post.media_urls || [],
+          created_at: post.created_at,
+          updated_at: post.updated_at,
+          likes_count: 0,
+          comments_count: 0,
+          shares_count: 0,
+          is_liked: false,
+          is_bookmarked: false
+        };
+      });
 
       setPosts(transformedPosts);
     } catch (error: any) {

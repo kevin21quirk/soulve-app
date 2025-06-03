@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
 import { useRealPostCreation } from "@/hooks/useRealPostCreation";
@@ -87,8 +86,11 @@ const MobileFeed = () => {
     console.log("React to comment:", postId, commentId, reactionType);
   };
 
+  // Transform SocialPost to FeedPost for the mobile feed
+  const transformedPosts = posts.map(transformSocialPostToFeedPost);
+
   // Simple filtering for now - can be enhanced later
-  const filteredPosts = posts;
+  const filteredPosts = transformedPosts;
   const activeFilters: string[] = [];
   const postCounts = {
     all: posts.length,
@@ -111,7 +113,7 @@ const MobileFeed = () => {
       onSwipeRight={handleSwipeRight}
       onSwipeUp={handleSwipeUp}
     >
-      <PullToRefresh onRefresh={refreshFeed}>
+      <PullToRefresh onRefresh={() => Promise.resolve(refreshFeed())}>
         <div className="bg-gray-50 min-h-screen">
           {/* Live Updates Indicator */}
           <MobileLiveUpdates onNewUpdate={handleLiveUpdate} />

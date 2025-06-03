@@ -97,7 +97,11 @@ const RealTimeMessagingInterface = () => {
     partner_id: conv.user_id,
     is_read: true,
     isOnline: isUserOnline(conv.user_id),
-    presence: getUserPresence(conv.user_id)
+    presence: getUserPresence(conv.user_id),
+    last_message: conv.last_message ? {
+      content: conv.last_message,
+      created_at: conv.last_message_time || new Date().toISOString()
+    } : undefined
   }));
 
   return (

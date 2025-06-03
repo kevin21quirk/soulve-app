@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import CreatePost from "../CreatePost";
 import FeedFilters from "../FeedFilters";
@@ -13,8 +12,8 @@ const EnhancedFeedContainer = () => {
   // Enable real-time updates
   useRealTimeUpdates();
 
-  const handlePostCreated = (newPost: any) => {
-    console.log("New post created:", newPost);
+  const handlePostCreated = () => {
+    console.log("New post created");
     // The post creation will automatically update the feed via react-query
   };
 
