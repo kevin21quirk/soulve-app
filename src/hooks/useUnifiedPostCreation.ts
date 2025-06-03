@@ -32,20 +32,20 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         throw new Error('Please select a category');
       }
 
+      console.log('useUnifiedPostCreation - Calling createUnifiedPost...');
       const postId = await createUnifiedPost(postData);
       console.log('useUnifiedPostCreation - Post created successfully with ID:', postId);
 
+      // Show success toast
       toast({
         title: "Post created successfully! ✨",
         description: "Your post has been shared with the community.",
       });
 
-      // Trigger the refresh callback
+      // Trigger the refresh callback immediately
       if (onPostCreated) {
         console.log('useUnifiedPostCreation - Triggering onPostCreated callback');
-        setTimeout(() => {
-          onPostCreated();
-        }, 100); // Small delay to ensure post is fully processed
+        onPostCreated();
       }
 
       return { id: postId, success: true };

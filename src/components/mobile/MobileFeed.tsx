@@ -1,165 +1,109 @@
 
 import { useState } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
-import { useRealPostCreation } from "@/hooks/useRealPostCreation";
 import { PullToRefresh } from "@/components/ui/mobile/pull-to-refresh";
 import MobileCreatePost from "./MobileCreatePost";
 import MobileStories from "./MobileStories";
 import MobileFeedFilters from "./MobileFeedFilters";
 import MobileFeedContent from "./MobileFeedContent";
 import MobileFloatingActionButton from "./MobileFloatingActionButton";
-import MobileQuickStats from "./MobileQuickStats";
-import MobileSwipeGestures from "./MobileSwipeGestures";
-import MobileLiveUpdates from "./MobileLiveUpdates";
-import { transformSocialPostToFeedPost } from "@/utils/socialPostTransformers";
 
 const MobileFeed = () => {
-  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
   
-  const {
-    posts,
-    loading,
-    refreshing,
-    refreshFeed,
-    handleLike,
-    handleShare,
-    handleBookmark,
-    handleAddComment,
+  const { 
+    posts, 
+    loading, 
+    refreshing, 
+    refreshFeed, 
+    handleLike, 
+    handleBookmark, 
+    handleShare, 
+    handleAddComment 
   } = useRealSocialFeed();
 
-  const { createPost } = useRealPostCreation();
-
-  const handlePostCreated = async (formData: any) => {
-    try {
-      await createPost({
-        title: formData.title || '',
-        content: formData.description,
-        category: formData.category,
-        urgency: formData.urgency || 'medium',
-        location: formData.location,
-        tags: formData.tags || [],
-        visibility: formData.visibility || 'public',
-        media_urls: []
-      });
-      
-      setShowCreatePost(false);
-      // Posts will auto-refresh via real-time subscription
-      
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
-  };
-
-  const handleQuickPost = (type: string) => {
-    console.log("Quick post action:", type);
-    setShowCreatePost(true);
-  };
-
-  const handleSwipeLeft = () => {
-    console.log("Swiped left - could navigate to discover");
-  };
-
-  const handleSwipeRight = () => {
-    console.log("Swiped right - could navigate to messages");
-  };
-
-  const handleSwipeUp = () => {
-    setShowCreatePost(true);
-  };
-
-  const handleLiveUpdate = () => {
+  const handlePostCreated = () => {
+    console.log('MobileFeed - Post created, refreshing feed');
+    setIsCreatingPost(false);
+    // Immediate refresh to show the new post
     refreshFeed();
   };
 
-  // Mock implementations for unused handlers (to maintain interface)
-  const handleRespond = (postId: string) => {
-    console.log("Respond to post:", postId);
-  };
-
-  const handleReaction = (postId: string, reactionType: string) => {
-    console.log("React to post:", postId, reactionType);
-  };
-
-  const handleLikeComment = (postId: string, commentId: string) => {
-    console.log("Like comment:", postId, commentId);
-  };
-
-  const handleCommentReaction = (postId: string, commentId: string, reactionType: string) => {
-    console.log("React to comment:", postId, commentId, reactionType);
-  };
-
-  // Transform SocialPost to FeedPost for the mobile feed
-  const transformedPosts = posts.map(transformSocialPostToFeedPost);
-
-  // Simple filtering for now - can be enhanced later
-  const filteredPosts = transformedPosts;
-  const activeFilters: string[] = [];
-  const postCounts = {
-    all: posts.length,
-    'help-needed': posts.filter(p => p.category === 'help-needed').length,
-    'help-offered': posts.filter(p => p.category === 'help-offered').length,
-    'success-story': posts.filter(p => p.category === 'success-story').length,
-  };
-
-  const handleFilterToggle = (filter: string) => {
-    console.log("Toggle filter:", filter);
-  };
-
-  const handleClearFilters = () => {
-    console.log("Clear filters");
-  };
+  const filteredPosts = posts.filter(post => {
+    if (activeFilter === "all") return true;
+    return post.category === activeFilter;
+  });
 
   return (
-    <MobileSwipeGestures
-      onSwipeLeft={handleSwipeLeft}
-      onSwipeRight={handleSwipeRight}
-      onSwipeUp={handleSwipeUp}
-    >
-      <PullToRefresh onRefresh={() => Promise.resolve(refreshFeed())}>
-        <div className="bg-gray-50 min-h-screen">
-          {/* Live Updates Indicator */}
-          <MobileLiveUpdates onNewUpdate={handleLiveUpdate} />
-          
+    <div className="min-h-screen bg-gray-50">
+      <PullToRefresh onRefresh={refreshFeed} disabled={refreshing}>
+        <div className="space-y-4">
           {/* Stories Section */}
           <MobileStories />
           
-          {/* Quick Stats */}
-          <MobileQuickStats />
-          
-          {/* Create Post */}
-          <div className="px-4 py-3">
-            <MobileCreatePost onPostCreated={handlePostCreated} />
-          </div>
+          {/* Create Post Section */}
+          {isCreatingPost ? (
+            <div className="px-4">
+              <MobileCreatePost onPostCreated={handlePostCreated} />
+            </div>
+          ) : (
+            <div className="px-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">U</span>
+                  </div>
+                  <button
+                    onClick={() => setIsCreatingPost(true)}
+                    className="flex-1 text-left text-gray-500 bg-gray-50 rounded-full px-4 py-2 text-sm"
+                  >
+                    What's happening in your community?
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Feed Filters */}
           <MobileFeedFilters
-            activeFilters={activeFilters}
-            onFilterToggle={handleFilterToggle}
-            onClearFilters={handleClearFilters}
-            postCounts={postCounts}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            postCounts={{
+              all: posts.length,
+              "help-needed": posts.filter(p => p.category === "help-needed").length,
+              "help-offered": posts.filter(p => p.category === "help-offered").length,
+              "success-story": posts.filter(p => p.category === "success-story").length,
+            }}
           />
 
           {/* Feed Content */}
-          <div className="px-4">
-            <MobileFeedContent
-              posts={filteredPosts}
-              isLoading={loading}
-              onLike={handleLike}
-              onShare={handleShare}
-              onRespond={handleRespond}
-              onBookmark={handleBookmark}
-              onReaction={handleReaction}
-              onAddComment={handleAddComment}
-              onLikeComment={handleLikeComment}
-              onCommentReaction={handleCommentReaction}
-            />
-          </div>
-
-          {/* Floating Action Button */}
-          <MobileFloatingActionButton onQuickPost={handleQuickPost} />
+          <MobileFeedContent
+            posts={filteredPosts}
+            loading={loading}
+            onLike={handleLike}
+            onShare={handleShare}
+            onRespond={handleAddComment}
+            onBookmark={handleBookmark}
+            onReaction={(postId: string, reactionType: string) => {
+              console.log('Mobile reaction:', postId, reactionType);
+            }}
+            onAddComment={handleAddComment}
+            onLikeComment={(postId: string, commentId: string) => {
+              console.log('Like comment:', postId, commentId);
+            }}
+          />
         </div>
       </PullToRefresh>
-    </MobileSwipeGestures>
+
+      {/* Floating Action Button */}
+      <MobileFloatingActionButton
+        onCreatePost={() => setIsCreatingPost(true)}
+        onCreateCampaign={() => {
+          console.log('Create campaign clicked');
+        }}
+      />
+    </div>
   );
 };
 

@@ -23,7 +23,9 @@ const RealSocialFeed = () => {
   } = useRealSocialFeed();
 
   const handlePostCreated = () => {
+    console.log('RealSocialFeed - Post created, refreshing feed and closing create post');
     setShowCreatePost(false);
+    // Immediate refresh to show the new post
     refreshFeed();
   };
 
@@ -105,6 +107,13 @@ const RealSocialFeed = () => {
           <span>Refresh</span>
         </Button>
       </div>
+
+      {/* Posts Count */}
+      {posts.length > 0 && (
+        <div className="text-sm text-gray-500">
+          {posts.length} {posts.length === 1 ? 'post' : 'posts'} in your feed
+        </div>
+      )}
 
       {/* Posts Feed */}
       {posts.length === 0 ? (

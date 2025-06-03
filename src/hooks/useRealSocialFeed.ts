@@ -34,29 +34,63 @@ export const useRealSocialFeed = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const { data: postsData, error } = await supabase
+      console.log('useRealSocialFeed - Fetching posts...');
+      
+      // First get the posts
+      const { data: postsData, error: postsError } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles!posts_author_id_fkey (
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (postsError) {
+        console.error('useRealSocialFeed - Posts query error:', postsError);
+        throw postsError;
+      }
+
+      console.log('useRealSocialFeed - Raw posts data:', postsData);
+
+      if (!postsData || postsData.length === 0) {
+        console.log('useRealSocialFeed - No posts found');
+        setPosts([]);
+        return;
+      }
+
+      // Get unique author IDs
+      const authorIds = [...new Set(postsData.map(post => post.author_id))];
+      console.log('useRealSocialFeed - Author IDs:', authorIds);
+
+      // Fetch profiles for these authors
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', authorIds);
+
+      if (profilesError) {
+        console.error('useRealSocialFeed - Profiles query error:', profilesError);
+        // Continue without profiles if needed
+      }
+
+      console.log('useRealSocialFeed - Profiles data:', profilesData);
+
+      // Create a profiles map for quick lookup
+      const profilesMap = new Map();
+      if (profilesData) {
+        profilesData.forEach(profile => {
+          profilesMap.set(profile.id, profile);
+        });
+      }
 
       // Transform posts with author information
-      const transformedPosts: SocialPost[] = (postsData || []).map(post => {
-        // Handle profiles data correctly - it's an object, not an array
-        const profile = post.profiles as any;
-        const authorName = profile 
-          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
-          : 'Anonymous';
-        const avatarUrl = profile?.avatar_url || '';
+      const transformedPosts: SocialPost[] = postsData.map(post => {
+        const profile = profilesMap.get(post.author_id);
+        let authorName = 'Anonymous';
+        let avatarUrl = '';
+
+        if (profile) {
+          authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+          avatarUrl = profile.avatar_url || '';
+        }
 
         return {
           id: post.id,
@@ -80,9 +114,10 @@ export const useRealSocialFeed = () => {
         };
       });
 
+      console.log('useRealSocialFeed - Transformed posts:', transformedPosts);
       setPosts(transformedPosts);
     } catch (error: any) {
-      console.error('Error fetching posts:', error);
+      console.error('useRealSocialFeed - Error fetching posts:', error);
       toast({
         title: "Failed to load posts",
         description: "Please try refreshing the page",
@@ -95,6 +130,7 @@ export const useRealSocialFeed = () => {
   }, [toast]);
 
   const refreshFeed = useCallback(() => {
+    console.log('useRealSocialFeed - Manual refresh triggered');
     setRefreshing(true);
     fetchPosts();
   }, [fetchPosts]);
@@ -103,7 +139,15 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
-      // Insert interaction record
+      console.log('useRealSocialFeed - Liking post:', postId);
+      
+      // Optimistically update the UI
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, is_liked: !post.is_liked, likes_count: post.is_liked ? post.likes_count - 1 : post.likes_count + 1 }
+          : post
+      ));
+
       const { error } = await supabase
         .from('post_interactions')
         .insert({
@@ -114,19 +158,20 @@ export const useRealSocialFeed = () => {
 
       if (error) throw error;
 
-      // Update local state
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { ...post, is_liked: !post.is_liked, likes_count: post.is_liked ? post.likes_count - 1 : post.likes_count + 1 }
-          : post
-      ));
-
       toast({
         title: "Post liked!",
         description: "Your reaction has been recorded."
       });
     } catch (error: any) {
-      console.error('Error liking post:', error);
+      console.error('useRealSocialFeed - Error liking post:', error);
+      
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, is_liked: !post.is_liked, likes_count: post.is_liked ? post.likes_count + 1 : post.likes_count - 1 }
+          : post
+      ));
+      
       toast({
         title: "Failed to like post",
         description: "Please try again",
@@ -139,6 +184,13 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
+      // Optimistically update the UI
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, is_bookmarked: !post.is_bookmarked }
+          : post
+      ));
+
       const { error } = await supabase
         .from('post_interactions')
         .insert({
@@ -149,18 +201,20 @@ export const useRealSocialFeed = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { ...post, is_bookmarked: !post.is_bookmarked }
-          : post
-      ));
-
       toast({
         title: "Post bookmarked!",
         description: "You can find it in your saved posts."
       });
     } catch (error: any) {
-      console.error('Error bookmarking post:', error);
+      console.error('useRealSocialFeed - Error bookmarking post:', error);
+      
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, is_bookmarked: !post.is_bookmarked }
+          : post
+      ));
+      
       toast({
         title: "Failed to bookmark post",
         description: "Please try again",
@@ -173,6 +227,13 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
+      // Optimistically update the UI
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, shares_count: post.shares_count + 1 }
+          : post
+      ));
+
       const { error } = await supabase
         .from('post_interactions')
         .insert({
@@ -183,18 +244,20 @@ export const useRealSocialFeed = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { ...post, shares_count: post.shares_count + 1 }
-          : post
-      ));
-
       toast({
         title: "Post shared!",
         description: "The post has been shared with your network."
       });
     } catch (error: any) {
-      console.error('Error sharing post:', error);
+      console.error('useRealSocialFeed - Error sharing post:', error);
+      
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, shares_count: post.shares_count - 1 }
+          : post
+      ));
+      
       toast({
         title: "Failed to share post",
         description: "Please try again",
@@ -207,6 +270,13 @@ export const useRealSocialFeed = () => {
     if (!user || !content.trim()) return;
 
     try {
+      // Optimistically update the UI
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, comments_count: post.comments_count + 1 }
+          : post
+      ));
+
       const { error } = await supabase
         .from('post_interactions')
         .insert({
@@ -218,18 +288,20 @@ export const useRealSocialFeed = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { ...post, comments_count: post.comments_count + 1 }
-          : post
-      ));
-
       toast({
         title: "Comment added!",
         description: "Your comment has been posted."
       });
     } catch (error: any) {
-      console.error('Error adding comment:', error);
+      console.error('useRealSocialFeed - Error adding comment:', error);
+      
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, comments_count: post.comments_count - 1 }
+          : post
+      ));
+      
       toast({
         title: "Failed to add comment",
         description: "Please try again",
@@ -238,22 +310,27 @@ export const useRealSocialFeed = () => {
     }
   }, [user, toast]);
 
-  // Set up real-time subscription
+  // Set up real-time subscription for posts
   useEffect(() => {
     if (!user) return;
 
+    console.log('useRealSocialFeed - Setting up real-time subscription');
+    
     const channel = supabase
       .channel('posts-realtime')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'posts'
-      }, () => {
+      }, (payload) => {
+        console.log('useRealSocialFeed - Real-time update received:', payload);
+        // Refresh the feed when any post changes
         fetchPosts();
       })
       .subscribe();
 
     return () => {
+      console.log('useRealSocialFeed - Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
   }, [user, fetchPosts]);
@@ -261,6 +338,7 @@ export const useRealSocialFeed = () => {
   // Initial fetch
   useEffect(() => {
     if (user) {
+      console.log('useRealSocialFeed - Initial fetch for user:', user.id);
       fetchPosts();
     }
   }, [user, fetchPosts]);
