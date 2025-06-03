@@ -11,12 +11,13 @@ interface MobileCompletionStepProps {
   currentStep: number;
   totalSteps: number;
   isSubmitting: boolean;
+  userType?: string;
 }
 
-const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps, isSubmitting }: MobileCompletionStepProps) => {
+const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps, isSubmitting, userType = "individual" }: MobileCompletionStepProps) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [enableNotifications, setEnableNotifications] = useState(true);
-  const [publicProfile, setPublicProfile] = useState(true);
+  const [publicProfile, setPublicProfile] = useState(userType !== "individual");
 
   const handleComplete = () => {
     onComplete({
@@ -28,36 +29,117 @@ const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps,
     });
   };
 
-  const features = [
-    {
-      icon: <Users className="h-4 w-4 text-blue-600" />,
-      title: "Smart Connections",
-      description: "Connect with people who share your interests"
-    },
-    {
-      icon: <Heart className="h-4 w-4 text-red-600" />,
-      title: "Help Network",
-      description: "Give and receive help in your community"
-    },
-    {
-      icon: <Shield className="h-4 w-4 text-green-600" />,
-      title: "Safe Space",
-      description: "Anonymous peer support when you need it"
-    },
-    {
-      icon: <Sparkles className="h-4 w-4 text-purple-600" />,
-      title: "Impact Tracking",
-      description: "See your positive impact grow over time"
+  const getContentForUserType = () => {
+    switch (userType) {
+      case "charity":
+        return {
+          title: "Your charity profile is ready! 🎉",
+          subtitle: "Welcome to SouLVE - where charitable organizations connect with community support",
+          features: [
+            {
+              icon: <Users className="h-4 w-4 text-blue-600" />,
+              title: "Find Volunteers",
+              description: "Connect with skilled volunteers who share your passion"
+            },
+            {
+              icon: <Heart className="h-4 w-4 text-red-600" />,
+              title: "Expand Reach",
+              description: "Reach more people who need your services"
+            },
+            {
+              icon: <Shield className="h-4 w-4 text-green-600" />,
+              title: "Build Trust",
+              description: "Showcase your impact and build community trust"
+            },
+            {
+              icon: <Sparkles className="h-4 w-4 text-purple-600" />,
+              title: "Collaborate",
+              description: "Partner with other organizations and businesses"
+            }
+          ],
+          nextSteps: [
+            "• Set up your organization profile",
+            "• Post volunteer opportunities",
+            "• Connect with local partners",
+            "• Track and share your impact"
+          ]
+        };
+      case "business":
+        return {
+          title: "Your business profile is ready! 🎉",
+          subtitle: "Welcome to SouLVE - where businesses build meaningful community connections",
+          features: [
+            {
+              icon: <Users className="h-4 w-4 text-blue-600" />,
+              title: "Employee Engagement",
+              description: "Connect employees with volunteer opportunities"
+            },
+            {
+              icon: <Heart className="h-4 w-4 text-red-600" />,
+              title: "CSR Impact",
+              description: "Make measurable community contributions"
+            },
+            {
+              icon: <Sparkles className="h-4 w-4 text-purple-600" />,
+              title: "Partnerships",
+              description: "Build relationships with local organizations"
+            },
+            {
+              icon: <Shield className="h-4 w-4 text-green-600" />,
+              title: "Brand Purpose",
+              description: "Align your brand with social impact"
+            }
+          ],
+          nextSteps: [
+            "• Create corporate volunteering programs",
+            "• Partner with local charities",
+            "• Share your CSR initiatives",
+            "• Build authentic stakeholder relationships"
+          ]
+        };
+      default:
+        return {
+          title: "You're all set! 🎉",
+          subtitle: "Welcome to SouLVE - where community support meets action",
+          features: [
+            {
+              icon: <Users className="h-4 w-4 text-blue-600" />,
+              title: "Smart Connections",
+              description: "Connect with people who share your interests"
+            },
+            {
+              icon: <Heart className="h-4 w-4 text-red-600" />,
+              title: "Help Network",
+              description: "Give and receive help in your community"
+            },
+            {
+              icon: <Shield className="h-4 w-4 text-green-600" />,
+              title: "Safe Space",
+              description: "Anonymous peer support when you need it"
+            },
+            {
+              icon: <Sparkles className="h-4 w-4 text-purple-600" />,
+              title: "Impact Tracking",
+              description: "See your positive impact grow over time"
+            }
+          ],
+          nextSteps: [
+            "• Explore your personalized dashboard",
+            "• Check out help opportunities nearby",
+            "• Connect with community members",
+            "• Start making a positive impact!"
+          ]
+        };
     }
-  ];
+  };
+
+  const content = getContentForUserType();
 
   return (
     <div className="p-4 space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-xl font-bold text-gray-900">You're all set! 🎉</h1>
-        <p className="text-sm text-gray-600">
-          Welcome to SouLVE - where community support meets action
-        </p>
+        <h1 className="text-xl font-bold text-gray-900">{content.title}</h1>
+        <p className="text-sm text-gray-600">{content.subtitle}</p>
       </div>
 
       {/* Alpha Testing Notice */}
@@ -80,7 +162,7 @@ const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps,
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-900">What you can do:</h3>
         <div className="grid grid-cols-2 gap-3">
-          {features.map((feature, index) => (
+          {content.features.map((feature, index) => (
             <div key={index} className="flex items-start space-x-2 p-3 bg-gray-50 rounded-lg">
               <div className="mt-0.5">
                 {feature.icon}
@@ -111,7 +193,10 @@ const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps,
                 Enable notifications
               </Label>
               <p className="text-xs text-gray-600 mt-1">
-                Get notified about help requests and messages
+                {userType === "individual" 
+                  ? "Get notified about help requests and messages"
+                  : "Get notified about volunteer opportunities and partnership requests"
+                }
               </p>
             </div>
           </div>
@@ -128,7 +213,10 @@ const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps,
                 Make profile discoverable
               </Label>
               <p className="text-xs text-gray-600 mt-1">
-                Let others find and connect with you (recommended)
+                {userType === "individual"
+                  ? "Let others find and connect with you (recommended)"
+                  : "Let community members discover your organization (recommended)"
+                }
               </p>
             </div>
           </div>
@@ -139,10 +227,9 @@ const MobileCompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps,
       <div className="bg-teal-50 p-3 rounded-lg border border-teal-200">
         <h4 className="text-sm font-medium text-teal-900 mb-2">What's next?</h4>
         <ul className="text-xs text-teal-800 space-y-1">
-          <li>• Explore your personalized dashboard</li>
-          <li>• Check out help opportunities nearby</li>
-          <li>• Connect with community members</li>
-          <li>• Start making a positive impact!</li>
+          {content.nextSteps.map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
         </ul>
       </div>
 

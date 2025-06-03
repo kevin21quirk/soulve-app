@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
 
 interface RegistrationStepProps {
   title: string;
@@ -14,6 +14,8 @@ interface RegistrationStepProps {
   onPrevious: () => void;
   isNextEnabled: boolean;
   showPrevious?: boolean;
+  nextButtonText?: string;
+  isSubmitting?: boolean;
   platformInsight?: {
     title: string;
     description: string;
@@ -31,8 +33,12 @@ const RegistrationStep = ({
   onPrevious,
   isNextEnabled,
   showPrevious = true,
+  nextButtonText,
+  isSubmitting = false,
   platformInsight
 }: RegistrationStepProps) => {
+  const buttonText = nextButtonText || (currentStep === totalSteps ? "Complete" : "Continue");
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Progress Bar */}
@@ -71,6 +77,7 @@ const RegistrationStep = ({
                   <Button
                     variant="outline"
                     onClick={onPrevious}
+                    disabled={isSubmitting}
                     className="flex items-center space-x-2"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -82,11 +89,20 @@ const RegistrationStep = ({
 
                 <Button
                   onClick={onNext}
-                  disabled={!isNextEnabled}
+                  disabled={!isNextEnabled || isSubmitting}
                   className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white flex items-center space-x-2"
                 >
-                  <span>{currentStep === totalSteps ? "Complete" : "Continue"}</span>
-                  <ChevronRight className="h-4 w-4" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Setting up...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{buttonText}</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>

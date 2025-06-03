@@ -10,25 +10,63 @@ interface MobileInterestsStepProps {
   onPrevious: () => void;
   currentStep: number;
   totalSteps: number;
+  userType?: string;
 }
 
-const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: MobileInterestsStepProps) => {
+const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps, userType = "individual" }: MobileInterestsStepProps) => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [showingInterests, setShowingInterests] = useState(true);
   const [customInput, setCustomInput] = useState("");
 
-  const quickInterests = [
-    "Community Building", "Education", "Environment", "Healthcare",
-    "Senior Care", "Youth Mentoring", "Animal Welfare", "Food Security",
-    "Mental Health", "Technology", "Arts & Culture", "Social Justice"
-  ];
+  const getInterestsForType = (type: string) => {
+    switch (type) {
+      case "charity":
+        return [
+          "Volunteer Recruitment", "Fundraising", "Community Outreach", "Education",
+          "Healthcare", "Environment", "Social Justice", "Youth Development",
+          "Senior Care", "Mental Health", "Food Security", "Housing"
+        ];
+      case "business":
+        return [
+          "Corporate Volunteering", "Community Investment", "Environmental Sustainability", "Education Partnerships",
+          "Skills-Based Volunteering", "Employee Engagement", "Local Economic Development", "Youth Mentorship",
+          "Healthcare Initiatives", "Digital Inclusion", "Diversity & Inclusion", "Social Innovation"
+        ];
+      default:
+        return [
+          "Community Building", "Education", "Environment", "Healthcare",
+          "Senior Care", "Youth Mentoring", "Animal Welfare", "Food Security",
+          "Mental Health", "Technology", "Arts & Culture", "Social Justice"
+        ];
+    }
+  };
 
-  const quickSkills = [
-    "Teaching", "Counseling", "Technology", "Cooking", "Healthcare",
-    "Transportation", "Event Planning", "Writing", "Translation",
-    "Home Repair", "Childcare", "Financial Planning"
-  ];
+  const getSkillsForType = (type: string) => {
+    switch (type) {
+      case "charity":
+        return [
+          "Grant Writing", "Fundraising", "Volunteer Management", "Event Planning",
+          "Marketing", "Social Media", "Financial Management", "Program Development",
+          "Community Outreach", "Public Speaking", "Research", "Data Analysis"
+        ];
+      case "business":
+        return [
+          "Project Management", "Strategic Planning", "Marketing", "Technology",
+          "Finance", "Human Resources", "Operations", "Legal",
+          "Data Analysis", "Training", "Mentoring", "Leadership"
+        ];
+      default:
+        return [
+          "Teaching", "Counseling", "Technology", "Cooking", "Healthcare",
+          "Transportation", "Event Planning", "Writing", "Translation",
+          "Home Repair", "Childcare", "Financial Planning"
+        ];
+    }
+  };
+
+  const quickInterests = getInterestsForType(userType);
+  const quickSkills = getSkillsForType(userType);
 
   const toggleItem = (item: string, isInterest: boolean) => {
     if (isInterest) {
@@ -73,13 +111,39 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
   const selectedItems = showingInterests ? selectedInterests : selectedSkills;
   const isFormValid = selectedInterests.length > 0 || selectedSkills.length > 0;
 
+  const getContentForType = () => {
+    switch (userType) {
+      case "charity":
+        return {
+          title: "Your Focus Areas & Capabilities",
+          subtitle: "Help us connect you with relevant volunteers and partners",
+          interestsLabel: "Cause Areas",
+          skillsLabel: "Organizational Capabilities"
+        };
+      case "business":
+        return {
+          title: "Your CSR Focus & Resources",
+          subtitle: "Help us align you with meaningful community partnerships",
+          interestsLabel: "CSR Focus Areas",
+          skillsLabel: "Corporate Resources"
+        };
+      default:
+        return {
+          title: "Your Interests & Skills",
+          subtitle: "Help us connect you with the right opportunities",
+          interestsLabel: "Interests",
+          skillsLabel: "Skills"
+        };
+    }
+  };
+
+  const content = getContentForType();
+
   return (
     <div className="p-4 space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-xl font-bold text-gray-900">Your Interests & Skills</h1>
-        <p className="text-sm text-gray-600">
-          Help us connect you with the right opportunities
-        </p>
+        <h1 className="text-xl font-bold text-gray-900">{content.title}</h1>
+        <p className="text-sm text-gray-600">{content.subtitle}</p>
       </div>
 
       {/* Toggle Buttons */}
@@ -93,7 +157,7 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
           }`}
         >
           <Heart className="h-4 w-4 inline mr-1" />
-          Interests
+          {content.interestsLabel}
         </button>
         <button
           onClick={() => setShowingInterests(false)}
@@ -104,7 +168,7 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
           }`}
         >
           <Tag className="h-4 w-4 inline mr-1" />
-          Skills
+          {content.skillsLabel}
         </button>
       </div>
 
@@ -112,7 +176,7 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
       {selectedItems.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-700">
-            Selected {showingInterests ? 'interests' : 'skills'}:
+            Selected {showingInterests ? content.interestsLabel.toLowerCase() : content.skillsLabel.toLowerCase()}:
           </p>
           <div className="flex flex-wrap gap-2">
             {selectedItems.map((item) => (
@@ -135,7 +199,7 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
       {/* Quick Selection Grid */}
       <div className="space-y-3">
         <p className="text-sm font-medium text-gray-700">
-          Quick select {showingInterests ? 'interests' : 'skills'}:
+          Quick select {showingInterests ? content.interestsLabel.toLowerCase() : content.skillsLabel.toLowerCase()}:
         </p>
         <div className="grid grid-cols-2 gap-2">
           {currentItems.map((item) => (
@@ -159,11 +223,11 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
       {/* Custom Input */}
       <div className="space-y-2">
         <p className="text-sm font-medium text-gray-700">
-          Add custom {showingInterests ? 'interest' : 'skill'}:
+          Add custom {showingInterests ? content.interestsLabel.toLowerCase().slice(0, -1) : content.skillsLabel.toLowerCase().slice(0, -1)}:
         </p>
         <div className="flex space-x-2">
           <Input
-            placeholder={`Enter a ${showingInterests ? 'interest' : 'skill'}...`}
+            placeholder={`Enter a ${showingInterests ? content.interestsLabel.toLowerCase().slice(0, -1) : content.skillsLabel.toLowerCase().slice(0, -1)}...`}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addCustomItem()}
@@ -178,7 +242,7 @@ const MobileInterestsStep = ({ onNext, onPrevious, currentStep, totalSteps }: Mo
       {/* Progress Indicator */}
       <div className="bg-gradient-to-r from-teal-50 to-blue-50 p-3 rounded-lg border border-teal-200">
         <p className="text-xs text-gray-700">
-          <strong>💡 Tip:</strong> Select at least one interest or skill to help us find your perfect matches. You can always add more later!
+          <strong>💡 Tip:</strong> Select at least one {content.interestsLabel.toLowerCase().slice(0, -1)} or {content.skillsLabel.toLowerCase().slice(0, -1)} to help us find your perfect matches. You can always add more later!
         </p>
       </div>
 
