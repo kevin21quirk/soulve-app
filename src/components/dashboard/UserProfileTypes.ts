@@ -22,6 +22,8 @@ export interface OrganizationInfo {
   description?: string;
   mission?: string;
   vision?: string;
+  role?: string;
+  website?: string;
 }
 
 export interface UserProfileData {

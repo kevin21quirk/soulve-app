@@ -13,8 +13,9 @@ const ProfileTab = () => {
   // Mock profile data - in a real app, this would come from your backend
   const profileData: UserProfileData = {
     id: user?.id || "",
-    firstName: "John",
-    lastName: "Doe",
+    name: "John Doe",
+    email: user?.email || "john.doe@example.com",
+    phone: "+1 (555) 123-4567",
     bio: "Passionate about making a positive impact in the community.",
     location: "San Francisco, CA",
     skills: ["Web Development", "Community Organizing", "Project Management"],
@@ -28,13 +29,17 @@ const ProfileTab = () => {
       role: "Volunteer Coordinator",
       website: "https://techforgood.org"
     },
-    totalPoints: 1250,
     trustScore: 85,
-    helpedCount: 23,
-    verified: true,
-    memberSince: "January 2024",
+    helpCount: 23,
+    isVerified: true,
+    joinDate: "January 2024",
     avatar: "/placeholder-avatar.jpg",
-    banner: "/placeholder-banner.jpg"
+    banner: "/placeholder-banner.jpg",
+    bannerType: null,
+    followerCount: 145,
+    followingCount: 89,
+    postCount: 23,
+    verificationBadges: ["Email Verified", "Phone Verified"]
   };
 
   const handleProfileUpdate = (updatedData: UserProfileData) => {

@@ -53,7 +53,7 @@ const UserAccessPanel = () => {
         if (authError) throw authError;
 
         const usersWithEmails = data?.map(profile => {
-          const authUser = authData.users.find(u => u.id === profile.id);
+          const authUser = authData.users.find((u: any) => u.id === profile.id);
           return {
             ...profile,
             email: authUser?.email || 'Unknown'
@@ -111,7 +111,7 @@ const UserAccessPanel = () => {
       const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       if (authError) throw authError;
 
-      const foundUser = authData.users.find(u => 
+      const foundUser = authData.users.find((u: any) => 
         u.email?.toLowerCase().includes(searchEmail.toLowerCase())
       );
 
