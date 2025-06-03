@@ -1,57 +1,60 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import MainTabsList from "./tabs/MainTabsList";
+import { useIsMobile } from "@/hooks/use-mobile";
 import FeedTab from "./tabs/FeedTab";
 import DiscoverTab from "./tabs/DiscoverTab";
-import ConnectionsTab from "./tabs/ConnectionsTab";
+import CampaignsTab from "./tabs/CampaignsTab";
 import MessagingTab from "./tabs/MessagingTab";
-import AnalyticsTab from "./tabs/AnalyticsTab";
 import ProfileTab from "./tabs/ProfileTab";
-import AdminTab from "./tabs/AdminTab";
+import NotificationsTab from "./tabs/NotificationsTab";
+import ImpactTab from "./tabs/ImpactTab";
+import AnalyticsTab from "./tabs/AnalyticsTab";
+import MainTabsList from "./tabs/MainTabsList";
 
-const DashboardTabs = () => {
-  const [activeTab, setActiveTab] = useState("feed");
+interface DashboardTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return null;
+  }
 
   return (
-    <Tabs value={activeTab} className="w-full">
-      <MainTabsList activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      <div className="mt-6">
-        <TabsContent value="feed">
-          <FeedTab />
-        </TabsContent>
-        
-        <TabsContent value="discover">
-          <DiscoverTab />
-        </TabsContent>
-        
-        <TabsContent value="connections">
-          <ConnectionsTab />
-        </TabsContent>
-        
-        <TabsContent value="messaging">
-          <MessagingTab />
-        </TabsContent>
-        
-        <TabsContent value="analytics">
-          <AnalyticsTab />
-        </TabsContent>
-        
-        <TabsContent value="profile">
-          <ProfileTab />
-        </TabsContent>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+      <MainTabsList />
 
-        <TabsContent value="admin">
-          <AdminTab />
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <div className="text-center py-8">
-            <p className="text-gray-500">Settings panel coming soon!</p>
-          </div>
-        </TabsContent>
-      </div>
+      <TabsContent value="feed" className="space-y-6">
+        <FeedTab />
+      </TabsContent>
+
+      <TabsContent value="discover-connect" className="space-y-6">
+        <DiscoverTab />
+      </TabsContent>
+
+      <TabsContent value="messaging" className="space-y-6">
+        <MessagingTab />
+      </TabsContent>
+
+      <TabsContent value="campaigns" className="space-y-6">
+        <CampaignsTab />
+      </TabsContent>
+
+      <TabsContent value="impact" className="space-y-6">
+        <ImpactTab />
+      </TabsContent>
+
+      <TabsContent value="analytics-points" className="space-y-6">
+        <AnalyticsTab />
+      </TabsContent>
+
+      <TabsContent value="profile" className="space-y-6">
+        <ProfileTab />
+      </TabsContent>
     </Tabs>
   );
 };
