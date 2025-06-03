@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormData, MediaFile, GifData, PollData, EventData } from "@/components/dashboard/CreatePostTypes";
-import { mapCategoryToDb } from "@/utils/categoryMapping";
+import { createUnifiedPost } from "./unifiedPostService";
 
 export interface CreatePostRequest {
   title: string;
@@ -19,13 +19,7 @@ export interface CreatePostRequest {
 }
 
 export const createPost = async (formData: PostFormData): Promise<string> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User must be authenticated to create posts');
-  }
-
-  console.log('postCreationService - Original formData.category:', formData.category);
+  console.log('postCreationService - Starting post creation with formData:', formData);
 
   // Upload media files if any
   let mediaUrls: string[] = [];
@@ -33,75 +27,36 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
     mediaUrls = await uploadMediaFiles(formData.selectedMedia);
   }
 
-  // Map the display category to database category
-  const dbCategory = mapCategoryToDb(formData.category);
-  console.log('postCreationService - Final dbCategory:', dbCategory);
-
-  // Prepare post data
-  const postData: CreatePostRequest = {
-    title: formData.title || formData.description.split('\n')[0].substring(0, 100),
+  // Use the unified post service for consistent creation
+  const postId = await createUnifiedPost({
+    title: formData.title,
     content: formData.description,
-    category: dbCategory, // Use mapped category
-    location: formData.location,
+    category: formData.category,
     urgency: formData.urgency,
+    location: formData.location,
     tags: formData.tags,
     visibility: formData.visibility,
-    media_urls: mediaUrls,
-    gif_data: formData.selectedGif,
-    poll_data: formData.pollData,
-    event_data: formData.eventData,
-    tagged_users: formData.taggedUsers,
-    live_video_data: formData.liveVideoData
-  };
-
-  console.log('postCreationService - About to insert post with category:', postData.category);
-
-  // Insert post into database
-  const { data, error } = await supabase
-    .from('posts')
-    .insert({
-      author_id: user.id,
-      title: postData.title,
-      content: postData.content,
-      category: postData.category,
-      location: postData.location,
-      urgency: postData.urgency,
-      tags: postData.tags,
-      visibility: postData.visibility,
-      media_urls: postData.media_urls,
-      is_active: true
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating post:', error);
-    console.error('Error details:', error.details);
-    console.error('Error hint:', error.hint);
-    console.error('Error message:', error.message);
-    throw new Error('Failed to create post: ' + error.message);
-  }
-
-  console.log('postCreationService - Post created successfully:', data.id);
+    media_urls: mediaUrls
+  });
 
   // Store additional data in separate tables if needed
-  if (postData.gif_data) {
-    await storeGifData(data.id, postData.gif_data);
+  if (formData.selectedGif) {
+    await storeGifData(postId, formData.selectedGif);
   }
 
-  if (postData.poll_data) {
-    await storePollData(data.id, postData.poll_data);
+  if (formData.pollData) {
+    await storePollData(postId, formData.pollData);
   }
 
-  if (postData.event_data) {
-    await storeEventData(data.id, postData.event_data);
+  if (formData.eventData) {
+    await storeEventData(postId, formData.eventData);
   }
 
-  if (postData.tagged_users && postData.tagged_users.length > 0) {
-    await storeTaggedUsers(data.id, postData.tagged_users);
+  if (formData.taggedUsers && formData.taggedUsers.length > 0) {
+    await storeTaggedUsers(postId, formData.taggedUsers);
   }
 
-  return data.id;
+  return postId;
 };
 
 const uploadMediaFiles = async (mediaFiles: MediaFile[]): Promise<string[]> => {

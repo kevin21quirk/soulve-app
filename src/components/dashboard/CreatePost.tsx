@@ -19,13 +19,23 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const [showModal, setShowModal] = useState(false);
 
   const handlePostSubmit = async (data: any) => {
+    console.log('CreatePost - Handling post submission:', data);
+    
     try {
-      await createPost(data);
+      const result = await createPost(data);
+      console.log('CreatePost - Post created successfully:', result);
+      
       setIsExpanded(false);
       setShowModal(false);
-      onPostCreated?.();
+      
+      // Trigger refresh callback if provided
+      if (onPostCreated) {
+        console.log('CreatePost - Triggering onPostCreated callback');
+        onPostCreated();
+      }
     } catch (error) {
-      console.error('Failed to create post:', error);
+      console.error('CreatePost - Failed to create post:', error);
+      // Error handling is done in the hook
     }
   };
 

@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { PostFormData } from "@/components/dashboard/CreatePostTypes";
-import { createPost } from "@/services/postCreationService";
+import { createUnifiedPost } from "@/services/unifiedPostService";
 import MobilePostHeader from "./post-creation/MobilePostHeader";
 import MobilePostContent from "./post-creation/MobilePostContent";
 import MobilePostOptions from "./post-creation/MobilePostOptions";
@@ -33,7 +34,6 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
     visibility: 'public',
     allowComments: true,
     allowSharing: true,
-    // New features
     isLiveVideo: false,
     hasGif: false,
     taggedUsers: [],
@@ -85,10 +85,22 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
   };
 
   const handlePost = async () => {
-    if (!formData.description.trim() || !formData.category) {
+    console.log('MobileCreatePost - Starting post creation');
+    console.log('MobileCreatePost - Form data:', formData);
+
+    if (!formData.description.trim()) {
       toast({
-        title: "Missing information",
-        description: "Please add content and select a category.",
+        title: "Missing content",
+        description: "Please add some content to your post.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.category) {
+      toast({
+        title: "Missing category",
+        description: "Please select a category for your post.",
         variant: "destructive"
       });
       return;
@@ -97,20 +109,15 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data with images
-      const postData = {
-        ...formData,
+      const postId = await createUnifiedPost({
         title: formData.title || formData.description.split('\n')[0] || formData.description.substring(0, 50),
-        selectedMedia: selectedImages.map((file, index) => ({
-          id: `image-${index}`,
-          file,
-          type: 'image' as const,
-          preview: URL.createObjectURL(file),
-          size: file.size
-        }))
-      };
-
-      const postId = await createPost(postData);
+        content: formData.description,
+        category: formData.category,
+        urgency: formData.urgency,
+        location: formData.location,
+        tags: formData.tags,
+        visibility: formData.visibility
+      });
       
       onPostCreated({ id: postId, success: true });
       
@@ -142,10 +149,22 @@ const MobileCreatePost = ({ onPostCreated }: MobileCreatePostProps) => {
       });
       
     } catch (error) {
-      console.error('Error creating post:', error);
+      console.error('MobileCreatePost - Error:', error);
+      
+      let errorMessage = "There was an error sharing your post. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes('category')) {
+          errorMessage = "Please select a valid category.";
+        } else if (error.message.includes('content')) {
+          errorMessage = "Please add content to your post.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: "Failed to share post",
-        description: error instanceof Error ? error.message : "There was an error sharing your post. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

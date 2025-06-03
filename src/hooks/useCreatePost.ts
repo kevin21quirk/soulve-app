@@ -1,15 +1,13 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { mapCategoryToDb } from '@/utils/categoryMapping';
+import { createUnifiedPost } from '@/services/unifiedPostService';
 
 export interface CreatePostData {
-  title: string;
+  title?: string;
   content: string;
   category: string;
-  urgency: string;
+  urgency?: string;
   location?: string;
   tags?: string[];
   visibility?: string;
@@ -17,53 +15,50 @@ export interface CreatePostData {
 }
 
 export const useCreatePost = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createPost = async (postData: CreatePostData) => {
-    if (!user) {
-      throw new Error('User must be authenticated to create posts');
-    }
-
+    console.log('useCreatePost - Starting with data:', postData);
+    
     setIsSubmitting(true);
 
     try {
-      // Map the display category to database category
-      const dbCategory = mapCategoryToDb(postData.category);
+      // Validate required fields
+      if (!postData.content?.trim()) {
+        throw new Error('Post content is required');
+      }
 
-      const { data, error } = await supabase
-        .from('posts')
-        .insert({
-          title: postData.title,
-          content: postData.content,
-          category: dbCategory, // Use mapped category
-          urgency: postData.urgency,
-          location: postData.location || null,
-          tags: postData.tags || [],
-          visibility: postData.visibility || 'public',
-          media_urls: postData.media_urls || [],
-          author_id: user.id,
-          is_active: true
-        })
-        .select()
-        .single();
+      if (!postData.category?.trim()) {
+        throw new Error('Please select a category');
+      }
 
-      if (error) throw error;
+      const postId = await createUnifiedPost(postData);
 
       toast({
         title: "Post created successfully!",
         description: "Your post has been shared with the community.",
       });
 
-      return data;
+      return { id: postId, success: true };
     } catch (error: any) {
-      console.error('Error creating post:', error);
+      console.error('useCreatePost - Error:', error);
+      
+      let errorMessage = 'Failed to create post';
+      if (error.message.includes('category')) {
+        errorMessage = 'Please select a valid category';
+      } else if (error.message.includes('content')) {
+        errorMessage = 'Please add content to your post';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Failed to create post",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
+      
       throw error;
     } finally {
       setIsSubmitting(false);

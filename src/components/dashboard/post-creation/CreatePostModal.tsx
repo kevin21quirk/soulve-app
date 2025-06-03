@@ -47,17 +47,24 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
+    
+    if (!formData.content.trim()) {
+      console.error('CreatePostModal - Content is required');
       return;
     }
     
-    // Debug logging to see what category value is being sent
-    console.log('CreatePostModal - Submitting category:', formData.category);
+    if (!formData.category) {
+      console.error('CreatePostModal - Category is required');
+      return;
+    }
+    
+    console.log('CreatePostModal - Submitting with category:', formData.category);
+    console.log('CreatePostModal - Full form data:', formData);
     
     onSubmit(formData);
   };
 
-  const isValid = formData.title.trim() && formData.content.trim() && formData.category;
+  const isValid = formData.content.trim() && formData.category;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -68,12 +75,11 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Title *</label>
+            <label className="text-sm font-medium mb-2 block">Title</label>
             <Input
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="What's this about?"
-              required
+              placeholder="What's this about? (optional)"
             />
           </div>
 
@@ -105,6 +111,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                 <SelectContent>
                   {POST_CATEGORIES.map(cat => (
                     <SelectItem key={cat.value} value={cat.value}>
+                      <span className="mr-2">{cat.icon}</span>
                       {cat.label}
                     </SelectItem>
                   ))}
@@ -124,6 +131,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting }: CreatePost
                 <SelectContent>
                   {URGENCY_LEVELS.map(level => (
                     <SelectItem key={level.value} value={level.value}>
+                      <span className="mr-2">{level.icon}</span>
                       {level.label}
                     </SelectItem>
                   ))}

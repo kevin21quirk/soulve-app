@@ -1,5 +1,5 @@
 
-// Mapping between display categories and database values
+// Simple mapping between display categories and database values
 export const CATEGORY_MAPPING = {
   'Help Needed': 'help-needed',
   'Help Offered': 'help-offered', 
@@ -11,17 +11,17 @@ export const CATEGORY_MAPPING = {
   'Lost & Found': 'lost-found'
 } as const;
 
-// Valid database category values
-const VALID_DB_CATEGORIES = [
+// Valid database category values - these should match exactly what's in the database
+export const VALID_DB_CATEGORIES = [
   'help-needed', 'help-offered', 'success-story', 'announcement', 
   'question', 'recommendation', 'event', 'lost-found'
-];
+] as const;
 
 export const mapCategoryToDb = (displayCategory: string): string => {
   console.log('categoryMapping - Input category:', displayCategory);
   
   // If the category is already in database format, return it
-  if (VALID_DB_CATEGORIES.includes(displayCategory)) {
+  if (VALID_DB_CATEGORIES.includes(displayCategory as any)) {
     console.log('categoryMapping - Already in DB format:', displayCategory);
     return displayCategory;
   }
@@ -33,10 +33,9 @@ export const mapCategoryToDb = (displayCategory: string): string => {
     return mapped;
   }
   
-  // Fallback: convert to kebab-case
-  const fallback = displayCategory.toLowerCase().replace(/\s+/g, '-');
-  console.log('categoryMapping - Fallback conversion:', fallback);
-  return fallback;
+  // If no mapping found, log error and return a safe default
+  console.error('categoryMapping - No mapping found for:', displayCategory);
+  return 'help-needed'; // Safe default
 };
 
 export const mapCategoryFromDb = (dbCategory: string): string => {
