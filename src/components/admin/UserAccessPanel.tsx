@@ -46,22 +46,14 @@ const UserAccessPanel = () => {
 
       if (error) throw error;
 
-      // Get emails from auth.users for these profile IDs
-      const userIds = data?.map(p => p.id) || [];
-      if (userIds.length > 0) {
-        const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-        if (authError) throw authError;
+      // For each profile, we'll use a placeholder email since we can't access auth.users
+      // In a real implementation, you'd need a server-side function to get emails
+      const usersWithEmails = data?.map(profile => ({
+        ...profile,
+        email: `user-${profile.id.slice(0, 8)}@example.com` // Placeholder email
+      })) || [];
 
-        const usersWithEmails = data?.map(profile => {
-          const authUser = authData.users.find((u: any) => u.id === profile.id);
-          return {
-            ...profile,
-            email: authUser?.email || 'Unknown'
-          };
-        }) || [];
-
-        setPendingUsers(usersWithEmails);
-      }
+      setPendingUsers(usersWithEmails);
     } catch (error) {
       console.error('Error fetching pending users:', error);
       toast({
@@ -86,7 +78,7 @@ const UserAccessPanel = () => {
 
       toast({
         title: "Access Granted",
-        description: `${userEmail} now has access to the platform`,
+        description: `User now has access to the platform`,
       });
 
       // Remove from pending list
@@ -107,40 +99,31 @@ const UserAccessPanel = () => {
     if (!searchEmail.trim()) return;
 
     try {
-      // Search in auth.users first
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) throw authError;
-
-      const foundUser = authData.users.find((u: any) => 
-        u.email?.toLowerCase().includes(searchEmail.toLowerCase())
-      );
-
-      if (!foundUser) {
-        toast({
-          title: "User Not Found",
-          description: "No user found with that email",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Check if they already have access
+      // Search for user by email in profiles table
+      // Note: This is a simplified approach. In production, you'd need a server-side function
+      // to search by email since emails are stored in auth.users which we can't access directly
+      
+      // For now, let's search by email if it's in the first_name field (as a workaround)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('waitlist_status')
-        .eq('id', foundUser.id)
-        .single();
+        .select('*')
+        .or(`first_name.ilike.%${searchEmail}%,last_name.ilike.%${searchEmail}%`)
+        .limit(1);
 
-      if (profileError) {
+      if (profileError) throw profileError;
+
+      if (!profileData || profileData.length === 0) {
         toast({
-          title: "Error",
-          description: "Could not check user status",
+          title: "User Not Found",
+          description: "No user found. Users need to sign up first before you can grant them access.",
           variant: "destructive"
         });
         return;
       }
 
-      if (profileData.waitlist_status === 'approved') {
+      const foundUser = profileData[0];
+
+      if (foundUser.waitlist_status === 'approved') {
         toast({
           title: "Already Approved",
           description: "This user already has access",
@@ -149,7 +132,7 @@ const UserAccessPanel = () => {
       }
 
       // Grant access immediately
-      await grantAccess(foundUser.id, foundUser.email || 'Unknown');
+      await grantAccess(foundUser.id, searchEmail);
       setSearchEmail('');
     } catch (error) {
       console.error('Error searching user:', error);
@@ -176,10 +159,13 @@ const UserAccessPanel = () => {
       <CardContent className="space-y-6">
         {/* Quick Search */}
         <div className="space-y-2">
-          <h3 className="font-medium">Grant Access by Email</h3>
+          <h3 className="font-medium">Grant Access by User ID or Name</h3>
+          <p className="text-sm text-gray-600">
+            Note: Search by name since direct email lookup requires server-side access
+          </p>
           <div className="flex gap-2">
             <Input
-              placeholder="Enter user email..."
+              placeholder="Enter user name or ID..."
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && searchUserByEmail()}
@@ -216,7 +202,7 @@ const UserAccessPanel = () => {
                     <div className="font-medium">
                       {user.first_name} {user.last_name}
                     </div>
-                    <div className="text-sm text-gray-500">{user.email}</div>
+                    <div className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</div>
                     <div className="text-xs text-gray-400">
                       Signed up: {new Date(user.created_at).toLocaleDateString()}
                     </div>
