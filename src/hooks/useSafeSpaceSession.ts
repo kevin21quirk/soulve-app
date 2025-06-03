@@ -32,7 +32,16 @@ export const useSafeSpaceSession = (sessionId: string) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      if (data) setMessages(data);
+      if (data) {
+        // Type cast the sender_role to ensure it matches our interface
+        const typedMessages: Message[] = data.map(msg => ({
+          id: msg.id,
+          sender_role: msg.sender_role as 'requester' | 'helper',
+          content: msg.content,
+          created_at: msg.created_at
+        }));
+        setMessages(typedMessages);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -50,7 +59,13 @@ export const useSafeSpaceSession = (sessionId: string) => {
           filter: `session_id=eq.${sessionId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMessage: Message = {
+            id: payload.new.id,
+            sender_role: payload.new.sender_role as 'requester' | 'helper',
+            content: payload.new.content,
+            created_at: payload.new.created_at
+          };
+          setMessages(prev => [...prev, newMessage]);
         }
       )
       .subscribe();
