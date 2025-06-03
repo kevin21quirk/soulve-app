@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,18 +41,35 @@ export const useRealMessaging = () => {
     if (!user) return;
 
     try {
-      // Get all messages involving the current user with profiles data
+      // Get all messages involving the current user
       const { data: allMessages, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender_profile:profiles!messages_sender_id_fkey(first_name, last_name, avatar_url),
-          recipient_profile:profiles!messages_recipient_id_fkey(first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      // Get all unique user IDs from messages
+      const userIds = new Set<string>();
+      allMessages?.forEach((message: any) => {
+        userIds.add(message.sender_id);
+        userIds.add(message.recipient_id);
+      });
+
+      // Fetch profiles for all users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', Array.from(userIds));
+
+      if (profilesError) throw profilesError;
+
+      // Create a profile map
+      const profileMap = new Map();
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
 
       // Group by conversation partner
       const conversationsMap = new Map<string, RealConversation>();
@@ -59,7 +77,7 @@ export const useRealMessaging = () => {
       allMessages?.forEach((message: any) => {
         const isOwnMessage = message.sender_id === user.id;
         const partnerId = isOwnMessage ? message.recipient_id : message.sender_id;
-        const partnerProfile = isOwnMessage ? message.recipient_profile : message.sender_profile;
+        const partnerProfile = profileMap.get(partnerId);
         
         if (!conversationsMap.has(partnerId)) {
           const partnerName = partnerProfile?.first_name 
@@ -96,27 +114,38 @@ export const useRealMessaging = () => {
     if (!user) return;
 
     try {
+      // Get messages between current user and partner
       const { data: messagesData, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender_profile:profiles!messages_sender_id_fkey(first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .or(`and(sender_id.eq.${user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
+      // Get sender profiles for messages
+      const senderIds = [...new Set(messagesData?.map(msg => msg.sender_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', senderIds);
+
+      const profileMap = new Map();
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
       const processedMessages: RealMessage[] = messagesData?.map((msg: any) => {
-        const senderName = msg.sender_profile?.first_name
-          ? `${msg.sender_profile.first_name} ${msg.sender_profile.last_name || ''}`.trim()
+        const senderProfile = profileMap.get(msg.sender_id);
+        const senderName = senderProfile?.first_name
+          ? `${senderProfile.first_name} ${senderProfile.last_name || ''}`.trim()
           : 'Unknown';
 
         return {
           id: msg.id,
           sender_id: msg.sender_id,
           sender_name: senderName,
-          sender_avatar: msg.sender_profile?.avatar_url || '',
+          sender_avatar: senderProfile?.avatar_url || '',
           content: msg.content,
           message_type: msg.message_type as 'text' | 'image' | 'file',
           file_url: msg.file_url,
@@ -165,10 +194,7 @@ export const useRealMessaging = () => {
           message_type: 'text',
           is_read: false
         })
-        .select(`
-          *,
-          sender_profile:profiles!messages_sender_id_fkey(first_name, last_name, avatar_url)
-        `)
+        .select()
         .single();
 
       if (error) throw error;
@@ -177,7 +203,7 @@ export const useRealMessaging = () => {
         id: data.id,
         sender_id: data.sender_id,
         sender_name: 'You',
-        sender_avatar: data.sender_profile?.avatar_url || '',
+        sender_avatar: '',
         content: data.content,
         message_type: data.message_type as 'text' | 'image' | 'file',
         created_at: data.created_at,
