@@ -115,7 +115,9 @@ export const useLocationTracking = () => {
         urgency: post.urgency,
         location: post.location || 'Location not specified',
         distance: Math.random() * radiusKm, // Mock distance
-        author_name: post.profiles ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() : 'Anonymous',
+        author_name: post.profiles && typeof post.profiles === 'object' && !Array.isArray(post.profiles) 
+          ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() 
+          : 'Anonymous',
         created_at: post.created_at
       }));
 
