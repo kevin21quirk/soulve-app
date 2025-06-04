@@ -26,6 +26,16 @@ export interface OrganizationInfo {
   website?: string;
 }
 
+export interface OrganizationConnection {
+  id: string;
+  organizationId: string;
+  organizationName: string;
+  role: string;
+  title?: string;
+  isCurrent: boolean;
+  isPublic: boolean;
+}
+
 export interface UserProfileData {
   id: string;
   name: string;
@@ -43,6 +53,7 @@ export interface UserProfileData {
   interests: string[];
   socialLinks: SocialLinks;
   organizationInfo: OrganizationInfo;
+  organizationConnections: OrganizationConnection[];
   followerCount: number;
   followingCount: number;
   postCount: number;

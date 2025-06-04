@@ -1183,6 +1183,175 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_members: {
+        Row: {
+          created_at: string
+          department: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          organization_id: string
+          role: string
+          start_date: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          organization_id: string
+          role?: string
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          organization_id?: string
+          role?: string
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          preference_type: string
+          preference_value: string
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          preference_type: string
+          preference_value: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          preference_type?: string
+          preference_value?: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_preferences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          established_year: number | null
+          id: string
+          is_verified: boolean | null
+          location: string | null
+          mission: string | null
+          name: string
+          organization_type: string
+          registration_number: string | null
+          social_links: Json | null
+          tags: string[] | null
+          updated_at: string
+          verification_status: string | null
+          vision: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          established_year?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          mission?: string | null
+          name: string
+          organization_type: string
+          registration_number?: string | null
+          social_links?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+          verification_status?: string | null
+          vision?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          established_year?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          mission?: string | null
+          name?: string
+          organization_type?: string
+          registration_number?: string | null
+          social_links?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+          verification_status?: string | null
+          vision?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       point_decay_log: {
         Row: {
           applied_at: string
@@ -2364,6 +2533,10 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: number
       }
+      calculate_user_similarity_with_orgs: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: number
+      }
       can_access_dashboard: {
         Args: { user_uuid: string }
         Returns: boolean
@@ -2384,6 +2557,26 @@ export type Database = {
           confidence_score: number
           reasoning: string
           metadata: Json
+        }[]
+      }
+      generate_user_recommendations_with_orgs: {
+        Args: { target_user_id: string }
+        Returns: {
+          recommendation_type: string
+          target_id: string
+          confidence_score: number
+          reasoning: string
+          metadata: Json
+        }[]
+      }
+      get_user_organizations: {
+        Args: { target_user_id: string }
+        Returns: {
+          organization_id: string
+          organization_name: string
+          role: string
+          title: string
+          is_current: boolean
         }[]
       }
       get_user_total_points: {

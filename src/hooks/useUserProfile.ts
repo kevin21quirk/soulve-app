@@ -1,10 +1,10 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 import { UseUserProfileReturn } from './profile/types';
 import { createDefaultProfile, mapDatabaseProfileToUserProfile, mapUserProfileToDatabase } from './profile/profileUtils';
 import { fetchUserProfile, upsertUserProfile } from './profile/profileService';
+import { fetchUserOrganizations } from '@/services/organizationService';
 import { useRealTimeProfile } from './useRealTimeProfile';
 import { useProfileSync } from './useProfileSync';
 
@@ -64,6 +64,10 @@ export const useUserProfile = (): UseUserProfileReturn => {
           userProfileData.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
         }
       }
+
+      // Load organizational connections
+      const organizationConnections = await fetchUserOrganizations(user.id);
+      userProfileData.organizationConnections = organizationConnections;
       
       console.log('useUserProfile - Final mapped profile data:', userProfileData);
       setProfileData(userProfileData);
@@ -122,6 +126,9 @@ export const useUserProfile = (): UseUserProfileReturn => {
       if (user.email === 'matt@join-soulve.com') {
         updatedProfile.name = 'Matthew Walker';
       }
+      
+      // Keep existing organizational connections
+      updatedProfile.organizationConnections = profileData.organizationConnections;
       
       if (
         updatedProfile.name !== profileData.name ||

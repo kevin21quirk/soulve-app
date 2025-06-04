@@ -1,3 +1,4 @@
+
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 import { DatabaseProfile } from './types';
 
@@ -37,6 +38,7 @@ export const createDefaultProfile = (user: any): UserProfileData => {
       mission: '',
       vision: ''
     },
+    organizationConnections: [],
     followerCount: 0,
     followingCount: 0,
     postCount: 0,
@@ -84,6 +86,7 @@ export const mapDatabaseProfileToUserProfile = (user: any, profile?: DatabasePro
       mission: '',
       vision: ''
     },
+    organizationConnections: [],
     followerCount: 0,
     followingCount: 0,
     postCount: 0,

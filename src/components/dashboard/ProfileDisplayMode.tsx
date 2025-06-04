@@ -3,7 +3,8 @@ import { CardContent } from "@/components/ui/card";
 import { UserProfileData } from "./UserProfileTypes";
 import UserProfileBanner from "./UserProfileBanner";
 import UserProfileHeader from "./UserProfileHeader";
-import UserProfileDisplay from "./UserProfileDisplay";
+import UserProfileDetails from "./UserProfileDetails";
+import OrganizationConnections from "./profile/OrganizationConnections";
 
 interface ProfileDisplayModeProps {
   profileData: UserProfileData;
@@ -16,20 +17,21 @@ const ProfileDisplayMode = ({ profileData, onViewPointsDetails }: ProfileDisplay
       <UserProfileBanner
         banner={profileData.banner}
         bannerType={profileData.bannerType}
-        bannerFile={null}
-        onBannerUpload={() => {}}
-        onRemoveBanner={() => {}}
         isEditing={false}
       />
       
       <UserProfileHeader 
         profileData={profileData} 
-        isEditing={false}
+        isEditing={false} 
         onViewPointsDetails={onViewPointsDetails}
-        onAvatarUpdate={() => {}}
       />
       
-      <UserProfileDisplay profileData={profileData} />
+      <UserProfileDetails profileData={profileData} />
+      
+      <OrganizationConnections 
+        connections={profileData.organizationConnections}
+        isEditing={false}
+      />
     </CardContent>
   );
 };
