@@ -139,15 +139,22 @@ export const useRealSocialFeed = () => {
           avatarUrl = profile.avatar_url || '';
         }
 
-        // Safely handle gallery_images which might be JSON or array
+        // Safely handle gallery_images which might be Json array or string
         let mediaUrls: string[] = [];
         if (campaign.gallery_images) {
           if (Array.isArray(campaign.gallery_images)) {
-            mediaUrls = campaign.gallery_images;
+            // Handle array of Json values - convert to strings
+            mediaUrls = campaign.gallery_images.map((item: any) => 
+              typeof item === 'string' ? item : String(item)
+            ).filter((url: string) => typeof url === 'string' && url.length > 0);
           } else if (typeof campaign.gallery_images === 'string') {
             try {
               const parsed = JSON.parse(campaign.gallery_images);
-              mediaUrls = Array.isArray(parsed) ? parsed : [];
+              if (Array.isArray(parsed)) {
+                mediaUrls = parsed.map((item: any) => 
+                  typeof item === 'string' ? item : String(item)
+                ).filter((url: string) => typeof url === 'string' && url.length > 0);
+              }
             } catch {
               mediaUrls = [];
             }
