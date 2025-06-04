@@ -674,6 +674,50 @@ export type Database = {
         }
         Relationships: []
       }
+      content_appeals: {
+        Row: {
+          appeal_reason: string
+          created_at: string
+          id: string
+          report_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appeal_reason: string
+          created_at?: string
+          id?: string
+          report_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appeal_reason?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_appeals_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_submissions: {
         Row: {
           activity_id: string | null

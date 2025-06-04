@@ -69,7 +69,7 @@ const AdminModerationDashboard = () => {
 
   const fetchAppeals = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('content_appeals')
         .select('*')
         .order('created_at', { ascending: false });
@@ -113,7 +113,7 @@ const AdminModerationDashboard = () => {
 
   const handleAppealAction = async (appealId: string, action: 'approve' | 'reject') => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('content_appeals')
         .update({ 
           status: action === 'approve' ? 'approved' : 'rejected',
