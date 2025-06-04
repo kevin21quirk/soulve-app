@@ -19,8 +19,14 @@ export interface Message {
   created_at: string;
   is_read: boolean;
   message_type: 'text' | 'image' | 'file';
-  file_url?: string;
-  file_name?: string;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
+  attachment_type?: string;
+  sender_profile?: {
+    first_name?: string;
+    last_name?: string;
+  };
 }
 
 export interface Conversation {

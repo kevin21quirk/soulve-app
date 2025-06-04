@@ -56,7 +56,7 @@ const RealTimeMessagingInterface = () => {
 
     setSending(true);
     try {
-      await sendMessage(activeConversation, content, attachment);
+      await sendMessage(activeConversation, content);
       setNewMessage('');
     } catch (error) {
       // Error is already handled in the hook with toast

@@ -93,7 +93,6 @@ export const useMessages = (userId: string | undefined) => {
   const sendMessage = useCallback(async (
     recipientId: string, 
     content: string, 
-    messageType: 'text' | 'image' | 'file' = 'text',
     attachment?: {
       url: string;
       name: string;
@@ -111,7 +110,7 @@ export const useMessages = (userId: string | undefined) => {
       recipient_id: recipientId,
       created_at: new Date().toISOString(),
       is_read: false,
-      message_type: messageType,
+      message_type: attachment ? (attachment.type === 'image' ? 'image' : 'file') : 'text',
       attachment_url: attachment?.url,
       attachment_name: attachment?.name,
       attachment_size: attachment?.size,
@@ -130,7 +129,7 @@ export const useMessages = (userId: string | undefined) => {
         sender_id: userId,
         recipient_id: recipientId,
         content: content.trim(),
-        message_type: messageType,
+        message_type: attachment ? (attachment.type === 'image' ? 'image' : 'file') : 'text',
         is_read: false
       };
 

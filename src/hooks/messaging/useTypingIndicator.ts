@@ -50,11 +50,14 @@ export const useTypingIndicator = (userId: string | undefined, partnerId: string
           filter: `user_id=eq.${partnerId}:and:conversation_partner_id=eq.${userId}`
         },
         (payload) => {
-          if (payload.new) {
-            setPartnerTyping(payload.new.is_typing);
-            // Auto-clear typing indicator after 3 seconds
-            if (payload.new.is_typing) {
-              setTimeout(() => setPartnerTyping(false), 3000);
+          if (payload.new && typeof payload.new === 'object') {
+            const newData = payload.new as any;
+            if ('is_typing' in newData) {
+              setPartnerTyping(newData.is_typing);
+              // Auto-clear typing indicator after 3 seconds
+              if (newData.is_typing) {
+                setTimeout(() => setPartnerTyping(false), 3000);
+              }
             }
           }
         }
