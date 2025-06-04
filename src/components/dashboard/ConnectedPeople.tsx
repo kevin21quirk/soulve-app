@@ -3,46 +3,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, UserX, MapPin, Calendar } from "lucide-react";
+import { MessageSquare, MapPin, Users } from "lucide-react";
+import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 import TrustScoreDisplay from "./TrustScoreDisplay";
 
-interface ConnectedPerson {
-  id: string;
-  partner_id: string;
-  partner_profile: {
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-    location?: string;
-  };
-}
-
 interface ConnectedPeopleProps {
-  connectedPeople: ConnectedPerson[];
   getTrustScoreColor: (score: number) => string;
 }
 
-const ConnectedPeople = ({ connectedPeople, getTrustScoreColor }: ConnectedPeopleProps) => {
-  const handleMessage = (personId: string) => {
-    console.log("Message person:", personId);
-  };
+const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
+  const { acceptedConnections, loading } = useConnectionRequests();
 
-  const handleDisconnect = (personId: string) => {
-    console.log("Disconnect from person:", personId);
-  };
-
-  if (connectedPeople.length === 0) {
+  if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <span>Your Connections</span>
-            <Badge variant="outline">0</Badge>
-          </CardTitle>
+          <CardTitle>Your Connections</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mx-auto mb-2"></div>
+            <p className="text-gray-500 text-sm">Loading connections...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (acceptedConnections.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Connections</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <p className="text-gray-500">No connections yet. Start building your network!</p>
+            <p className="text-gray-500">No connections yet. Start connecting with people in your community!</p>
           </div>
         </CardContent>
       </Card>
@@ -54,59 +50,53 @@ const ConnectedPeople = ({ connectedPeople, getTrustScoreColor }: ConnectedPeopl
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <span>Your Connections</span>
-          <Badge variant="outline">{connectedPeople.length}</Badge>
+          <Badge variant="outline">{acceptedConnections.length}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {connectedPeople.map((connection) => {
-            const profile = connection.partner_profile || {};
-            const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+          {acceptedConnections.map((connection) => {
+            // Show the other person's profile (not the current user)
+            const isRequester = connection.requester && connection.requester.id !== connection.addressee?.id;
+            const profile = isRequester ? connection.addressee : connection.requester;
+            const name = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous';
             
             return (
               <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile.avatar_url} alt={name} />
+                    <AvatarImage src={profile?.avatar_url} alt={name} />
                     <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                       {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <h3 className="font-semibold text-gray-900">{name}</h3>
-                    {profile.location && (
+                    {profile?.location && (
                       <div className="flex items-center text-sm text-gray-500 mt-1">
                         <MapPin className="h-3 w-3 mr-1" />
                         {profile.location}
                       </div>
                     )}
-                    <div className="flex items-center space-x-2 mt-2">
-                      <TrustScoreDisplay score={75} size="sm" showBadge={false} />
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Connected 2 days ago
-                      </div>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <TrustScoreDisplay score={85} size="sm" showBadge={false} />
+                      {connection.mutual_connections_count !== undefined && (
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Users className="h-3 w-3 mr-1" />
+                          {connection.mutual_connections_count} mutual
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleMessage(connection.partner_id)}
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Message
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDisconnect(connection.partner_id)}
-                    className="text-gray-500 hover:text-red-600"
-                  >
-                    <UserX className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af] hover:text-white"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Message
+                </Button>
               </div>
             );
           })}

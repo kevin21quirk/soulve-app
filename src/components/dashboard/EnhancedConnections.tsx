@@ -13,6 +13,7 @@ import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights
 import ConnectionsHeader from "./connections/ConnectionsHeader";
 import ConnectionsOverlays from "./connections/ConnectionsOverlays";
 import ConnectionsTabsList from "./connections/ConnectionsTabsList";
+import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 
 const EnhancedConnections = () => {
   const {
@@ -22,21 +23,20 @@ const EnhancedConnections = () => {
     setShowSearch,
     showAnalytics,
     setShowAnalytics,
-    pendingRequests,
-    connectedPeople,
-    suggestedConnections,
     mockGroups,
     mockCampaigns,
     mockPeople,
     mockChampions,
-    handleAcceptConnection,
-    handleDeclineConnection,
-    handleSendRequest,
     getTrustScoreColor,
-    isLoading,
   } = useEnhancedConnections();
 
-  if (isLoading) {
+  const { 
+    pendingRequests, 
+    acceptedConnections, 
+    loading: connectionRequestsLoading 
+  } = useConnectionRequests();
+
+  if (connectionRequestsLoading) {
     return (
       <div className="space-y-6">
         <div className="text-center py-12">
@@ -61,8 +61,8 @@ const EnhancedConnections = () => {
         setShowSearch={setShowSearch}
         showAnalytics={showAnalytics}
         setShowAnalytics={setShowAnalytics}
-        connectedPeople={connectedPeople}
-        suggestedConnections={suggestedConnections}
+        connectedPeople={acceptedConnections}
+        suggestedConnections={[]}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -70,7 +70,7 @@ const EnhancedConnections = () => {
 
         <TabsContent value="overview" className="space-y-6">
           <ConnectionStats
-            totalConnections={connectedPeople.length}
+            totalConnections={acceptedConnections.length}
             pendingRequests={pendingRequests.length}
             groupsJoined={0}
             campaignsActive={0}
@@ -78,17 +78,12 @@ const EnhancedConnections = () => {
           />
 
           <DatabaseConnectionInsights
-            connectedPeople={connectedPeople}
-            suggestedConnections={suggestedConnections}
+            connectedPeople={acceptedConnections}
+            suggestedConnections={[]}
           />
 
           {pendingRequests.length > 0 && (
-            <PendingRequests
-              pendingRequests={pendingRequests}
-              onAccept={handleAcceptConnection}
-              onDecline={handleDeclineConnection}
-              getTrustScoreColor={getTrustScoreColor}
-            />
+            <PendingRequests getTrustScoreColor={getTrustScoreColor} />
           )}
 
           {mockPeople.peopleYouMayKnow.length > 0 && (
@@ -102,24 +97,12 @@ const EnhancedConnections = () => {
 
         <TabsContent value="connections" className="space-y-6">
           {pendingRequests.length > 0 && (
-            <PendingRequests
-              pendingRequests={pendingRequests}
-              onAccept={handleAcceptConnection}
-              onDecline={handleDeclineConnection}
-              getTrustScoreColor={getTrustScoreColor}
-            />
+            <PendingRequests getTrustScoreColor={getTrustScoreColor} />
           )}
 
-          <ConnectedPeople
-            connectedPeople={connectedPeople}
-            getTrustScoreColor={getTrustScoreColor}
-          />
+          <ConnectedPeople getTrustScoreColor={getTrustScoreColor} />
 
-          <SuggestedConnections
-            suggestedConnections={suggestedConnections}
-            onSendRequest={handleSendRequest}
-            getTrustScoreColor={getTrustScoreColor}
-          />
+          <SuggestedConnections getTrustScoreColor={getTrustScoreColor} />
         </TabsContent>
 
         <TabsContent value="groups" className="space-y-6">
@@ -140,11 +123,7 @@ const EnhancedConnections = () => {
         </TabsContent>
 
         <TabsContent value="discover" className="space-y-6">
-          <SuggestedConnections
-            suggestedConnections={suggestedConnections}
-            onSendRequest={handleSendRequest}
-            getTrustScoreColor={getTrustScoreColor}
-          />
+          <SuggestedConnections getTrustScoreColor={getTrustScoreColor} />
         </TabsContent>
 
         <TabsContent value="champions" className="space-y-6">
