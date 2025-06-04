@@ -15,6 +15,7 @@ import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
 import MobileNotificationItem from "./MobileNotificationItem";
 import MobileNotificationFilters from "./MobileNotificationFilters";
 import MobileNotificationSearch from "./MobileNotificationSearch";
+import { MobileNotificationProps } from "@/types/notifications";
 
 const MobileNotifications = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,10 +31,26 @@ const MobileNotifications = () => {
     filterNotifications
   } = useRealTimeNotifications();
 
-  const filteredNotifications = filterNotifications(activeFilter).filter((notification) =>
-    notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    notification.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Convert notifications to mobile format
+  const convertToMobileFormat = (notification: any): MobileNotificationProps => ({
+    id: notification.id,
+    type: notification.type,
+    title: notification.title,
+    message: notification.message,
+    timestamp: notification.timestamp || notification.created_at,
+    created_at: notification.created_at,
+    isRead: notification.isRead || notification.is_read,
+    is_read: notification.is_read || notification.isRead,
+    actionUrl: notification.actionUrl,
+    metadata: notification.metadata
+  });
+
+  const filteredNotifications = filterNotifications(activeFilter)
+    .map(convertToMobileFormat)
+    .filter((notification) =>
+      notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      notification.message.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   const getFilterCounts = () => {
     return {

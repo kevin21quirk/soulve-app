@@ -19,6 +19,7 @@ import NotificationSettings from "./NotificationSettings";
 import ActivityExport from "./ActivityExport";
 import AdvancedNotificationFilters from "./AdvancedNotificationFilters";
 import OfflineNotificationStatus from "./OfflineNotificationStatus";
+import { UnifiedNotification } from "@/types/notifications";
 
 interface EnhancedNotificationCenterProps {
   isOpen: boolean;
@@ -45,20 +46,6 @@ interface AdvancedFilters {
     minComments: number;
     minShares: number;
   };
-}
-
-// Unified notification interface for display
-interface UnifiedNotification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-  is_read: boolean;
-  created_at?: string;
-  timestamp?: string;
-  metadata?: any;
-  sender_id?: string;
 }
 
 const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCenterProps) => {
