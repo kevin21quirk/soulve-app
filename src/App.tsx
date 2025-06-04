@@ -1,5 +1,6 @@
+
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QueryProvider } from "./contexts/QueryContext";
@@ -54,35 +55,33 @@ function App() {
 
   return (
     <MobileGestureProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <QueryProvider>
-            <div className="min-h-screen bg-white">
-              <Toaster />
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile/:userId" element={<ProfilePage />} />
-                <Route
-                  path="/mobile"
-                  element={
-                    <>
-                      {renderMobileContent()}
-                      <MobileNavigation
-                        activeTab={activeTab}
-                        onTabChange={setActiveTab}
-                      />
-                    </>
-                  }
-                />
-              </Routes>
-              
-              {/* Mobile Install Prompt */}
-              <MobileInstallPrompt />
-            </div>
-          </QueryProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <AuthProvider>
+        <QueryProvider>
+          <div className="min-h-screen bg-white">
+            <Toaster />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route
+                path="/mobile"
+                element={
+                  <>
+                    {renderMobileContent()}
+                    <MobileNavigation
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                    />
+                  </>
+                }
+              />
+            </Routes>
+            
+            {/* Mobile Install Prompt */}
+            <MobileInstallPrompt />
+          </div>
+        </QueryProvider>
+      </AuthProvider>
     </MobileGestureProvider>
   );
 }
