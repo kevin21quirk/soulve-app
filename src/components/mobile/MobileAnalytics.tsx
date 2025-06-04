@@ -13,15 +13,21 @@ const MobileAnalytics = () => {
     <div className="bg-white min-h-screen">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+            <TabsTrigger 
+              value="analytics" 
+              className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
               <BarChart3 className="h-4 w-4" />
               <span>Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="points" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="points" 
+              className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
               <Trophy className="h-4 w-4" />
               <span>Points</span>
-              <Badge variant="secondary" className="ml-1 text-xs">
+              <Badge className="ml-1 text-xs bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none">
                 Level 5
               </Badge>
             </TabsTrigger>
