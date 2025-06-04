@@ -35,7 +35,7 @@ export const useRealSocialFeed = () => {
     try {
       console.log('useRealSocialFeed - Fetching posts and campaigns...');
       
-      // Fetch both posts and campaigns
+      // Fetch both posts and campaigns with explicit status filtering
       const [postsResult, campaignsResult] = await Promise.all([
         supabase
           .from('posts')
@@ -139,21 +139,20 @@ export const useRealSocialFeed = () => {
           avatarUrl = profile.avatar_url || '';
         }
 
-        // Safely handle gallery_images which might be Json array or string
+        // Handle gallery_images properly
         let mediaUrls: string[] = [];
         if (campaign.gallery_images) {
           if (Array.isArray(campaign.gallery_images)) {
-            // Handle array of Json values - convert to strings
-            mediaUrls = campaign.gallery_images.map((item: any) => 
-              typeof item === 'string' ? item : String(item)
-            ).filter((url: string) => typeof url === 'string' && url.length > 0);
+            mediaUrls = campaign.gallery_images
+              .map((item: any) => typeof item === 'string' ? item : String(item))
+              .filter((url: string) => typeof url === 'string' && url.length > 0);
           } else if (typeof campaign.gallery_images === 'string') {
             try {
               const parsed = JSON.parse(campaign.gallery_images);
               if (Array.isArray(parsed)) {
-                mediaUrls = parsed.map((item: any) => 
-                  typeof item === 'string' ? item : String(item)
-                ).filter((url: string) => typeof url === 'string' && url.length > 0);
+                mediaUrls = parsed
+                  .map((item: any) => typeof item === 'string' ? item : String(item))
+                  .filter((url: string) => typeof url === 'string' && url.length > 0);
               }
             } catch {
               mediaUrls = [];
@@ -162,13 +161,13 @@ export const useRealSocialFeed = () => {
         }
 
         return {
-          id: campaign.id,
+          id: `campaign_${campaign.id}`,
           title: campaign.title,
           content: `${campaign.description}\n\nGoal: $${campaign.goal_amount || 0}\nCurrent: $${campaign.current_amount || 0}`,
           author_id: campaign.creator_id,
           author_name: authorName,
           author_avatar: avatarUrl,
-          category: 'fundraising', // Mark campaigns as fundraising posts
+          category: 'fundraising',
           urgency: campaign.urgency || 'medium',
           location: campaign.location,
           tags: campaign.tags || [],
@@ -188,7 +187,9 @@ export const useRealSocialFeed = () => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
 
-      console.log('useRealSocialFeed - Combined posts:', allPosts);
+      console.log('useRealSocialFeed - Final combined posts:', allPosts);
+      console.log('useRealSocialFeed - Campaigns in feed:', transformedCampaigns.length);
+      
       setPosts(allPosts);
     } catch (error: any) {
       console.error('useRealSocialFeed - Error fetching posts:', error);
@@ -215,6 +216,9 @@ export const useRealSocialFeed = () => {
     try {
       console.log('useRealSocialFeed - Liking post:', postId);
       
+      // Extract actual post ID if it's a campaign
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -225,7 +229,7 @@ export const useRealSocialFeed = () => {
       const { error } = await supabase
         .from('post_interactions')
         .insert({
-          post_id: postId,
+          post_id: actualPostId,
           user_id: user.id,
           interaction_type: 'like'
         });
@@ -258,6 +262,9 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
+      // Extract actual post ID if it's a campaign
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -268,7 +275,7 @@ export const useRealSocialFeed = () => {
       const { error } = await supabase
         .from('post_interactions')
         .insert({
-          post_id: postId,
+          post_id: actualPostId,
           user_id: user.id,
           interaction_type: 'bookmark'
         });
@@ -301,6 +308,9 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
+      // Extract actual post ID if it's a campaign
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -311,7 +321,7 @@ export const useRealSocialFeed = () => {
       const { error } = await supabase
         .from('post_interactions')
         .insert({
-          post_id: postId,
+          post_id: actualPostId,
           user_id: user.id,
           interaction_type: 'share'
         });
@@ -344,6 +354,9 @@ export const useRealSocialFeed = () => {
     if (!user || !content.trim()) return;
 
     try {
+      // Extract actual post ID if it's a campaign
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -354,7 +367,7 @@ export const useRealSocialFeed = () => {
       const { error } = await supabase
         .from('post_interactions')
         .insert({
-          post_id: postId,
+          post_id: actualPostId,
           user_id: user.id,
           interaction_type: 'comment',
           content: content.trim()
