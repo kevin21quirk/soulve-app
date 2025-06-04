@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { createCampaign } from '@/services/campaignService';
+import { createCampaign, CampaignFormData } from '@/services/campaignService';
 import { useAuth } from '@/contexts/AuthContext';
 import AutoCampaignPublisher from './AutoCampaignPublisher';
 import CampaignFormFields from './CampaignFormFields';
@@ -14,19 +14,19 @@ const EnhancedCampaignBuilder = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdCampaign, setCreatedCampaign] = useState(null);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CampaignFormData>({
     title: '',
     description: '',
     story: '',
-    category: 'fundraising',
-    organization_type: 'individual',
-    goal_type: 'monetary',
+    category: 'fundraising' as const,
+    organization_type: 'individual' as const,
+    goal_type: 'monetary' as const,
     goal_amount: 0,
     currency: 'USD',
     end_date: '',
     location: '',
-    urgency: 'medium',
-    visibility: 'public',
+    urgency: 'medium' as const,
+    visibility: 'public' as const,
     allow_anonymous_donations: true,
     enable_comments: true,
     enable_updates: true,
@@ -38,7 +38,7 @@ const EnhancedCampaignBuilder = () => {
     promotion_budget: 0
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -79,15 +79,15 @@ const EnhancedCampaignBuilder = () => {
         title: '',
         description: '',
         story: '',
-        category: 'fundraising',
-        organization_type: 'individual',
-        goal_type: 'monetary',
+        category: 'fundraising' as const,
+        organization_type: 'individual' as const,
+        goal_type: 'monetary' as const,
         goal_amount: 0,
         currency: 'USD',
         end_date: '',
         location: '',
-        urgency: 'medium',
-        visibility: 'public',
+        urgency: 'medium' as const,
+        visibility: 'public' as const,
         allow_anonymous_donations: true,
         enable_comments: true,
         enable_updates: true,

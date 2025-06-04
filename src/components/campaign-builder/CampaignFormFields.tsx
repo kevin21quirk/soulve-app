@@ -4,18 +4,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { CampaignFormData } from '@/services/campaignService';
 
 interface CampaignFormFieldsProps {
-  formData: any;
-  onFormDataChange: (data: any) => void;
+  formData: CampaignFormData;
+  onFormDataChange: (data: CampaignFormData) => void;
 }
 
 const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsProps) => {
-  const handleInputChange = (field: string, value: any) => {
-    onFormDataChange(prev => ({
-      ...prev,
+  const handleInputChange = (field: keyof CampaignFormData, value: any) => {
+    onFormDataChange({
+      ...formData,
       [field]: value
-    }));
+    });
   };
 
   return (
@@ -56,7 +57,7 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="category">Category</Label>
-          <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+          <Select value={formData.category} onValueChange={(value: CampaignFormData['category']) => handleInputChange('category', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -73,7 +74,7 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
 
         <div>
           <Label htmlFor="urgency">Urgency</Label>
-          <Select value={formData.urgency} onValueChange={(value) => handleInputChange('urgency', value)}>
+          <Select value={formData.urgency} onValueChange={(value: CampaignFormData['urgency']) => handleInputChange('urgency', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select urgency" />
             </SelectTrigger>
