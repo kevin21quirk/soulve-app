@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +24,10 @@ import DonationTrendsChart from "./DonationTrendsChart";
 import DonorDemographicsChart from "./DonorDemographicsChart";
 import CampaignPerformanceMetrics from "./CampaignPerformanceMetrics";
 import { useToast } from "@/hooks/use-toast";
+import PerformanceInsightsPanel from "./PerformanceInsightsPanel";
+import GoalProgressVisualization from "./GoalProgressVisualization";
+import SocialShareButton from "../campaign-builder/SocialShareButton";
+import { DonationService } from "@/services/donationService";
 
 interface EnhancedCampaignAnalyticsProps {
   campaignId: string;
@@ -42,6 +45,7 @@ const EnhancedCampaignAnalytics = ({
   daysRemaining 
 }: EnhancedCampaignAnalyticsProps) => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [donationStats, setDonationStats] = useState<any>(null);
   const { toast } = useToast();
   
   const { 
@@ -50,6 +54,33 @@ const EnhancedCampaignAnalytics = ({
     error, 
     refetch 
   } = useCampaignAnalytics(campaignId);
+
+  // Load donation stats
+  React.useEffect(() => {
+    const loadDonationStats = async () => {
+      try {
+        const stats = await DonationService.getDonationStats(campaignId);
+        setDonationStats(stats);
+      } catch (error) {
+        console.error('Failed to load donation stats:', error);
+      }
+    };
+    
+    loadDonationStats();
+  }, [campaignId]);
+
+  // Mock campaign data for social sharing
+  const campaignForSharing = {
+    id: campaignId,
+    title: campaignTitle,
+    description: "Join us in making a difference!",
+    goal_amount: goalAmount,
+    current_amount: currentAmount || donationStats?.totalAmount,
+    category: 'community',
+    creator_id: 'current_user',
+    urgency: 'medium',
+    featured_image: null
+  };
 
   const handleExport = () => {
     toast({
@@ -60,8 +91,17 @@ const EnhancedCampaignAnalytics = ({
     console.log("Exporting analytics data:", analyticsData);
   };
 
-  const handleRefresh = () => {
-    refetch();
+  const handleRefresh = async () => {
+    await refetch();
+    
+    // Refresh donation stats
+    try {
+      const stats = await DonationService.getDonationStats(campaignId);
+      setDonationStats(stats);
+    } catch (error) {
+      console.error('Failed to refresh donation stats:', error);
+    }
+    
     toast({
       title: "Data Refreshed",
       description: "Analytics data has been updated with the latest information.",
@@ -126,6 +166,12 @@ const EnhancedCampaignAnalytics = ({
     );
   }
 
+  const enhancedAnalytics = {
+    ...analyticsData.analytics,
+    donationAmount: donationStats?.totalAmount || analyticsData.analytics.donationAmount,
+    totalDonations: donationStats?.donorCount || analyticsData.analytics.totalDonations
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -135,6 +181,10 @@ const EnhancedCampaignAnalytics = ({
           <p className="text-gray-600">Comprehensive insights and performance metrics</p>
         </div>
         <div className="flex space-x-2">
+          <SocialShareButton 
+            campaign={campaignForSharing}
+            variant="outline"
+          />
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -155,8 +205,13 @@ const EnhancedCampaignAnalytics = ({
               <div>
                 <div className="text-sm text-gray-600">Total Raised</div>
                 <div className="text-xl font-bold">
-                  ${analyticsData.analytics.donationAmount.toLocaleString()}
+                  ${enhancedAnalytics.donationAmount.toLocaleString()}
                 </div>
+                {donationStats && (
+                  <div className="text-xs text-gray-500">
+                    Avg: ${Math.round(donationStats.averageDonation).toLocaleString()}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -206,6 +261,10 @@ const EnhancedCampaignAnalytics = ({
             <Target className="h-4 w-4" />
             <span>Overview</span>
           </TabsTrigger>
+          <TabsTrigger value="progress" className="flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4" />
+            <span>Progress</span>
+          </TabsTrigger>
           <TabsTrigger value="performance" className="flex items-center space-x-2">
             <BarChart3 className="h-4 w-4" />
             <span>Performance</span>
@@ -218,10 +277,6 @@ const EnhancedCampaignAnalytics = ({
             <PieChart className="h-4 w-4" />
             <span>Demographics</span>
           </TabsTrigger>
-          <TabsTrigger value="donors" className="flex items-center space-x-2">
-            <Users className="h-4 w-4" />
-            <span>Donor Journey</span>
-          </TabsTrigger>
           <TabsTrigger value="predictions" className="flex items-center space-x-2">
             <TrendingUp className="h-4 w-4" />
             <span>Predictions</span>
@@ -229,17 +284,37 @@ const EnhancedCampaignAnalytics = ({
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <RealTimeMetricsCard analytics={analyticsData.analytics} />
+          <RealTimeMetricsCard analytics={enhancedAnalytics} />
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-6">
+          <GoalProgressVisualization
+            campaignId={campaignId}
+            goalAmount={goalAmount || 10000}
+            currentAmount={enhancedAnalytics.donationAmount}
+            goalType="monetary"
+            daysRemaining={daysRemaining}
+            totalDays={30}
+            recentDonations={donationStats?.recentDonations}
+          />
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
-          <CampaignPerformanceMetrics 
-            analytics={analyticsData.analytics}
-            goalAmount={goalAmount}
-            currentAmount={currentAmount}
-            daysRemaining={daysRemaining}
-            performanceScore={analyticsData.performanceScore}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CampaignPerformanceMetrics 
+              analytics={enhancedAnalytics}
+              goalAmount={goalAmount}
+              currentAmount={enhancedAnalytics.donationAmount}
+              daysRemaining={daysRemaining}
+              performanceScore={analyticsData.performanceScore}
+            />
+            <PerformanceInsightsPanel
+              campaignId={campaignId}
+              analytics={enhancedAnalytics}
+              goalAmount={goalAmount}
+              daysRemaining={daysRemaining}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-6">
