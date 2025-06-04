@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, Bookmark, Send, Users, Plus } from "lucide-react";
 import { FeedPost } from "@/types/feed";
@@ -26,6 +27,7 @@ const EnhancedPostReactions = ({
 
   const handleReactionSelect = (emoji: string) => {
     toggleReaction(emoji);
+    // Also call the parent callback for any additional handling
     onReaction(post.id, emoji);
   };
 

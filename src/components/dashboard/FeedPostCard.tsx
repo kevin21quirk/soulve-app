@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +59,13 @@ const FeedPostCard = ({
       "low": "bg-green-500 text-white",
     };
     return colors[urgency as keyof typeof colors] || "bg-gray-500 text-white";
+  };
+
+  const handleReactionCallback = (postId: string, reactionType: string) => {
+    // Ensure the callback is properly passed through
+    if (onReaction) {
+      onReaction(postId, reactionType);
+    }
   };
 
   return (
@@ -149,7 +155,7 @@ const FeedPostCard = ({
             onShare={onShare}
             onRespond={() => setShowComments(!showComments)}
             onBookmark={onBookmark}
-            onReaction={onReaction}
+            onReaction={handleReactionCallback}
           />
 
           {/* Comments Section */}

@@ -29,7 +29,11 @@ export const usePostReactions = (postId: string) => {
       const { data: reactionCounts, error: countsError } = await supabase
         .rpc('get_post_reaction_counts', { target_post_id: postId });
 
-      if (countsError) throw countsError;
+      if (countsError) {
+        console.error('Error fetching reaction counts:', countsError);
+        setReactions([]);
+        return;
+      }
 
       // Get detailed user information for each reaction type
       const reactionsWithUsers: ReactionData[] = [];
@@ -39,7 +43,11 @@ export const usePostReactions = (postId: string) => {
           .from('post_reactions')
           .select(`
             user_id,
-            profiles!inner(first_name, last_name, avatar_url)
+            profiles:user_id (
+              first_name,
+              last_name,
+              avatar_url
+            )
           `)
           .eq('post_id', postId)
           .eq('reaction_type', reaction.reaction_type);
@@ -57,11 +65,10 @@ export const usePostReactions = (postId: string) => {
         }
 
         const users = reactionUsers?.map(r => {
-          // Safely access profile data
           const profile = r.profiles as any;
           return {
             id: r.user_id,
-            name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Anonymous',
+            name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous',
             avatar: profile?.avatar_url || undefined
           };
         }) || [];
@@ -77,18 +84,17 @@ export const usePostReactions = (postId: string) => {
       setReactions(reactionsWithUsers);
     } catch (error) {
       console.error('Error fetching reactions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load reactions",
-        variant: "destructive"
-      });
+      setReactions([]);
     } finally {
       setLoading(false);
     }
-  }, [postId, toast]);
+  }, [postId]);
 
   const toggleReaction = useCallback(async (emoji: string) => {
-    if (!user || !postId) return;
+    if (!user || !postId) {
+      console.warn('Cannot toggle reaction: missing user or postId');
+      return;
+    }
 
     try {
       const { data: result, error } = await supabase
