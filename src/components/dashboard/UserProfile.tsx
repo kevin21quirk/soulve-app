@@ -5,12 +5,12 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserProfileData } from "./UserProfileTypes";
 import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
-import ImpactFootprint from "./ImpactFootprint";
 import VerificationPanel from "./verification/VerificationPanel";
 import ProfileManagementTabs from "../profile/ProfileManagementTabs";
-import { mockTrustFootprint } from "@/data/mockTrustFootprint";
+import UserPostsTimeline from "./profile/UserPostsTimeline";
+import RealImpactJourney from "./profile/RealImpactJourney";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Settings } from "lucide-react";
+import { User, Settings, MessageSquare, TrendingUp } from "lucide-react";
 
 const UserProfile = () => {
   const { toast } = useToast();
@@ -77,7 +77,7 @@ const UserProfile = () => {
       )}
       
       <Tabs defaultValue="view" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 bg-gray-100">
           <TabsTrigger 
             value="view" 
             className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -96,23 +96,47 @@ const UserProfile = () => {
 
         <TabsContent value="view" className="space-y-6">
           <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
+              {/* Profile Information */}
               <UserProfileTabs
                 profileData={profileData}
                 onProfileUpdate={handleProfileUpdate}
                 onViewPointsDetails={handleViewPointsDetails}
               />
+              
+              {/* Profile Content Tabs */}
+              <Tabs defaultValue="posts" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+                  <TabsTrigger 
+                    value="posts"
+                    className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Posts & Updates
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="impact"
+                    className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                  >
+                    <TrendingUp className="h-4 w-4" />
+                    Impact Journey
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="posts" className="mt-6">
+                  <UserPostsTimeline />
+                </TabsContent>
+
+                <TabsContent value="impact" className="mt-6">
+                  <RealImpactJourney />
+                </TabsContent>
+              </Tabs>
             </div>
             
             <div className="space-y-6">
               <VerificationPanel />
             </div>
           </div>
-          
-          <ImpactFootprint 
-            activities={mockTrustFootprint.activities}
-            userName={profileData.name}
-          />
         </TabsContent>
 
         <TabsContent value="manage" className="space-y-6">
