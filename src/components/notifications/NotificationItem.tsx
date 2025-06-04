@@ -7,11 +7,13 @@ import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
   id: string;
-  type: "donation" | "campaign" | "message" | "social" | "system";
+  type: "donation" | "campaign" | "message" | "social" | "system" | string;
   title: string;
   message: string;
-  timestamp: string;
-  isRead: boolean;
+  timestamp?: string;
+  created_at?: string;
+  isRead?: boolean;
+  is_read?: boolean;
   actionUrl?: string;
   metadata?: {
     amount?: number;
@@ -73,8 +75,11 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
     }
   };
 
+  const isRead = notification.isRead || notification.is_read;
+  const timestamp = notification.timestamp || notification.created_at;
+
   return (
-    <div className={`p-4 hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}`}>
+    <div className={`p-4 hover:bg-gray-50 transition-colors ${!isRead ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}`}>
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0 mt-1">
           {getIcon()}
@@ -90,7 +95,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
                 <Badge className={`text-xs ${getBadgeColor()}`}>
                   {notification.type}
                 </Badge>
-                {!notification.isRead && (
+                {!isRead && (
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 )}
               </div>
@@ -99,13 +104,15 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
                 {formatMessage()}
               </p>
               
-              <p className="text-xs text-gray-400">
-                {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
-              </p>
+              {timestamp && (
+                <p className="text-xs text-gray-400">
+                  {formatDistanceToNow(new Date(timestamp), { addSuffix: true })}
+                </p>
+              )}
             </div>
             
             <div className="flex items-center space-x-1 ml-2">
-              {!notification.isRead && (
+              {!isRead && (
                 <Button
                   variant="ghost"
                   size="sm"

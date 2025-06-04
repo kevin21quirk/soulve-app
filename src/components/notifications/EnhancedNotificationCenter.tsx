@@ -68,7 +68,7 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
   const allNotifications = [
     ...onlineNotifications,
     ...offlineNotifications.notifications
-  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  ].sort((a, b) => new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime());
 
   const totalUnreadCount = onlineUnreadCount + offlineNotifications.unreadCount;
 
@@ -94,7 +94,7 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
     // Apply date range filter
     if (advancedFilters.dateRange.preset !== "all" && advancedFilters.dateRange.from) {
       filtered = filtered.filter(notification => {
-        const notificationDate = new Date(notification.timestamp);
+        const notificationDate = new Date(notification.created_at || notification.timestamp);
         const fromDate = advancedFilters.dateRange.from;
         const toDate = advancedFilters.dateRange.to || new Date();
         return fromDate && notificationDate >= fromDate && notificationDate <= toDate;
@@ -111,7 +111,7 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
     // Apply read status filter
     if (advancedFilters.readStatus !== "all") {
       filtered = filtered.filter(notification => 
-        advancedFilters.readStatus === "read" ? notification.isRead : !notification.isRead
+        advancedFilters.readStatus === "read" ? (notification.isRead || notification.is_read) : !(notification.isRead || notification.is_read)
       );
     }
 

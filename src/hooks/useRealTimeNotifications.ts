@@ -13,6 +13,8 @@ interface Notification {
   created_at: string;
   metadata?: any;
   sender_id?: string;
+  timestamp: string;
+  isRead: boolean;
 }
 
 export const useRealTimeNotifications = () => {
@@ -107,7 +109,7 @@ export const useRealTimeNotifications = () => {
     }
   }, []);
 
-  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'created_at'>) => {
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'created_at' | 'timestamp' | 'isRead'>) => {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
@@ -144,7 +146,6 @@ export const useRealTimeNotifications = () => {
         (payload) => {
           const newNotification = payload.new as any;
           addNotification({
-            id: newNotification.id,
             type: newNotification.type,
             title: newNotification.title,
             message: newNotification.message,

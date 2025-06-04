@@ -72,11 +72,7 @@ class PushNotificationService {
         badge: config.badge || '/favicon.ico',
         tag: config.tag,
         data: config.data,
-        requireInteraction: config.requireInteraction || false,
-        actions: [
-          { action: 'view', title: 'View' },
-          { action: 'dismiss', title: 'Dismiss' }
-        ]
+        requireInteraction: config.requireInteraction || false
       });
     } else {
       new Notification(config.title, {
