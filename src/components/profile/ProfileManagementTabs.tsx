@@ -18,12 +18,18 @@ const ProfileManagementTabs = ({ profileData, onProfileUpdate }: ProfileManageme
 
   return (
     <Tabs defaultValue="edit" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="edit" className="flex items-center gap-2">
+      <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+        <TabsTrigger 
+          value="edit" 
+          className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+        >
           <Edit className="h-4 w-4" />
           Edit Profile
         </TabsTrigger>
-        <TabsTrigger value="privacy" className="flex items-center gap-2">
+        <TabsTrigger 
+          value="privacy" 
+          className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+        >
           <Shield className="h-4 w-4" />
           Privacy
         </TabsTrigger>
@@ -42,7 +48,10 @@ const ProfileManagementTabs = ({ profileData, onProfileUpdate }: ProfileManageme
           onSettingsChange={setPrivacySettings}
         />
         <div className="flex justify-end">
-          <Button onClick={() => updatePrivacySettings(privacySettings)}>
+          <Button 
+            onClick={() => updatePrivacySettings(privacySettings)}
+            variant="gradient"
+          >
             <Settings className="h-4 w-4 mr-2" />
             Save Privacy Settings
           </Button>
