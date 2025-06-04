@@ -28,10 +28,9 @@ const MobileFeed = () => {
   useEffect(() => {
     const handleCampaignCreated = (event: CustomEvent) => {
       console.log('MobileFeed - Campaign created event received:', event.detail);
-      // Immediate refresh when campaign is created
       setTimeout(() => {
         refreshFeed();
-      }, 1000); // Small delay to ensure database is updated
+      }, 1000);
     };
 
     window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
@@ -51,7 +50,6 @@ const MobileFeed = () => {
     await refreshFeed();
   };
 
-  // Add proper reaction handler
   const handleReaction = (postId: string, reactionType: string) => {
     console.log('MobileFeed - Reaction handled:', postId, reactionType);
     // The reaction is already handled by usePostReactions hook

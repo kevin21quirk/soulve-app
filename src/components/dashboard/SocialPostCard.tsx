@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock } from 'lucide-react';
+import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
 import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
@@ -33,9 +33,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   };
 
   const handleReactionSelect = (emoji: string) => {
-    // Only call toggleReaction - this handles the database update
+    console.log('Reaction selected:', emoji, 'for post:', post.id);
     toggleReaction(emoji);
-    // Optional: call parent callback for additional tracking
     if (onReaction) {
       onReaction(post.id, emoji);
     }
@@ -70,6 +69,9 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
         return 'bg-gray-500';
     }
   };
+
+  // Quick reaction buttons (most common ones)
+  const quickReactions = ['👍', '❤️', '😂', '🔥'];
 
   return (
     <Card className="w-full">
@@ -160,7 +162,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
           </div>
         )}
 
-        {/* Enhanced Reactions Display */}
+        {/* Reaction Display */}
         {reactions.length > 0 && (
           <div className="mb-4">
             <ReactionDisplay
@@ -170,26 +172,50 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions - Modern Reaction System */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLike}
-              className={`flex items-center space-x-2 ${
-                post.isLiked ? 'text-red-600' : 'text-gray-600'
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
-              <span>{post.likes}</span>
-            </Button>
+          <div className="flex items-center space-x-2">
+            {/* Quick Reaction Buttons */}
+            {quickReactions.map((emoji) => {
+              const reaction = reactions.find(r => r.emoji === emoji);
+              const hasReacted = reaction?.userReacted || false;
+              const count = reaction?.count || 0;
+              
+              return (
+                <Button
+                  key={emoji}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleReactionSelect(emoji)}
+                  className={`flex items-center space-x-1 hover:scale-105 transition-all ${
+                    hasReacted ? 'bg-blue-100 border border-blue-300 text-blue-700' : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                  title={`React with ${emoji}`}
+                >
+                  <span className="text-base">{emoji}</span>
+                  {count > 0 && <span className="text-xs">{count}</span>}
+                </Button>
+              );
+            })}
+            
+            {/* More Reactions Picker */}
+            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-blue-600 hover:scale-105 transition-all"
+                title="More reactions"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                <span className="text-xs">React</span>
+              </Button>
+            </ModernReactionPicker>
             
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center space-x-2 text-gray-600"
+              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600"
             >
               <MessageCircle className="h-4 w-4" />
               <span>{post.responses}</span>
@@ -199,22 +225,11 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               variant="ghost"
               size="sm"
               onClick={onShare}
-              className="flex items-center space-x-2 text-gray-600"
+              className="flex items-center space-x-2 text-gray-600 hover:text-green-600"
             >
               <Share2 className="h-4 w-4" />
               <span>{post.shares}</span>
             </Button>
-
-            {/* Modern Reaction Picker */}
-            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-600 hover:text-blue-600"
-              >
-                React
-              </Button>
-            </ModernReactionPicker>
           </div>
           
           <Button
@@ -268,15 +283,6 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
                           <span className="text-xs text-gray-500">{comment.timestamp}</span>
                         </div>
                         <p className="text-sm text-gray-700">{comment.content}</p>
-                      </div>
-                      <div className="flex items-center space-x-4 mt-1">
-                        <Button variant="ghost" size="sm" className="text-xs text-gray-500 h-auto p-1">
-                          <Heart className="h-3 w-3 mr-1" />
-                          {comment.likes}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-xs text-gray-500 h-auto p-1">
-                          Reply
-                        </Button>
                       </div>
                     </div>
                   </div>

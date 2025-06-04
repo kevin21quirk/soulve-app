@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from "lucide-react";
+import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import { usePostReactions } from "@/hooks/usePostReactions";
 import ModernReactionPicker from "@/components/ui/modern-reaction-picker";
@@ -34,9 +34,8 @@ const MobileFeedPostCard = ({
   const { reactions, toggleReaction } = usePostReactions(post.id);
 
   const handleReactionSelect = (emoji: string) => {
-    // Only call toggleReaction - this handles the database update
+    console.log('Mobile reaction selected:', emoji, 'for post:', post.id);
     toggleReaction(emoji);
-    // Optional: call parent callback for additional tracking
     onReaction(emoji);
   };
 
@@ -145,17 +144,42 @@ const MobileFeedPostCard = ({
       <div className="px-4 py-3 border-t border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={onLike}
-              className={`h-8 px-2 ${
-                post.isLiked ? "text-red-600" : "text-gray-600"
-              }`}
-            >
-              <Heart className={`h-4 w-4 mr-1 ${post.isLiked ? "fill-current" : ""}`} />
-              <span className="text-xs">{post.likes}</span>
-            </Button>
+            {/* Quick Reaction Buttons */}
+            {quickReactions.map((emoji) => {
+              const reaction = reactions.find(r => r.emoji === emoji);
+              const hasReacted = reaction?.userReacted || false;
+              const count = reaction?.count || 0;
+              
+              return (
+                <Button
+                  key={emoji}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleReactionSelect(emoji)}
+                  className={`w-8 h-8 p-0 hover:scale-110 transition-all ${
+                    hasReacted ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'
+                  }`}
+                  title={`React with ${emoji} ${count > 0 ? `(${count})` : ''}`}
+                >
+                  <div className="flex flex-col items-center">
+                    <span className="text-base leading-none">{emoji}</span>
+                    {count > 0 && <span className="text-xs leading-none">{count}</span>}
+                  </div>
+                </Button>
+              );
+            })}
+            
+            {/* More Reactions */}
+            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-8 h-8 p-0 hover:scale-110 transition-all hover:bg-gray-100"
+                title="More reactions"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </ModernReactionPicker>
             
             <Button 
               variant="ghost" 
@@ -176,39 +200,6 @@ const MobileFeedPostCard = ({
               <Share2 className="h-4 w-4 mr-1" />
               <span className="text-xs">{post.shares}</span>
             </Button>
-
-            {/* Quick Reaction Buttons */}
-            <div className="flex items-center space-x-1 ml-2">
-              {quickReactions.map((emoji) => {
-                const reaction = reactions.find(r => r.emoji === emoji);
-                const hasReacted = reaction?.userReacted || false;
-                
-                return (
-                  <Button
-                    key={emoji}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleReactionSelect(emoji)}
-                    className={`w-7 h-7 p-0 hover:scale-110 transition-all ${
-                      hasReacted ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className="text-sm">{emoji}</span>
-                  </Button>
-                );
-              })}
-              
-              {/* More Reactions */}
-              <ModernReactionPicker onReactionSelect={handleReactionSelect}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-7 h-7 p-0 hover:scale-110 transition-all hover:bg-gray-100"
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </ModernReactionPicker>
-            </div>
           </div>
 
           <Button

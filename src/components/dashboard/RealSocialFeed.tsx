@@ -38,7 +38,6 @@ const RealSocialFeed = () => {
         },
         (payload) => {
           console.log('RealSocialFeed - Real-time post update:', payload);
-          // Immediate refresh when posts change
           refreshFeed();
         }
       )
@@ -55,7 +54,6 @@ const RealSocialFeed = () => {
         },
         (payload) => {
           console.log('RealSocialFeed - Real-time campaign update:', payload);
-          // Immediate refresh when campaigns change
           refreshFeed();
         }
       )
@@ -72,7 +70,6 @@ const RealSocialFeed = () => {
         },
         (payload) => {
           console.log('RealSocialFeed - Real-time interaction update:', payload);
-          // Refresh feed when interactions change
           refreshFeed();
         }
       )
@@ -90,7 +87,7 @@ const RealSocialFeed = () => {
         },
         (payload) => {
           console.log('RealSocialFeed - Real-time reaction update:', payload);
-          // Refresh feed when reactions change
+          // Immediate refresh when reactions change for better UX
           refreshFeed();
         }
       )
@@ -99,10 +96,9 @@ const RealSocialFeed = () => {
     // Listen for custom campaign creation events
     const handleCampaignCreated = (event: CustomEvent) => {
       console.log('RealSocialFeed - Campaign created event received:', event.detail);
-      // Immediate refresh when campaign is created
       setTimeout(() => {
         refreshFeed();
-      }, 1000); // Small delay to ensure database is updated
+      }, 1000);
     };
 
     window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
@@ -120,15 +116,13 @@ const RealSocialFeed = () => {
   const handlePostCreated = () => {
     console.log('RealSocialFeed - Post created, refreshing feed and closing create post');
     setShowCreatePost(false);
-    // Immediate refresh to show the new post
     refreshFeed();
   };
 
-  // Add proper reaction handler
   const handleReaction = (postId: string, reactionType: string) => {
     console.log('RealSocialFeed - Reaction handled:', postId, reactionType);
-    // The reaction is already handled by usePostReactions hook
-    // This is just for any additional tracking or logging
+    // The reaction is handled by usePostReactions hook
+    // This callback is for any additional tracking or analytics
   };
 
   if (loading && posts.length === 0) {
