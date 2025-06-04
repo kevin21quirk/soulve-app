@@ -33,7 +33,8 @@ export const useRealTimeActivity = () => {
           description,
           metadata,
           created_at,
-          user_id
+          user_id,
+          profiles!inner(first_name, last_name, avatar_url)
         `)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -44,11 +45,11 @@ export const useRealTimeActivity = () => {
         id: activity.id,
         type: activity.activity_type as any,
         user_id: activity.user_id,
-        user_name: 'Anonymous User', // Default since we don't have profile join
-        user_avatar: undefined,
-        content: activity.description || '',
+        user_name: `${activity.profiles.first_name || ''} ${activity.profiles.last_name || ''}`.trim(),
+        user_avatar: activity.profiles.avatar_url || undefined,
+        content: activity.description,
         timestamp: activity.created_at,
-        metadata: activity.metadata as Record<string, any> || {}
+        metadata: activity.metadata
       }));
 
       setActivities(transformedActivities);

@@ -31,7 +31,8 @@ export const useRealTimeComments = (postId: string) => {
           post_id,
           user_id,
           content,
-          created_at
+          created_at,
+          profiles!inner(first_name, last_name, avatar_url)
         `)
         .eq('post_id', postId)
         .eq('interaction_type', 'comment')
@@ -43,8 +44,8 @@ export const useRealTimeComments = (postId: string) => {
         id: comment.id,
         post_id: comment.post_id,
         user_id: comment.user_id,
-        user_name: 'Anonymous User', // Default since we don't have profile join
-        user_avatar: undefined,
+        user_name: `${comment.profiles.first_name || ''} ${comment.profiles.last_name || ''}`.trim(),
+        user_avatar: comment.profiles.avatar_url || undefined,
         content: comment.content || '',
         created_at: comment.created_at,
         likes_count: 0,
