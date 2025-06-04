@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FeedPost } from "@/types/feed";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useLazyLoading } from "@/hooks/usePerformanceOptimization";
@@ -56,10 +56,10 @@ const MobileFeedContent = ({
   });
 
   // Update displayed posts when posts change (from filtering)
-  useState(() => {
+  useEffect(() => {
     setDisplayedPosts(posts.slice(0, 5));
     setHasMore(posts.length > 5);
-  });
+  }, [posts]);
 
   if (isLoading && displayedPosts.length === 0) {
     return (

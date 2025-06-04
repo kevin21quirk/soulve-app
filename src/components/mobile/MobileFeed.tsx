@@ -27,7 +27,6 @@ const MobileFeed = () => {
   const handlePostCreated = () => {
     console.log('MobileFeed - Post created, refreshing feed');
     setIsCreatingPost(false);
-    // Immediate refresh to show the new post
     refreshFeed();
   };
 
