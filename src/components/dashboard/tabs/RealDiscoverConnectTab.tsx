@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Filter, Users, UserPlus, Globe, TrendingUp } from 'lucide-react';
+import { Search, Filter, Users, UserPlus, Globe, TrendingUp, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RealConnections } from '../RealConnections';
 import DiscoverPeople from '../discover/DiscoverPeople';
 import DiscoverGroups from '../discover/DiscoverGroups';
 import DiscoverCampaigns from '../discover/DiscoverCampaigns';
+import DiscoverContent from '../discover/DiscoverContent';
 import NetworkInsights from '../discover/NetworkInsights';
 
 const RealDiscoverConnectTab = () => {
@@ -17,6 +18,7 @@ const RealDiscoverConnectTab = () => {
   const filters = [
     { id: "all", label: "All", icon: Globe },
     { id: "people", label: "People", icon: Users },
+    { id: "content", label: "Content", icon: FileText },
     { id: "groups", label: "Groups", icon: Users },
     { id: "campaigns", label: "Campaigns", icon: TrendingUp },
     { id: "nearby", label: "Nearby", icon: UserPlus }
@@ -37,7 +39,7 @@ const RealDiscoverConnectTab = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search people, groups, campaigns..."
+              placeholder="Search people, posts, campaigns, groups..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -92,6 +94,10 @@ const RealDiscoverConnectTab = () => {
         <TabsContent value="discover" className="space-y-6">
           {(activeFilter === "all" || activeFilter === "people") && (
             <DiscoverPeople searchQuery={searchQuery} />
+          )}
+          
+          {(activeFilter === "all" || activeFilter === "content") && (
+            <DiscoverContent />
           )}
           
           {(activeFilter === "all" || activeFilter === "groups") && (
