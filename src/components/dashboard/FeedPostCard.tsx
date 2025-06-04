@@ -3,11 +3,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import PostReactions from "./PostReactions";
 import PostComments from "./PostComments";
+import PostActions from "./PostActions";
+import UserModerationMenu from "@/components/moderation/UserModerationMenu";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -19,6 +22,7 @@ interface FeedPostCardProps {
   onAddComment: (postId: string, content: string) => void;
   onLikeComment: (postId: string, commentId: string) => void;
   onCommentReaction?: (postId: string, commentId: string, reactionType: string) => void;
+  onPostDeleted?: () => void;
 }
 
 const FeedPostCard = ({ 
@@ -30,8 +34,10 @@ const FeedPostCard = ({
   onReaction,
   onAddComment,
   onLikeComment,
-  onCommentReaction 
+  onCommentReaction,
+  onPostDeleted
 }: FeedPostCardProps) => {
+  const { user } = useAuth();
   const [showComments, setShowComments] = useState(false);
 
   const getCategoryColor = (category: string) => {
@@ -95,9 +101,21 @@ const FeedPostCard = ({
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="p-1 h-6 w-6 flex-shrink-0 -mt-1">
-            <MoreHorizontal className="h-4 w-4 text-gray-500" />
-          </Button>
+          <div className="flex items-center space-x-1">
+            {user?.id !== post.id && (
+              <UserModerationMenu
+                userId={post.id}
+                userName={post.author}
+                postId={post.id}
+              />
+            )}
+            <PostActions
+              postId={post.id}
+              authorId={post.id}
+              onPostDeleted={onPostDeleted}
+              onReportPost={() => {/* Handle report post */}}
+            />
+          </div>
         </div>
       </CardHeader>
 

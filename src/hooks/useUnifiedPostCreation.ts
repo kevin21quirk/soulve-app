@@ -1,73 +1,78 @@
 
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { createUnifiedPost } from '@/services/unifiedPostService';
-
-export interface UnifiedPostData {
-  title?: string;
-  content: string;
-  category: string;
-  urgency?: string;
-  location?: string;
-  tags?: string[];
-  visibility?: string;
-  media_urls?: string[];
-}
+import { ContentModerationService } from '@/services/contentModerationService';
+import { useToast } from '@/hooks/use-toast';
 
 export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
-  const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const createPost = async (postData: UnifiedPostData) => {
-    console.log('useUnifiedPostCreation - Creating post with data:', postData);
-    
+  const createPost = async (postData: any) => {
     setIsCreating(true);
-
+    
     try {
-      if (!postData.content?.trim()) {
-        throw new Error('Post content is required');
+      // First, filter the content for moderation
+      const filterResult = await ContentModerationService.filterContent(
+        postData.description, 
+        postData.title
+      );
+
+      // If content is blocked, show error and don't create post
+      if (!filterResult.isAllowed) {
+        toast({
+          title: "Content Blocked",
+          description: `Your post was blocked: ${filterResult.reasons.join(', ')}. Please review our community guidelines and try again.`,
+          variant: "destructive"
+        });
+        return false;
       }
 
-      if (!postData.category?.trim()) {
-        throw new Error('Please select a category');
+      // If content is flagged but allowed, show warning
+      if (filterResult.autoAction === 'flag') {
+        toast({
+          title: "Content Flagged",
+          description: "Your post has been flagged for review but will be published. Our moderation team will review it shortly.",
+          variant: "default"
+        });
       }
 
-      console.log('useUnifiedPostCreation - Calling createUnifiedPost...');
-      const postId = await createUnifiedPost(postData);
-      console.log('useUnifiedPostCreation - Post created successfully with ID:', postId);
-
-      // Show success toast
-      toast({
-        title: "Post created successfully! ✨",
-        description: "Your post has been shared with the community.",
+      // Create the post
+      const postId = await createUnifiedPost({
+        title: postData.title,
+        content: postData.description,
+        category: postData.category,
+        urgency: postData.urgency || 'medium',
+        location: postData.location,
+        tags: postData.tags || [],
+        visibility: postData.visibility || 'public',
+        media_urls: postData.media_urls || []
       });
 
-      // Trigger the refresh callback immediately
-      if (onPostCreated) {
-        console.log('useUnifiedPostCreation - Triggering onPostCreated callback');
-        onPostCreated();
-      }
-
-      return { id: postId, success: true };
-    } catch (error: any) {
-      console.error('useUnifiedPostCreation - Error creating post:', error);
-      
-      let errorMessage = 'Failed to create post';
-      if (error.message.includes('category')) {
-        errorMessage = 'Please select a valid category';
-      } else if (error.message.includes('content')) {
-        errorMessage = 'Please add content to your post';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
+      // Show success message
       toast({
-        title: "Failed to create post",
-        description: errorMessage,
+        title: "Post Created!",
+        description: "Your post has been published successfully."
+      });
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+
+      // Call the callback
+      onPostCreated?.();
+
+      return postId;
+    } catch (error: any) {
+      console.error('Error creating post:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create post. Please try again.",
         variant: "destructive"
       });
-      
-      throw error;
+      return false;
     } finally {
       setIsCreating(false);
     }
