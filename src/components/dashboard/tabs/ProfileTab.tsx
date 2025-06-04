@@ -24,7 +24,7 @@ const ProfileTab = () => {
     setShowPointsDetails(true);
   };
 
-  // Check if current user is admin
+  // Check if current user is admin (Matthew Walker)
   const isAdmin = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
 
   // Show loading state while profile data is being fetched
@@ -38,6 +38,11 @@ const ProfileTab = () => {
       </div>
     );
   }
+
+  // Debug log to see what profile data we're getting
+  console.log("ProfileTab - Current user:", user);
+  console.log("ProfileTab - Profile data:", profileData);
+  console.log("ProfileTab - Is admin:", isAdmin);
 
   return (
     <div className="space-y-6">

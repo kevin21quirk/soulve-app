@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Send, Search, MoreVertical, Phone, Video } from "lucide-react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/services/realMessagingService";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 export const RealMessaging = () => {
   const { user } = useAuth();
@@ -17,10 +18,40 @@ export const RealMessaging = () => {
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: conversations = [], isLoading: conversationsLoading } = useConversations();
-  const { data: messages = [], isLoading: messagesLoading } = useMessages(selectedConversation || "");
+  const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
+  const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation || "");
   const sendMessage = useSendMessage();
   const markAsRead = useMarkAsRead();
+
+  // Enable real-time updates for messages
+  useEffect(() => {
+    console.log('RealMessaging - Setting up real-time message subscriptions');
+    
+    const messagesChannel = supabase
+      .channel('messages-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        (payload) => {
+          console.log('RealMessaging - Real-time message update:', payload);
+          // Refresh conversations and messages
+          refetchConversations();
+          if (selectedConversation) {
+            refetchMessages();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('RealMessaging - Cleaning up real-time message subscriptions');
+      supabase.removeChannel(messagesChannel);
+    };
+  }, [refetchConversations, refetchMessages, selectedConversation]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +107,7 @@ export const RealMessaging = () => {
       {/* Conversations List */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Messages</CardTitle>
+          <CardTitle className="text-lg">Messages (Real-time)</CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
@@ -170,7 +201,7 @@ export const RealMessaging = () => {
                         : 'Anonymous'
                       }
                     </h3>
-                    <p className="text-sm text-gray-500">Active now</p>
+                    <p className="text-sm text-gray-500">Active now (Real-time)</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">

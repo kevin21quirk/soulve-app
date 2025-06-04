@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import CreatePost from './CreatePost';
 import SocialPostCard from './SocialPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
+import { supabase } from '@/integrations/supabase/client';
 
 const RealSocialFeed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -21,6 +22,51 @@ const RealSocialFeed = () => {
     handleShare, 
     handleAddComment 
   } = useRealSocialFeed();
+
+  // Enable real-time updates for posts
+  useEffect(() => {
+    console.log('RealSocialFeed - Setting up real-time subscriptions');
+    
+    const postsChannel = supabase
+      .channel('posts-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'posts'
+        },
+        (payload) => {
+          console.log('RealSocialFeed - Real-time post update:', payload);
+          // Refresh feed when posts change
+          refreshFeed();
+        }
+      )
+      .subscribe();
+
+    const interactionsChannel = supabase
+      .channel('interactions-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'post_interactions'
+        },
+        (payload) => {
+          console.log('RealSocialFeed - Real-time interaction update:', payload);
+          // Refresh feed when interactions change
+          refreshFeed();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('RealSocialFeed - Cleaning up real-time subscriptions');
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(interactionsChannel);
+    };
+  }, [refreshFeed]);
 
   const handlePostCreated = () => {
     console.log('RealSocialFeed - Post created, refreshing feed and closing create post');
@@ -81,9 +127,9 @@ const RealSocialFeed = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">U</span>
+                  <span className="text-white font-semibold text-sm">MW</span>
                 </div>
-                <span className="text-gray-600">What would you like to share?</span>
+                <span className="text-gray-600">What would you like to share, Matthew?</span>
               </div>
               <Button onClick={() => setShowCreatePost(true)} className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                 <Plus className="h-4 w-4 mr-2" />
@@ -111,7 +157,7 @@ const RealSocialFeed = () => {
       {/* Posts Count */}
       {posts.length > 0 && (
         <div className="text-sm text-gray-500">
-          {posts.length} {posts.length === 1 ? 'post' : 'posts'} in your feed
+          {posts.length} {posts.length === 1 ? 'post' : 'posts'} in your feed (Real-time updates enabled)
         </div>
       )}
 

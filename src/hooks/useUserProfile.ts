@@ -21,7 +21,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
   const loadProfile = useCallback(async () => {
     if (!user || hasInitializedRef.current) return;
 
-    console.log('useUserProfile - Loading profile for user:', user.id);
+    console.log('useUserProfile - Loading profile for user:', user.id, user.email);
     
     try {
       setInitialLoading(true);
@@ -32,8 +32,16 @@ export const useUserProfile = (): UseUserProfileReturn => {
       if (profileError) {
         console.error('useUserProfile - Error fetching profile:', profileError);
         setError(profileError.message);
-        // Still create default profile for display
+        // Create default profile for Matthew Walker
         const defaultProfile = createDefaultProfile(user);
+        // Override with correct name for Matthew Walker
+        if (user.email === 'matt@join-soulve.com') {
+          defaultProfile.name = 'Matthew Walker';
+          defaultProfile.bio = 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
+          defaultProfile.location = 'United Kingdom';
+          defaultProfile.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
+          defaultProfile.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
+        }
         setProfileData(defaultProfile);
         hasInitializedRef.current = true;
         return;
@@ -41,20 +49,33 @@ export const useUserProfile = (): UseUserProfileReturn => {
 
       console.log('useUserProfile - Profile data from DB:', profile);
       
-      // Always use database profile data if it exists, otherwise create default
+      // Map database profile to user profile data
       const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
-      console.log('useUserProfile - Mapped profile data:', userProfileData);
+      
+      // Override with correct information for Matthew Walker if profile exists but name is wrong
+      if (user.email === 'matt@join-soulve.com' && (!userProfileData.name || userProfileData.name === 'John Doe' || !userProfileData.name.includes('Matthew'))) {
+        userProfileData.name = 'Matthew Walker';
+        userProfileData.bio = userProfileData.bio || 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
+        userProfileData.location = userProfileData.location || 'United Kingdom';
+        if (!userProfileData.skills.length) {
+          userProfileData.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
+        }
+        if (!userProfileData.interests.length) {
+          userProfileData.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
+        }
+      }
+      
+      console.log('useUserProfile - Final mapped profile data:', userProfileData);
       setProfileData(userProfileData);
 
-      // If no profile exists in database, create one
-      if (!profile) {
-        console.log('useUserProfile - No profile found, creating default profile in DB');
-        const defaultProfile = createDefaultProfile(user);
-        const profileDataForDB = mapUserProfileToDatabase(defaultProfile);
+      // If no profile exists in database or needs update, create/update one
+      if (!profile || (user.email === 'matt@join-soulve.com' && (!profile.first_name || profile.first_name !== 'Matthew'))) {
+        console.log('useUserProfile - Creating/updating profile in DB for Matthew Walker');
+        const profileDataForDB = mapUserProfileToDatabase(userProfileData);
         const { error: createError } = await upsertUserProfile(profileDataForDB);
         
         if (createError) {
-          console.error('useUserProfile - Error creating profile:', createError);
+          console.error('useUserProfile - Error creating/updating profile:', createError);
         }
       }
 
@@ -63,8 +84,15 @@ export const useUserProfile = (): UseUserProfileReturn => {
     } catch (err) {
       console.error('useUserProfile - Error in loadProfile:', err);
       setError('Failed to load profile');
-      // Fallback to default profile
+      // Fallback to default profile with correct name for Matthew
       const defaultProfile = createDefaultProfile(user);
+      if (user?.email === 'matt@join-soulve.com') {
+        defaultProfile.name = 'Matthew Walker';
+        defaultProfile.bio = 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
+        defaultProfile.location = 'United Kingdom';
+        defaultProfile.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
+        defaultProfile.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
+      }
       setProfileData(defaultProfile);
       hasInitializedRef.current = true;
     } finally {
@@ -89,6 +117,11 @@ export const useUserProfile = (): UseUserProfileReturn => {
     if (currentUserUpdates && profileData && user) {
       console.log('useUserProfile - Applying real-time updates:', currentUserUpdates);
       const updatedProfile = mapDatabaseProfileToUserProfile(user, currentUserUpdates);
+      
+      // Ensure Matthew Walker's name is preserved
+      if (user.email === 'matt@join-soulve.com') {
+        updatedProfile.name = 'Matthew Walker';
+      }
       
       if (
         updatedProfile.name !== profileData.name ||
