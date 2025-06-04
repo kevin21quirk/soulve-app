@@ -17,6 +17,9 @@ const ProfileDisplayMode = ({ profileData, onViewPointsDetails }: ProfileDisplay
       <UserProfileBanner
         banner={profileData.banner}
         bannerType={profileData.bannerType}
+        bannerFile={null}
+        onBannerUpload={() => {}}
+        onRemoveBanner={() => {}}
         isEditing={false}
       />
       
