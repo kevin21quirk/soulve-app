@@ -64,11 +64,15 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
 
   const offlineNotifications = useOfflineNotifications();
 
-  // Combine online and offline notifications
+  // Combine online and offline notifications with proper date handling
   const allNotifications = [
     ...onlineNotifications,
     ...offlineNotifications.notifications
-  ].sort((a, b) => new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime());
+  ].sort((a, b) => {
+    const aDate = new Date(a.created_at || a.timestamp || Date.now());
+    const bDate = new Date(b.created_at || b.timestamp || Date.now());
+    return bDate.getTime() - aDate.getTime();
+  });
 
   const totalUnreadCount = onlineUnreadCount + offlineNotifications.unreadCount;
 
@@ -91,10 +95,10 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
   const applyAdvancedFilters = (notifications: any[]) => {
     let filtered = [...notifications];
 
-    // Apply date range filter
+    // Apply date range filter with proper date handling
     if (advancedFilters.dateRange.preset !== "all" && advancedFilters.dateRange.from) {
       filtered = filtered.filter(notification => {
-        const notificationDate = new Date(notification.created_at || notification.timestamp);
+        const notificationDate = new Date(notification.created_at || notification.timestamp || Date.now());
         const fromDate = advancedFilters.dateRange.from;
         const toDate = advancedFilters.dateRange.to || new Date();
         return fromDate && notificationDate >= fromDate && notificationDate <= toDate;

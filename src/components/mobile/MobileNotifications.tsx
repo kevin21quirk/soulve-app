@@ -16,6 +16,9 @@ import MobileNotificationItem from "./MobileNotificationItem";
 import MobileNotificationFilters from "./MobileNotificationFilters";
 import MobileNotificationSearch from "./MobileNotificationSearch";
 
+// Use the notification type from the hook
+type NotificationFromHook = ReturnType<typeof useRealTimeNotifications>['notifications'][0];
+
 const MobileNotifications = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -30,7 +33,7 @@ const MobileNotifications = () => {
     filterNotifications
   } = useRealTimeNotifications();
 
-  const filteredNotifications = filterNotifications(activeFilter).filter(notification =>
+  const filteredNotifications = filterNotifications(activeFilter).filter((notification: NotificationFromHook) =>
     notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     notification.message.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -128,7 +131,7 @@ const MobileNotifications = () => {
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredNotifications.map((notification) => (
+            {filteredNotifications.map((notification: NotificationFromHook) => (
               <MobileNotificationItem
                 key={notification.id}
                 notification={notification}
