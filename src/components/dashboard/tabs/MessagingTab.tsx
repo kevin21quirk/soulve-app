@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useRealMessaging } from '@/hooks/useRealMessaging';
+import { useConversations, useMessages, useSendMessage } from '@/services/realMessagingService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,20 +13,15 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const MessagingTab = () => {
   const { user } = useAuth();
-  const { 
-    conversations, 
-    messages, 
-    loading, 
-    sendingMessage, 
-    fetchMessages, 
-    sendMessage 
-  } = useRealMessaging();
-  
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [searchUsers, setSearchUsers] = useState('');
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+
+  const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
+  const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation || "");
+  const sendMessage = useSendMessage();
 
   // Fetch available users for new conversations
   useEffect(() => {
@@ -50,7 +45,6 @@ const MessagingTab = () => {
   const handleConversationSelect = async (partnerId: string) => {
     setSelectedConversation(partnerId);
     setShowNewConversation(false);
-    await fetchMessages(partnerId);
   };
 
   const handleStartNewConversation = (userId: string) => {
@@ -61,8 +55,15 @@ const MessagingTab = () => {
   const handleSendMessage = async () => {
     if (!selectedConversation || !newMessage.trim()) return;
     
-    await sendMessage(selectedConversation, newMessage);
-    setNewMessage('');
+    try {
+      await sendMessage.mutateAsync({
+        recipientId: selectedConversation,
+        content: newMessage.trim()
+      });
+      setNewMessage('');
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -77,7 +78,7 @@ const MessagingTab = () => {
     return userName.toLowerCase().includes(searchUsers.toLowerCase());
   });
 
-  if (loading) {
+  if (conversationsLoading) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -88,8 +89,8 @@ const MessagingTab = () => {
   }
 
   if (selectedConversation) {
-    const conversation = conversations.find(c => c.user_id === selectedConversation);
-    const conversationMessages = messages[selectedConversation] || [];
+    const conversation = conversations.find(c => c.partner_id === selectedConversation);
+    const conversationMessages = messages || [];
 
     return (
       <Card className="h-[600px] flex flex-col">
@@ -103,12 +104,17 @@ const MessagingTab = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <Avatar className="h-8 w-8">
-              <AvatarImage src={conversation?.avatar_url} />
+              <AvatarImage src={conversation?.partner_profile?.avatar_url} />
               <AvatarFallback>
-                {conversation?.user_name?.charAt(0)?.toUpperCase() || '?'}
+                {conversation?.partner_profile?.first_name?.charAt(0)?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
-            <CardTitle className="text-lg">{conversation?.user_name || 'New Conversation'}</CardTitle>
+            <CardTitle className="text-lg">
+              {conversation?.partner_profile 
+                ? `${conversation.partner_profile.first_name || ''} ${conversation.partner_profile.last_name || ''}`.trim() || 'New Conversation'
+                : 'New Conversation'
+              }
+            </CardTitle>
           </div>
         </CardHeader>
         
@@ -149,7 +155,7 @@ const MessagingTab = () => {
             />
             <Button 
               onClick={handleSendMessage}
-              disabled={!newMessage.trim() || sendingMessage}
+              disabled={!newMessage.trim() || sendMessage.isPending}
               className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
             >
               <Send className="h-4 w-4" />
@@ -251,21 +257,24 @@ const MessagingTab = () => {
                 <div className="space-y-3">
                   {conversations.map((conversation) => (
                     <div
-                      key={conversation.user_id}
-                      onClick={() => handleConversationSelect(conversation.user_id)}
+                      key={conversation.partner_id}
+                      onClick={() => handleConversationSelect(conversation.partner_id)}
                       className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border"
                     >
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={conversation.avatar_url} />
+                        <AvatarImage src={conversation.partner_profile?.avatar_url} />
                         <AvatarFallback>
-                          {conversation.user_name?.charAt(0)?.toUpperCase() || '?'}
+                          {conversation.partner_profile?.first_name?.charAt(0)?.toUpperCase() || '?'}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-gray-900 truncate">
-                            {conversation.user_name}
+                            {conversation.partner_profile 
+                              ? `${conversation.partner_profile.first_name || ''} ${conversation.partner_profile.last_name || ''}`.trim() || 'Anonymous'
+                              : 'Anonymous'
+                            }
                           </h3>
                           {conversation.last_message_time && (
                             <span className="text-xs text-gray-500">
