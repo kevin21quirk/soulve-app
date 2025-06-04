@@ -1,5 +1,5 @@
 
-import { Search, Bell, Zap, Activity } from "lucide-react";
+import { Search, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotificationBadge from "@/components/notifications/NotificationBadge";
 import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
@@ -20,24 +20,18 @@ interface HeaderActionsProps {
 const HeaderActions = ({
   showSearch,
   setShowSearch,
-  showNotifications,
-  setShowNotifications,
   showShortcuts,
   setShowShortcuts,
   showActivity,
   setShowActivity,
-  unreadCount: propUnreadCount,
   onNotificationClick,
 }: HeaderActionsProps) => {
   // Use real-time notifications hook to get actual unread count
-  const { unreadCount: realTimeUnreadCount } = useRealTimeNotifications();
-  const finalUnreadCount = propUnreadCount ?? realTimeUnreadCount;
+  const { unreadCount } = useRealTimeNotifications();
 
   const handleNotificationClick = () => {
     if (onNotificationClick) {
       onNotificationClick();
-    } else {
-      setShowNotifications(!showNotifications);
     }
   };
 
@@ -53,7 +47,7 @@ const HeaderActions = ({
       </Button>
 
       <NotificationBadge 
-        count={finalUnreadCount}
+        count={unreadCount}
         onClick={handleNotificationClick}
       />
 

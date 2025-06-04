@@ -6,10 +6,12 @@ interface PushNotificationConfig {
   badge?: string;
   tag?: string;
   data?: any;
+  requireInteraction?: boolean;
 }
 
 class PushNotificationService {
   private registration: ServiceWorkerRegistration | null = null;
+  private vapidPublicKey = 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9L4J_oM6UgPqWSDKAVtjQ6Jk5AdNpDYvCE7Wj2Y3QiGfpHg8nAjk'; // Demo key
 
   async initialize() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -32,7 +34,8 @@ class PushNotificationService {
       return 'denied';
     }
 
-    return await Notification.requestPermission();
+    const permission = await Notification.requestPermission();
+    return permission;
   }
 
   async subscribeToPush() {
@@ -45,14 +48,17 @@ class PushNotificationService {
       throw new Error('Push notification permission denied');
     }
 
-    const subscription = await this.registration?.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: this.urlBase64ToUint8Array(
-        'your-vapid-public-key-here' // Replace with actual VAPID key
-      )
-    });
+    try {
+      const subscription = await this.registration?.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey)
+      });
 
-    return subscription;
+      return subscription;
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error);
+      throw error;
+    }
   }
 
   async showNotification(config: PushNotificationConfig) {
@@ -62,16 +68,20 @@ class PushNotificationService {
     if (this.registration) {
       await this.registration.showNotification(config.title, {
         body: config.body,
-        icon: config.icon || '/icon-192x192.png',
-        badge: config.badge || '/badge-72x72.png',
+        icon: config.icon || '/favicon.ico',
+        badge: config.badge || '/favicon.ico',
         tag: config.tag,
         data: config.data,
-        requireInteraction: true
+        requireInteraction: config.requireInteraction || false,
+        actions: [
+          { action: 'view', title: 'View' },
+          { action: 'dismiss', title: 'Dismiss' }
+        ]
       });
     } else {
       new Notification(config.title, {
         body: config.body,
-        icon: config.icon || '/icon-192x192.png',
+        icon: config.icon || '/favicon.ico',
         tag: config.tag,
         data: config.data
       });
@@ -94,11 +104,20 @@ class PushNotificationService {
   }
 
   isSupported(): boolean {
-    return 'serviceWorker' in navigator && 'PushManager' in window;
+    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   }
 
   getPermissionStatus(): NotificationPermission {
     return Notification.permission;
+  }
+
+  async unsubscribe() {
+    if (!this.registration) return;
+
+    const subscription = await this.registration.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
   }
 }
 

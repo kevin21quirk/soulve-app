@@ -1,110 +1,65 @@
 
-// Service Worker for Push Notifications
-const CACHE_NAME = 'soulve-notifications-v1';
-const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
-];
-
-// Install Service Worker
+// Service Worker for push notifications
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
+  console.log('Service Worker installed');
+  self.skipWaiting();
 });
 
-// Fetch events
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activated');
+  event.waitUntil(self.clients.claim());
 });
 
-// Push notification events
 self.addEventListener('push', (event) => {
-  let data = {};
+  console.log('Push event received:', event);
   
-  if (event.data) {
-    data = event.data.json();
+  if (!event.data) {
+    return;
   }
 
-  const title = data.title || 'SouLVE Notification';
+  const data = event.data.json();
   const options = {
-    body: data.body || 'You have a new notification',
-    icon: data.icon || '/icon-192x192.png',
-    badge: '/badge-72x72.png',
+    body: data.body || 'New notification from SouLVE',
+    icon: data.icon || '/favicon.ico',
+    badge: data.badge || '/favicon.ico',
     tag: data.tag || 'default',
     data: data.data || {},
-    actions: data.actions || [
-      {
-        action: 'view',
-        title: 'View',
-        icon: '/icon-192x192.png'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss',
-        icon: '/icon-192x192.png'
-      }
-    ],
-    requireInteraction: true,
-    vibrate: [200, 100, 200]
+    requireInteraction: data.requireInteraction || false,
+    actions: [
+      { action: 'view', title: 'View' },
+      { action: 'dismiss', title: 'Dismiss' }
+    ]
   };
 
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    self.registration.showNotification(data.title || 'SouLVE Notification', options)
   );
 });
 
-// Notification click events
 self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+  
   event.notification.close();
-
+  
   if (event.action === 'view' || !event.action) {
-    // Open the app
     event.waitUntil(
-      clients.openWindow('/')
-    );
-  } else if (event.action === 'dismiss') {
-    // Just close the notification
-    return;
-  }
-});
-
-// Background sync for offline notifications
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-notifications') {
-    event.waitUntil(syncNotifications());
-  }
-});
-
-async function syncNotifications() {
-  try {
-    // Sync offline notifications with server
-    const response = await fetch('/api/notifications/sync', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        timestamp: new Date().toISOString()
+      self.clients.matchAll({ type: 'window' }).then((clientList) => {
+        // If there's already a window/tab open, focus it
+        for (const client of clientList) {
+          if (client.url === self.location.origin && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If no window/tab is open, open a new one
+        if (self.clients.openWindow) {
+          return self.clients.openWindow('/');
+        }
       })
-    });
-    
-    if (response.ok) {
-      console.log('Notifications synced successfully');
-    }
-  } catch (error) {
-    console.error('Failed to sync notifications:', error);
+    );
   }
-}
+});
+
+self.addEventListener('notificationclose', (event) => {
+  console.log('Notification closed:', event);
+  // Optional: Track notification dismissals
+});
