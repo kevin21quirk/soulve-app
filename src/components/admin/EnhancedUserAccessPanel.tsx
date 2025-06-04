@@ -15,7 +15,7 @@ interface UserProfile {
   first_name?: string;
   last_name?: string;
   avatar_url?: string;
-  waitlist_status: 'pending' | 'approved' | 'rejected';
+  waitlist_status: 'pending' | 'approved' | 'denied'; // Changed to match database
   created_at: string;
   approved_at?: string;
   waitlist_approved_by?: string;
@@ -89,7 +89,7 @@ const EnhancedUserAccessPanel = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          waitlist_status: 'rejected'
+          waitlist_status: 'denied' // Changed to match database
         })
         .eq('id', userId);
 
@@ -156,14 +156,14 @@ const EnhancedUserAccessPanel = () => {
     all: users.length,
     pending: users.filter(u => u.waitlist_status === 'pending').length,
     approved: users.filter(u => u.waitlist_status === 'approved').length,
-    rejected: users.filter(u => u.waitlist_status === 'rejected').length
+    denied: users.filter(u => u.waitlist_status === 'denied').length // Changed to match database
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
         return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>;
-      case 'rejected':
+      case 'denied': // Changed to match database
         return <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>;
       default:
         return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
@@ -238,9 +238,9 @@ const EnhancedUserAccessPanel = () => {
               <UserCheck className="h-4 w-4" />
               Approved ({userCounts.approved})
             </TabsTrigger>
-            <TabsTrigger value="rejected" className="flex items-center gap-2">
+            <TabsTrigger value="denied" className="flex items-center gap-2">
               <UserX className="h-4 w-4" />
-              Rejected ({userCounts.rejected})
+              Rejected ({userCounts.denied})
             </TabsTrigger>
           </TabsList>
 
