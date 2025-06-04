@@ -39,6 +39,18 @@ const MobileFeedPostCard = ({
     onReaction(emoji);
   };
 
+  const handleShare = () => {
+    // Create a custom event with the post data for Facebook-style sharing
+    const shareEvent = new CustomEvent('sharePost', {
+      detail: {
+        originalPost: post,
+        type: 'share'
+      }
+    });
+    window.dispatchEvent(shareEvent);
+    onShare(); // Keep the original callback for any analytics
+  };
+
   const getCategoryColor = (category: string) => {
     const colors = {
       "help-needed": "bg-red-100 text-red-700 border-red-200",
@@ -144,7 +156,7 @@ const MobileFeedPostCard = ({
       <div className="px-4 py-3 border-t border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            {/* Quick Reaction Buttons */}
+            {/* Quick Reaction Buttons with reduced spacing */}
             {quickReactions.map((emoji) => {
               const reaction = reactions.find(r => r.emoji === emoji);
               const hasReacted = reaction?.userReacted || false;
@@ -194,7 +206,7 @@ const MobileFeedPostCard = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={onShare}
+              onClick={handleShare}
               className="h-8 px-2 text-gray-600"
             >
               <Share2 className="h-4 w-4 mr-1" />

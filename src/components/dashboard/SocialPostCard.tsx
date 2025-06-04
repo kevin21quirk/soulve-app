@@ -10,6 +10,7 @@ import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
 import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
 import ReactionDisplay from '@/components/ui/reaction-display';
+import PostActions from './PostActions';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -18,9 +19,10 @@ interface SocialPostCardProps {
   onBookmark: () => void;
   onComment: (content: string) => void;
   onReaction?: (postId: string, reactionType: string) => void;
+  onPostDeleted?: () => void;
 }
 
-const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction }: SocialPostCardProps) => {
+const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const { reactions, toggleReaction } = usePostReactions(post.id);
@@ -38,6 +40,18 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     if (onReaction) {
       onReaction(post.id, emoji);
     }
+  };
+
+  const handleShare = () => {
+    // Create a custom event with the post data for Facebook-style sharing
+    const shareEvent = new CustomEvent('sharePost', {
+      detail: {
+        originalPost: post,
+        type: 'share'
+      }
+    });
+    window.dispatchEvent(shareEvent);
+    onShare(); // Keep the original callback for any analytics
   };
 
   const getCategoryColor = (category: string) => {
@@ -77,38 +91,47 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     <Card className="w-full">
       <CardContent className="p-6">
         {/* Header */}
-        <div className="flex items-center space-x-3 mb-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={post.avatar} />
-            <AvatarFallback>
-              {post.author.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-gray-900">{post.author}</h3>
-              <Badge variant="outline" className={getCategoryColor(post.category)}>
-                {post.category.replace('-', ' ')}
-              </Badge>
-            </div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3 flex-1">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={post.avatar} />
+              <AvatarFallback>
+                {post.author.split(' ').map(n => n[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
             
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3" />
-                <span>{post.timestamp}</span>
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-gray-900">{post.author}</h3>
+                <Badge variant="outline" className={getCategoryColor(post.category)}>
+                  {post.category.replace('-', ' ')}
+                </Badge>
               </div>
               
-              {post.location && (
+              <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{post.location}</span>
+                  <Clock className="h-3 w-3" />
+                  <span>{post.timestamp}</span>
                 </div>
-              )}
-              
-              <div className={`w-2 h-2 rounded-full ${getUrgencyColor(post.urgency)}`} title={`${post.urgency} priority`} />
+                
+                {post.location && (
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{post.location}</span>
+                  </div>
+                )}
+                
+                <div className={`w-2 h-2 rounded-full ${getUrgencyColor(post.urgency)}`} title={`${post.urgency} priority`} />
+              </div>
             </div>
           </div>
+
+          <PostActions
+            postId={post.id}
+            authorId={post.id}
+            onPostDeleted={onPostDeleted}
+            onReportPost={() => {}}
+          />
         </div>
 
         {/* Content */}
@@ -174,8 +197,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
 
         {/* Actions - Modern Reaction System */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-2">
-            {/* Quick Reaction Buttons */}
+          <div className="flex items-center space-x-1">
+            {/* Quick Reaction Buttons with reduced spacing */}
             {quickReactions.map((emoji) => {
               const reaction = reactions.find(r => r.emoji === emoji);
               const hasReacted = reaction?.userReacted || false;
@@ -187,13 +210,13 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
                   variant="ghost"
                   size="sm"
                   onClick={() => handleReactionSelect(emoji)}
-                  className={`flex items-center space-x-1 hover:scale-105 transition-all ${
+                  className={`flex items-center space-x-1 hover:scale-105 transition-all px-2 ${
                     hasReacted ? 'bg-blue-100 border border-blue-300 text-blue-700' : 'text-gray-600 hover:text-blue-600'
                   }`}
                   title={`React with ${emoji}`}
                 >
                   <span className="text-base">{emoji}</span>
-                  {count > 0 && <span className="text-xs">{count}</span>}
+                  {count > 0 && <span className="text-xs ml-1">{count}</span>}
                 </Button>
               );
             })}
@@ -203,7 +226,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-blue-600 hover:scale-105 transition-all"
+                className="text-gray-600 hover:text-blue-600 hover:scale-105 transition-all px-2"
                 title="More reactions"
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -215,7 +238,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600"
+              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 px-2"
             >
               <MessageCircle className="h-4 w-4" />
               <span>{post.responses}</span>
@@ -224,8 +247,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             <Button
               variant="ghost"
               size="sm"
-              onClick={onShare}
-              className="flex items-center space-x-2 text-gray-600 hover:text-green-600"
+              onClick={handleShare}
+              className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-2"
             >
               <Share2 className="h-4 w-4" />
               <span>{post.shares}</span>

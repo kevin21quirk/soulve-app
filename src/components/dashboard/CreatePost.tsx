@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const { createPost, isCreating } = useUnifiedPostCreation(onPostCreated);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [sharedPost, setSharedPost] = useState<any>(null);
 
   const handlePostSubmit = async (data: any) => {
     console.log('CreatePost - Handling post submission:', data);
@@ -27,10 +28,26 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       
       setIsExpanded(false);
       setShowModal(false);
+      setSharedPost(null); // Clear shared post after creating
     } catch (error) {
       console.error('CreatePost - Failed to create post:', error);
     }
   };
+
+  // Listen for share events
+  useEffect(() => {
+    const handleShareEvent = (event: CustomEvent) => {
+      console.log('CreatePost - Share event received:', event.detail);
+      setSharedPost(event.detail.originalPost);
+      setShowModal(true);
+    };
+
+    window.addEventListener('sharePost', handleShareEvent as EventListener);
+
+    return () => {
+      window.removeEventListener('sharePost', handleShareEvent as EventListener);
+    };
+  }, []);
 
   if (!user) return null;
 
@@ -62,9 +79,13 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
       <CreatePostModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => {
+          setShowModal(false);
+          setSharedPost(null);
+        }}
         onSubmit={handlePostSubmit}
         isSubmitting={isCreating}
+        sharedPost={sharedPost}
       />
     </>
   );
