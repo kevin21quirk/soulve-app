@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
 import { PullToRefresh } from "@/components/ui/mobile/pull-to-refresh";
@@ -28,6 +27,10 @@ const MobileFeed = () => {
     console.log('MobileFeed - Post created, refreshing feed');
     setIsCreatingPost(false);
     refreshFeed();
+  };
+
+  const handleRefresh = async () => {
+    await refreshFeed();
   };
 
   const filteredPosts = posts.filter(post => {
@@ -80,7 +83,7 @@ const MobileFeed = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PullToRefresh onRefresh={async () => refreshFeed()}>
+      <PullToRefresh onRefresh={handleRefresh}>
         <div className="space-y-4">
           {/* Stories Section */}
           <MobileStories />
@@ -136,6 +139,7 @@ const MobileFeed = () => {
             onLikeComment={(postId: string, commentId: string) => {
               console.log('Like comment:', postId, commentId);
             }}
+            onRefresh={handleRefresh}
           />
         </div>
       </PullToRefresh>

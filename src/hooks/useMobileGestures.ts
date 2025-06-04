@@ -1,5 +1,4 @@
-
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export interface SwipeGesture {
   direction: 'left' | 'right' | 'up' | 'down';
@@ -24,21 +23,6 @@ export const useMobileGestures = () => {
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSwipe = useCallback((gesture: SwipeGesture) => {
-    // Default swipe handler - can be overridden
-    console.log('Swipe detected:', gesture);
-  }, []);
-
-  const handleTap = useCallback((gesture: TapGesture) => {
-    // Default tap handler - can be overridden
-    console.log('Tap detected:', gesture);
-  }, []);
-
-  const handleDoubleTap = useCallback((gesture: TapGesture) => {
-    // Default double tap handler - can be overridden
-    console.log('Double tap detected:', gesture);
-  }, []);
-
   const onTouchStart = useCallback((event: TouchEvent) => {
     if (!isSwipeEnabled) return;
 
@@ -50,8 +34,12 @@ export const useMobileGestures = () => {
     };
   }, [isSwipeEnabled]);
 
-  const onTouchEnd = useCallback((event: TouchEvent) => {
-    if (!isSwipeEnabled || !touchStartRef.current) return;
+  const onTouchMove = useCallback((event: TouchEvent) => {
+    // Track movement for gesture recognition
+  }, []);
+
+  const onTouchEnd = useCallback((event: TouchEvent): SwipeGesture | null => {
+    if (!isSwipeEnabled || !touchStartRef.current) return null;
 
     const touch = event.changedTouches[0];
     const deltaX = touch.clientX - touchStartRef.current.x;
@@ -59,6 +47,8 @@ export const useMobileGestures = () => {
     const deltaTime = Date.now() - touchStartRef.current.time;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     const velocity = distance / deltaTime;
+
+    touchStartRef.current = null;
 
     // Check if it's a swipe
     if (distance > swipeThreshold && velocity > velocityThreshold) {
@@ -70,114 +60,35 @@ export const useMobileGestures = () => {
         direction = deltaY > 0 ? 'down' : 'up';
       }
 
-      const swipeGesture: SwipeGesture = {
+      return {
         direction,
         distance,
         velocity,
         element: event.target as HTMLElement
       };
-
-      handleSwipe(swipeGesture);
-    } else {
-      // Handle tap gestures
-      tapCountRef.current++;
-      
-      if (tapTimerRef.current) {
-        clearTimeout(tapTimerRef.current);
-      }
-
-      tapTimerRef.current = setTimeout(() => {
-        const tapGesture: TapGesture = {
-          x: touch.clientX,
-          y: touch.clientY,
-          element: event.target as HTMLElement,
-          tapCount: tapCountRef.current
-        };
-
-        if (tapCountRef.current === 1) {
-          handleTap(tapGesture);
-        } else if (tapCountRef.current === 2) {
-          handleDoubleTap(tapGesture);
-        }
-
-        tapCountRef.current = 0;
-      }, 300);
     }
 
-    touchStartRef.current = null;
-  }, [isSwipeEnabled, swipeThreshold, velocityThreshold, handleSwipe, handleTap, handleDoubleTap]);
+    return null;
+  }, [isSwipeEnabled, swipeThreshold, velocityThreshold]);
 
   const enableSwipeGestures = useCallback((element: HTMLElement) => {
     element.addEventListener('touchstart', onTouchStart, { passive: true });
-    element.addEventListener('touchend', onTouchEnd, { passive: true });
+    element.addEventListener('touchmove', onTouchMove, { passive: true });
+    element.addEventListener('touchend', onTouchEnd as any, { passive: true });
 
     return () => {
       element.removeEventListener('touchstart', onTouchStart);
-      element.removeEventListener('touchend', onTouchEnd);
+      element.removeEventListener('touchmove', onTouchMove);
+      element.removeEventListener('touchend', onTouchEnd as any);
     };
-  }, [onTouchStart, onTouchEnd]);
-
-  const disableSwipeGestures = useCallback(() => {
-    setIsSwipeEnabled(false);
-  }, []);
-
-  const enableSwipeGesturesGlobal = useCallback(() => {
-    setIsSwipeEnabled(true);
-  }, []);
-
-  // Pull-to-refresh functionality
-  const [isPulling, setIsPulling] = useState(false);
-  const [pullDistance, setPullDistance] = useState(0);
-  const pullThreshold = 100;
-
-  const handlePullToRefresh = useCallback((onRefresh: () => void) => {
-    let startY = 0;
-    let currentY = 0;
-
-    const onTouchStartPull = (event: TouchEvent) => {
-      startY = event.touches[0].clientY;
-    };
-
-    const onTouchMovePull = (event: TouchEvent) => {
-      currentY = event.touches[0].clientY;
-      const distance = currentY - startY;
-
-      if (distance > 0 && window.scrollY === 0) {
-        setIsPulling(true);
-        setPullDistance(Math.min(distance, pullThreshold * 1.5));
-        event.preventDefault();
-      }
-    };
-
-    const onTouchEndPull = () => {
-      if (isPulling && pullDistance >= pullThreshold) {
-        onRefresh();
-      }
-      setIsPulling(false);
-      setPullDistance(0);
-    };
-
-    document.addEventListener('touchstart', onTouchStartPull, { passive: true });
-    document.addEventListener('touchmove', onTouchMovePull, { passive: false });
-    document.addEventListener('touchend', onTouchEndPull, { passive: true });
-
-    return () => {
-      document.removeEventListener('touchstart', onTouchStartPull);
-      document.removeEventListener('touchmove', onTouchMovePull);
-      document.removeEventListener('touchend', onTouchEndPull);
-    };
-  }, [isPulling, pullDistance, pullThreshold]);
+  }, [onTouchStart, onTouchMove, onTouchEnd]);
 
   return {
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd,
     enableSwipeGestures,
-    disableSwipeGestures,
-    enableSwipeGesturesGlobal,
-    handleSwipe,
-    handleTap,
-    handleDoubleTap,
-    isPulling,
-    pullDistance,
-    handlePullToRefresh,
-    isSwipeEnabled
+    isSwipeEnabled,
+    setIsSwipeEnabled,
   };
 };
