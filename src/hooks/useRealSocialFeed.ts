@@ -117,7 +117,7 @@ export const useRealSocialFeed = () => {
           urgency: post.urgency,
           location: post.location,
           tags: post.tags || [],
-          media_urls: post.media_urls || [],
+          media_urls: Array.isArray(post.media_urls) ? post.media_urls : [],
           created_at: post.created_at,
           updated_at: post.updated_at,
           likes_count: 0,
@@ -139,6 +139,21 @@ export const useRealSocialFeed = () => {
           avatarUrl = profile.avatar_url || '';
         }
 
+        // Safely handle gallery_images which might be JSON or array
+        let mediaUrls: string[] = [];
+        if (campaign.gallery_images) {
+          if (Array.isArray(campaign.gallery_images)) {
+            mediaUrls = campaign.gallery_images;
+          } else if (typeof campaign.gallery_images === 'string') {
+            try {
+              const parsed = JSON.parse(campaign.gallery_images);
+              mediaUrls = Array.isArray(parsed) ? parsed : [];
+            } catch {
+              mediaUrls = [];
+            }
+          }
+        }
+
         return {
           id: campaign.id,
           title: campaign.title,
@@ -150,7 +165,7 @@ export const useRealSocialFeed = () => {
           urgency: campaign.urgency || 'medium',
           location: campaign.location,
           tags: campaign.tags || [],
-          media_urls: campaign.gallery_images || [],
+          media_urls: mediaUrls,
           created_at: campaign.created_at,
           updated_at: campaign.updated_at,
           likes_count: 0,

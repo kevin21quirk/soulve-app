@@ -9,35 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { type CampaignTemplate } from '@/services/campaignTemplateService';
+import { CampaignFormData } from '@/services/campaignService';
 import AutoCampaignPublisher from './AutoCampaignPublisher';
 import CampaignFormFields from './CampaignFormFields';
 import CampaignTemplates from './CampaignTemplates';
 import CampaignManageTab from './CampaignManageTab';
 import CampaignAnalytics from './CampaignAnalytics';
-
-interface CampaignFormData {
-  title: string;
-  description: string;
-  story: string;
-  category: 'fundraising' | 'volunteer' | 'awareness' | 'community' | 'petition' | 'social_cause';
-  organization_type: 'individual' | 'business' | 'charity' | 'community-group' | 'religious-group' | 'social-group';
-  goal_type: 'monetary' | 'volunteers' | 'signatures' | 'participants';
-  goal_amount: number;
-  currency: string;
-  end_date: string;
-  location: string;
-  urgency: 'low' | 'medium' | 'high';
-  visibility: 'public' | 'private' | 'friends';
-  allow_anonymous_donations: boolean;
-  enable_comments: boolean;
-  enable_updates: boolean;
-  featured_image: string;
-  gallery_images: string[];
-  tags: string[];
-  social_links: Record<string, string>;
-  custom_fields: Record<string, any>;
-  promotion_budget: number;
-}
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
@@ -74,14 +51,18 @@ const EnhancedCampaignBuilder = () => {
 
   const handleTemplateSelect = (template: CampaignTemplate) => {
     setSelectedTemplate(template);
-    // Pre-fill form with template data
+    // Pre-fill form with template data, mapping organization types correctly
+    const mappedOrgType = template.organization_type === 'community_group' ? 'community_group' : 
+                         template.organization_type === 'social_group' ? 'social_group' :
+                         template.organization_type as CampaignFormData['organization_type'];
+    
     setFormData({
       ...formData,
       title: template.template_data.title,
       description: template.template_data.description,
       story: template.template_data.story,
       category: template.category,
-      organization_type: template.organization_type,
+      organization_type: mappedOrgType,
       goal_type: template.template_data.goal_type,
       goal_amount: template.template_data.suggested_goal_amount || 0,
       urgency: template.template_data.urgency,
@@ -119,6 +100,10 @@ const EnhancedCampaignBuilder = () => {
     });
     setShowForm(true);
     setActiveTab("create");
+  };
+
+  const handleFormDataChange = (data: CampaignFormData) => {
+    setFormData(data);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -320,7 +305,7 @@ const EnhancedCampaignBuilder = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <CampaignFormFields
                         formData={formData}
-                        onFormDataChange={setFormData}
+                        onFormDataChange={handleFormDataChange}
                       />
                       
                       <div className="flex justify-end space-x-2">
