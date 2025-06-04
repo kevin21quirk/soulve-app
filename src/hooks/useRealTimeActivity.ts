@@ -41,16 +41,19 @@ export const useRealTimeActivity = () => {
 
       if (error) throw error;
 
-      const transformedActivities: RealTimeActivity[] = (data || []).map(activity => ({
-        id: activity.id,
-        type: activity.activity_type as any,
-        user_id: activity.user_id,
-        user_name: `${activity.profiles.first_name || ''} ${activity.profiles.last_name || ''}`.trim(),
-        user_avatar: activity.profiles.avatar_url || undefined,
-        content: activity.description,
-        timestamp: activity.created_at,
-        metadata: activity.metadata
-      }));
+      const transformedActivities: RealTimeActivity[] = (data || []).map(activity => {
+        const profile = Array.isArray(activity.profiles) ? activity.profiles[0] : activity.profiles;
+        return {
+          id: activity.id,
+          type: activity.activity_type as any,
+          user_id: activity.user_id,
+          user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
+          user_avatar: profile?.avatar_url || undefined,
+          content: activity.description || '',
+          timestamp: activity.created_at,
+          metadata: (activity.metadata as Record<string, any>) || {}
+        };
+      });
 
       setActivities(transformedActivities);
     } catch (error) {

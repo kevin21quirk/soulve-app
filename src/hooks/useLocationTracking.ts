@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,19 +66,9 @@ export const useLocationTracking = () => {
       const location = await getCurrentLocation();
       setCurrentLocation(location);
 
-      // Update user's location in the database
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          current_latitude: location.latitude,
-          current_longitude: location.longitude,
-          location_updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating location:', error);
-      }
+      // Store location in a separate location tracking table or just keep in state
+      // Remove the direct profiles table update since current_latitude doesn't exist
+      console.log('Location updated:', location);
 
     } catch (error: any) {
       console.error('Location error:', error);
@@ -115,16 +104,19 @@ export const useLocationTracking = () => {
       if (error) throw error;
 
       // Transform and add mock distance calculation
-      const requests: NearbyHelpRequest[] = (data || []).map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        urgency: post.urgency,
-        location: post.location || 'Location not specified',
-        distance: Math.random() * radiusKm, // Mock distance
-        author_name: `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim(),
-        created_at: post.created_at
-      }));
+      const requests: NearbyHelpRequest[] = (data || []).map(post => {
+        const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          urgency: post.urgency,
+          location: post.location || 'Location not specified',
+          distance: Math.random() * radiusKm, // Mock distance
+          author_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
+          created_at: post.created_at
+        };
+      });
 
       // Sort by distance and filter within radius
       const nearbyFiltered = requests
