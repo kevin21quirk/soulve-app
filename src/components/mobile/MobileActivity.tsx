@@ -23,15 +23,15 @@ const MobileActivity = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Tab Navigation */}
         <div className="bg-white border-b border-gray-200">
-          <TabsList className="w-full grid grid-cols-3 rounded-none bg-transparent h-12">
+          <TabsList className="w-full grid grid-cols-3 rounded-none bg-gray-100 h-12">
             <TabsTrigger 
               value="notifications" 
-              className="flex items-center space-x-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
+              className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
             >
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Notifications</span>
               {activityStats.newNotifications > 0 && (
-                <Badge variant="destructive" className="text-xs ml-1">
+                <Badge className="text-xs ml-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none">
                   {activityStats.newNotifications}
                 </Badge>
               )}
@@ -39,18 +39,18 @@ const MobileActivity = () => {
             
             <TabsTrigger 
               value="activity" 
-              className="flex items-center space-x-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
+              className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
             >
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">Activity</span>
-              <Badge variant="outline" className="text-xs ml-1">
+              <Badge variant="outline" className="text-xs ml-1 border-gray-300">
                 {activityStats.todayActivity}
               </Badge>
             </TabsTrigger>
             
             <TabsTrigger 
               value="insights" 
-              className="flex items-center space-x-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
+              className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
             >
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Insights</span>
