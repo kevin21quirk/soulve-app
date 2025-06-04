@@ -21,13 +21,23 @@ export const usePostReactions = (postId: string) => {
   const [reactions, setReactions] = useState<ReactionData[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Extract the actual UUID from campaign IDs
+  const getActualPostId = (id: string) => {
+    if (id.startsWith('campaign_')) {
+      return id.replace('campaign_', '');
+    }
+    return id;
+  };
+
   const fetchReactions = useCallback(async () => {
     if (!postId) return;
 
+    const actualPostId = getActualPostId(postId);
+    
     try {
       // Get reaction counts and user reaction status
       const { data: reactionCounts, error: countsError } = await supabase
-        .rpc('get_post_reaction_counts', { target_post_id: postId });
+        .rpc('get_post_reaction_counts', { target_post_id: actualPostId });
 
       if (countsError) {
         console.error('Error fetching reaction counts:', countsError);
@@ -49,7 +59,7 @@ export const usePostReactions = (postId: string) => {
               avatar_url
             )
           `)
-          .eq('post_id', postId)
+          .eq('post_id', actualPostId)
           .eq('reaction_type', reaction.reaction_type);
 
         if (usersError) {
@@ -96,10 +106,12 @@ export const usePostReactions = (postId: string) => {
       return;
     }
 
+    const actualPostId = getActualPostId(postId);
+
     try {
       const { data: result, error } = await supabase
         .rpc('toggle_post_reaction', {
-          target_post_id: postId,
+          target_post_id: actualPostId,
           target_reaction_type: emoji
         });
 
@@ -134,15 +146,17 @@ export const usePostReactions = (postId: string) => {
   useEffect(() => {
     if (!postId) return;
 
+    const actualPostId = getActualPostId(postId);
+
     const channel = supabase
-      .channel(`post-reactions-${postId}`)
+      .channel(`post-reactions-${actualPostId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'post_reactions',
-          filter: `post_id=eq.${postId}`
+          filter: `post_id=eq.${actualPostId}`
         },
         () => {
           fetchReactions();

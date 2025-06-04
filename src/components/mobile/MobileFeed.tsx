@@ -51,6 +51,13 @@ const MobileFeed = () => {
     await refreshFeed();
   };
 
+  // Add proper reaction handler
+  const handleReaction = (postId: string, reactionType: string) => {
+    console.log('MobileFeed - Reaction handled:', postId, reactionType);
+    // The reaction is already handled by usePostReactions hook
+    // This is just for any additional tracking or logging
+  };
+
   const filteredPosts = posts.filter(post => {
     if (activeFilter === "all") return true;
     return post.category === activeFilter;
@@ -172,7 +179,7 @@ const MobileFeed = () => {
             onShare={handleShare}
             onRespond={() => {}}
             onBookmark={handleBookmark}
-            onReaction={() => {}}
+            onReaction={handleReaction}
             onAddComment={handleAddComment}
             onLikeComment={() => {}}
             onRefresh={handleRefresh}

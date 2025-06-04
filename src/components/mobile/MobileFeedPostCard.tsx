@@ -34,7 +34,9 @@ const MobileFeedPostCard = ({
   const { reactions, toggleReaction } = usePostReactions(post.id);
 
   const handleReactionSelect = (emoji: string) => {
+    // Only call toggleReaction - this handles the database update
     toggleReaction(emoji);
+    // Optional: call parent callback for additional tracking
     onReaction(emoji);
   };
 

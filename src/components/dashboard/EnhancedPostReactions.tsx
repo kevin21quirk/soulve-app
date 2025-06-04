@@ -26,12 +26,12 @@ const EnhancedPostReactions = ({
   const { reactions, toggleReaction } = usePostReactions(post.id);
 
   const handleReactionSelect = (emoji: string) => {
+    // Only call toggleReaction - this handles the database update
     toggleReaction(emoji);
-    // Also call the parent callback for any additional handling
-    onReaction(post.id, emoji);
   };
 
   const handleReactionClick = (emoji: string) => {
+    // Only call toggleReaction - this handles the database update
     toggleReaction(emoji);
   };
 

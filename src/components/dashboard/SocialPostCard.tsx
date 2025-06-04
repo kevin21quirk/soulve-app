@@ -17,9 +17,10 @@ interface SocialPostCardProps {
   onShare: () => void;
   onBookmark: () => void;
   onComment: (content: string) => void;
+  onReaction?: (postId: string, reactionType: string) => void;
 }
 
-const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment }: SocialPostCardProps) => {
+const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction }: SocialPostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const { reactions, toggleReaction } = usePostReactions(post.id);
@@ -32,7 +33,12 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment }: Social
   };
 
   const handleReactionSelect = (emoji: string) => {
+    // Only call toggleReaction - this handles the database update
     toggleReaction(emoji);
+    // Optional: call parent callback for additional tracking
+    if (onReaction) {
+      onReaction(post.id, emoji);
+    }
   };
 
   const getCategoryColor = (category: string) => {

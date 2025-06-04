@@ -78,6 +78,24 @@ const RealSocialFeed = () => {
       )
       .subscribe();
 
+    // Listen for reaction changes
+    const reactionsChannel = supabase
+      .channel('reactions-realtime-feed')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'post_reactions'
+        },
+        (payload) => {
+          console.log('RealSocialFeed - Real-time reaction update:', payload);
+          // Refresh feed when reactions change
+          refreshFeed();
+        }
+      )
+      .subscribe();
+
     // Listen for custom campaign creation events
     const handleCampaignCreated = (event: CustomEvent) => {
       console.log('RealSocialFeed - Campaign created event received:', event.detail);
@@ -94,6 +112,7 @@ const RealSocialFeed = () => {
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(campaignsChannel);
       supabase.removeChannel(interactionsChannel);
+      supabase.removeChannel(reactionsChannel);
       window.removeEventListener('campaignCreated', handleCampaignCreated as EventListener);
     };
   }, [refreshFeed]);
@@ -103,6 +122,13 @@ const RealSocialFeed = () => {
     setShowCreatePost(false);
     // Immediate refresh to show the new post
     refreshFeed();
+  };
+
+  // Add proper reaction handler
+  const handleReaction = (postId: string, reactionType: string) => {
+    console.log('RealSocialFeed - Reaction handled:', postId, reactionType);
+    // The reaction is already handled by usePostReactions hook
+    // This is just for any additional tracking or logging
   };
 
   if (loading && posts.length === 0) {
@@ -230,6 +256,7 @@ const RealSocialFeed = () => {
               onShare={() => handleShare(post.id)}
               onBookmark={() => handleBookmark(post.id)}
               onComment={(content) => handleAddComment(post.id, content)}
+              onReaction={handleReaction}
             />
           ))}
         </div>
