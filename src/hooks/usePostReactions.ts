@@ -46,14 +46,25 @@ export const usePostReactions = (postId: string) => {
 
         if (usersError) {
           console.error('Error fetching reaction users:', usersError);
+          // Continue with just the count data if user details fail
+          reactionsWithUsers.push({
+            emoji: reaction.reaction_type,
+            count: Number(reaction.count),
+            userReacted: reaction.user_reacted,
+            users: []
+          });
           continue;
         }
 
-        const users = reactionUsers?.map(r => ({
-          id: r.user_id,
-          name: `${r.profiles?.first_name || ''} ${r.profiles?.last_name || ''}`.trim() || 'Anonymous',
-          avatar: r.profiles?.avatar_url || undefined
-        })) || [];
+        const users = reactionUsers?.map(r => {
+          // Safely access profile data
+          const profile = r.profiles as any;
+          return {
+            id: r.user_id,
+            name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Anonymous',
+            avatar: profile?.avatar_url || undefined
+          };
+        }) || [];
 
         reactionsWithUsers.push({
           emoji: reaction.reaction_type,
