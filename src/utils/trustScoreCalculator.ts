@@ -1,17 +1,15 @@
 
-import { UserVerification } from "@/types/verification";
-
-export interface TrustLevel {
+interface TrustLevel {
   level: string;
   name: string;
-  minScore: number;
-  maxScore: number;
   color: string;
   description: string;
   benefits: string[];
+  minScore: number;
+  maxScore: number;
 }
 
-export interface TrustMilestone {
+interface TrustMilestone {
   nextLevel: string;
   pointsNeeded: number;
   suggestions: string[];
@@ -20,76 +18,73 @@ export interface TrustMilestone {
 export class TrustScoreCalculator {
   private static trustLevels: TrustLevel[] = [
     {
-      level: "new_user",
-      name: "New User",
+      level: 'new_user',
+      name: 'New Member',
+      color: 'text-gray-600',
+      description: 'Welcome to the community! Complete your profile and start building trust.',
+      benefits: [
+        'Access to basic community features',
+        'Ability to create help requests',
+        'Join public groups'
+      ],
       minScore: 0,
-      maxScore: 29,
-      color: "text-gray-500",
-      description: "Welcome to the community! Complete your first verification to start building trust.",
-      benefits: [
-        "Basic platform access",
-        "Limited help requests per day",
-        "Community forum participation"
-      ]
+      maxScore: 39
     },
     {
-      level: "verified_helper",
-      name: "Verified Helper",
-      minScore: 30,
-      maxScore: 59,
-      color: "text-blue-500",
-      description: "You've started building trust! Keep engaging to unlock more features.",
+      level: 'verified_helper',
+      name: 'Verified Helper',
+      color: 'text-blue-600',
+      description: 'You\'ve verified your identity and started helping others.',
       benefits: [
-        "Increased help request limits",
-        "Profile verification badge",
-        "Priority in search results",
-        "Access to community events"
-      ]
+        'Enhanced profile visibility',
+        'Access to volunteer opportunities',
+        'Priority in help matching',
+        'Ability to join private groups'
+      ],
+      minScore: 40,
+      maxScore: 59
     },
     {
-      level: "trusted_helper",
-      name: "Trusted Helper",
+      level: 'trusted_helper',
+      name: 'Trusted Helper',
+      color: 'text-green-600',
+      description: 'A reliable community member with proven track record.',
+      benefits: [
+        'Featured in helper recommendations',
+        'Access to exclusive events',
+        'Mentorship opportunities',
+        'Advanced reporting tools'
+      ],
       minScore: 60,
-      maxScore: 79,
-      color: "text-green-500",
-      description: "You're a trusted community member with proven reliability.",
-      benefits: [
-        "Unlimited help requests",
-        "Advanced matching preferences",
-        "Ability to mentor new users",
-        "Early access to new features",
-        "Enhanced profile visibility"
-      ]
+      maxScore: 79
     },
     {
-      level: "community_leader",
-      name: "Community Leader",
+      level: 'community_leader',
+      name: 'Community Leader',
+      color: 'text-purple-600',
+      description: 'A respected leader who makes significant community impact.',
+      benefits: [
+        'Ability to create community groups',
+        'Event organization privileges',
+        'Verification team access',
+        'Community moderation tools'
+      ],
       minScore: 80,
-      maxScore: 94,
-      color: "text-purple-500",
-      description: "An exemplary community member who leads by example.",
-      benefits: [
-        "Community moderation tools",
-        "Group creation privileges",
-        "Featured helper status",
-        "Direct support channel",
-        "Beta feature testing access"
-      ]
+      maxScore: 94
     },
     {
-      level: "impact_champion",
-      name: "Impact Champion",
-      minScore: 95,
-      maxScore: 100,
-      color: "text-yellow-500",
-      description: "The highest level of trust - a true champion of community impact.",
+      level: 'impact_champion',
+      name: 'Impact Champion',
+      color: 'text-yellow-600',
+      description: 'An exceptional community member driving positive change.',
       benefits: [
-        "All platform privileges",
-        "Advisory board invitation",
-        "Custom verification badges",
-        "Speaking opportunities",
-        "Platform partnership benefits"
-      ]
+        'Platform ambassador status',
+        'Policy influence opportunities',
+        'Advanced analytics access',
+        'Special recognition features'
+      ],
+      minScore: 95,
+      maxScore: 100
     }
   ];
 
@@ -97,10 +92,6 @@ export class TrustScoreCalculator {
     return this.trustLevels.find(level => 
       score >= level.minScore && score <= level.maxScore
     ) || this.trustLevels[0];
-  }
-
-  static getTrustLevelConfig(level: string): TrustLevel | undefined {
-    return this.trustLevels.find(tl => tl.level === level);
   }
 
   static getNextMilestone(currentScore: number): TrustMilestone | null {
@@ -117,7 +108,7 @@ export class TrustScoreCalculator {
     const suggestions = this.getSuggestions(currentScore, nextLevel.minScore);
 
     return {
-      nextLevel: nextLevel.level,
+      nextLevel: nextLevel.name,
       pointsNeeded,
       suggestions
     };
@@ -125,78 +116,99 @@ export class TrustScoreCalculator {
 
   private static getSuggestions(currentScore: number, targetScore: number): string[] {
     const gap = targetScore - currentScore;
-    const suggestions = [];
+    const suggestions: string[] = [];
 
-    if (gap <= 10) {
-      suggestions.push("Complete email verification (+5 points)");
-      suggestions.push("Add a profile photo (+3 points)");
-      suggestions.push("Complete your bio (+2 points)");
-    } else if (gap <= 20) {
-      suggestions.push("Complete phone verification (+10 points)");
-      suggestions.push("Connect social media accounts (+5 points)");
-      suggestions.push("Help your first community member (+15 points)");
+    if (gap > 20) {
+      suggestions.push('Complete ID verification (+15 points)');
+      suggestions.push('Verify 2-3 professional skills (+10 points each)');
+      suggestions.push('Help 3-5 community members (+5 points each)');
+    } else if (gap > 10) {
+      suggestions.push('Complete phone verification (+5 points)');
+      suggestions.push('Join and participate in community groups (+3 points)');
+      suggestions.push('Maintain consistent helping activity (+2 points weekly)');
     } else {
-      suggestions.push("Complete government ID verification (+20 points)");
-      suggestions.push("Get organization verification (+25 points)");
-      suggestions.push("Complete background check (+30 points)");
+      suggestions.push('Continue regular community participation');
+      suggestions.push('Maintain high ratings from help recipients');
+      suggestions.push('Complete additional skill verifications');
     }
 
-    return suggestions.slice(0, 3); // Return top 3 suggestions
+    return suggestions.slice(0, 3);
   }
 
-  static calculateScore(verifications: UserVerification[]): number {
-    let baseScore = 50; // Starting score
-    
-    const approvedVerifications = verifications.filter(v => v.status === 'approved');
-    
-    // Points for different verification types
-    const verificationPoints: Record<string, number> = {
+  static calculateTrustScore(verifications: any[], activities: any[], ratings: number[]): number {
+    let score = 50; // Base score
+
+    // Verification bonuses
+    const verificationBonuses = {
       'email': 5,
-      'phone': 10,
-      'government_id': 20,
-      'organization': 25,
-      'community_leader': 15,
-      'expert': 20,
-      'background_check': 30
+      'phone': 5,
+      'government_id': 15,
+      'organization': 20,
+      'expert': 10,
+      'background_check': 15,
+      'community_leader': 12
     };
 
-    let verificationScore = 0;
-    approvedVerifications.forEach(verification => {
-      verificationScore += verificationPoints[verification.verification_type] || 0;
+    verifications.forEach(verification => {
+      if (verification.status === 'approved') {
+        score += verificationBonuses[verification.verification_type as keyof typeof verificationBonuses] || 0;
+      }
     });
 
-    // Bonus for multiple verifications
-    if (approvedVerifications.length >= 3) {
-      verificationScore += 10; // Consistency bonus
-    }
-    if (approvedVerifications.length >= 5) {
-      verificationScore += 15; // Commitment bonus
+    // Activity bonuses
+    const helpCount = activities.filter(a => a.activity_type === 'help_completed').length;
+    const donationCount = activities.filter(a => a.activity_type === 'donation').length;
+    const volunteerCount = activities.filter(a => a.activity_type === 'volunteer').length;
+
+    score += Math.min(helpCount * 2, 20); // Max 20 points from helping
+    score += Math.min(donationCount * 1, 10); // Max 10 points from donations
+    score += Math.min(volunteerCount * 3, 15); // Max 15 points from volunteering
+
+    // Rating bonus
+    if (ratings.length > 0) {
+      const avgRating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+      score += (avgRating - 3) * 5; // +5 points per star above 3
     }
 
-    const finalScore = Math.min(baseScore + verificationScore, 100);
-    return finalScore;
+    // Cap between 0 and 100
+    return Math.max(0, Math.min(score, 100));
   }
 
-  static getVerificationRecommendations(currentVerifications: UserVerification[]): string[] {
-    const completed = currentVerifications
-      .filter(v => v.status === 'approved')
-      .map(v => v.verification_type);
+  static getVerificationImpact(verificationType: string): { points: number; description: string } {
+    const impacts = {
+      'email': { points: 5, description: 'Basic identity confirmation' },
+      'phone': { points: 5, description: 'Contact verification' },
+      'government_id': { points: 15, description: 'Official identity verification' },
+      'organization': { points: 20, description: 'Institutional credibility' },
+      'expert': { points: 10, description: 'Professional expertise' },
+      'background_check': { points: 15, description: 'Enhanced safety verification' },
+      'community_leader': { points: 12, description: 'Community recognition' }
+    };
 
-    const recommendations = [];
+    return impacts[verificationType as keyof typeof impacts] || { points: 0, description: 'Unknown verification' };
+  }
 
-    if (!completed.includes('email')) {
-      recommendations.push('Email verification - Quick and essential (+5 points)');
-    }
-    if (!completed.includes('phone')) {
-      recommendations.push('Phone verification - Adds security (+10 points)');
-    }
-    if (!completed.includes('government_id')) {
-      recommendations.push('Government ID - High trust boost (+20 points)');
-    }
-    if (!completed.includes('organization')) {
-      recommendations.push('Organization verification - Professional credibility (+25 points)');
+  static getTrustTrends(historicalScores: { score: number; date: string }[]): {
+    trend: 'increasing' | 'decreasing' | 'stable';
+    change: number;
+    prediction: number;
+  } {
+    if (historicalScores.length < 2) {
+      return { trend: 'stable', change: 0, prediction: historicalScores[0]?.score || 50 };
     }
 
-    return recommendations.slice(0, 4);
+    const recent = historicalScores.slice(-5); // Last 5 scores
+    const oldestRecent = recent[0].score;
+    const latestScore = recent[recent.length - 1].score;
+    const change = latestScore - oldestRecent;
+
+    let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
+    if (change > 2) trend = 'increasing';
+    else if (change < -2) trend = 'decreasing';
+
+    // Simple prediction based on trend
+    const prediction = Math.max(0, Math.min(100, latestScore + (change * 0.5)));
+
+    return { trend, change, prediction };
   }
 }

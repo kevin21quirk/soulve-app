@@ -3,141 +3,190 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Shield, 
+  Award, 
+  Building, 
+  Phone, 
+  Mail, 
+  UserCheck, 
+  CheckCircle,
+  Star,
+  Users
+} from "lucide-react";
 import { useVerifications } from "@/hooks/useVerifications";
-import { UserVerification, VerificationType } from "@/types/verification";
-import { Mail, Phone, Shield, Building, Award, Star, CheckCircle, Camera, AlertTriangle } from "lucide-react";
+import { VerificationType } from "@/types/verification";
+import { TrustScoreCalculator } from "@/utils/trustScoreCalculator";
 import IDVerificationFlow from "./IDVerificationFlow";
+import SkillVerificationFlow from "./SkillVerificationFlow";
+import OrganizationVerificationFlow from "./OrganizationVerificationFlow";
 
 interface EnhancedVerificationRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  existingVerifications: UserVerification[];
+  existingVerifications: any[];
 }
 
-const verificationTypes = [
-  {
-    type: 'phone' as VerificationType,
-    title: 'Phone Verification',
-    description: 'Verify your phone number to increase trust',
-    icon: Phone,
-    points: '+10 trust points',
-    requirements: 'Valid phone number required',
-    difficulty: 'Easy',
-    timeEstimate: '2 minutes'
-  },
-  {
-    type: 'government_id' as VerificationType,
-    title: 'Government ID Verification',
-    description: 'Verify your identity with official documentation',
-    icon: Shield,
-    points: '+25 trust points',
-    requirements: 'Valid government-issued ID',
-    difficulty: 'Medium',
-    timeEstimate: '5-10 minutes',
-    isIDVerification: true
-  },
-  {
-    type: 'organization' as VerificationType,
-    title: 'Organization Verification',
-    description: 'Verify your affiliation with an organization',
-    icon: Building,
-    points: '+15 trust points',
-    requirements: 'Official organization documentation',
-    difficulty: 'Medium',
-    timeEstimate: '10-15 minutes'
-  },
-  {
-    type: 'expert' as VerificationType,
-    title: 'Expert Verification',
-    description: 'Verify your professional expertise',
-    icon: Star,
-    points: '+15 trust points',
-    requirements: 'Professional credentials or certifications',
-    difficulty: 'Medium',
-    timeEstimate: '15-20 minutes'
-  },
-  {
-    type: 'community_leader' as VerificationType,
-    title: 'Community Leader',
-    description: 'Recognition as a community leader',
-    icon: Award,
-    points: '+20 trust points',
-    requirements: 'Community endorsements required',
-    difficulty: 'Hard',
-    timeEstimate: '30+ minutes'
-  },
-  {
-    type: 'background_check' as VerificationType,
-    title: 'Background Check',
-    description: 'Complete professional background verification',
-    icon: CheckCircle,
-    points: '+30 trust points',
-    requirements: 'Third-party background check',
-    difficulty: 'Hard',
-    timeEstimate: '3-5 business days'
-  }
-];
-
-const EnhancedVerificationRequestDialog = ({ 
-  open, 
-  onOpenChange, 
-  existingVerifications 
+const EnhancedVerificationRequestDialog = ({
+  open,
+  onOpenChange,
+  existingVerifications
 }: EnhancedVerificationRequestDialogProps) => {
   const { requestVerification } = useVerifications();
-  const [requesting, setRequesting] = useState<string | null>(null);
-  const [showIDFlow, setShowIDFlow] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<string | null>(null);
 
-  const handleRequest = async (verificationType: VerificationType) => {
-    if (verificationType === 'government_id') {
-      setShowIDFlow(true);
-      return;
+  const verificationsConfig = [
+    {
+      type: 'email' as VerificationType,
+      title: 'Email Verification',
+      description: 'Verify your email address for basic account security',
+      icon: Mail,
+      impact: TrustScoreCalculator.getVerificationImpact('email'),
+      difficulty: 'Easy',
+      timeRequired: '2 minutes',
+      available: true
+    },
+    {
+      type: 'phone' as VerificationType,
+      title: 'Phone Verification',
+      description: 'Verify your phone number for enhanced communication',
+      icon: Phone,
+      impact: TrustScoreCalculator.getVerificationImpact('phone'),
+      difficulty: 'Easy',
+      timeRequired: '5 minutes',
+      available: true
+    },
+    {
+      type: 'government_id' as VerificationType,
+      title: 'ID Verification',
+      description: 'Verify your identity with government-issued photo ID',
+      icon: Shield,
+      impact: TrustScoreCalculator.getVerificationImpact('government_id'),
+      difficulty: 'Medium',
+      timeRequired: '10 minutes',
+      available: true
+    },
+    {
+      type: 'expert' as VerificationType,
+      title: 'Skill Verification',
+      description: 'Verify your professional skills and expertise',
+      icon: Award,
+      impact: TrustScoreCalculator.getVerificationImpact('expert'),
+      difficulty: 'Medium',
+      timeRequired: '15 minutes',
+      available: true
+    },
+    {
+      type: 'organization' as VerificationType,
+      title: 'Organization Verification',
+      description: 'Verify your nonprofit or community organization',
+      icon: Building,
+      impact: TrustScoreCalculator.getVerificationImpact('organization'),
+      difficulty: 'Hard',
+      timeRequired: '30 minutes',
+      available: true
+    },
+    {
+      type: 'community_leader' as VerificationType,
+      title: 'Community Leader',
+      description: 'Recognition for outstanding community contribution',
+      icon: Users,
+      impact: TrustScoreCalculator.getVerificationImpact('community_leader'),
+      difficulty: 'Expert',
+      timeRequired: 'By nomination',
+      available: false
+    },
+    {
+      type: 'background_check' as VerificationType,
+      title: 'Background Check',
+      description: 'Enhanced verification for high-trust roles',
+      icon: UserCheck,
+      impact: TrustScoreCalculator.getVerificationImpact('background_check'),
+      difficulty: 'Hard',
+      timeRequired: '3-5 days',
+      available: true
     }
-
-    setRequesting(verificationType);
-    try {
-      await requestVerification(verificationType);
-      onOpenChange(false);
-    } finally {
-      setRequesting(null);
-    }
-  };
-
-  const handleIDVerificationComplete = async (data: any) => {
-    setRequesting('government_id');
-    try {
-      await requestVerification('government_id', data);
-      setShowIDFlow(false);
-      onOpenChange(false);
-    } finally {
-      setRequesting(null);
-    }
-  };
+  ];
 
   const getVerificationStatus = (type: VerificationType) => {
-    return existingVerifications.find(v => v.verification_type === type);
+    const existing = existingVerifications.find(v => v.verification_type === type);
+    return existing?.status || 'not_started';
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'text-green-600 bg-green-50';
-      case 'Medium': return 'text-yellow-600 bg-yellow-50';
-      case 'Hard': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+    const colors = {
+      'Easy': 'bg-green-100 text-green-700',
+      'Medium': 'bg-yellow-100 text-yellow-700',
+      'Hard': 'bg-orange-100 text-orange-700',
+      'Expert': 'bg-red-100 text-red-700'
+    };
+    return colors[difficulty as keyof typeof colors] || 'bg-gray-100 text-gray-700';
+  };
+
+  const handleVerificationStart = (type: VerificationType) => {
+    if (type === 'government_id') {
+      setCurrentFlow('id');
+    } else if (type === 'expert') {
+      setCurrentFlow('skill');
+    } else if (type === 'organization') {
+      setCurrentFlow('organization');
+    } else {
+      // Simple verification request
+      requestVerification(type);
+      onOpenChange(false);
     }
   };
 
-  if (showIDFlow) {
+  const handleFlowComplete = async (type: VerificationType, data: any) => {
+    await requestVerification(type, data);
+    setCurrentFlow(null);
+    onOpenChange(false);
+  };
+
+  const handleFlowCancel = () => {
+    setCurrentFlow(null);
+  };
+
+  if (currentFlow === 'id') {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <IDVerificationFlow
-            onComplete={handleIDVerificationComplete}
-            onCancel={() => setShowIDFlow(false)}
+            onComplete={(data) => handleFlowComplete('government_id', data)}
+            onCancel={handleFlowCancel}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (currentFlow === 'skill') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <SkillVerificationFlow
+            onComplete={(data) => handleFlowComplete('expert', data)}
+            onCancel={handleFlowCancel}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (currentFlow === 'organization') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <OrganizationVerificationFlow
+            onComplete={(data) => handleFlowComplete('organization', data)}
+            onCancel={handleFlowCancel}
           />
         </DialogContent>
       </Dialog>
@@ -146,120 +195,124 @@ const EnhancedVerificationRequestDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Shield className="h-6 w-6 text-blue-600" />
-            <span>Enhance Your Trust Score</span>
+          <DialogTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-blue-600" />
+            Choose Verification Type
           </DialogTitle>
-          <p className="text-gray-600">
-            Complete verifications to unlock platform features and increase your trustworthiness
-          </p>
+          <DialogDescription>
+            Each verification type increases your trust score and unlocks different platform features
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="grid gap-4 mt-4">
-          {verificationTypes.map((verification) => {
-            const existing = getVerificationStatus(verification.type);
-            const isRequested = existing?.status === 'pending';
-            const isVerified = existing?.status === 'approved';
-            const isRejected = existing?.status === 'rejected';
+
+        <div className="grid gap-4 py-4">
+          {verificationsConfig.map((verification) => {
+            const status = getVerificationStatus(verification.type);
+            const IconComponent = verification.icon;
             
             return (
-              <Card key={verification.type} className="relative hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <verification.icon className="h-8 w-8 text-blue-600" />
+              <Card key={verification.type} className="relative">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <IconComponent className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{verification.title}</CardTitle>
+                        <CardDescription>{verification.description}</CardDescription>
+                      </div>
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold">{verification.title}</h3>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(verification.difficulty)}`}>
-                            {verification.difficulty}
-                          </span>
-                          <span className="text-sm font-medium text-green-600">
-                            {verification.points}
-                          </span>
-                        </div>
+                    {status === 'approved' && (
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    )}
+                  </div>
+                </CardHeader>
+                
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Badge className={getDifficultyColor(verification.difficulty)}>
+                        {verification.difficulty}
+                      </Badge>
+                      
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm font-medium">
+                          +{verification.impact.points} Trust Points
+                        </span>
                       </div>
                       
-                      <p className="text-gray-600 mb-3">
-                        {verification.description}
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-sm">
-                        <div>
-                          <span className="font-medium text-gray-700">Requirements: </span>
-                          <span className="text-gray-600">{verification.requirements}</span>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700">Time needed: </span>
-                          <span className="text-gray-600">{verification.timeEstimate}</span>
-                        </div>
-                      </div>
-
-                      {verification.type === 'government_id' && (
-                        <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                          <div className="flex items-start space-x-2">
-                            <Camera className="h-5 w-5 text-blue-600 mt-0.5" />
-                            <div className="text-sm">
-                              <p className="font-medium text-blue-900">ID Verification Process:</p>
-                              <p className="text-blue-800 mt-1">
-                                Upload photos of your government ID and take a selfie for identity verification
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {verification.type === 'background_check' && (
-                        <div className="bg-amber-50 p-3 rounded-lg mb-4">
-                          <div className="flex items-start space-x-2">
-                            <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
-                            <div className="text-sm">
-                              <p className="font-medium text-amber-900">Third-party verification:</p>
-                              <p className="text-amber-800 mt-1">
-                                This requires external background check services and may take several business days
-                              </p>
-                            </div>
-                          </div>
-                        </div>
+                      <span className="text-sm text-gray-600">
+                        {verification.timeRequired}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      {status === 'pending' && (
+                        <Badge variant="outline" className="text-yellow-600">
+                          Under Review
+                        </Badge>
                       )}
                       
-                      <div className="flex items-center justify-between">
-                        {isVerified ? (
-                          <div className="flex items-center space-x-2 text-green-600">
-                            <CheckCircle className="h-5 w-5" />
-                            <span className="font-medium">Verified</span>
-                          </div>
-                        ) : isRequested ? (
-                          <div className="flex items-center space-x-2 text-yellow-600">
-                            <div className="animate-spin h-5 w-5 border-2 border-yellow-600 border-t-transparent rounded-full" />
-                            <span className="font-medium">Review in Progress</span>
-                          </div>
-                        ) : isRejected ? (
-                          <div className="flex items-center space-x-2 text-red-600">
-                            <AlertTriangle className="h-5 w-5" />
-                            <span className="font-medium">Needs Attention</span>
-                          </div>
-                        ) : (
-                          <Button
-                            onClick={() => handleRequest(verification.type)}
-                            disabled={requesting === verification.type}
-                            className="min-w-[120px]"
-                          >
-                            {requesting === verification.type ? 'Starting...' : 'Start Verification'}
-                          </Button>
-                        )}
-                      </div>
+                      {status === 'approved' && (
+                        <Badge variant="outline" className="text-green-600">
+                          Verified
+                        </Badge>
+                      )}
+                      
+                      {status === 'rejected' && (
+                        <Badge variant="outline" className="text-red-600">
+                          Rejected
+                        </Badge>
+                      )}
+                      
+                      {status === 'not_started' && verification.available && (
+                        <Button
+                          onClick={() => handleVerificationStart(verification.type)}
+                          size="sm"
+                        >
+                          Start Verification
+                        </Button>
+                      )}
+                      
+                      {!verification.available && (
+                        <Button size="sm" disabled>
+                          Not Available
+                        </Button>
+                      )}
+                      
+                      {status === 'rejected' && (
+                        <Button
+                          onClick={() => handleVerificationStart(verification.type)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          Retry
+                        </Button>
+                      )}
                     </div>
                   </div>
+                  
+                  <p className="text-sm text-gray-600 mt-2">
+                    {verification.impact.description}
+                  </p>
                 </CardContent>
               </Card>
             );
           })}
+        </div>
+        
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Verification Benefits</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Higher trust scores unlock premium features</li>
+            <li>• Verified profiles get priority in help matching</li>
+            <li>• Enhanced credibility within the community</li>
+            <li>• Access to exclusive groups and events</li>
+          </ul>
         </div>
       </DialogContent>
     </Dialog>
