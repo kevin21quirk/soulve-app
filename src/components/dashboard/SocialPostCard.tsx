@@ -43,6 +43,9 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   };
 
   const handleShare = () => {
+    console.log('SocialPostCard - Share button clicked for post:', post.id);
+    console.log('SocialPostCard - Post data:', post);
+    
     // Create a custom event with the post data for Facebook-style sharing
     const shareEvent = new CustomEvent('sharePost', {
       detail: {
@@ -50,7 +53,10 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
         type: 'share'
       }
     });
+    
+    console.log('SocialPostCard - Dispatching share event:', shareEvent.detail);
     window.dispatchEvent(shareEvent);
+    
     onShare(); // Keep the original callback for any analytics
   };
 
@@ -197,7 +203,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
 
         {/* Actions - Modern Reaction System */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
             {/* Quick Reaction Buttons with reduced spacing */}
             {quickReactions.map((emoji) => {
               const reaction = reactions.find(r => r.emoji === emoji);

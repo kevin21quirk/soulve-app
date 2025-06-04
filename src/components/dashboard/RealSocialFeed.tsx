@@ -166,29 +166,8 @@ const RealSocialFeed = () => {
 
   return (
     <div className="space-y-6">
-      {/* Create Post Section */}
-      <Card>
-        <CardContent className="p-6">
-          {showCreatePost ? (
-            <CreatePost 
-              onPostCreated={handlePostCreated}
-            />
-          ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">MW</span>
-                </div>
-                <span className="text-gray-600">What would you like to share, Matthew?</span>
-              </div>
-              <Button onClick={() => setShowCreatePost(true)} className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Post
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Create Post Section - Always rendered to listen for share events */}
+      <CreatePost onPostCreated={handlePostCreated} />
 
       {/* Feed Header with enhanced status info */}
       <div className="flex items-center justify-between">
@@ -247,7 +226,10 @@ const RealSocialFeed = () => {
               key={post.id}
               post={transformSocialPostToFeedPost(post)}
               onLike={() => handleLike(post.id)}
-              onShare={() => handleShare(post.id)}
+              onShare={() => {
+                console.log('RealSocialFeed - Share button clicked for post:', post.id);
+                handleShare(post.id);
+              }}
               onBookmark={() => handleBookmark(post.id)}
               onComment={(content) => handleAddComment(post.id, content)}
               onReaction={handleReaction}

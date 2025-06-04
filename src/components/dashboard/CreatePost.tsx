@@ -36,15 +36,25 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
   // Listen for share events
   useEffect(() => {
+    console.log('CreatePost - Setting up share event listener');
+    
     const handleShareEvent = (event: CustomEvent) => {
       console.log('CreatePost - Share event received:', event.detail);
-      setSharedPost(event.detail.originalPost);
-      setShowModal(true);
+      const originalPost = event.detail.originalPost;
+      
+      if (originalPost) {
+        console.log('CreatePost - Setting shared post and opening modal');
+        setSharedPost(originalPost);
+        setShowModal(true);
+      } else {
+        console.warn('CreatePost - No original post in share event');
+      }
     };
 
     window.addEventListener('sharePost', handleShareEvent as EventListener);
 
     return () => {
+      console.log('CreatePost - Cleaning up share event listener');
       window.removeEventListener('sharePost', handleShareEvent as EventListener);
     };
   }, []);
@@ -80,6 +90,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       <CreatePostModal
         isOpen={showModal}
         onClose={() => {
+          console.log('CreatePost - Closing modal and clearing shared post');
           setShowModal(false);
           setSharedPost(null);
         }}
