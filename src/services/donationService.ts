@@ -45,11 +45,13 @@ export class DonationService {
 
       if (error) throw error;
 
-      // Update campaign current amount
-      await supabase.rpc('update_campaign_amount', {
+      // Update campaign current amount using raw SQL since function isn't in types
+      const { error: updateError } = await supabase.rpc('update_campaign_amount' as any, {
         campaign_uuid: data.campaignId,
         donation_amount: data.amount
       });
+
+      if (updateError) throw updateError;
 
       // Track engagement
       await this.trackDonationEngagement(data.campaignId, user.user?.id);

@@ -2366,6 +2366,10 @@ export type Database = {
         }
         Returns: string
       }
+      update_campaign_amount: {
+        Args: { campaign_uuid: string; donation_amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       waitlist_status: "pending" | "approved" | "denied"
