@@ -6,48 +6,18 @@ import UserProfileTabs from "../UserProfileTabs";
 import { UserProfileData } from "../UserProfileTypes";
 import UserAccessPanel from "../../admin/UserAccessPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const ProfileTab = () => {
   const { user } = useAuth();
+  const { profileData, loading, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
-  // Mock profile data - in a real app, this would come from your backend
-  const profileData: UserProfileData = {
-    id: user?.id || "",
-    name: "John Doe",
-    email: user?.email || "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    bio: "Passionate about making a positive impact in the community.",
-    location: "San Francisco, CA",
-    skills: ["Web Development", "Community Organizing", "Project Management"],
-    interests: ["Technology", "Environmental Sustainability", "Education"],
-    socialLinks: {
-      linkedin: "https://linkedin.com/in/johndoe",
-      twitter: "https://twitter.com/johndoe",
-      website: "https://johndoe.com"
-    },
-    organizationInfo: {
-      role: "Volunteer Coordinator",
-      website: "https://techforgood.org"
-    },
-    trustScore: 85,
-    helpCount: 23,
-    isVerified: true,
-    joinDate: "January 2024",
-    avatar: "/placeholder-avatar.jpg",
-    banner: "/placeholder-banner.jpg",
-    bannerType: null,
-    followerCount: 145,
-    followingCount: 89,
-    postCount: 23,
-    verificationBadges: ["Email Verified", "Phone Verified"]
-  };
-
   const handleProfileUpdate = (updatedData: UserProfileData) => {
     console.log("Profile updated:", updatedData);
-    // Handle profile update logic here
+    updateProfile(updatedData);
   };
 
   const handleViewPointsDetails = () => {
@@ -56,6 +26,18 @@ const ProfileTab = () => {
 
   // Check if current user is admin
   const isAdmin = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
+
+  // Show loading state while profile data is being fetched
+  if (loading || !profileData) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
