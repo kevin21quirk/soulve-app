@@ -108,18 +108,25 @@ export const useLocationTracking = () => {
       if (error) throw error;
 
       // Transform and add mock distance calculation
-      const requests: NearbyHelpRequest[] = (data || []).map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        urgency: post.urgency,
-        location: post.location || 'Location not specified',
-        distance: Math.random() * radiusKm, // Mock distance
-        author_name: post.profiles && typeof post.profiles === 'object' && !Array.isArray(post.profiles) 
-          ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() 
-          : 'Anonymous',
-        created_at: post.created_at
-      }));
+      const requests: NearbyHelpRequest[] = (data || []).map(post => {
+        // Type cast after runtime type check
+        const profilesData = post.profiles && typeof post.profiles === 'object' && !Array.isArray(post.profiles) 
+          ? post.profiles as { first_name?: string; last_name?: string }
+          : null;
+        
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          urgency: post.urgency,
+          location: post.location || 'Location not specified',
+          distance: Math.random() * radiusKm, // Mock distance
+          author_name: profilesData 
+            ? `${profilesData.first_name || ''} ${profilesData.last_name || ''}`.trim() 
+            : 'Anonymous',
+          created_at: post.created_at
+        };
+      });
 
       // Sort by distance and filter within radius
       const nearbyFiltered = requests
