@@ -4,7 +4,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { ImageIcon } from 'lucide-react';
 import { CampaignFormData } from '@/services/campaignService';
+import EnhancedMediaUpload from '../dashboard/post-creation/EnhancedMediaUpload';
+import { MediaFile } from '../dashboard/media-upload/MediaUploadTypes';
+import { useState } from 'react';
 
 interface CampaignFormFieldsProps {
   formData: CampaignFormData;
@@ -12,6 +17,8 @@ interface CampaignFormFieldsProps {
 }
 
 const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsProps) => {
+  const [selectedMedia, setSelectedMedia] = useState<MediaFile[]>([]);
+
   const handleInputChange = (field: keyof CampaignFormData, value: any) => {
     onFormDataChange({
       ...formData,
@@ -19,8 +26,15 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
     });
   };
 
+  const handleMediaChange = (files: MediaFile[]) => {
+    setSelectedMedia(files);
+    // Convert media files to URLs for form data
+    const mediaUrls = files.map(file => file.preview);
+    handleInputChange('gallery_images', mediaUrls);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <Label htmlFor="title">Campaign Title</Label>
         <Input
@@ -99,13 +113,18 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="goal_amount">Goal Amount</Label>
+          <Label htmlFor="goal_amount">Goal Amount ($)</Label>
           <Input
             id="goal_amount"
-            type="number"
-            value={formData.goal_amount}
-            onChange={(e) => handleInputChange('goal_amount', Number(e.target.value))}
-            placeholder="0"
+            type="text"
+            value={formData.goal_amount === 0 ? '' : formData.goal_amount.toString()}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === '' || /^\d+$/.test(value)) {
+                handleInputChange('goal_amount', value === '' ? 0 : Number(value));
+              }
+            }}
+            placeholder="Enter amount (e.g. 5000)"
           />
         </div>
 
@@ -131,6 +150,26 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
           type="datetime-local"
           value={formData.end_date}
           onChange={(e) => handleInputChange('end_date', e.target.value)}
+        />
+      </div>
+
+      {/* Media Upload Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <ImageIcon className="h-5 w-5 text-[#0ce4af]" />
+          <Label className="text-lg font-medium">Campaign Media</Label>
+          <Badge variant="outline" className="text-xs">
+            {selectedMedia.length} files selected
+          </Badge>
+        </div>
+        <p className="text-sm text-gray-600">
+          Add images and videos to make your campaign more compelling. High-quality visuals help tell your story better.
+        </p>
+        <EnhancedMediaUpload
+          onMediaChange={handleMediaChange}
+          maxFiles={8}
+          maxFileSize={15}
+          acceptedTypes={['image/*', 'video/*']}
         />
       </div>
 

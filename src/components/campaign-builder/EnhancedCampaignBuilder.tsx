@@ -6,14 +6,38 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, BarChart3, Settings, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createCampaign, CampaignFormData } from '@/services/campaignService';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { type CampaignTemplate } from '@/services/campaignTemplateService';
 import AutoCampaignPublisher from './AutoCampaignPublisher';
 import CampaignFormFields from './CampaignFormFields';
 import CampaignTemplates from './CampaignTemplates';
 import CampaignManageTab from './CampaignManageTab';
 import CampaignAnalytics from './CampaignAnalytics';
+
+interface CampaignFormData {
+  title: string;
+  description: string;
+  story: string;
+  category: 'fundraising' | 'volunteer' | 'awareness' | 'community' | 'petition' | 'social_cause';
+  organization_type: 'individual' | 'business' | 'charity' | 'community-group' | 'religious-group' | 'social-group';
+  goal_type: 'monetary' | 'volunteers' | 'signatures' | 'participants';
+  goal_amount: number;
+  currency: string;
+  end_date: string;
+  location: string;
+  urgency: 'low' | 'medium' | 'high';
+  visibility: 'public' | 'private' | 'friends';
+  allow_anonymous_donations: boolean;
+  enable_comments: boolean;
+  enable_updates: boolean;
+  featured_image: string;
+  gallery_images: string[];
+  tags: string[];
+  social_links: Record<string, string>;
+  custom_fields: Record<string, any>;
+  promotion_budget: number;
+}
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
@@ -112,7 +136,46 @@ const EnhancedCampaignBuilder = () => {
     setIsSubmitting(true);
 
     try {
-      const campaign = await createCampaign(formData);
+      console.log('Creating campaign with data:', formData);
+
+      // Insert campaign into database
+      const { data: campaign, error } = await supabase
+        .from('campaigns')
+        .insert({
+          title: formData.title,
+          description: formData.description,
+          story: formData.story,
+          category: formData.category,
+          organization_type: formData.organization_type,
+          goal_type: formData.goal_type,
+          goal_amount: formData.goal_amount,
+          currency: formData.currency,
+          end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+          location: formData.location,
+          urgency: formData.urgency,
+          visibility: formData.visibility,
+          allow_anonymous_donations: formData.allow_anonymous_donations,
+          enable_comments: formData.enable_comments,
+          enable_updates: formData.enable_updates,
+          featured_image: formData.featured_image,
+          gallery_images: formData.gallery_images,
+          tags: formData.tags,
+          social_links: formData.social_links,
+          custom_fields: formData.custom_fields,
+          promotion_budget: formData.promotion_budget,
+          creator_id: user.id,
+          status: 'active',
+          current_amount: 0
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating campaign:', error);
+        throw error;
+      }
+
+      console.log('Campaign created successfully:', campaign);
       
       // Trigger auto-publish to feed
       const campaignUpdate = {
@@ -130,7 +193,7 @@ const EnhancedCampaignBuilder = () => {
       
       toast({
         title: "Campaign created successfully!",
-        description: "Your campaign has been published and shared in the community feed.",
+        description: "Your campaign has been published and will appear in the community feed.",
       });
 
       // Reset form and go back to templates
@@ -215,7 +278,7 @@ const EnhancedCampaignBuilder = () => {
             </TabsList>
 
             <TabsContent value="templates">
-              {showForm && activeTab === "templates" ? (
+              {showForm ? (
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">

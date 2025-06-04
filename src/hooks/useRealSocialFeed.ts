@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,54 +33,69 @@ export const useRealSocialFeed = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      console.log('useRealSocialFeed - Fetching posts...');
+      console.log('useRealSocialFeed - Fetching posts and campaigns...');
       
-      // First get the posts
-      const { data: postsData, error: postsError } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      // Fetch both posts and campaigns
+      const [postsResult, campaignsResult] = await Promise.all([
+        supabase
+          .from('posts')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('campaigns')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (postsError) {
-        console.error('useRealSocialFeed - Posts query error:', postsError);
-        throw postsError;
+      if (postsResult.error) {
+        console.error('useRealSocialFeed - Posts query error:', postsResult.error);
+        throw postsResult.error;
       }
+
+      if (campaignsResult.error) {
+        console.error('useRealSocialFeed - Campaigns query error:', campaignsResult.error);
+        throw campaignsResult.error;
+      }
+
+      const postsData = postsResult.data || [];
+      const campaignsData = campaignsResult.data || [];
 
       console.log('useRealSocialFeed - Raw posts data:', postsData);
+      console.log('useRealSocialFeed - Raw campaigns data:', campaignsData);
 
-      if (!postsData || postsData.length === 0) {
-        console.log('useRealSocialFeed - No posts found');
-        setPosts([]);
-        return;
-      }
+      // Get unique author IDs from both posts and campaigns
+      const postAuthorIds = postsData.map(post => post.author_id);
+      const campaignAuthorIds = campaignsData.map(campaign => campaign.creator_id);
+      const authorIds = [...new Set([...postAuthorIds, ...campaignAuthorIds])];
 
-      // Get unique author IDs
-      const authorIds = [...new Set(postsData.map(post => post.author_id))];
       console.log('useRealSocialFeed - Author IDs:', authorIds);
 
       // Fetch profiles for these authors
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, avatar_url')
-        .in('id', authorIds);
+      let profilesData = [];
+      if (authorIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, avatar_url')
+          .in('id', authorIds);
 
-      if (profilesError) {
-        console.error('useRealSocialFeed - Profiles query error:', profilesError);
-        // Continue without profiles if needed
+        if (profilesError) {
+          console.error('useRealSocialFeed - Profiles query error:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
       }
 
       console.log('useRealSocialFeed - Profiles data:', profilesData);
 
       // Create a profiles map for quick lookup
       const profilesMap = new Map();
-      if (profilesData) {
-        profilesData.forEach(profile => {
-          profilesMap.set(profile.id, profile);
-        });
-      }
+      profilesData.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
 
-      // Transform posts with author information
+      // Transform posts
       const transformedPosts: SocialPost[] = postsData.map(post => {
         const profile = profilesMap.get(post.author_id);
         let authorName = 'Anonymous';
@@ -114,8 +128,46 @@ export const useRealSocialFeed = () => {
         };
       });
 
-      console.log('useRealSocialFeed - Transformed posts:', transformedPosts);
-      setPosts(transformedPosts);
+      // Transform campaigns to look like posts
+      const transformedCampaigns: SocialPost[] = campaignsData.map(campaign => {
+        const profile = profilesMap.get(campaign.creator_id);
+        let authorName = 'Anonymous';
+        let avatarUrl = '';
+
+        if (profile) {
+          authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+          avatarUrl = profile.avatar_url || '';
+        }
+
+        return {
+          id: campaign.id,
+          title: campaign.title,
+          content: `${campaign.description}\n\nGoal: $${campaign.goal_amount || 0}\nCurrent: $${campaign.current_amount || 0}`,
+          author_id: campaign.creator_id,
+          author_name: authorName,
+          author_avatar: avatarUrl,
+          category: 'fundraising', // Mark campaigns as fundraising posts
+          urgency: campaign.urgency || 'medium',
+          location: campaign.location,
+          tags: campaign.tags || [],
+          media_urls: campaign.gallery_images || [],
+          created_at: campaign.created_at,
+          updated_at: campaign.updated_at,
+          likes_count: 0,
+          comments_count: 0,
+          shares_count: 0,
+          is_liked: false,
+          is_bookmarked: false
+        };
+      });
+
+      // Combine and sort by creation date
+      const allPosts = [...transformedPosts, ...transformedCampaigns].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      console.log('useRealSocialFeed - Combined posts:', allPosts);
+      setPosts(allPosts);
     } catch (error: any) {
       console.error('useRealSocialFeed - Error fetching posts:', error);
       toast({
@@ -310,28 +362,40 @@ export const useRealSocialFeed = () => {
     }
   }, [user, toast]);
 
-  // Set up real-time subscription for posts
+  // Set up real-time subscription for posts and campaigns
   useEffect(() => {
     if (!user) return;
 
     console.log('useRealSocialFeed - Setting up real-time subscription');
     
-    const channel = supabase
+    const postsChannel = supabase
       .channel('posts-realtime')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'posts'
       }, (payload) => {
-        console.log('useRealSocialFeed - Real-time update received:', payload);
-        // Refresh the feed when any post changes
+        console.log('useRealSocialFeed - Real-time post update received:', payload);
+        fetchPosts();
+      })
+      .subscribe();
+
+    const campaignsChannel = supabase
+      .channel('campaigns-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'campaigns'
+      }, (payload) => {
+        console.log('useRealSocialFeed - Real-time campaign update received:', payload);
         fetchPosts();
       })
       .subscribe();
 
     return () => {
       console.log('useRealSocialFeed - Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(campaignsChannel);
     };
   }, [user, fetchPosts]);
 
