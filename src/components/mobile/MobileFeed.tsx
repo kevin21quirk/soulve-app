@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
 import { PullToRefresh } from "@/components/ui/mobile/pull-to-refresh";
 import MobileCreatePost from "./MobileCreatePost";
@@ -23,6 +24,23 @@ const MobileFeed = () => {
     handleAddComment 
   } = useRealSocialFeed();
 
+  // Enhanced campaign creation event handling
+  useEffect(() => {
+    const handleCampaignCreated = (event: CustomEvent) => {
+      console.log('MobileFeed - Campaign created event received:', event.detail);
+      // Immediate refresh when campaign is created
+      setTimeout(() => {
+        refreshFeed();
+      }, 1000); // Small delay to ensure database is updated
+    };
+
+    window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
+
+    return () => {
+      window.removeEventListener('campaignCreated', handleCampaignCreated as EventListener);
+    };
+  }, [refreshFeed]);
+
   const handlePostCreated = () => {
     console.log('MobileFeed - Post created, refreshing feed');
     setIsCreatingPost(false);
@@ -38,14 +56,14 @@ const MobileFeed = () => {
     return post.category === activeFilter;
   });
 
-  // Transform SocialPost to FeedPost format for MobileFeedContent
+  // Transform SocialPost to FeedPost format for MobileFeedContent with enhanced status handling
   const transformedPosts = filteredPosts.map(post => ({
     id: post.id,
     author: post.author_name,
     avatar: post.author_avatar,
     title: post.title,
     description: post.content,
-    category: post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found",
+    category: post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found" | "fundraising",
     timestamp: new Date(post.created_at).toLocaleDateString(),
     location: post.location || '',
     responses: post.comments_count,
@@ -61,7 +79,8 @@ const MobileFeed = () => {
       type: 'image' as const,
       url,
       filename: url.split('/').pop() || ''
-    }))
+    })),
+    status: post.status // Include status for campaign handling
   }));
 
   const handleFilterToggle = (filter: string) => {
@@ -111,43 +130,45 @@ const MobileFeed = () => {
             </div>
           )}
 
-          {/* Feed Filters */}
+          {/* Filters Section */}
           <MobileFeedFilters
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
             activeFilters={activeFilters}
             onFilterToggle={handleFilterToggle}
             onClearFilters={handleClearFilters}
-            postCounts={{
-              urgent: posts.filter(p => p.urgency === "urgent").length,
-              nearby: posts.filter(p => p.location).length,
-              recent: posts.filter(p => Date.now() - new Date(p.created_at).getTime() < 86400000).length,
-              trending: posts.filter(p => p.likes_count > 5).length,
-            }}
           />
 
-          {/* Feed Content */}
+          {/* Enhanced Feed Content with status info */}
+          <div className="px-4">
+            {transformedPosts.length > 0 && (
+              <div className="text-xs text-gray-500 mb-4 text-center">
+                {transformedPosts.length} {transformedPosts.length === 1 ? 'item' : 'items'} in feed
+                {transformedPosts.filter(p => p.id.startsWith('campaign_')).length > 0 && (
+                  <span className="ml-2">
+                    ({transformedPosts.filter(p => p.id.startsWith('campaign_')).length} campaigns)
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
           <MobileFeedContent
             posts={transformedPosts}
             isLoading={loading}
             onLike={handleLike}
             onShare={handleShare}
-            onRespond={(postId: string) => handleAddComment(postId, "")}
+            onRespond={() => {}}
             onBookmark={handleBookmark}
-            onReaction={(postId: string, reactionType: string) => {
-              console.log('Mobile reaction:', postId, reactionType);
-            }}
+            onReaction={() => {}}
             onAddComment={handleAddComment}
-            onLikeComment={(postId: string, commentId: string) => {
-              console.log('Like comment:', postId, commentId);
-            }}
+            onLikeComment={() => {}}
             onRefresh={handleRefresh}
           />
         </div>
       </PullToRefresh>
 
-      {/* Floating Action Button */}
-      <MobileFloatingActionButton
-        onQuickPost={handleQuickPost}
-      />
+      <MobileFloatingActionButton onQuickPost={handleQuickPost} />
     </div>
   );
 };

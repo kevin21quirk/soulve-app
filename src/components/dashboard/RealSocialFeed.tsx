@@ -23,12 +23,12 @@ const RealSocialFeed = () => {
     handleAddComment 
   } = useRealSocialFeed();
 
-  // Enable real-time updates for posts
+  // Enhanced real-time updates for posts and campaigns
   useEffect(() => {
-    console.log('RealSocialFeed - Setting up real-time subscriptions');
+    console.log('RealSocialFeed - Setting up enhanced real-time subscriptions');
     
     const postsChannel = supabase
-      .channel('posts-realtime')
+      .channel('posts-realtime-feed')
       .on(
         'postgres_changes',
         {
@@ -38,14 +38,31 @@ const RealSocialFeed = () => {
         },
         (payload) => {
           console.log('RealSocialFeed - Real-time post update:', payload);
-          // Refresh feed when posts change
+          // Immediate refresh when posts change
+          refreshFeed();
+        }
+      )
+      .subscribe();
+
+    const campaignsChannel = supabase
+      .channel('campaigns-realtime-feed')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'campaigns'
+        },
+        (payload) => {
+          console.log('RealSocialFeed - Real-time campaign update:', payload);
+          // Immediate refresh when campaigns change
           refreshFeed();
         }
       )
       .subscribe();
 
     const interactionsChannel = supabase
-      .channel('interactions-realtime')
+      .channel('interactions-realtime-feed')
       .on(
         'postgres_changes',
         {
@@ -61,10 +78,23 @@ const RealSocialFeed = () => {
       )
       .subscribe();
 
+    // Listen for custom campaign creation events
+    const handleCampaignCreated = (event: CustomEvent) => {
+      console.log('RealSocialFeed - Campaign created event received:', event.detail);
+      // Immediate refresh when campaign is created
+      setTimeout(() => {
+        refreshFeed();
+      }, 1000); // Small delay to ensure database is updated
+    };
+
+    window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
+
     return () => {
-      console.log('RealSocialFeed - Cleaning up real-time subscriptions');
+      console.log('RealSocialFeed - Cleaning up enhanced real-time subscriptions');
       supabase.removeChannel(postsChannel);
+      supabase.removeChannel(campaignsChannel);
       supabase.removeChannel(interactionsChannel);
+      window.removeEventListener('campaignCreated', handleCampaignCreated as EventListener);
     };
   }, [refreshFeed]);
 
@@ -140,9 +170,14 @@ const RealSocialFeed = () => {
         </CardContent>
       </Card>
 
-      {/* Feed Header */}
+      {/* Feed Header with enhanced status info */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Community Feed</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Community Feed</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Real-time updates enabled • Including campaigns and posts
+          </p>
+        </div>
         <Button 
           variant="outline" 
           onClick={refreshFeed}
@@ -154,10 +189,15 @@ const RealSocialFeed = () => {
         </Button>
       </div>
 
-      {/* Posts Count */}
+      {/* Enhanced Posts Count with breakdown */}
       {posts.length > 0 && (
         <div className="text-sm text-gray-500">
-          {posts.length} {posts.length === 1 ? 'post' : 'posts'} in your feed (Real-time updates enabled)
+          {posts.length} {posts.length === 1 ? 'item' : 'items'} in your feed
+          {posts.filter(p => p.id.startsWith('campaign_')).length > 0 && (
+            <span className="ml-2">
+              ({posts.filter(p => p.id.startsWith('campaign_')).length} campaigns, {posts.filter(p => !p.id.startsWith('campaign_')).length} posts)
+            </span>
+          )}
         </div>
       )}
 

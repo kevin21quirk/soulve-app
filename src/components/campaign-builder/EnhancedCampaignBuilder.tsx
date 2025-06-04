@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -121,9 +120,9 @@ const EnhancedCampaignBuilder = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Creating campaign with data:', formData);
+      console.log('Creating campaign with enhanced data:', formData);
 
-      // Insert campaign into database
+      // Insert campaign into database with explicit active status
       const { data: campaign, error } = await supabase
         .from('campaigns')
         .insert({
@@ -149,7 +148,7 @@ const EnhancedCampaignBuilder = () => {
           custom_fields: formData.custom_fields,
           promotion_budget: formData.promotion_budget,
           creator_id: user.id,
-          status: 'active',
+          status: 'active', // Explicitly set to active
           current_amount: 0
         })
         .select()
@@ -160,9 +159,9 @@ const EnhancedCampaignBuilder = () => {
         throw error;
       }
 
-      console.log('Campaign created successfully:', campaign);
+      console.log('Campaign created successfully with status:', campaign.status);
       
-      // Trigger auto-publish to feed
+      // Trigger auto-publish to feed with enhanced data
       const campaignUpdate = {
         id: campaign.id,
         title: campaign.title,
@@ -171,15 +170,21 @@ const EnhancedCampaignBuilder = () => {
         author: user.user_metadata?.display_name || user.email?.split('@')[0] || 'User',
         type: campaign.category,
         location: campaign.location,
-        tags: campaign.tags
+        tags: campaign.tags,
+        status: campaign.status
       };
       
       setCreatedCampaign(campaignUpdate);
       
       toast({
-        title: "Campaign created successfully!",
-        description: "Your campaign has been published and will appear in the community feed.",
+        title: "Campaign created and published!",
+        description: `Your campaign "${campaign.title}" is now live and visible in the community feed.`,
       });
+
+      // Trigger an immediate broadcast to notify other components
+      window.dispatchEvent(new CustomEvent('campaignCreated', { 
+        detail: { campaign: campaignUpdate } 
+      }));
 
       // Reset form and go back to templates
       setFormData({
@@ -314,7 +319,7 @@ const EnhancedCampaignBuilder = () => {
                           disabled={isSubmitting || !formData.title || !formData.description}
                           className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
                         >
-                          {isSubmitting ? 'Creating...' : 'Create Campaign'}
+                          {isSubmitting ? 'Creating & Publishing...' : 'Create & Publish Campaign'}
                         </Button>
                       </div>
                     </form>

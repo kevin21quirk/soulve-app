@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +23,7 @@ export interface SocialPost {
   shares_count: number;
   is_liked: boolean;
   is_bookmarked: boolean;
+  status?: string; // Add status field for campaigns
 }
 
 export const useRealSocialFeed = () => {
@@ -35,7 +37,7 @@ export const useRealSocialFeed = () => {
     try {
       console.log('useRealSocialFeed - Fetching posts and campaigns...');
       
-      // Fetch both posts and campaigns with explicit status filtering
+      // Fetch both posts and campaigns with enhanced filtering
       const [postsResult, campaignsResult] = await Promise.all([
         supabase
           .from('posts')
@@ -45,7 +47,7 @@ export const useRealSocialFeed = () => {
         supabase
           .from('campaigns')
           .select('*')
-          .eq('status', 'active')
+          .or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`)
           .order('created_at', { ascending: false })
       ]);
 
@@ -128,7 +130,7 @@ export const useRealSocialFeed = () => {
         };
       });
 
-      // Transform campaigns to look like posts
+      // Transform campaigns to look like posts with enhanced status handling
       const transformedCampaigns: SocialPost[] = campaignsData.map(campaign => {
         const profile = profilesMap.get(campaign.creator_id);
         let authorName = 'Anonymous';
@@ -160,10 +162,18 @@ export const useRealSocialFeed = () => {
           }
         }
 
+        // Create campaign content with status indicator for drafts
+        let content = `${campaign.description}\n\nGoal: $${campaign.goal_amount || 0}\nCurrent: $${campaign.current_amount || 0}`;
+        if (campaign.status === 'draft' && user && campaign.creator_id === user.id) {
+          content = `[DRAFT] ${content}\n\n⚠️ This campaign is still in draft mode. It's only visible to you.`;
+        }
+
         return {
           id: `campaign_${campaign.id}`,
-          title: campaign.title,
-          content: `${campaign.description}\n\nGoal: $${campaign.goal_amount || 0}\nCurrent: $${campaign.current_amount || 0}`,
+          title: campaign.status === 'draft' && user && campaign.creator_id === user.id 
+            ? `[DRAFT] ${campaign.title}` 
+            : campaign.title,
+          content,
           author_id: campaign.creator_id,
           author_name: authorName,
           author_avatar: avatarUrl,
@@ -178,7 +188,8 @@ export const useRealSocialFeed = () => {
           comments_count: 0,
           shares_count: 0,
           is_liked: false,
-          is_bookmarked: false
+          is_bookmarked: false,
+          status: campaign.status
         };
       });
 
@@ -188,7 +199,8 @@ export const useRealSocialFeed = () => {
       );
 
       console.log('useRealSocialFeed - Final combined posts:', allPosts);
-      console.log('useRealSocialFeed - Campaigns in feed:', transformedCampaigns.length);
+      console.log('useRealSocialFeed - Active campaigns in feed:', transformedCampaigns.filter(c => c.status === 'active').length);
+      console.log('useRealSocialFeed - Draft campaigns in feed:', transformedCampaigns.filter(c => c.status === 'draft').length);
       
       setPosts(allPosts);
     } catch (error: any) {
@@ -202,7 +214,7 @@ export const useRealSocialFeed = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [toast]);
+  }, [toast, user]);
 
   const refreshFeed = useCallback(() => {
     console.log('useRealSocialFeed - Manual refresh triggered');
@@ -210,6 +222,7 @@ export const useRealSocialFeed = () => {
     fetchPosts();
   }, [fetchPosts]);
 
+  // Enhanced interaction handlers with better campaign ID handling
   const handleLike = useCallback(async (postId: string) => {
     if (!user) return;
 
@@ -397,14 +410,14 @@ export const useRealSocialFeed = () => {
     }
   }, [user, toast]);
 
-  // Set up real-time subscription for posts and campaigns
+  // Enhanced real-time subscription with better campaign handling
   useEffect(() => {
     if (!user) return;
 
-    console.log('useRealSocialFeed - Setting up real-time subscription');
+    console.log('useRealSocialFeed - Setting up enhanced real-time subscription');
     
     const postsChannel = supabase
-      .channel('posts-realtime')
+      .channel('posts-realtime-enhanced')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -416,19 +429,20 @@ export const useRealSocialFeed = () => {
       .subscribe();
 
     const campaignsChannel = supabase
-      .channel('campaigns-realtime')
+      .channel('campaigns-realtime-enhanced')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'campaigns'
       }, (payload) => {
         console.log('useRealSocialFeed - Real-time campaign update received:', payload);
+        // Immediate refresh when campaigns change
         fetchPosts();
       })
       .subscribe();
 
     return () => {
-      console.log('useRealSocialFeed - Cleaning up real-time subscription');
+      console.log('useRealSocialFeed - Cleaning up enhanced real-time subscription');
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(campaignsChannel);
     };
