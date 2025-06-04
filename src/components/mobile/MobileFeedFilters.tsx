@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Zap, MapPin, Clock, Users, X } from "lucide-react";
 
 interface MobileFeedFiltersProps {
+  activeFilter: string;
+  onFilterChange: (filter: string) => void;
   activeFilters: string[];
   onFilterToggle: (filter: string) => void;
   onClearFilters: () => void;
-  postCounts: Record<string, number>;
+  postCounts?: Record<string, number>;
 }
 
 const filterConfig = [
@@ -18,10 +20,12 @@ const filterConfig = [
 ];
 
 const MobileFeedFilters = ({ 
+  activeFilter,
+  onFilterChange,
   activeFilters, 
   onFilterToggle, 
   onClearFilters, 
-  postCounts 
+  postCounts = {}
 }: MobileFeedFiltersProps) => {
   return (
     <div className="bg-white border-b border-gray-100 p-3">

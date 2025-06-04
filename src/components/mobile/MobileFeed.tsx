@@ -63,7 +63,7 @@ const MobileFeed = () => {
     avatar: post.author_avatar,
     title: post.title,
     description: post.content,
-    category: post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found" | "fundraising",
+    category: post.category === "fundraising" ? "help-needed" : post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found",
     timestamp: new Date(post.created_at).toLocaleDateString(),
     location: post.location || '',
     responses: post.comments_count,
@@ -80,7 +80,10 @@ const MobileFeed = () => {
       url,
       filename: url.split('/').pop() || ''
     })),
-    status: post.status // Include status for campaign handling
+    status: post.status,
+    visibility: "public" as const,
+    reactions: [],
+    comments: []
   }));
 
   const handleFilterToggle = (filter: string) => {
@@ -98,6 +101,14 @@ const MobileFeed = () => {
   const handleQuickPost = (type: string) => {
     console.log('Quick post type:', type);
     setIsCreatingPost(true);
+  };
+
+  // Generate post counts for filters
+  const postCounts = {
+    urgent: transformedPosts.filter(p => p.urgency === 'urgent').length,
+    nearby: transformedPosts.filter(p => p.location).length,
+    recent: transformedPosts.filter(p => new Date(p.timestamp).getTime() > Date.now() - 24 * 60 * 60 * 1000).length,
+    trending: transformedPosts.filter(p => p.likes > 5).length
   };
 
   return (
@@ -137,6 +148,7 @@ const MobileFeed = () => {
             activeFilters={activeFilters}
             onFilterToggle={handleFilterToggle}
             onClearFilters={handleClearFilters}
+            postCounts={postCounts}
           />
 
           {/* Enhanced Feed Content with status info */}
