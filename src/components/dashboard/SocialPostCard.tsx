@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
+import { usePostReactions } from '@/hooks/usePostReactions';
+import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
+import ReactionDisplay from '@/components/ui/reaction-display';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -19,12 +22,17 @@ interface SocialPostCardProps {
 const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment }: SocialPostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const { reactions, toggleReaction } = usePostReactions(post.id);
 
   const handleComment = () => {
     if (newComment.trim()) {
       onComment(newComment.trim());
       setNewComment('');
     }
+  };
+
+  const handleReactionSelect = (emoji: string) => {
+    toggleReaction(emoji);
   };
 
   const getCategoryColor = (category: string) => {
@@ -146,6 +154,16 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment }: Social
           </div>
         )}
 
+        {/* Enhanced Reactions Display */}
+        {reactions.length > 0 && (
+          <div className="mb-4">
+            <ReactionDisplay
+              reactions={reactions}
+              onReactionClick={toggleReaction}
+            />
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center space-x-4">
@@ -180,6 +198,17 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment }: Social
               <Share2 className="h-4 w-4" />
               <span>{post.shares}</span>
             </Button>
+
+            {/* Modern Reaction Picker */}
+            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-blue-600"
+              >
+                React
+              </Button>
+            </ModernReactionPicker>
           </div>
           
           <Button

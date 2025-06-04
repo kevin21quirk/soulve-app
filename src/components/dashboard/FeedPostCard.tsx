@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock } from "lucide-react";
 import { FeedPost } from "@/types/feed";
-import PostReactions from "./PostReactions";
+import EnhancedPostReactions from "./EnhancedPostReactions";
 import PostComments from "./PostComments";
 import PostActions from "./PostActions";
 import UserModerationMenu from "@/components/moderation/UserModerationMenu";
@@ -142,8 +142,8 @@ const FeedPostCard = ({
             </div>
           )}
 
-          {/* Reactions */}
-          <PostReactions 
+          {/* Enhanced Reactions */}
+          <EnhancedPostReactions 
             post={post}
             onLike={onLike}
             onShare={onShare}

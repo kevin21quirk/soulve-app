@@ -1450,6 +1450,33 @@ export type Database = {
           },
         ]
       }
+      post_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author_id: string
@@ -2569,6 +2596,14 @@ export type Database = {
           metadata: Json
         }[]
       }
+      get_post_reaction_counts: {
+        Args: { target_post_id: string }
+        Returns: {
+          reaction_type: string
+          count: number
+          user_reacted: boolean
+        }[]
+      }
       get_user_organizations: {
         Args: { target_user_id: string }
         Returns: {
@@ -2602,6 +2637,10 @@ export type Database = {
           p_urgency_level: string
         }
         Returns: string
+      }
+      toggle_post_reaction: {
+        Args: { target_post_id: string; target_reaction_type: string }
+        Returns: boolean
       }
       update_campaign_amount: {
         Args: { campaign_uuid: string; donation_amount: number }
