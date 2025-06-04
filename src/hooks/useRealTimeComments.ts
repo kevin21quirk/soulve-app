@@ -31,8 +31,7 @@ export const useRealTimeComments = (postId: string) => {
           post_id,
           user_id,
           content,
-          created_at,
-          profiles!inner(first_name, last_name, avatar_url)
+          created_at
         `)
         .eq('post_id', postId)
         .eq('interaction_type', 'comment')
@@ -40,20 +39,17 @@ export const useRealTimeComments = (postId: string) => {
 
       if (error) throw error;
 
-      const commentData: RealTimeComment[] = (data || []).map(comment => {
-        const profile = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles;
-        return {
-          id: comment.id,
-          post_id: comment.post_id,
-          user_id: comment.user_id,
-          user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
-          user_avatar: profile?.avatar_url || undefined,
-          content: comment.content || '',
-          created_at: comment.created_at,
-          likes_count: 0,
-          user_liked: false
-        };
-      });
+      const commentData: RealTimeComment[] = (data || []).map(comment => ({
+        id: comment.id,
+        post_id: comment.post_id,
+        user_id: comment.user_id,
+        user_name: 'Anonymous User', // Default since we don't have profile join
+        user_avatar: undefined,
+        content: comment.content || '',
+        created_at: comment.created_at,
+        likes_count: 0,
+        user_liked: false
+      }));
 
       setComments(commentData);
     } catch (error) {

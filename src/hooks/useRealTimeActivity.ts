@@ -33,27 +33,23 @@ export const useRealTimeActivity = () => {
           description,
           metadata,
           created_at,
-          user_id,
-          profiles!inner(first_name, last_name, avatar_url)
+          user_id
         `)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      const transformedActivities: RealTimeActivity[] = (data || []).map(activity => {
-        const profile = Array.isArray(activity.profiles) ? activity.profiles[0] : activity.profiles;
-        return {
-          id: activity.id,
-          type: activity.activity_type as any,
-          user_id: activity.user_id,
-          user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
-          user_avatar: profile?.avatar_url || undefined,
-          content: activity.description || '',
-          timestamp: activity.created_at,
-          metadata: (activity.metadata as Record<string, any>) || {}
-        };
-      });
+      const transformedActivities: RealTimeActivity[] = (data || []).map(activity => ({
+        id: activity.id,
+        type: activity.activity_type as any,
+        user_id: activity.user_id,
+        user_name: 'Anonymous User', // Default since we don't have profile join
+        user_avatar: undefined,
+        content: activity.description || '',
+        timestamp: activity.created_at,
+        metadata: activity.metadata as Record<string, any> || {}
+      }));
 
       setActivities(transformedActivities);
     } catch (error) {

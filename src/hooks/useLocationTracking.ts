@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -66,9 +67,12 @@ export const useLocationTracking = () => {
       const location = await getCurrentLocation();
       setCurrentLocation(location);
 
-      // Store location in a separate location tracking table or just keep in state
-      // Remove the direct profiles table update since current_latitude doesn't exist
-      console.log('Location updated:', location);
+      // Store location in localStorage since we don't have location fields in profiles table
+      localStorage.setItem('userLocation', JSON.stringify({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        updated_at: new Date().toISOString()
+      }));
 
     } catch (error: any) {
       console.error('Location error:', error);
@@ -82,7 +86,7 @@ export const useLocationTracking = () => {
     if (!currentLocation || !user) return;
 
     try {
-      // For now, we'll fetch all active posts and filter by location
+      // Fetch posts with author profile information
       const { data, error } = await supabase
         .from('posts')
         .select(`
@@ -93,7 +97,7 @@ export const useLocationTracking = () => {
           location,
           created_at,
           author_id,
-          profiles!inner(first_name, last_name)
+          profiles!posts_author_id_fkey(first_name, last_name)
         `)
         .eq('is_active', true)
         .eq('category', 'help_needed')
@@ -104,19 +108,18 @@ export const useLocationTracking = () => {
       if (error) throw error;
 
       // Transform and add mock distance calculation
-      const requests: NearbyHelpRequest[] = (data || []).map(post => {
-        const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-        return {
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          urgency: post.urgency,
-          location: post.location || 'Location not specified',
-          distance: Math.random() * radiusKm, // Mock distance
-          author_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
-          created_at: post.created_at
-        };
-      });
+      const requests: NearbyHelpRequest[] = (data || []).map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        urgency: post.urgency,
+        location: post.location || 'Location not specified',
+        distance: Math.random() * radiusKm, // Mock distance
+        author_name: post.profiles && typeof post.profiles === 'object' && !Array.isArray(post.profiles) 
+          ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() 
+          : 'Anonymous',
+        created_at: post.created_at
+      }));
 
       // Sort by distance and filter within radius
       const nearbyFiltered = requests
