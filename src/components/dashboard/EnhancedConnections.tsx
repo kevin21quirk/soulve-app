@@ -7,7 +7,7 @@ import SuggestedConnections from "./SuggestedConnections";
 import GroupsSection from "./connections/GroupsSection";
 import CampaignsSection from "./connections/CampaignsSection";
 import PeopleYouMayKnow from "./connections/PeopleYouMayKnow";
-import CommunityChampions from "./CommunityChampions";
+import CommunityChampions from "./connections/CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
 import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights";
 import ConnectionsHeader from "./connections/ConnectionsHeader";
@@ -47,6 +47,14 @@ const EnhancedConnections = () => {
     );
   }
 
+  // Transform acceptedConnections to match the expected format
+  const transformedConnections = acceptedConnections.map(conn => ({
+    id: conn.id,
+    partner_id: conn.requester_id === conn.addressee_id ? conn.requester_id : 
+                (conn.requester && conn.requester.id !== conn.addressee?.id ? conn.addressee_id : conn.requester_id),
+    partner_profile: conn.requester && conn.requester.id !== conn.addressee?.id ? conn.addressee : conn.requester
+  }));
+
   return (
     <div className="space-y-6">
       <ConnectionsHeader
@@ -61,7 +69,7 @@ const EnhancedConnections = () => {
         setShowSearch={setShowSearch}
         showAnalytics={showAnalytics}
         setShowAnalytics={setShowAnalytics}
-        connectedPeople={acceptedConnections}
+        connectedPeople={transformedConnections}
         suggestedConnections={[]}
       />
 
@@ -78,7 +86,7 @@ const EnhancedConnections = () => {
           />
 
           <DatabaseConnectionInsights
-            connectedPeople={acceptedConnections}
+            connectedPeople={transformedConnections}
             suggestedConnections={[]}
           />
 

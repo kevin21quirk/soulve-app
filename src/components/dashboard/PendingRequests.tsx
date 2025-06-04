@@ -63,14 +63,14 @@ const PendingRequests = ({ getTrustScoreColor }: PendingRequestsProps) => {
       <CardContent>
         <div className="space-y-4">
           {pendingRequests.map((request) => {
-            const profile = request.requester || {};
+            const profile = request.requester || { first_name: '', last_name: '', avatar_url: '', location: '' };
             const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
             
             return (
               <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg bg-blue-50/50">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile.avatar_url} alt={name} />
+                    <AvatarImage src={profile.avatar_url || ''} alt={name} />
                     <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                       {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
