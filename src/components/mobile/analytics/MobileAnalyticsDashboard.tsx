@@ -72,18 +72,38 @@ const MobileAnalyticsDashboard = () => {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900">Analytics</h1>
-        <Button variant="outline" size="sm">
+        <Button variant="gradient" size="sm">
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="engagement">Social</TabsTrigger>
-          <TabsTrigger value="impact">Impact</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+          <TabsTrigger 
+            value="overview"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="activity"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Activity
+          </TabsTrigger>
+          <TabsTrigger 
+            value="engagement"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Social
+          </TabsTrigger>
+          <TabsTrigger 
+            value="impact"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+          >
+            Impact
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-4">

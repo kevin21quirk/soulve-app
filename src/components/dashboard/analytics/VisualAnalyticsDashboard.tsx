@@ -60,11 +60,31 @@ const VisualAnalyticsDashboard = ({
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="weekly">Weekly Activity</TabsTrigger>
-            <TabsTrigger value="trends">Monthly Trends</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="timing">Activity Timing</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+            <TabsTrigger 
+              value="weekly"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
+              Weekly Activity
+            </TabsTrigger>
+            <TabsTrigger 
+              value="trends"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
+              Monthly Trends
+            </TabsTrigger>
+            <TabsTrigger 
+              value="categories"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
+              Categories
+            </TabsTrigger>
+            <TabsTrigger 
+              value="timing"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
+              Activity Timing
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="weekly" className="space-y-4">
