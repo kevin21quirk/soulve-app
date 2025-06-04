@@ -14,7 +14,6 @@ export const useConversations = (userId: string | undefined) => {
   const loadConversations = useCallback(async (showLoading = true) => {
     if (!userId) return;
 
-    // Prevent duplicate loading requests
     if (loadingRef.current) {
       console.log('Already loading conversations');
       return;
@@ -27,7 +26,6 @@ export const useConversations = (userId: string | undefined) => {
     try {
       console.log('Loading conversations for user:', userId);
       
-      // Get latest message with each user - simplified query
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
@@ -39,7 +37,6 @@ export const useConversations = (userId: string | undefined) => {
         throw new Error(`Failed to load conversations: ${messagesError.message}`);
       }
 
-      // Get unique partner IDs and fetch their profiles separately
       const partnerIds = new Set<string>();
       (messages || []).forEach((message: any) => {
         const partnerId = message.sender_id === userId ? message.recipient_id : message.sender_id;
@@ -52,7 +49,6 @@ export const useConversations = (userId: string | undefined) => {
         return;
       }
 
-      // Fetch profiles separately with error handling
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, avatar_url')
@@ -60,7 +56,6 @@ export const useConversations = (userId: string | undefined) => {
 
       if (profilesError) {
         console.warn('Error fetching profiles:', profilesError);
-        // Continue without profiles rather than failing completely
       }
 
       const profileMap = new Map();
@@ -68,7 +63,7 @@ export const useConversations = (userId: string | undefined) => {
         profileMap.set(profile.id, profile);
       });
 
-      // Group by conversation partner and get latest message
+      // Group by conversation partner and get latest message + unread count
       const conversationsMap = new Map();
       
       (messages || []).forEach((message: any) => {
@@ -131,7 +126,6 @@ export const useConversations = (userId: string | undefined) => {
       const existingIndex = updated.findIndex(conv => conv.partner_id === senderId);
       
       if (existingIndex >= 0) {
-        // Update existing conversation
         const conversation = { ...updated[existingIndex] };
         conversation.last_message = {
           content: message,
@@ -141,11 +135,9 @@ export const useConversations = (userId: string | undefined) => {
         conversation.unread_count += 1;
         conversation.is_read = false;
         
-        // Move to top
         updated.splice(existingIndex, 1);
         updated.unshift(conversation);
       } else {
-        // This shouldn't happen often, but trigger a reload if needed
         console.log('New conversation detected, reloading...');
         loadConversations(false);
       }

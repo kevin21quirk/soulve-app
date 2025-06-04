@@ -24,13 +24,11 @@ export const useMessages = (userId: string | undefined) => {
   const loadMessages = useCallback(async (partnerId: string, forceReload = false) => {
     if (!userId) return;
 
-    // Prevent duplicate loading requests
     if (loadingRef.current[partnerId] && !forceReload) {
       console.log('Already loading messages for:', partnerId);
       return;
     }
 
-    // Return cached messages if available and not force reloading
     if (!forceReload && messages[partnerId]?.length > 0) {
       console.log('Using cached messages for:', partnerId);
       return;
@@ -55,7 +53,6 @@ export const useMessages = (userId: string | undefined) => {
 
       console.log('Loaded messages for conversation:', data?.length || 0);
       
-      // Convert database messages to our Message interface
       const convertedMessages = (data || []).map(msg => convertToMessage(msg));
       
       setMessages(prev => ({
@@ -93,7 +90,17 @@ export const useMessages = (userId: string | undefined) => {
     }
   }, [userId, messages, toast]);
 
-  const sendMessage = useCallback(async (recipientId: string, content: string, messageType: 'text' | 'image' | 'file' = 'text') => {
+  const sendMessage = useCallback(async (
+    recipientId: string, 
+    content: string, 
+    messageType: 'text' | 'image' | 'file' = 'text',
+    attachment?: {
+      url: string;
+      name: string;
+      size: number;
+      type: string;
+    }
+  ) => {
     if (!userId || !content.trim()) return;
 
     // Optimistic update
@@ -104,7 +111,11 @@ export const useMessages = (userId: string | undefined) => {
       recipient_id: recipientId,
       created_at: new Date().toISOString(),
       is_read: false,
-      message_type: messageType
+      message_type: messageType,
+      attachment_url: attachment?.url,
+      attachment_name: attachment?.name,
+      attachment_size: attachment?.size,
+      attachment_type: attachment?.type
     };
 
     setMessages(prev => ({
@@ -115,15 +126,24 @@ export const useMessages = (userId: string | undefined) => {
     try {
       console.log('Sending message from', userId, 'to', recipientId, ':', content);
       
+      const messageData: any = {
+        sender_id: userId,
+        recipient_id: recipientId,
+        content: content.trim(),
+        message_type: messageType,
+        is_read: false
+      };
+
+      if (attachment) {
+        messageData.attachment_url = attachment.url;
+        messageData.attachment_name = attachment.name;
+        messageData.attachment_size = attachment.size;
+        messageData.attachment_type = attachment.type;
+      }
+
       const { data, error } = await supabase
         .from('messages')
-        .insert({
-          sender_id: userId,
-          recipient_id: recipientId,
-          content: content.trim(),
-          message_type: messageType,
-          is_read: false
-        })
+        .insert(messageData)
         .select()
         .single();
 
@@ -167,7 +187,6 @@ export const useMessages = (userId: string | undefined) => {
       const conversationId = newMessage.sender_id;
       const existingMessages = prev[conversationId] || [];
       
-      // Check if message already exists (prevent duplicates)
       if (existingMessages.some(msg => msg.id === newMessage.id)) {
         return prev;
       }

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { RealMessaging } from './RealMessaging';
+import RealTimeMessagingInterface from '../messaging/RealTimeMessagingInterface';
 import TestButtons from './TestButtons';
 
 const EnhancedMessaging = () => {
@@ -9,8 +9,8 @@ const EnhancedMessaging = () => {
       {/* Test Buttons Panel */}
       <TestButtons />
       
-      {/* Real Messaging Component */}
-      <RealMessaging />
+      {/* Real-time Messaging Interface */}
+      <RealTimeMessagingInterface />
     </div>
   );
 };
