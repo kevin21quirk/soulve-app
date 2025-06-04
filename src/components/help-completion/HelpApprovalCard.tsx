@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { HelpCompletionRequest } from '@/types/helpCompletion';
-import { useHelpCompletion } from '@/hooks/useHelpCompletion';
-import { CheckCircle, XCircle, Clock, Star } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import HelpCompletionReview from './HelpCompletionReview';
+import DisputeResolutionDialog from './DisputeResolutionDialog';
+import AutomatedPointsDisplay from './AutomatedPointsDisplay';
 
 interface HelpApprovalCardProps {
   request: HelpCompletionRequest;
@@ -18,27 +18,8 @@ interface HelpApprovalCardProps {
 }
 
 const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: HelpApprovalCardProps) => {
-  const [showReview, setShowReview] = useState(false);
-  const [rating, setRating] = useState<number>(5);
-  const [feedback, setFeedback] = useState('');
-  const { reviewCompletionRequest, loading } = useHelpCompletion();
-
-  const handleApprove = async () => {
-    await reviewCompletionRequest(request.id, {
-      status: 'approved',
-      feedback_rating: rating,
-      feedback_message: feedback || undefined
-    });
-    setShowReview(false);
-  };
-
-  const handleReject = async () => {
-    await reviewCompletionRequest(request.id, {
-      status: 'rejected',
-      feedback_message: feedback || undefined
-    });
-    setShowReview(false);
-  };
+  const [expanded, setExpanded] = useState(false);
+  const [showDispute, setShowDispute] = useState(false);
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -50,6 +31,10 @@ const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: Help
     return `${Math.floor(diffInHours / 24)}d ago`;
   };
 
+  const handleDispute = (requestId: string) => {
+    setShowDispute(true);
+  };
+
   return (
     <Card className="border-blue-200 bg-blue-50/30">
       <CardHeader>
@@ -58,19 +43,29 @@ const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: Help
             <Clock className="h-5 w-5 text-blue-600" />
             Help Completion Review
           </CardTitle>
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-            Pending Review
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+              Pending Review
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
-          <Avatar>
+          <Avatar className="h-12 w-12">
             <AvatarImage src={helperAvatar} alt={helperName} />
             <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
               {helperName?.charAt(0) || 'H'}
             </AvatarFallback>
           </Avatar>
+          
           <div>
             <p className="font-medium">{helperName || 'Helper'}</p>
             <p className="text-sm text-gray-600">completed helping with:</p>
@@ -89,69 +84,33 @@ const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: Help
           Submitted {formatTimeAgo(request.created_at)}
         </div>
 
-        {!showReview ? (
+        {!expanded ? (
           <div className="flex gap-2">
             <Button
-              onClick={() => setShowReview(true)}
+              onClick={() => setExpanded(true)}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
-              <CheckCircle className="h-4 w-4 mr-2" />
               Review & Approve
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleReject}
-              disabled={loading}
-              className="border-red-300 text-red-600 hover:bg-red-50"
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Reject
             </Button>
           </div>
         ) : (
-          <div className="space-y-4 border-t pt-4">
-            <div>
-              <Label className="text-sm font-medium">Rate the help (1-5 stars)</Label>
-              <div className="flex gap-1 mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => setRating(star)}
-                    className={`p-1 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                  >
-                    <Star className="h-5 w-5 fill-current" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="feedback">Feedback (Optional)</Label>
-              <Textarea
-                id="feedback"
-                placeholder="Leave feedback for the helper..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows={2}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                onClick={handleApprove}
-                disabled={loading}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-              >
-                {loading ? "Processing..." : "Approve & Award Points"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowReview(false)}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-            </div>
+          <div className="space-y-4">
+            <HelpCompletionReview
+              request={request}
+              helperName={helperName}
+              helperAvatar={helperAvatar}
+              postTitle={postTitle}
+              onDispute={handleDispute}
+            />
+            
+            <AutomatedPointsDisplay
+              completionRequest={request}
+              helperName={helperName}
+            />
+            
+            {showDispute && (
+              <DisputeResolutionDialog completionRequestId={request.id} />
+            )}
           </div>
         )}
       </CardContent>

@@ -4,13 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useHelpCompletion } from '@/hooks/useHelpCompletion';
-import { CheckCircle, Clock, Star, ChevronDown } from 'lucide-react';
+import { CheckCircle, Clock, Star, ChevronDown, Eye, Flag } from 'lucide-react';
 import { HelpCompletionRequest } from '@/types/helpCompletion';
+import DisputeResolutionDialog from '@/components/help-completion/DisputeResolutionDialog';
 
 const MobileHelpApproval = () => {
   const { pendingRequests, reviewCompletionRequest, loading } = useHelpCompletion();
   const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
   const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [showEvidence, setShowEvidence] = useState<Record<string, boolean>>({});
 
   const handleApprove = async (requestId: string) => {
     await reviewCompletionRequest(requestId, {
@@ -25,6 +27,58 @@ const MobileHelpApproval = () => {
       status: 'rejected'
     });
     setExpandedRequest(null);
+  };
+
+  const toggleEvidence = (requestId: string) => {
+    setShowEvidence(prev => ({ ...prev, [requestId]: !prev[requestId] }));
+  };
+
+  const renderEvidence = (request: HelpCompletionRequest) => {
+    if (!request.completion_evidence || Object.keys(request.completion_evidence).length === 0) {
+      return <p className="text-xs text-gray-500">No evidence submitted</p>;
+    }
+
+    const evidence = request.completion_evidence as any;
+    
+    return (
+      <div className="space-y-2 text-xs">
+        {evidence.files && evidence.files.length > 0 && (
+          <div>
+            <span className="font-medium">Files:</span>
+            <div className="space-y-1">
+              {evidence.files.slice(0, 2).map((file: string, index: number) => (
+                <a
+                  key={index}
+                  href={file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-blue-600 hover:underline truncate"
+                >
+                  {file}
+                </a>
+              ))}
+              {evidence.files.length > 2 && (
+                <p className="text-gray-500">+{evidence.files.length - 2} more files</p>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {evidence.location && (
+          <div>
+            <span className="font-medium">Location:</span>
+            <span className="ml-1">{evidence.location}</span>
+          </div>
+        )}
+        
+        {evidence.timeSpent && (
+          <div>
+            <span className="font-medium">Time:</span>
+            <span className="ml-1">{evidence.timeSpent}</span>
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (pendingRequests.length === 0) {
@@ -75,6 +129,27 @@ const MobileHelpApproval = () => {
               </div>
             )}
 
+            {/* Evidence Toggle */}
+            {request.completion_evidence && Object.keys(request.completion_evidence).length > 0 && (
+              <div className="mb-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleEvidence(request.id)}
+                  className="text-xs p-2 h-auto"
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  {showEvidence[request.id] ? 'Hide' : 'View'} Evidence
+                </Button>
+                
+                {showEvidence[request.id] && (
+                  <div className="bg-white p-3 rounded-lg border mt-2">
+                    {renderEvidence(request)}
+                  </div>
+                )}
+              </div>
+            )}
+
             {expandedRequest === request.id && (
               <div className="space-y-4 mt-4">
                 <div>
@@ -94,23 +169,36 @@ const MobileHelpApproval = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
                   <Button
                     onClick={() => handleApprove(request.id)}
                     disabled={loading}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2"
+                    className="bg-green-600 hover:bg-green-700 text-white text-sm py-2"
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
-                    Approve
+                    Approve & Award Points
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleReject(request.id)}
-                    disabled={loading}
-                    className="border-red-300 text-red-600 hover:bg-red-50 text-sm py-2"
-                  >
-                    Reject
-                  </Button>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleReject(request.id)}
+                      disabled={loading}
+                      className="flex-1 border-red-300 text-red-600 hover:bg-red-50 text-sm py-2"
+                    >
+                      Reject
+                    </Button>
+                    
+                    <DisputeResolutionDialog completionRequestId={request.id}>
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-orange-300 text-orange-600 hover:bg-orange-50 text-sm py-2"
+                      >
+                        <Flag className="h-4 w-4 mr-1" />
+                        Dispute
+                      </Button>
+                    </DisputeResolutionDialog>
+                  </div>
                 </div>
               </div>
             )}
