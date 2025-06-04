@@ -31,8 +31,7 @@ export const useRealTimeChat = (roomId: string) => {
           content,
           sender_id,
           created_at,
-          message_type,
-          profiles!inner(first_name, last_name, avatar_url)
+          message_type
         `)
         .eq('recipient_id', roomId) // Using recipient_id as room_id for now
         .order('created_at', { ascending: true })
@@ -43,8 +42,8 @@ export const useRealTimeChat = (roomId: string) => {
       const chatMessages: ChatMessage[] = (data || []).map(msg => ({
         id: msg.id,
         sender_id: msg.sender_id,
-        sender_name: `${msg.profiles.first_name || ''} ${msg.profiles.last_name || ''}`.trim(),
-        sender_avatar: msg.profiles.avatar_url || undefined,
+        sender_name: 'Anonymous User', // Default since we don't have profile join
+        sender_avatar: undefined,
         content: msg.content,
         message_type: msg.message_type as any || 'text',
         created_at: msg.created_at,

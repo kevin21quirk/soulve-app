@@ -67,19 +67,12 @@ export const useLocationTracking = () => {
       const location = await getCurrentLocation();
       setCurrentLocation(location);
 
-      // Update user's location in the database
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          current_latitude: location.latitude,
-          current_longitude: location.longitude,
-          location_updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating location:', error);
-      }
+      // Store location in localStorage since we don't have location fields in profiles table
+      localStorage.setItem('userLocation', JSON.stringify({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        updated_at: new Date().toISOString()
+      }));
 
     } catch (error: any) {
       console.error('Location error:', error);
@@ -93,7 +86,7 @@ export const useLocationTracking = () => {
     if (!currentLocation || !user) return;
 
     try {
-      // For now, we'll fetch all active posts and filter by location
+      // Fetch posts with author profile information
       const { data, error } = await supabase
         .from('posts')
         .select(`
@@ -104,7 +97,7 @@ export const useLocationTracking = () => {
           location,
           created_at,
           author_id,
-          profiles!inner(first_name, last_name)
+          profiles!posts_author_id_fkey(first_name, last_name)
         `)
         .eq('is_active', true)
         .eq('category', 'help_needed')
@@ -122,7 +115,7 @@ export const useLocationTracking = () => {
         urgency: post.urgency,
         location: post.location || 'Location not specified',
         distance: Math.random() * radiusKm, // Mock distance
-        author_name: `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim(),
+        author_name: post.profiles ? `${post.profiles.first_name || ''} ${post.profiles.last_name || ''}`.trim() : 'Anonymous',
         created_at: post.created_at
       }));
 
