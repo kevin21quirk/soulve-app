@@ -51,8 +51,8 @@ export const usePostReactions = (postId: string) => {
 
         const users = reactionUsers?.map(r => ({
           id: r.user_id,
-          name: `${r.profiles.first_name || ''} ${r.profiles.last_name || ''}`.trim() || 'Anonymous',
-          avatar: r.profiles.avatar_url || undefined
+          name: `${r.profiles?.first_name || ''} ${r.profiles?.last_name || ''}`.trim() || 'Anonymous',
+          avatar: r.profiles?.avatar_url || undefined
         })) || [];
 
         reactionsWithUsers.push({
