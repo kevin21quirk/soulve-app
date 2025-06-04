@@ -1,15 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRealMessaging } from '@/hooks/useRealMessaging';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Send, ArrowLeft, MessageCircle, Plus, Search, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MessagingTab = () => {
+  const { user } = useAuth();
   const { 
     conversations, 
     messages, 
@@ -21,10 +24,38 @@ const MessagingTab = () => {
   
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [showNewConversation, setShowNewConversation] = useState(false);
+  const [searchUsers, setSearchUsers] = useState('');
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+
+  // Fetch available users for new conversations
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!user || !showNewConversation) return;
+      
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .neq('id', user.id)
+        .limit(20);
+      
+      if (!error && profiles) {
+        setAvailableUsers(profiles);
+      }
+    };
+
+    fetchUsers();
+  }, [user, showNewConversation]);
 
   const handleConversationSelect = async (partnerId: string) => {
     setSelectedConversation(partnerId);
+    setShowNewConversation(false);
     await fetchMessages(partnerId);
+  };
+
+  const handleStartNewConversation = (userId: string) => {
+    setSelectedConversation(userId);
+    setShowNewConversation(false);
   };
 
   const handleSendMessage = async () => {
@@ -41,6 +72,11 @@ const MessagingTab = () => {
     }
   };
 
+  const filteredUsers = availableUsers.filter(user => {
+    const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    return userName.toLowerCase().includes(searchUsers.toLowerCase());
+  });
+
   if (loading) {
     return (
       <Card>
@@ -52,7 +88,7 @@ const MessagingTab = () => {
   }
 
   if (selectedConversation) {
-    const conversation = conversations.find(c => c.partner_id === selectedConversation);
+    const conversation = conversations.find(c => c.user_id === selectedConversation);
     const conversationMessages = messages[selectedConversation] || [];
 
     return (
@@ -67,12 +103,12 @@ const MessagingTab = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <Avatar className="h-8 w-8">
-              <AvatarImage src={conversation?.partner_avatar} />
+              <AvatarImage src={conversation?.avatar_url} />
               <AvatarFallback>
-                {conversation?.partner_name.charAt(0).toUpperCase()}
+                {conversation?.user_name?.charAt(0)?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
-            <CardTitle className="text-lg">{conversation?.partner_name}</CardTitle>
+            <CardTitle className="text-lg">{conversation?.user_name || 'New Conversation'}</CardTitle>
           </div>
         </CardHeader>
         
@@ -81,18 +117,18 @@ const MessagingTab = () => {
             {conversationMessages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.is_own ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`max-w-[70%] p-3 rounded-lg ${
-                    message.is_own
+                    message.sender_id === user?.id
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-200 text-gray-900'
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
                   <p className={`text-xs mt-1 ${
-                    message.is_own ? 'text-blue-100' : 'text-gray-500'
+                    message.sender_id === user?.id ? 'text-blue-100' : 'text-gray-500'
                   }`}>
                     {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                   </p>
@@ -128,62 +164,134 @@ const MessagingTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
+        <Button 
+          onClick={() => setShowNewConversation(!showNewConversation)}
+          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New
+        </Button>
       </div>
 
-      {conversations.length === 0 ? (
+      {showNewConversation ? (
         <Card>
-          <CardContent className="p-12 text-center">
-            <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h3>
-            <p className="text-gray-600">
-              Start connecting with people to begin messaging.
-            </p>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Start New Conversation</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowNewConversation(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search people..."
+                value={searchUsers}
+                onChange={(e) => setSearchUsers(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {filteredUsers.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No users found</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredUsers.map((user) => {
+                  const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Anonymous';
+                  return (
+                    <div
+                      key={user.id}
+                      onClick={() => handleStartNewConversation(user.id)}
+                      className="p-3 hover:bg-gray-50 cursor-pointer rounded-lg border"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={user.avatar_url || ''} alt={userName} />
+                          <AvatarFallback>
+                            {userName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-medium text-gray-900">{userName}</h4>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Conversations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  onClick={() => handleConversationSelect(conversation.partner_id)}
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border"
-                >
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={conversation.partner_avatar} />
-                    <AvatarFallback>
-                      {conversation.partner_name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-gray-900 truncate">
-                        {conversation.partner_name}
-                      </h3>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(conversation.last_message_time), { addSuffix: true })}
-                      </span>
+        <>
+          {conversations.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h3>
+                <p className="text-gray-600">
+                  Start connecting with people to begin messaging.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Conversations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {conversations.map((conversation) => (
+                    <div
+                      key={conversation.user_id}
+                      onClick={() => handleConversationSelect(conversation.user_id)}
+                      className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border"
+                    >
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={conversation.avatar_url} />
+                        <AvatarFallback>
+                          {conversation.user_name?.charAt(0)?.toUpperCase() || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {conversation.user_name}
+                          </h3>
+                          {conversation.last_message_time && (
+                            <span className="text-xs text-gray-500">
+                              {formatDistanceToNow(new Date(conversation.last_message_time), { addSuffix: true })}
+                            </span>
+                          )}
+                        </div>
+                        {conversation.last_message && (
+                          <p className="text-sm text-gray-600 truncate">
+                            {conversation.last_message}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {conversation.unread_count > 0 && (
+                        <Badge className="bg-blue-600 text-white">
+                          {conversation.unread_count}
+                        </Badge>
+                      )}
                     </div>
-                    <p className="text-sm text-gray-600 truncate">
-                      {conversation.last_message}
-                    </p>
-                  </div>
-                  
-                  {conversation.unread_count > 0 && (
-                    <Badge className="bg-blue-600 text-white">
-                      {conversation.unread_count}
-                    </Badge>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
