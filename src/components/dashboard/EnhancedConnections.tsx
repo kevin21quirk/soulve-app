@@ -7,7 +7,7 @@ import SuggestedConnections from "./SuggestedConnections";
 import GroupsSection from "./connections/GroupsSection";
 import CampaignsSection from "./connections/CampaignsSection";
 import PeopleYouMayKnow from "./connections/PeopleYouMayKnow";
-import CommunityChampions from "./connections/CommunityChampions";
+import CommunityChampions from "./CommunityChampions";
 import ConnectionStats from "./connections/ConnectionStats";
 import DatabaseConnectionInsights from "./connections/DatabaseConnectionInsights";
 import ConnectionsHeader from "./connections/ConnectionsHeader";

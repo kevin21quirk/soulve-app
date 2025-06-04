@@ -4,6 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+interface ProfileData {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+  location?: string;
+  bio?: string;
+}
+
 interface ConnectionRequest {
   id: string;
   requester_id: string;
@@ -11,22 +20,8 @@ interface ConnectionRequest {
   status: 'pending' | 'accepted' | 'declined' | 'blocked';
   created_at: string;
   updated_at: string;
-  requester: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-    location?: string;
-    bio?: string;
-  } | null;
-  addressee: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-    location?: string;
-    bio?: string;
-  } | null;
+  requester: ProfileData | null;
+  addressee: ProfileData | null;
   mutual_connections_count?: number;
 }
 
@@ -87,43 +82,57 @@ export const useConnectionRequests = () => {
     setError(null);
 
     try {
+      // Fetch connections
       const { data: connections, error: connectionsError } = await supabase
         .from('connections')
-        .select(`
-          id,
-          requester_id,
-          addressee_id,
-          status,
-          created_at,
-          updated_at,
-          requester:profiles!connections_requester_id_fkey(
-            id,
-            first_name,
-            last_name,
-            avatar_url,
-            location,
-            bio
-          ),
-          addressee:profiles!connections_addressee_id_fkey(
-            id,
-            first_name,
-            last_name,
-            avatar_url,
-            location,
-            bio
-          )
-        `)
+        .select('*')
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (connectionsError) throw connectionsError;
 
-      // Calculate mutual connections for each request
+      if (!connections || connections.length === 0) {
+        setPendingRequests([]);
+        setSentRequests([]);
+        setAcceptedConnections([]);
+        setLoading(false);
+        return;
+      }
+
+      // Get all unique user IDs from connections
+      const userIds = new Set<string>();
+      connections.forEach(conn => {
+        userIds.add(conn.requester_id);
+        userIds.add(conn.addressee_id);
+      });
+
+      // Fetch profiles for all users involved in connections
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, location, bio')
+        .in('id', Array.from(userIds));
+
+      if (profilesError) throw profilesError;
+
+      // Create a map for quick profile lookup
+      const profileMap = new Map<string, ProfileData>();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Calculate mutual connections for each request and combine with profile data
       const connectionsWithMutual = await Promise.all(
-        (connections || []).map(async (conn) => {
+        connections.map(async (conn) => {
           const otherUserId = conn.requester_id === user.id ? conn.addressee_id : conn.requester_id;
           const mutualCount = await calculateMutualConnections(user.id, otherUserId);
-          return { ...conn, mutual_connections_count: mutualCount };
+          
+          return {
+            ...conn,
+            status: conn.status as 'pending' | 'accepted' | 'declined' | 'blocked',
+            requester: profileMap.get(conn.requester_id) || null,
+            addressee: profileMap.get(conn.addressee_id) || null,
+            mutual_connections_count: mutualCount
+          };
         })
       );
 
