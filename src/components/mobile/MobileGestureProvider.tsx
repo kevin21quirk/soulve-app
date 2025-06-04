@@ -40,10 +40,10 @@ export const MobileGestureProvider = ({
     const handleTouchEnd = (e: TouchEvent) => {
       const result = gestures.onTouchEnd?.(e);
       if (result && onSwipe) {
-        if (result.direction === 'left') onSwipe('left', element);
-        if (result.direction === 'right') onSwipe('right', element);
-        if (result.direction === 'up') onSwipe('up', element);
-        if (result.direction === 'down') onSwipe('down', element);
+        if (result.isLeftSwipe) onSwipe('left', element);
+        if (result.isRightSwipe) onSwipe('right', element);
+        if (result.isUpSwipe) onSwipe('up', element);
+        if (result.isDownSwipe) onSwipe('down', element);
       }
     };
 
