@@ -26,7 +26,7 @@ const EnhancedAnalyticsPointsTab = () => {
       <FraudProtectionAlert />
       
       <Tabs defaultValue="enhanced-points" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100">
           <TabsTrigger 
             value="enhanced-points"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
