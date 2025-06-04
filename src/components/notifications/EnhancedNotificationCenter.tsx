@@ -47,6 +47,20 @@ interface AdvancedFilters {
   };
 }
 
+// Unified notification interface for display
+interface UnifiedNotification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  is_read: boolean;
+  created_at?: string;
+  timestamp?: string;
+  metadata?: any;
+  sender_id?: string;
+}
+
 const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCenterProps) => {
   const [activeTab, setActiveTab] = useState("notifications");
   const [showSettings, setShowSettings] = useState(false);
@@ -64,10 +78,20 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
 
   const offlineNotifications = useOfflineNotifications();
 
-  // Combine online and offline notifications with proper date handling
-  const allNotifications = [
-    ...onlineNotifications,
-    ...offlineNotifications.notifications
+  // Combine online and offline notifications with proper type handling
+  const allNotifications: UnifiedNotification[] = [
+    ...onlineNotifications.map(n => ({
+      ...n,
+      isRead: n.is_read,
+      created_at: n.created_at,
+      timestamp: n.timestamp
+    })),
+    ...offlineNotifications.notifications.map(n => ({
+      ...n,
+      is_read: n.isRead,
+      created_at: n.timestamp,
+      timestamp: n.timestamp
+    }))
   ].sort((a, b) => {
     const aDate = new Date(a.created_at || a.timestamp || Date.now());
     const bDate = new Date(b.created_at || b.timestamp || Date.now());
@@ -92,7 +116,7 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
     }
   });
 
-  const applyAdvancedFilters = (notifications: any[]) => {
+  const applyAdvancedFilters = (notifications: UnifiedNotification[]) => {
     let filtered = [...notifications];
 
     // Apply date range filter with proper date handling
