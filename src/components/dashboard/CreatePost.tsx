@@ -34,35 +34,46 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     }
   };
 
-  // Listen for share events with enhanced debugging
+  // Listen for share events with enhanced debugging and error handling
   useEffect(() => {
     console.log('CreatePost - Setting up share event listener');
     
     const handleShareEvent = (event: CustomEvent) => {
       console.log('CreatePost - Share event received:', event.detail);
-      const originalPost = event.detail.originalPost;
       
-      if (originalPost) {
+      try {
+        if (!event.detail) {
+          console.warn('CreatePost - No event detail provided');
+          return;
+        }
+
+        const originalPost = event.detail.originalPost;
+        
+        if (!originalPost) {
+          console.warn('CreatePost - No original post in share event');
+          return;
+        }
+        
         console.log('CreatePost - Original post data:', originalPost);
         console.log('CreatePost - Setting shared post and opening modal');
         
-        // Ensure we have the correct data structure
+        // Ensure we have the correct data structure with safe fallbacks
         const processedPost = {
-          id: originalPost.id,
-          author: originalPost.author,
-          title: originalPost.title,
-          description: originalPost.description,
-          category: originalPost.category,
-          avatar: originalPost.avatar,
-          location: originalPost.location,
-          tags: originalPost.tags || []
+          id: originalPost.id || '',
+          author: originalPost.author || 'Unknown Author',
+          title: originalPost.title || 'Untitled Post',
+          description: originalPost.description || '',
+          category: originalPost.category || 'announcement',
+          avatar: originalPost.avatar || '',
+          location: originalPost.location || '',
+          tags: Array.isArray(originalPost.tags) ? originalPost.tags : []
         };
         
         console.log('CreatePost - Processed post data:', processedPost);
         setSharedPost(processedPost);
         setShowModal(true);
-      } else {
-        console.warn('CreatePost - No original post in share event');
+      } catch (error) {
+        console.error('CreatePost - Error handling share event:', error);
       }
     };
 

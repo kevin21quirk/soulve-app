@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,36 +45,40 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     console.log('SocialPostCard - Share button clicked for post:', post.id);
     console.log('SocialPostCard - Complete post data:', post);
     
-    // Create a properly structured share event with all necessary data
+    // Ensure we have all required post data with proper fallbacks
     const shareEventData = {
       originalPost: {
-        id: post.id,
-        author: post.author,
-        title: post.title,
-        description: post.description,
-        category: post.category,
-        avatar: post.avatar,
-        location: post.location,
-        tags: post.tags || [],
-        timestamp: post.timestamp,
-        urgency: post.urgency
+        id: post.id || '',
+        author: post.author || 'Unknown Author',
+        title: post.title || 'Untitled Post',
+        description: post.description || '',
+        category: post.category || 'announcement',
+        avatar: post.avatar || '',
+        location: post.location || '',
+        tags: Array.isArray(post.tags) ? post.tags : [],
+        timestamp: post.timestamp || 'Unknown time',
+        urgency: post.urgency || 'medium'
       },
       type: 'share'
     };
     
-    console.log('SocialPostCard - Creating share event with data:', shareEventData);
+    console.log('SocialPostCard - Creating share event with validated data:', shareEventData);
     
-    const shareEvent = new CustomEvent('sharePost', {
-      detail: shareEventData
-    });
-    
-    console.log('SocialPostCard - Dispatching share event');
-    window.dispatchEvent(shareEvent);
-    
-    // Verify event was dispatched
-    console.log('SocialPostCard - Share event dispatched successfully');
-    
-    onShare(); // Keep the original callback for any analytics
+    try {
+      const shareEvent = new CustomEvent('sharePost', {
+        detail: shareEventData
+      });
+      
+      console.log('SocialPostCard - Dispatching share event');
+      window.dispatchEvent(shareEvent);
+      
+      // Verify event was dispatched
+      console.log('SocialPostCard - Share event dispatched successfully');
+      
+      onShare(); // Keep the original callback for any analytics
+    } catch (error) {
+      console.error('SocialPostCard - Error creating/dispatching share event:', error);
+    }
   };
 
   const getCategoryColor = (category: string) => {

@@ -6,11 +6,10 @@ import UserTypesSection from "@/components/UserTypesSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import Footer from "@/components/Footer";
 import HomeHeader from "@/components/HomeHeader";
-import CreatePost from "@/components/dashboard/CreatePost";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  const { loading, user } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -26,14 +25,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <HomeHeader />
-      
-      {/* Hidden CreatePost component to handle share events */}
-      {user && (
-        <div className="hidden">
-          <CreatePost onPostCreated={() => {}} />
-        </div>
-      )}
-      
       <HeroSection />
       <ImpactStats />
       <FeaturesSection />
