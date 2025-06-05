@@ -34,7 +34,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     }
   };
 
-  // Listen for share events
+  // Listen for share events with enhanced debugging
   useEffect(() => {
     console.log('CreatePost - Setting up share event listener');
     
@@ -43,8 +43,23 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       const originalPost = event.detail.originalPost;
       
       if (originalPost) {
+        console.log('CreatePost - Original post data:', originalPost);
         console.log('CreatePost - Setting shared post and opening modal');
-        setSharedPost(originalPost);
+        
+        // Ensure we have the correct data structure
+        const processedPost = {
+          id: originalPost.id,
+          author: originalPost.author,
+          title: originalPost.title,
+          description: originalPost.description,
+          category: originalPost.category,
+          avatar: originalPost.avatar,
+          location: originalPost.location,
+          tags: originalPost.tags || []
+        };
+        
+        console.log('CreatePost - Processed post data:', processedPost);
+        setSharedPost(processedPost);
         setShowModal(true);
       } else {
         console.warn('CreatePost - No original post in share event');
@@ -58,6 +73,11 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       window.removeEventListener('sharePost', handleShareEvent as EventListener);
     };
   }, []);
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('CreatePost - Modal state changed. showModal:', showModal, 'sharedPost:', sharedPost);
+  }, [showModal, sharedPost]);
 
   if (!user) return null;
 
@@ -75,7 +95,10 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
             <Button
               variant="outline"
               className="flex-1 justify-start text-gray-500 hover:bg-white/60"
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                console.log('CreatePost - Manual create post button clicked');
+                setShowModal(true);
+              }}
               disabled={isCreating}
             >
               {isCreating ? "Creating post..." : "What's happening in your community?"}
@@ -83,7 +106,10 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <SocialPostCollapsed onExpand={() => setShowModal(true)} />
+          <SocialPostCollapsed onExpand={() => {
+            console.log('CreatePost - Expand button clicked');
+            setShowModal(true);
+          }} />
         </CardContent>
       </Card>
 

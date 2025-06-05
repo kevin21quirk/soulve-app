@@ -33,19 +33,27 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting, sharedPost }
 
   // Reset form when modal opens/closes or when shared post changes
   useEffect(() => {
+    console.log('CreatePostModal - useEffect triggered. isOpen:', isOpen, 'sharedPost:', sharedPost);
+    
     if (isOpen) {
       if (sharedPost) {
-        // Pre-fill form for sharing
+        console.log('CreatePostModal - Setting up form for shared post:', sharedPost);
+        // Pre-fill form for sharing with better formatting
+        const shareContent = `Sharing this from ${sharedPost.author}:\n\n"${sharedPost.description || sharedPost.title}"`;
+        
         setFormData({
-          title: "",
-          content: `Sharing this from ${sharedPost.author}:\n\n"${sharedPost.description}"`,
+          title: `Re: ${sharedPost.title || sharedPost.description?.substring(0, 50) + '...'}`,
+          content: shareContent,
           category: "announcement",
           urgency: "medium",
-          location: "",
-          tags: ["shared-content"],
+          location: sharedPost.location || "",
+          tags: ["shared-content", ...(sharedPost.tags || [])],
           visibility: "public"
         });
+        
+        console.log('CreatePostModal - Form data set for shared post');
       } else {
+        console.log('CreatePostModal - Resetting form for new post');
         // Reset form for new post
         setFormData({
           title: "",
@@ -62,7 +70,12 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting, sharedPost }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category) return;
+    console.log('CreatePostModal - Form submitted with data:', formData);
+    
+    if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
+      console.warn('CreatePostModal - Form validation failed');
+      return;
+    }
 
     const submitData = {
       ...formData,
@@ -70,6 +83,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting, sharedPost }
       isSharedPost: !!sharedPost
     };
 
+    console.log('CreatePostModal - Submitting data:', submitData);
     onSubmit(submitData);
   };
 
@@ -89,6 +103,8 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, isSubmitting, sharedPost }
       tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
   };
+
+  console.log('CreatePostModal - Rendering. isOpen:', isOpen, 'hasSharedPost:', !!sharedPost);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

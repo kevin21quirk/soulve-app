@@ -44,18 +44,36 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
 
   const handleShare = () => {
     console.log('SocialPostCard - Share button clicked for post:', post.id);
-    console.log('SocialPostCard - Post data:', post);
+    console.log('SocialPostCard - Complete post data:', post);
     
-    // Create a custom event with the post data for Facebook-style sharing
+    // Create a properly structured share event with all necessary data
+    const shareEventData = {
+      originalPost: {
+        id: post.id,
+        author: post.author,
+        title: post.title,
+        description: post.description,
+        category: post.category,
+        avatar: post.avatar,
+        location: post.location,
+        tags: post.tags || [],
+        timestamp: post.timestamp,
+        urgency: post.urgency
+      },
+      type: 'share'
+    };
+    
+    console.log('SocialPostCard - Creating share event with data:', shareEventData);
+    
     const shareEvent = new CustomEvent('sharePost', {
-      detail: {
-        originalPost: post,
-        type: 'share'
-      }
+      detail: shareEventData
     });
     
-    console.log('SocialPostCard - Dispatching share event:', shareEvent.detail);
+    console.log('SocialPostCard - Dispatching share event');
     window.dispatchEvent(shareEvent);
+    
+    // Verify event was dispatched
+    console.log('SocialPostCard - Share event dispatched successfully');
     
     onShare(); // Keep the original callback for any analytics
   };
