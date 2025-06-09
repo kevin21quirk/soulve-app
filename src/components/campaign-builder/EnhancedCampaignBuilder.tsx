@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, BarChart3, Settings, Plus } from 'lucide-react';
+import { Sparkles, BarChart3, Settings, Plus, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +14,7 @@ import CampaignFormFields from './CampaignFormFields';
 import CampaignTemplates from './CampaignTemplates';
 import CampaignManageTab from './CampaignManageTab';
 import CampaignAnalytics from './CampaignAnalytics';
+import HelpCenter from '../dashboard/HelpCenter';
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
@@ -252,7 +253,7 @@ const EnhancedCampaignBuilder = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="templates" className="flex items-center space-x-2">
                 <Sparkles className="h-4 w-4" />
                 <span>Templates & Create</span>
@@ -264,6 +265,10 @@ const EnhancedCampaignBuilder = () => {
               <TabsTrigger value="analytics" className="flex items-center space-x-2">
                 <BarChart3 className="h-4 w-4" />
                 <span>Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger value="help-center" className="flex items-center space-x-2">
+                <HelpCircle className="h-4 w-4" />
+                <span>Help Center</span>
               </TabsTrigger>
             </TabsList>
 
@@ -339,6 +344,10 @@ const EnhancedCampaignBuilder = () => {
 
             <TabsContent value="analytics">
               <CampaignAnalytics />
+            </TabsContent>
+
+            <TabsContent value="help-center">
+              <HelpCenter />
             </TabsContent>
           </Tabs>
         </div>
