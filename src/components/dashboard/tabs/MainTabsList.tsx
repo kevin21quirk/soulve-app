@@ -7,8 +7,8 @@ import {
   MessageCircle, 
   Target,
   TrendingUp,
-  BarChart3, 
-  User 
+  User,
+  HelpCircle
 } from "lucide-react";
 
 const MainTabsList = () => {
@@ -17,8 +17,8 @@ const MainTabsList = () => {
     { value: "discover-connect", icon: Users, label: "Discover & Connect" },
     { value: "messaging", icon: MessageCircle, label: "Messages" },
     { value: "campaigns", icon: Target, label: "Campaigns" },
-    { value: "impact", icon: TrendingUp, label: "Impact" },
-    { value: "analytics-points", icon: BarChart3, label: "Analytics & Points" },
+    { value: "impact-analytics", icon: TrendingUp, label: "Impact & Analytics" },
+    { value: "help-center", icon: HelpCircle, label: "Help Center" },
     { value: "profile", icon: User, label: "Profile" }
   ];
 

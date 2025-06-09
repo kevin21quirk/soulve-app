@@ -7,10 +7,9 @@ import DiscoverTab from "./tabs/DiscoverTab";
 import CampaignsTab from "./tabs/CampaignsTab";
 import MessagingTab from "./tabs/MessagingTab";
 import ProfileTab from "./tabs/ProfileTab";
-import NotificationsTab from "./tabs/NotificationsTab";
-import ImpactTab from "./tabs/ImpactTab";
-import AnalyticsTab from "./tabs/AnalyticsTab";
 import MainTabsList from "./tabs/MainTabsList";
+import CombinedImpactAnalyticsTab from "./tabs/CombinedImpactAnalyticsTab";
+import EnhancedHelpCenterTab from "./tabs/EnhancedHelpCenterTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -44,12 +43,12 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         <CampaignsTab />
       </TabsContent>
 
-      <TabsContent value="impact" className="space-y-6">
-        <ImpactTab />
+      <TabsContent value="impact-analytics" className="space-y-6">
+        <CombinedImpactAnalyticsTab />
       </TabsContent>
 
-      <TabsContent value="analytics-points" className="space-y-6">
-        <AnalyticsTab />
+      <TabsContent value="help-center" className="space-y-6">
+        <EnhancedHelpCenterTab />
       </TabsContent>
 
       <TabsContent value="profile" className="space-y-6">
