@@ -4,7 +4,10 @@ import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthContext";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import ProfileRegistration from "./pages/ProfileRegistration";
 import Index from "./pages/Index";
+import ProtectedRoute from "./components/ProtectedRoute";
 import MobileLoadingScreen from "./components/MobileLoadingScreen";
 import MobileNavigation from "./components/mobile/MobileNavigation";
 import MobileFeed from "./components/mobile/MobileFeed";
@@ -16,17 +19,17 @@ import { MobileGestureProvider } from "@/components/mobile/MobileGestureProvider
 
 function App() {
   const [activeTab, setActiveTab] = React.useState("feed");
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
 
+  // Only show loading for mobile route
   React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    if (window.location.pathname === '/mobile') {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+    }
   }, []);
-
-  if (isLoading) {
-    return <MobileLoadingScreen />;
-  }
 
   const renderMobileContent = () => {
     switch (activeTab) {
@@ -52,17 +55,30 @@ function App() {
           <Toaster />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/profile-registration" element={<ProfileRegistration />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
             <Route
               path="/mobile"
               element={
-                <>
-                  {renderMobileContent()}
-                  <MobileNavigation
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                  />
-                </>
+                isLoading ? (
+                  <MobileLoadingScreen />
+                ) : (
+                  <>
+                    {renderMobileContent()}
+                    <MobileNavigation
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                    />
+                  </>
+                )
               }
             />
           </Routes>

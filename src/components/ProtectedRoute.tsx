@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWaitlist } from '@/hooks/useWaitlist';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,18 +10,13 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
-  const { canAccessDashboard, isAdmin, userStatus, loading: waitlistLoading } = useWaitlist();
   const navigate = useNavigate();
-  const [accessGranted, setAccessGranted] = useState(false);
   const [checking, setChecking] = useState(true);
-
-  // Developer override - you should always have access
-  const isDeveloper = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
 
   useEffect(() => {
     const checkAccess = async () => {
       // Wait for auth to be ready
-      if (authLoading || waitlistLoading) return;
+      if (authLoading) return;
 
       // No user, redirect to auth
       if (!user) {
@@ -30,34 +25,34 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         return;
       }
 
-      // Developer override - always grant access
-      if (isDeveloper) {
-        console.log('Developer access granted');
-        setAccessGranted(true);
-        setChecking(false);
-        return;
-      }
-
-      // Check if user can access dashboard
-      const hasAccess = await canAccessDashboard();
-      
-      if (hasAccess || isAdmin) {
-        setAccessGranted(true);
-      } else {
-        // User is not approved, redirect to waitlist page
-        console.log('User not approved for dashboard access, redirecting to waitlist');
-        navigate('/waitlist', { replace: true });
-        return;
+      // Check if user has completed onboarding
+      try {
+        const { data } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
+        
+        if (!completed) {
+          console.log('User has not completed onboarding, redirecting to profile registration');
+          navigate('/profile-registration', { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        // If error checking onboarding, allow access to dashboard
       }
 
       setChecking(false);
     };
 
     checkAccess();
-  }, [user, authLoading, waitlistLoading, navigate, canAccessDashboard, isAdmin, isDeveloper]);
+  }, [user, authLoading, navigate]);
 
-  // Show loading while checking auth and waitlist status
-  if (authLoading || waitlistLoading || checking) {
+  // Show loading while checking auth status
+  if (authLoading || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -69,7 +64,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Don't render anything if no user (will redirect)
-  if (!user || !accessGranted) {
+  if (!user) {
     return null;
   }
 
