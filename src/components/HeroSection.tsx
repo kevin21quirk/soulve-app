@@ -3,21 +3,67 @@ import { Button } from "@/components/ui/button";
 import { Heart, Users, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (!user) {
+        setHasCompletedOnboarding(null);
+        return;
+      }
+
+      try {
+        const { data } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
+        setHasCompletedOnboarding(completed);
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        setHasCompletedOnboarding(true); // Default to true if there's an error
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [user]);
 
   const handleTryDemo = () => {
     if (user) {
-      navigate("/dashboard");
+      // If user is logged in, check their onboarding status
+      if (hasCompletedOnboarding) {
+        navigate("/dashboard");
+      } else {
+        navigate("/profile-registration");
+      }
     } else {
+      // For non-logged-in users, go to auth page with login context
       navigate("/auth");
     }
   };
 
   const handleBecomeSoulver = () => {
-    navigate("/auth");
+    if (user) {
+      // If user is already logged in, direct them based on onboarding status
+      if (hasCompletedOnboarding) {
+        // Take them to dashboard to explore full features
+        navigate("/dashboard");
+      } else {
+        // Take them to complete their soulver registration
+        navigate("/profile-registration");
+      }
+    } else {
+      // For non-logged-in users, go to auth page defaulting to signup mode
+      navigate("/auth?mode=signup");
+    }
   };
 
   return (

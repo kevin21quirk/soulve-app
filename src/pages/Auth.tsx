@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/auth/AuthHeader";
@@ -8,7 +8,9 @@ import EnhancedAuthForm from "@/components/auth/EnhancedAuthForm";
 import AuthToggle from "@/components/auth/AuthToggle";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const modeParam = searchParams.get('mode');
+  const [isLogin, setIsLogin] = useState(modeParam !== 'signup');
   const navigate = useNavigate();
 
   useEffect(() => {
