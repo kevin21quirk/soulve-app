@@ -1,19 +1,13 @@
+
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, BarChart3, Settings, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { type CampaignTemplate } from '@/services/campaignTemplateService';
 import { CampaignFormData } from '@/services/campaignService';
 import AutoCampaignPublisher from './AutoCampaignPublisher';
-import CampaignFormFields from './CampaignFormFields';
-import CampaignTemplates from './CampaignTemplates';
-import CampaignManageTab from './CampaignManageTab';
-import CampaignAnalytics from './CampaignAnalytics';
+import EnhancedCampaignBuilderHeader from './EnhancedCampaignBuilderHeader';
+import EnhancedCampaignBuilderTabs from './EnhancedCampaignBuilderTabs';
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
@@ -234,122 +228,31 @@ const EnhancedCampaignBuilder = () => {
     console.log("Quick update functionality triggered");
   };
 
+  const handleBackToTemplates = () => {
+    setShowForm(false);
+    setSelectedTemplate(null);
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Campaign Center
-              </h1>
-              <p className="text-gray-600 mt-2">Create, manage, and analyze your fundraising campaigns</p>
-            </div>
-            <Badge variant="soulve" className="px-4 py-2">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Enhanced Builder
-            </Badge>
-          </div>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-gray-100">
-              <TabsTrigger 
-                value="templates" 
-                className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>Templates & Create</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="manage" 
-                className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-              >
-                <Settings className="h-4 w-4" />
-                <span>Manage Campaigns</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="analytics" 
-                className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-              >
-                <BarChart3 className="h-4 w-4" />
-                <span>Analytics</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="templates">
-              {showForm ? (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-blue-600" />
-                        {selectedTemplate ? (
-                          <>Create Campaign from Template: {selectedTemplate.name}</>
-                        ) : (
-                          "Create New Campaign"
-                        )}
-                      </CardTitle>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setShowForm(false);
-                          setSelectedTemplate(null);
-                        }}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4 rotate-45" />
-                        Back to Templates
-                      </Button>
-                    </div>
-                    {selectedTemplate && (
-                      <div className="flex gap-2 mt-2">
-                        <Badge variant="outline">
-                          {selectedTemplate.category.charAt(0).toUpperCase() + selectedTemplate.category.slice(1)}
-                        </Badge>
-                        <Badge variant="outline">
-                          {selectedTemplate.success_rate}% Success Rate
-                        </Badge>
-                        <Badge variant="outline">
-                          {selectedTemplate.usage_count} Uses
-                        </Badge>
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <CampaignFormFields
-                        formData={formData}
-                        onFormDataChange={handleFormDataChange}
-                      />
-                      
-                      <div className="flex justify-end space-x-2">
-                        <Button 
-                          type="submit" 
-                          disabled={isSubmitting || !formData.title || !formData.description}
-                          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
-                        >
-                          {isSubmitting ? 'Creating & Publishing...' : 'Create & Publish Campaign'}
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              ) : (
-                <CampaignTemplates 
-                  onTemplateSelect={handleTemplateSelect}
-                  onCreateFromScratch={handleCreateFromScratch}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="manage">
-              <CampaignManageTab onQuickUpdate={handleQuickUpdate} />
-            </TabsContent>
-
-            <TabsContent value="analytics">
-              <CampaignAnalytics />
-            </TabsContent>
-          </Tabs>
+          <EnhancedCampaignBuilderHeader />
+          
+          <EnhancedCampaignBuilderTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            showForm={showForm}
+            selectedTemplate={selectedTemplate}
+            formData={formData}
+            isSubmitting={isSubmitting}
+            onTemplateSelect={handleTemplateSelect}
+            onCreateFromScratch={handleCreateFromScratch}
+            onFormDataChange={handleFormDataChange}
+            onSubmit={handleSubmit}
+            onBackToTemplates={handleBackToTemplates}
+            onQuickUpdate={handleQuickUpdate}
+          />
         </div>
       </div>
 
