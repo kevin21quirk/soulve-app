@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormData, MediaFile, GifData, PollData, EventData } from "@/components/dashboard/CreatePostTypes";
 import { createUnifiedPost } from "./unifiedPostService";
+import { uploadMediaFiles } from "./mediaUploadService";
 
 export interface CreatePostRequest {
   title: string;
@@ -24,7 +25,11 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
   // Upload media files if any
   let mediaUrls: string[] = [];
   if (formData.selectedMedia && formData.selectedMedia.length > 0) {
-    mediaUrls = await uploadMediaFiles(formData.selectedMedia);
+    console.log('Uploading media files:', formData.selectedMedia.length);
+    const files = formData.selectedMedia.map(media => media.file);
+    const uploadResults = await uploadMediaFiles(files);
+    mediaUrls = uploadResults.map(result => result.url);
+    console.log('Media uploaded successfully:', mediaUrls);
   }
 
   // Use the unified post service for consistent creation
@@ -57,31 +62,6 @@ export const createPost = async (formData: PostFormData): Promise<string> => {
   }
 
   return postId;
-};
-
-const uploadMediaFiles = async (mediaFiles: MediaFile[]): Promise<string[]> => {
-  const uploadPromises = mediaFiles.map(async (mediaFile) => {
-    const fileExt = mediaFile.file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `post-media/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from('media')
-      .upload(filePath, mediaFile.file);
-
-    if (error) {
-      console.error('Error uploading file:', error);
-      throw new Error(`Failed to upload ${mediaFile.file.name}`);
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('media')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  });
-
-  return Promise.all(uploadPromises);
 };
 
 const storeGifData = async (postId: string, gifData: GifData) => {

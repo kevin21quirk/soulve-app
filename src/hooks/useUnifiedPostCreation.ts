@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createUnifiedPost } from '@/services/unifiedPostService';
 import { ContentModerationService } from '@/services/contentModerationService';
+import { uploadMediaFiles } from '@/services/mediaUploadService';
 import { useToast } from '@/hooks/use-toast';
 
 export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
@@ -14,6 +15,16 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
     setIsCreating(true);
     
     try {
+      // Upload media files if any are selected
+      let mediaUrls: string[] = [];
+      if (postData.selectedMedia && postData.selectedMedia.length > 0) {
+        console.log('Uploading media files:', postData.selectedMedia.length);
+        const files = postData.selectedMedia.map((media: any) => media.file);
+        const uploadResults = await uploadMediaFiles(files);
+        mediaUrls = uploadResults.map(result => result.url);
+        console.log('Media uploaded successfully:', mediaUrls);
+      }
+
       // First, filter the content for moderation
       const filterResult = await ContentModerationService.filterContent(
         postData.description, 
@@ -39,7 +50,7 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         });
       }
 
-      // Create the post
+      // Create the post with uploaded media URLs
       const postId = await createUnifiedPost({
         title: postData.title,
         content: postData.description,
@@ -48,7 +59,7 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         location: postData.location,
         tags: postData.tags || [],
         visibility: postData.visibility || 'public',
-        media_urls: postData.media_urls || []
+        media_urls: mediaUrls
       });
 
       // Show success message
