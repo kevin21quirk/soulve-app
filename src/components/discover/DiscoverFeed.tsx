@@ -8,7 +8,13 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-const DiscoverFeed = () => {
+interface DiscoverFeedProps {
+  searchQuery?: string;
+  activeFilters?: string[];
+  selectedCategory?: string;
+}
+
+const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: DiscoverFeedProps) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const { 
     posts, 
@@ -24,8 +30,26 @@ const DiscoverFeed = () => {
   // Transform SocialPost to FeedPost format
   const transformedPosts = posts.map(post => transformSocialPostToFeedPost(post));
 
-  // Filter posts based on active filter
+  // Filter posts based on active filter, search query, and selected category
   const filteredPosts = transformedPosts.filter(post => {
+    // Apply category filter
+    if (selectedCategory && post.category !== selectedCategory) return false;
+    
+    // Apply search query filter
+    if (searchQuery && searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = post.title.toLowerCase().includes(query);
+      const matchesDescription = post.description.toLowerCase().includes(query);
+      const matchesTags = post.tags.some(tag => tag.toLowerCase().includes(query));
+      if (!matchesTitle && !matchesDescription && !matchesTags) return false;
+    }
+    
+    // Apply active filters
+    if (activeFilters && activeFilters.length > 0) {
+      // Add custom filter logic here if needed
+    }
+    
+    // Apply basic filter
     if (activeFilter === 'all') return true;
     return post.category === activeFilter;
   });
