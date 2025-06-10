@@ -61,30 +61,35 @@ export const usePosts = () => {
 
       console.log('Raw posts data:', data);
 
-      const transformedPosts = data?.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        description: post.content,
-        author_id: post.author_id,
-        author_name: `${post.profiles?.first_name || ''} ${post.profiles?.last_name || ''}`.trim() || 'Anonymous',
-        author_avatar: post.profiles?.avatar_url || '',
-        category: post.category,
-        urgency: post.urgency,
-        location: post.location,
-        tags: post.tags || [],
-        media_urls: post.media_urls || [], // Ensure media_urls are included
-        visibility: post.visibility,
-        is_active: post.is_active,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        likes_count: 0,
-        comments_count: 0,
-        shares_count: 0,
-        is_liked: false,
-        is_bookmarked: false,
-        status: 'active'
-      })) || [];
+      const transformedPosts = data?.map(post => {
+        // Handle the profiles relationship correctly
+        const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+        
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          description: post.content,
+          author_id: post.author_id,
+          author_name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous',
+          author_avatar: profile?.avatar_url || '',
+          category: post.category,
+          urgency: post.urgency,
+          location: post.location,
+          tags: post.tags || [],
+          media_urls: post.media_urls || [], // Ensure media_urls are included
+          visibility: post.visibility,
+          is_active: post.is_active,
+          created_at: post.created_at,
+          updated_at: post.updated_at,
+          likes_count: 0,
+          comments_count: 0,
+          shares_count: 0,
+          is_liked: false,
+          is_bookmarked: false,
+          status: 'active'
+        };
+      }) || [];
 
       console.log('Transformed posts with media:', transformedPosts);
       return transformedPosts;

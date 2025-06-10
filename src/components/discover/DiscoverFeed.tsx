@@ -1,301 +1,91 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Sparkles, TrendingUp, MapPin, Clock, RefreshCw } from "lucide-react";
-import RecommendationCard from "./RecommendationCard";
-import FeedPostCard from "../dashboard/FeedPostCard";
-import { usePosts } from "@/services/realPostsService";
 
-interface DiscoverFeedProps {
-  searchQuery: string;
-  activeFilters: string[];
-  selectedCategory?: string;
-}
+import { useState } from 'react';
+import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
+import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
+import FeedContent from '@/components/dashboard/social-feed/FeedContent';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Filter } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-const DiscoverFeed = ({ searchQuery, activeFilters, selectedCategory }: DiscoverFeedProps) => {
-  const [activeTab, setActiveTab] = useState("recommended");
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  
-  const { data: posts = [], isLoading: postsLoading, refetch } = usePosts();
+const DiscoverFeed = () => {
+  const [activeFilter, setActiveFilter] = useState('all');
+  const { 
+    posts, 
+    loading, 
+    refreshing, 
+    refreshFeed, 
+    handleLike, 
+    handleBookmark, 
+    handleShare, 
+    handleAddComment 
+  } = useRealSocialFeed();
 
-  // Mock recommendations - in real app this would come from API
-  useEffect(() => {
-    const mockRecommendations = [
-      {
-        id: '1',
-        type: 'help_opportunity',
-        title: 'Help elderly neighbor with grocery shopping',
-        description: 'Looking for someone to help with weekly grocery runs for my 85-year-old neighbor who has mobility issues.',
-        author: {
-          name: 'Sarah Chen',
-          avatar: 'https://avatar.vercel.sh/sarah.png',
-          trustScore: 94
-        },
-        location: 'Downtown District',
-        urgency: 'medium',
-        timeCommitment: '2 hours/week',
-        skills: ['Transportation', 'Patience', 'Care'],
-        category: 'help_needed',
-        metadata: {
-          likes: 12,
-          responses: 3,
-          deadline: 'This week',
-          compensation: 'Volunteer'
-        },
-        confidenceScore: 87,
-        reasoning: 'Matches your location and previous volunteering with elderly care'
-      },
-      {
-        id: '2',
-        type: 'connection',
-        title: 'Connect with Maria Rodriguez',
-        description: 'Social worker specializing in community outreach with 8 years experience. Active in local food bank initiatives.',
-        author: {
-          name: 'Maria Rodriguez',
-          avatar: 'https://avatar.vercel.sh/maria.png',
-          trustScore: 96
-        },
-        location: 'Central District',
-        skills: ['Social Work', 'Community Outreach', 'Food Security'],
-        category: 'professional',
-        metadata: {
-          likes: 24,
-          responses: 15
-        },
-        confidenceScore: 92,
-        reasoning: 'Shares your interest in community service and social impact'
-      },
-      {
-        id: '3',
-        type: 'volunteer',
-        title: 'Weekend Food Distribution Volunteer',
-        description: 'Join our team distributing meals to families in need every Saturday morning. Great team environment!',
-        author: {
-          name: 'Community Food Bank',
-          avatar: 'https://avatar.vercel.sh/foodbank.png',
-          trustScore: 98
-        },
-        location: 'Eastside Community Center',
-        urgency: 'high',
-        timeCommitment: '4 hours/weekend',
-        skills: ['Organization', 'Teamwork', 'Physical Activity'],
-        category: 'volunteer',
-        metadata: {
-          likes: 45,
-          responses: 23,
-          deadline: 'Ongoing'
-        },
-        confidenceScore: 79,
-        reasoning: 'Matches your availability and passion for fighting food insecurity'
-      }
-    ];
-    setRecommendations(mockRecommendations);
-  }, [searchQuery, activeFilters, selectedCategory]);
+  // Transform SocialPost to FeedPost format
+  const transformedPosts = posts.map(post => transformSocialPostToFeedPost(post));
 
-  const handleInteract = (id: string, action: string) => {
-    console.log(`${action} on recommendation ${id}`);
-    // Handle interaction logic here
-  };
-
-  const handlePostInteraction = (postId: string, action: string) => {
-    console.log(`${action} on post ${postId}`);
-    // Handle post interaction logic here
-  };
-
-  const filteredPosts = posts.filter(post => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (!post.title.toLowerCase().includes(query) && 
-          !post.description.toLowerCase().includes(query)) {
-        return false;
-      }
-    }
-    
-    if (selectedCategory && post.category !== selectedCategory) {
-      return false;
-    }
-
-    if (activeFilters.includes('urgent') && post.urgency !== 'urgent') {
-      return false;
-    }
-
-    if (activeFilters.includes('nearby') && !post.location) {
-      return false;
-    }
-
-    return true;
+  // Filter posts based on active filter
+  const filteredPosts = transformedPosts.filter(post => {
+    if (activeFilter === 'all') return true;
+    return post.category === activeFilter;
   });
 
-  const filteredRecommendations = recommendations.filter(rec => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (!rec.title.toLowerCase().includes(query) && 
-          !rec.description.toLowerCase().includes(query)) {
-        return false;
-      }
-    }
-    
-    if (selectedCategory && rec.category !== selectedCategory) {
-      return false;
-    }
-
-    return true;
-  });
+  const filters = [
+    { id: 'all', label: 'All Posts', count: transformedPosts.length },
+    { id: 'help-needed', label: 'Help Needed', count: transformedPosts.filter(p => p.category === 'help-needed').length },
+    { id: 'help-offered', label: 'Help Offered', count: transformedPosts.filter(p => p.category === 'help-offered').length },
+    { id: 'announcement', label: 'Announcements', count: transformedPosts.filter(p => p.category === 'announcement').length },
+  ];
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="recommended" className="flex items-center space-x-2">
-              <Sparkles className="h-4 w-4" />
-              <span>For You</span>
-              <Badge variant="secondary">{filteredRecommendations.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="trending" className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span>Trending</span>
-              <Badge variant="secondary">{filteredPosts.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="nearby" className="flex items-center space-x-2">
-              <MapPin className="h-4 w-4" />
-              <span>Nearby</span>
-            </TabsTrigger>
-            <TabsTrigger value="recent" className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <span>Recent</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => refetch()}
-            disabled={loading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <Filter className="h-5 w-5" />
+              <span>Discover Posts</span>
+            </CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={refreshFeed}
+              disabled={refreshing}
+              className="flex items-center space-x-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2 mb-6">
+            {filters.map((filter) => (
+              <Badge
+                key={filter.id}
+                variant={activeFilter === filter.id ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => setActiveFilter(filter.id)}
+              >
+                {filter.label} ({filter.count})
+              </Badge>
+            ))}
+          </div>
 
-        <TabsContent value="recommended" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Sparkles className="h-5 w-5 text-purple-600" />
-                <span>Recommended for You</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {filteredRecommendations.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No recommendations match your current filters.</p>
-                  <p className="text-sm text-gray-400 mt-2">Try adjusting your search or filters.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredRecommendations.map((recommendation) => (
-                    <RecommendationCard
-                      key={recommendation.id}
-                      recommendation={recommendation}
-                      onInteract={handleInteract}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="trending" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-                <span>Trending Now</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {postsLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading trending posts...</p>
-                </div>
-              ) : filteredPosts.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No trending posts match your filters.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredPosts.slice(0, 10).map((post) => (
-                    <FeedPostCard
-                      key={post.id}
-                      post={post}
-                      onLike={() => handlePostInteraction(post.id, 'like')}
-                      onShare={() => handlePostInteraction(post.id, 'share')}
-                      onRespond={() => handlePostInteraction(post.id, 'respond')}
-                      onBookmark={() => handlePostInteraction(post.id, 'bookmark')}
-                      onReaction={() => handlePostInteraction(post.id, 'reaction')}
-                      onAddComment={() => handlePostInteraction(post.id, 'comment')}
-                      onLikeComment={() => {}}
-                      onCommentReaction={() => {}}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="nearby" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
-                <span>Near You</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <p className="text-gray-500">Location-based recommendations coming soon!</p>
-                <p className="text-sm text-gray-400 mt-2">We're working on showing you opportunities in your area.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="recent" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-orange-600" />
-                <span>Recent Activity</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {posts.slice(0, 5).map((post) => (
-                  <FeedPostCard
-                    key={post.id}
-                    post={post}
-                    onLike={() => handlePostInteraction(post.id, 'like')}
-                    onShare={() => handlePostInteraction(post.id, 'share')}
-                    onRespond={() => handlePostInteraction(post.id, 'respond')}
-                    onBookmark={() => handlePostInteraction(post.id, 'bookmark')}
-                    onReaction={() => handlePostInteraction(post.id, 'reaction')}
-                    onAddComment={() => handlePostInteraction(post.id, 'comment')}
-                    onLikeComment={() => {}}
-                    onCommentReaction={() => {}}
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <FeedContent
+            posts={filteredPosts}
+            isLoading={loading}
+            onLike={handleLike}
+            onShare={handleShare}
+            onRespond={() => {}}
+            onBookmark={handleBookmark}
+            onReaction={() => {}}
+            onAddComment={handleAddComment}
+            onLikeComment={() => {}}
+            emptyMessage={`No ${activeFilter === 'all' ? '' : activeFilter.replace('-', ' ')} posts found. Check back later!`}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
