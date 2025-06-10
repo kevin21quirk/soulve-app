@@ -1,8 +1,7 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, MapPin, Send, Video, Users, BarChart3, Calendar } from 'lucide-react';
-import { PostFormData } from '@/components/dashboard/CreatePostTypes';
+import { PostFormData, MediaFile } from '@/components/dashboard/CreatePostTypes';
 import GifPicker from '@/components/dashboard/gif-picker/GifPicker';
 import LiveVideoModal from '@/components/dashboard/live-video/LiveVideoModal';
 import PollCreator from '@/components/dashboard/polls/PollCreator';
@@ -29,9 +28,13 @@ const MobilePostActionBar = ({
   const [showLiveVideo, setShowLiveVideo] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [showEventCreator, setShowEventCreator] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFeatureClick = (feature: string) => {
     switch (feature) {
+      case 'camera':
+        fileInputRef.current?.click();
+        break;
       case 'liveVideo':
         setShowLiveVideo(true);
         break;
@@ -74,20 +77,23 @@ const MobilePostActionBar = ({
       <div className="flex items-center justify-between border-t border-gray-100 p-3">
         <div className="flex items-center space-x-1 overflow-x-auto">
           <input
+            ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             onChange={onImageSelect}
             className="hidden"
-            id="image-upload"
           />
-          <label htmlFor="image-upload">
-            <Button variant="ghost" size="sm" className="p-2" asChild>
-              <span>
-                <Camera className="h-4 w-4 text-green-500" />
-              </span>
-            </Button>
-          </label>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="p-2"
+            onClick={() => handleFeatureClick('camera')}
+            title="Add Photo"
+          >
+            <Camera className="h-4 w-4 text-green-500" />
+          </Button>
           
           <Button 
             variant="ghost" 
@@ -161,7 +167,6 @@ const MobilePostActionBar = ({
         </Button>
       </div>
 
-      {/* Modals */}
       {showGifPicker && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <GifPicker

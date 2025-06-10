@@ -1,9 +1,8 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, MapPin, Calendar, Send, Video, Users, BarChart3 } from 'lucide-react';
 import { URGENCY_LEVELS } from '../../post-options/PostOptionsConfig';
-import { PostFormData } from '../../CreatePostTypes';
+import { PostFormData, MediaFile } from '../../CreatePostTypes';
 import LocationSelector from '../LocationSelector';
 import GifPicker from '../../gif-picker/GifPicker';
 import LiveVideoModal from '../../live-video/LiveVideoModal';
@@ -30,9 +29,36 @@ export const PostActionBar = ({
   const [showUserTagging, setShowUserTagging] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [showEventCreator, setShowEventCreator] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const mediaFiles: MediaFile[] = files.map((file, index) => ({
+      id: `${Date.now()}-${index}`,
+      file,
+      type: file.type.startsWith('image/') ? 'image' : 'video',
+      preview: URL.createObjectURL(file),
+      size: file.size
+    }));
+
+    onUpdateFormData(prev => ({
+      ...prev,
+      selectedMedia: [...(prev.selectedMedia || []), ...mediaFiles]
+    }));
+
+    // Reset the input
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
 
   const handleFeatureToggle = (feature: string) => {
     switch (feature) {
+      case 'camera':
+        fileInputRef.current?.click();
+        break;
       case 'liveVideo':
         setShowLiveVideo(true);
         break;
@@ -89,10 +115,20 @@ export const PostActionBar = ({
       <div className="border-t border-gray-100 p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
             <Button 
               variant="ghost" 
               size="sm" 
               className="text-green-600 hover:bg-green-50"
+              onClick={() => handleFeatureToggle('camera')}
               title="Add Photo"
             >
               <Camera className="h-4 w-4" />
