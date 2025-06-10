@@ -30,10 +30,16 @@ const MobilePostActionBar = ({
   const [showEventCreator, setShowEventCreator] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleCameraClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  };
+
   const handleFeatureClick = (feature: string) => {
     switch (feature) {
       case 'camera':
-        fileInputRef.current?.click();
+        // Handled by handleCameraClick
         break;
       case 'liveVideo':
         setShowLiveVideo(true);
@@ -86,16 +92,18 @@ const MobilePostActionBar = ({
           />
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className="p-2"
-            onClick={() => handleFeatureClick('camera')}
+            onClick={handleCameraClick}
             title="Add Photo"
           >
             <Camera className="h-4 w-4 text-green-500" />
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className={`p-2 ${formData.isLiveVideo ? 'bg-red-50' : ''}`}
@@ -106,6 +114,7 @@ const MobilePostActionBar = ({
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className={`p-2 ${formData.hasGif ? 'bg-purple-50' : ''}`}
@@ -116,6 +125,7 @@ const MobilePostActionBar = ({
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className="p-2"
@@ -126,6 +136,7 @@ const MobilePostActionBar = ({
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className="p-2"
@@ -136,6 +147,7 @@ const MobilePostActionBar = ({
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className={`p-2 ${formData.hasPoll ? 'bg-yellow-50' : ''}`}
@@ -146,6 +158,7 @@ const MobilePostActionBar = ({
           </Button>
           
           <Button 
+            type="button"
             variant="ghost" 
             size="sm" 
             className={`p-2 ${formData.isEvent ? 'bg-blue-50' : ''}`}
@@ -157,6 +170,7 @@ const MobilePostActionBar = ({
         </div>
         
         <Button 
+          type="button"
           size="sm"
           onClick={onPost}
           disabled={disabled}

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, MapPin, Calendar, Send, Video, Users, BarChart3 } from 'lucide-react';
@@ -54,11 +55,14 @@ export const PostActionBar = ({
     }
   };
 
+  const handleCameraClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  };
+
   const handleFeatureToggle = (feature: string) => {
     switch (feature) {
-      case 'camera':
-        fileInputRef.current?.click();
-        break;
       case 'liveVideo':
         setShowLiveVideo(true);
         break;
@@ -125,16 +129,18 @@ export const PostActionBar = ({
             />
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className="text-green-600 hover:bg-green-50"
-              onClick={() => handleFeatureToggle('camera')}
+              onClick={handleCameraClick}
               title="Add Photo"
             >
               <Camera className="h-4 w-4" />
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className={`${formData.isLiveVideo ? 'bg-red-50 text-red-600' : 'text-red-600 hover:bg-red-50'}`}
@@ -145,6 +151,7 @@ export const PostActionBar = ({
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className={`${formData.hasGif ? 'bg-purple-50 text-purple-600' : 'text-purple-600 hover:bg-purple-50'}`}
@@ -155,6 +162,7 @@ export const PostActionBar = ({
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className="text-blue-600 hover:bg-blue-50"
@@ -165,6 +173,7 @@ export const PostActionBar = ({
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className="text-red-600 hover:bg-red-50"
@@ -175,6 +184,7 @@ export const PostActionBar = ({
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className={`${formData.hasPoll ? 'bg-yellow-50 text-yellow-600' : 'text-yellow-600 hover:bg-yellow-50'}`}
@@ -185,6 +195,7 @@ export const PostActionBar = ({
             </Button>
             
             <Button 
+              type="button"
               variant="ghost" 
               size="sm" 
               className={`${formData.isEvent ? 'bg-blue-50 text-blue-600' : 'text-blue-600 hover:bg-blue-50'}`}
