@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -136,6 +137,48 @@ const FeedPostCard = ({
               {post.description}
             </p>
           </div>
+
+          {/* Media Display */}
+          {post.media && post.media.length > 0 && (
+            <div className="space-y-2">
+              <div className={`grid gap-2 ${
+                post.media.length === 1 ? 'grid-cols-1' :
+                post.media.length === 2 ? 'grid-cols-2' :
+                post.media.length === 3 ? 'grid-cols-2' :
+                'grid-cols-2'
+              }`}>
+                {post.media.slice(0, 4).map((media, index) => (
+                  <div 
+                    key={media.id} 
+                    className={`relative aspect-video rounded-lg overflow-hidden bg-gray-100 ${
+                      post.media.length === 3 && index === 0 ? 'col-span-2' : ''
+                    }`}
+                  >
+                    {media.type === 'image' ? (
+                      <img
+                        src={media.url}
+                        alt={media.filename}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={media.url}
+                        className="w-full h-full object-cover"
+                        controls
+                      />
+                    )}
+                    {index === 3 && post.media.length > 4 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <span className="text-white font-semibold">
+                          +{post.media.length - 4} more
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
