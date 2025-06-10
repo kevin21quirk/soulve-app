@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useRealSocialFeed } from "@/hooks/useRealSocialFeed";
 import { PullToRefresh } from "@/components/ui/mobile/pull-to-refresh";
@@ -61,35 +60,46 @@ const MobileFeed = () => {
     return post.category === activeFilter;
   });
 
-  // Transform SocialPost to FeedPost format for MobileFeedContent with enhanced status handling
-  const transformedPosts = filteredPosts.map(post => ({
-    id: post.id,
-    author: post.author_name,
-    avatar: post.author_avatar,
-    title: post.title,
-    description: post.content,
-    category: post.category === "fundraising" ? "help-needed" : post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found",
-    timestamp: new Date(post.created_at).toLocaleDateString(),
-    location: post.location || '',
-    responses: post.comments_count,
-    likes: post.likes_count,
-    isLiked: post.is_liked,
-    shares: post.shares_count,
-    isBookmarked: post.is_bookmarked,
-    isShared: false,
-    urgency: post.urgency as 'low' | 'medium' | 'high' | 'urgent',
-    tags: post.tags,
-    media: post.media_urls.map(url => ({
-      id: url,
-      type: 'image' as const,
-      url,
-      filename: url.split('/').pop() || ''
-    })),
-    status: post.status,
-    visibility: "public" as const,
-    reactions: [],
-    comments: []
-  }));
+  // Transform SocialPost to FeedPost format with proper media handling
+  const transformedPosts = filteredPosts.map(post => {
+    console.log('Transforming post with media_urls:', post.media_urls);
+    
+    // Convert media_urls to media objects for display
+    const media = post.media_urls?.map((url: string, index: number) => ({
+      id: `${post.id}_media_${index}`,
+      type: url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || url.toLowerCase().includes('.webm') ? 'video' as const : 'image' as const,
+      url: url,
+      filename: url.split('/').pop() || `media_${index}`
+    })) || [];
+
+    console.log('Transformed media for post:', post.id, media);
+
+    return {
+      id: post.id,
+      author: post.author_name,
+      avatar: post.author_avatar,
+      title: post.title,
+      description: post.content,
+      category: post.category === "fundraising" ? "help-needed" : post.category as "help-needed" | "help-offered" | "success-story" | "announcement" | "question" | "recommendation" | "event" | "lost-found",
+      timestamp: new Date(post.created_at).toLocaleDateString(),
+      location: post.location || '',
+      responses: post.comments_count,
+      likes: post.likes_count,
+      isLiked: post.is_liked,
+      shares: post.shares_count,
+      isBookmarked: post.is_bookmarked,
+      isShared: false,
+      urgency: post.urgency as 'low' | 'medium' | 'high' | 'urgent',
+      tags: post.tags,
+      media: media, // This is the key - properly formatted media array
+      status: post.status,
+      visibility: "public" as const,
+      reactions: [],
+      comments: []
+    };
+  });
+
+  console.log('Final transformed posts for feed:', transformedPosts);
 
   const handleFilterToggle = (filter: string) => {
     setActiveFilters(prev => 

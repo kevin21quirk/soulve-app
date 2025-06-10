@@ -1,51 +1,36 @@
 
-import { SocialPost } from '@/hooks/useRealSocialFeed';
-import { FeedPost } from '@/types/feed';
+import { FeedPost } from "@/types/feed";
 
-export const transformSocialPostToFeedPost = (socialPost: SocialPost): FeedPost => {
-  // Calculate relative timestamp
-  const getRelativeTime = (dateString: string) => {
-    const now = new Date();
-    const postDate = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-  };
+export const transformSocialPostToFeedPost = (post: any): FeedPost => {
+  // Transform media_urls array to media objects format expected by feed components
+  const media = post.media_urls?.map((url: string, index: number) => ({
+    id: `${post.id}_media_${index}`,
+    type: url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || url.toLowerCase().includes('.webm') ? 'video' : 'image',
+    url: url,
+    filename: url.split('/').pop() || `media_${index}`
+  })) || [];
 
   return {
-    id: socialPost.id,
-    author: socialPost.author_name,
-    avatar: socialPost.author_avatar,
-    title: socialPost.title,
-    description: socialPost.content,
-    category: socialPost.category as FeedPost['category'],
-    timestamp: getRelativeTime(socialPost.created_at),
-    location: socialPost.location || 'Location not specified',
-    responses: socialPost.comments_count,
-    likes: socialPost.likes_count,
-    isLiked: socialPost.is_liked,
-    shares: socialPost.shares_count,
-    isBookmarked: socialPost.is_bookmarked,
+    id: post.id,
+    author: post.author_name || 'Unknown User',
+    avatar: post.author_avatar || '',
+    title: post.title,
+    description: post.content,
+    category: post.category as any,
+    timestamp: new Date(post.created_at).toLocaleDateString(),
+    location: post.location || '',
+    responses: post.comments_count || 0,
+    likes: post.likes_count || 0,
+    shares: post.shares_count || 0,
+    isLiked: post.is_liked || false,
+    isBookmarked: post.is_bookmarked || false,
     isShared: false,
-    urgency: socialPost.urgency as FeedPost['urgency'] || 'medium',
-    tags: socialPost.tags,
-    visibility: 'public',
-    feeling: undefined,
-    media: socialPost.media_urls.map((url, index) => ({ 
-      id: `${socialPost.id}-media-${index}`,
-      type: 'image' as const, 
-      url,
-      filename: `image-${index + 1}.jpg`
-    })),
+    urgency: post.urgency as any,
+    tags: post.tags || [],
+    media: media, // This is the key fix - properly transform media_urls to media objects
+    status: post.status,
+    visibility: post.visibility as any,
     reactions: [],
-    comments: [],
-    taggedUsers: []
+    comments: []
   };
 };
