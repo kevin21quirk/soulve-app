@@ -28,7 +28,6 @@ export const transformSocialPostToFeedPost = (post: any): FeedPost => {
     urgency: post.urgency as any,
     tags: post.tags || [],
     media: media, // This is the key fix - properly transform media_urls to media objects
-    status: post.status,
     visibility: post.visibility as any,
     reactions: [],
     comments: []

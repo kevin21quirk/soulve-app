@@ -21,19 +21,16 @@ export const transformPostToFeedPost = (post: PostWithProfile): FeedPost => {
     }
   }
 
+  // Transform media_urls to media objects format
+  const media = post.media_urls?.map((url: string, index: number) => ({
+    id: `${post.id}_media_${index}`,
+    type: url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || url.toLowerCase().includes('.webm') ? 'video' as const : 'image' as const,
+    url: url,
+    filename: url.split('/').pop() || `media_${index}`
+  })) || [];
+
   // Transform comments
-  const transformedComments: Comment[] = (post.comments || []).map(comment => ({
-    id: comment.id,
-    author: comment.author,
-    avatar: '', // Default empty avatar for comments
-    content: comment.content,
-    timestamp: comment.created_at || comment.timestamp || new Date().toISOString(),
-    likes: comment.likes || 0,
-    isLiked: comment.isLiked || false,
-    replies: [],
-    reactions: [],
-    taggedUsers: []
-  }));
+  const transformedComments: Comment[] = [];
 
   // Calculate relative timestamp
   const getRelativeTime = (dateString: string) => {
@@ -60,17 +57,17 @@ export const transformPostToFeedPost = (post: PostWithProfile): FeedPost => {
     category: post.category as FeedPost['category'],
     timestamp: getRelativeTime(post.created_at),
     location: post.location || 'Location not specified',
-    responses: post.interactions?.comment_count || 0,
-    likes: post.interactions?.like_count || 0,
-    isLiked: post.interactions?.user_liked || false,
-    shares: 0, // Not tracked in current schema
-    isBookmarked: false, // Not tracked in current schema
-    isShared: false, // Not tracked in current schema
+    responses: post.comments_count || 0,
+    likes: post.likes_count || 0,
+    isLiked: post.is_liked || false,
+    shares: post.shares_count || 0,
+    isBookmarked: post.is_bookmarked || false,
+    isShared: false,
     urgency: post.urgency as FeedPost['urgency'] || 'medium',
     tags: post.tags || [],
     visibility: 'public',
     feeling: undefined,
-    media: [],
+    media: media,
     reactions: [],
     comments: transformedComments,
     taggedUsers: []

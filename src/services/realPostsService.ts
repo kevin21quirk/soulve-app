@@ -27,6 +27,14 @@ export interface SocialPost {
   status: string;
 }
 
+export interface PostWithProfile extends SocialPost {
+  author_profile?: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+  };
+}
+
 export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],

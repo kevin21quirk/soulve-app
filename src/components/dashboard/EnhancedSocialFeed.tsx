@@ -11,7 +11,7 @@ import { usePosts, usePostInteraction } from "@/services/realPostsService";
 import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { supabase } from "@/integrations/supabase/client";
-import { FeedPost } from "@/types/feed";
+import { transformPostToFeedPost } from "@/utils/dataTransformers";
 
 const EnhancedSocialFeed = () => {
   const [activeTab, setActiveTab] = useState("for-you");
@@ -36,8 +36,8 @@ const EnhancedSocialFeed = () => {
         return filteredPosts.filter(post => post.location && post.location !== 'Location not specified');
       case "trending":
         return filteredPosts.sort((a, b) => {
-          const aScore = a.likes + a.responses + a.shares;
-          const bScore = b.likes + b.responses + b.shares;
+          const aScore = a.likes_count + a.comments_count + a.shares_count;
+          const bScore = b.likes_count + b.comments_count + b.shares_count;
           return bScore - aScore;
         });
       case "following":
@@ -56,7 +56,7 @@ const EnhancedSocialFeed = () => {
     try {
       // Get current state for optimistic update
       const post = posts.find(p => p.id === postId);
-      const currentlyLiked = post?.isLiked || false;
+      const currentlyLiked = post?.is_liked || false;
       
       // Apply optimistic update immediately
       optimisticLike(postId, !currentlyLiked);
@@ -213,7 +213,7 @@ const EnhancedSocialFeed = () => {
                   {filteredPostsForDisplay.map((post) => (
                     <FeedPostCard
                       key={post.id}
-                      post={post}
+                      post={transformPostToFeedPost(post)}
                       onLike={handleLike}
                       onShare={() => {}}
                       onRespond={() => {}}
