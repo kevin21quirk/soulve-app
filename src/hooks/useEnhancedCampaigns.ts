@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -87,17 +86,26 @@ export const useEnhancedCampaigns = () => {
       throw new Error('User must be authenticated to create campaigns');
     }
 
+    // Validate required fields
+    if (!campaignData.title?.trim()) {
+      throw new Error('Campaign title is required');
+    }
+
     try {
       const { data, error } = await supabase
         .from('campaigns')
         .insert({
-          ...campaignData,
+          title: campaignData.title.trim(),
+          description: campaignData.description || '',
           creator_id: user.id,
           current_amount: 0,
           status: 'draft',
           goal_type: 'monetary',
           organization_type: 'individual',
-          category: campaignData.category || 'general' // Ensure category is always provided
+          category: campaignData.category || 'general',
+          goal_amount: campaignData.goal_amount,
+          end_date: campaignData.end_date,
+          featured_image: campaignData.featured_image
         })
         .select()
         .single();
