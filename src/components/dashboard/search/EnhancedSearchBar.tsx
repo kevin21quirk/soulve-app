@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { Search, Filter, X, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useEnhancedRecommendations } from "@/hooks/useEnhancedRecommendations";
 import SearchSuggestions from "./SearchSuggestions";
 import AdvancedSearchFilters from "./AdvancedSearchFilters";
 import TrendingTopics from "./TrendingTopics";
@@ -28,6 +30,20 @@ const EnhancedSearchBar = ({
   ]);
   
   const searchRef = useRef<HTMLDivElement>(null);
+  const { recommendations } = useEnhancedRecommendations();
+
+  // Enhanced validation for search
+  const { validateSingleField, getError } = useFormValidation({
+    search: {
+      maxLength: 100,
+      custom: (value: string) => {
+        if (value && value.trim().length < 2) {
+          return "Search must be at least 2 characters";
+        }
+        return null;
+      }
+    }
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,6 +58,9 @@ const EnhancedSearchBar = ({
   }, []);
 
   const handleSearch = (value: string) => {
+    const isValid = validateSingleField('search', value);
+    if (!isValid) return;
+
     setQuery(value);
     onSearch(value);
     
@@ -71,8 +90,9 @@ const EnhancedSearchBar = ({
 
   const handleFiltersChange = (filters: any) => {
     console.log("Filters applied:", filters);
-    // In a real app, you'd apply these filters to the search results
   };
+
+  const searchError = getError('search');
 
   return (
     <div className={`relative ${className}`} ref={searchRef}>
@@ -83,10 +103,19 @@ const EnhancedSearchBar = ({
             type="text"
             placeholder={placeholder}
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              validateSingleField('search', e.target.value);
+            }}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch(query)}
             onFocus={() => setIsFocused(true)}
-            className="pl-10 pr-20 h-11 border-2 focus:border-blue-500 transition-colors"
+            className={`pl-10 pr-20 h-11 border-2 focus:border-blue-500 transition-colors ${
+              searchError ? 'border-red-300' : ''
+            }`}
           />
+          {searchError && (
+            <p className="absolute -bottom-5 left-0 text-xs text-red-500">{searchError}</p>
+          )}
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
             {query && (
               <Button
@@ -109,7 +138,7 @@ const EnhancedSearchBar = ({
           </div>
         </div>
 
-        {/* Enhanced Search Suggestions */}
+        {/* Enhanced Search Suggestions with AI recommendations */}
         {isFocused && (
           <SearchSuggestions
             query={query}
@@ -117,6 +146,7 @@ const EnhancedSearchBar = ({
             recentSearches={recentSearches}
             onSelectRecent={handleRecentSelect}
             onClearRecent={clearRecentSearches}
+            recommendations={recommendations.slice(0, 3)}
           />
         )}
 
@@ -131,26 +161,22 @@ const EnhancedSearchBar = ({
         )}
       </div>
 
-      {/* AI Search Suggestions */}
+      {/* AI Search Suggestions with enhanced relevance */}
       {isFocused && !query && (
         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-40 mt-1 p-4">
           <div className="flex items-center space-x-2 mb-3">
             <Sparkles className="h-4 w-4 text-purple-500" />
             <span className="text-sm font-medium text-gray-700">AI Suggestions</span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              "Find helpers near me",
-              "Moving help this weekend",
-              "Tutoring for calculus",
-              "Pet sitting next week"
-            ].map((suggestion, index) => (
+          <div className="grid grid-cols-1 gap-2">
+            {recommendations.slice(0, 4).map((rec, index) => (
               <button
                 key={index}
-                onClick={() => handleSuggestionSelect(suggestion)}
-                className="text-left p-2 text-sm text-gray-600 hover:bg-gray-50 rounded border border-gray-100"
+                onClick={() => handleSuggestionSelect(rec.title)}
+                className="text-left p-2 text-sm text-gray-600 hover:bg-gray-50 rounded border border-gray-100 flex items-center justify-between"
               >
-                {suggestion}
+                <span>{rec.title}</span>
+                <span className="text-xs text-blue-500">{rec.relevanceScore}% match</span>
               </button>
             ))}
           </div>

@@ -1,0 +1,54 @@
+
+{
+  "name": "SouLVE - Community Support Platform",
+  "short_name": "SouLVE",
+  "description": "Connect, help, and make a difference in your community",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ce4af",
+  "orientation": "portrait-primary",
+  "categories": ["social", "lifestyle", "utilities"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/25feaabf-2868-4cfc-a034-77054efffb53.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Feed",
+      "url": "/feed",
+      "description": "View community feed"
+    },
+    {
+      "name": "Messages",
+      "url": "/messages",
+      "description": "Check your messages"
+    },
+    {
+      "name": "Profile",
+      "url": "/profile",
+      "description": "View your profile"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
