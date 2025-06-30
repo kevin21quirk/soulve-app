@@ -60,50 +60,42 @@ export const useUserProfile = () => {
       // Transform data to match UserProfileData interface
       const profileData: UserProfileData = {
         id: profile.id,
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
+        name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User',
         email: user.email || '',
         phone: profile.phone || '',
         location: profile.location || '',
         bio: profile.bio || '',
-        avatar_url: profile.avatar_url || '',
-        banner_url: profile.banner_url || '',
+        avatar: profile.avatar_url || '',
+        banner: profile.banner_url || '',
+        bannerType: profile.banner_type || null,
+        joinDate: profile.created_at || new Date().toISOString(),
+        trustScore: metrics?.trust_score || 50,
+        helpCount: metrics?.help_provided_count || 0,
         skills: profile.skills || [],
         interests: profile.interests || [],
-        website: profile.website || '',
-        social_links: {
+        socialLinks: {
+          website: profile.website || '',
           facebook: profile.facebook || '',
           twitter: profile.twitter || '',
           instagram: profile.instagram || '',
           linkedin: profile.linkedin || ''
         },
-        trust_score: metrics?.trust_score || 50,
-        impact_score: metrics?.impact_score || 0,
-        help_provided_count: metrics?.help_provided_count || 0,
-        help_received_count: metrics?.help_received_count || 0,
-        volunteer_hours: metrics?.volunteer_hours || 0,
-        connections_count: metrics?.connections_count || 0,
-        achievements: (achievements || []).map(achievement => ({
-          id: achievement.achievement_id,
-          title: achievement.achievement_id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          description: `Achievement: ${achievement.achievement_id}`,
-          icon: '🏆',
-          unlocked_at: achievement.unlocked_at,
-          progress: achievement.progress || 0,
-          max_progress: achievement.max_progress || 1
-        })),
-        preferences: {
-          notifications: {
-            email: true,
-            push: true,
-            sms: false
-          },
-          privacy: {
-            profile_visibility: 'public',
-            show_activity: true,
-            show_location: true
-          }
-        }
+        organizationInfo: {
+          organizationType: 'individual',
+          establishedYear: '',
+          registrationNumber: '',
+          description: '',
+          mission: '',
+          vision: '',
+          role: '',
+          website: profile.website || ''
+        },
+        organizationConnections: [],
+        followerCount: 0,
+        followingCount: 0,
+        postCount: 0,
+        isVerified: false,
+        verificationBadges: []
       };
 
       setProfileData(profileData);
@@ -122,24 +114,30 @@ export const useUserProfile = () => {
 
     setUpdating(true);
     try {
+      // Split the name into first and last name
+      const nameParts = updatedData.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       // Update profile table
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          first_name: updatedData.first_name,
-          last_name: updatedData.last_name,
+          first_name: firstName,
+          last_name: lastName,
           phone: updatedData.phone,
           location: updatedData.location,
           bio: updatedData.bio,
-          avatar_url: updatedData.avatar_url,
-          banner_url: updatedData.banner_url,
+          avatar_url: updatedData.avatar,
+          banner_url: updatedData.banner,
+          banner_type: updatedData.bannerType,
           skills: updatedData.skills,
           interests: updatedData.interests,
-          website: updatedData.website,
-          facebook: updatedData.social_links?.facebook || '',
-          twitter: updatedData.social_links?.twitter || '',
-          instagram: updatedData.social_links?.instagram || '',
-          linkedin: updatedData.social_links?.linkedin || '',
+          website: updatedData.socialLinks?.website || '',
+          facebook: updatedData.socialLinks?.facebook || '',
+          twitter: updatedData.socialLinks?.twitter || '',
+          instagram: updatedData.socialLinks?.instagram || '',
+          linkedin: updatedData.socialLinks?.linkedin || '',
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);

@@ -70,8 +70,8 @@ export const useEnhancedSearch = () => {
         
         case 'relevant':
           // Simple relevance based on interactions
-          const aRelevance = (a.likesCount || 0) + (a.commentsCount || 0) + (a.sharesCount || 0);
-          const bRelevance = (b.likesCount || 0) + (b.commentsCount || 0) + (b.sharesCount || 0);
+          const aRelevance = (a.likes || 0) + (a.comments || 0) + (a.shares || 0);
+          const bRelevance = (b.likes || 0) + (b.comments || 0) + (b.shares || 0);
           return bRelevance - aRelevance;
         
         case 'recent':

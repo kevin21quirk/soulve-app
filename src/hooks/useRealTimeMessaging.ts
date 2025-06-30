@@ -19,6 +19,7 @@ interface TransformedMessage {
   created_at: string;
   sender_id: string;
   is_own: boolean;
+  is_read: boolean;
 }
 
 export const useRealTimeMessaging = () => {
@@ -63,7 +64,8 @@ export const useRealTimeMessaging = () => {
       content: msg.content,
       created_at: msg.created_at,
       sender_id: msg.sender_id,
-      is_own: msg.sender_id === user?.id
+      is_own: msg.sender_id === user?.id,
+      is_read: msg.is_read
     }))
   };
 
