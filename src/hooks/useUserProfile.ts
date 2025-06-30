@@ -1,180 +1,185 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
-import { UseUserProfileReturn } from './profile/types';
-import { createDefaultProfile, mapDatabaseProfileToUserProfile, mapUserProfileToDatabase } from './profile/profileUtils';
-import { fetchUserProfile, upsertUserProfile } from './profile/profileService';
-import { fetchUserOrganizations } from '@/services/organizationService';
-import { useRealTimeProfile } from './useRealTimeProfile';
-import { useProfileSync } from './useProfileSync';
 
-export const useUserProfile = (): UseUserProfileReturn => {
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
+
+export const useUserProfile = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [profileData, setProfileData] = useState<UserProfileData | null>(null);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { profileUpdates, clearUpdates } = useRealTimeProfile();
-  const { syncProfileToPreferences, calculateImpactMetrics } = useProfileSync();
-  const hasInitializedRef = useRef(false);
 
-  const loadProfile = useCallback(async () => {
-    if (!user || hasInitializedRef.current) return;
+  const fetchProfileData = useCallback(async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setLoading(false);
+      return;
+    }
 
-    console.log('useUserProfile - Loading profile for user:', user.id, user.email);
-    
     try {
-      setInitialLoading(true);
+      setLoading(true);
       setError(null);
-      
-      const { data: profile, error: profileError } = await fetchUserProfile(user.id);
+
+      // Fetch profile data
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
       if (profileError) {
-        console.error('useUserProfile - Error fetching profile:', profileError);
-        setError(profileError.message);
-        // Create default profile for Matthew Walker
-        const defaultProfile = createDefaultProfile(user);
-        // Override with correct name for Matthew Walker
-        if (user.email === 'matt@join-soulve.com') {
-          defaultProfile.name = 'Matthew Walker';
-          defaultProfile.bio = 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
-          defaultProfile.location = 'United Kingdom';
-          defaultProfile.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
-          defaultProfile.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
-        }
-        setProfileData(defaultProfile);
-        hasInitializedRef.current = true;
-        return;
+        console.error('Profile fetch error:', profileError);
+        throw new Error(profileError.message);
       }
 
-      console.log('useUserProfile - Profile data from DB:', profile);
-      
-      // Map database profile to user profile data
-      const userProfileData = mapDatabaseProfileToUserProfile(user, profile);
-      
-      // Override with correct information for Matthew Walker if profile exists but name is wrong
-      if (user.email === 'matt@join-soulve.com' && (!userProfileData.name || userProfileData.name === 'John Doe' || !userProfileData.name.includes('Matthew'))) {
-        userProfileData.name = 'Matthew Walker';
-        userProfileData.bio = userProfileData.bio || 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
-        userProfileData.location = userProfileData.location || 'United Kingdom';
-        if (!userProfileData.skills.length) {
-          userProfileData.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
-        }
-        if (!userProfileData.interests.length) {
-          userProfileData.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
-        }
+      // Fetch impact metrics
+      const { data: metrics, error: metricsError } = await supabase
+        .from('impact_metrics')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (metricsError) {
+        console.warn('Metrics fetch error:', metricsError);
       }
 
-      // Load organizational connections
-      const organizationConnections = await fetchUserOrganizations(user.id);
-      userProfileData.organizationConnections = organizationConnections;
-      
-      console.log('useUserProfile - Final mapped profile data:', userProfileData);
-      setProfileData(userProfileData);
+      // Fetch user achievements
+      const { data: achievements, error: achievementsError } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', user.id);
 
-      // If no profile exists in database or needs update, create/update one
-      if (!profile || (user.email === 'matt@join-soulve.com' && (!profile.first_name || profile.first_name !== 'Matthew'))) {
-        console.log('useUserProfile - Creating/updating profile in DB for Matthew Walker');
-        const profileDataForDB = mapUserProfileToDatabase(userProfileData);
-        const { error: createError } = await upsertUserProfile(profileDataForDB);
-        
-        if (createError) {
-          console.error('useUserProfile - Error creating/updating profile:', createError);
+      if (achievementsError) {
+        console.warn('Achievements fetch error:', achievementsError);
+      }
+
+      // Transform data to match UserProfileData interface
+      const profileData: UserProfileData = {
+        id: profile.id,
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        email: user.email || '',
+        phone: profile.phone || '',
+        location: profile.location || '',
+        bio: profile.bio || '',
+        avatar_url: profile.avatar_url || '',
+        banner_url: profile.banner_url || '',
+        skills: profile.skills || [],
+        interests: profile.interests || [],
+        website: profile.website || '',
+        social_links: {
+          facebook: profile.facebook || '',
+          twitter: profile.twitter || '',
+          instagram: profile.instagram || '',
+          linkedin: profile.linkedin || ''
+        },
+        trust_score: metrics?.trust_score || 50,
+        impact_score: metrics?.impact_score || 0,
+        help_provided_count: metrics?.help_provided_count || 0,
+        help_received_count: metrics?.help_received_count || 0,
+        volunteer_hours: metrics?.volunteer_hours || 0,
+        connections_count: metrics?.connections_count || 0,
+        achievements: (achievements || []).map(achievement => ({
+          id: achievement.achievement_id,
+          title: achievement.achievement_id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          description: `Achievement: ${achievement.achievement_id}`,
+          icon: '🏆',
+          unlocked_at: achievement.unlocked_at,
+          progress: achievement.progress || 0,
+          max_progress: achievement.max_progress || 1
+        })),
+        preferences: {
+          notifications: {
+            email: true,
+            push: true,
+            sms: false
+          },
+          privacy: {
+            profile_visibility: 'public',
+            show_activity: true,
+            show_location: true
+          }
         }
-      }
+      };
 
-      await calculateImpactMetrics();
-      hasInitializedRef.current = true;
-    } catch (err) {
-      console.error('useUserProfile - Error in loadProfile:', err);
-      setError('Failed to load profile');
-      // Fallback to default profile with correct name for Matthew
-      const defaultProfile = createDefaultProfile(user);
-      if (user?.email === 'matt@join-soulve.com') {
-        defaultProfile.name = 'Matthew Walker';
-        defaultProfile.bio = 'Founder and Lead Developer of SouLVE - Building community-driven platforms for positive impact.';
-        defaultProfile.location = 'United Kingdom';
-        defaultProfile.skills = ['Platform Development', 'Community Building', 'Leadership', 'Product Strategy'];
-        defaultProfile.interests = ['Technology', 'Community Impact', 'Social Innovation', 'Platform Design'];
-      }
-      setProfileData(defaultProfile);
-      hasInitializedRef.current = true;
+      setProfileData(profileData);
+    } catch (error: any) {
+      console.error('Error fetching profile data:', error);
+      setError(error.message || 'Failed to load profile data');
     } finally {
-      setInitialLoading(false);
+      setLoading(false);
     }
-  }, [user, calculateImpactMetrics]);
-
-  // Load profile only once when user changes
-  useEffect(() => {
-    if (user && !hasInitializedRef.current) {
-      loadProfile();
-    } else if (!user) {
-      hasInitializedRef.current = false;
-      setProfileData(null);
-      setInitialLoading(true);
-    }
-  }, [user, loadProfile]);
-
-  // Apply real-time updates
-  useEffect(() => {
-    const currentUserUpdates = profileUpdates[user?.id || ''];
-    if (currentUserUpdates && profileData && user) {
-      console.log('useUserProfile - Applying real-time updates:', currentUserUpdates);
-      const updatedProfile = mapDatabaseProfileToUserProfile(user, currentUserUpdates);
-      
-      // Ensure Matthew Walker's name is preserved
-      if (user.email === 'matt@join-soulve.com') {
-        updatedProfile.name = 'Matthew Walker';
-      }
-      
-      // Keep existing organizational connections
-      updatedProfile.organizationConnections = profileData.organizationConnections;
-      
-      if (
-        updatedProfile.name !== profileData.name ||
-        updatedProfile.bio !== profileData.bio ||
-        updatedProfile.location !== profileData.location ||
-        JSON.stringify(updatedProfile.skills) !== JSON.stringify(profileData.skills) ||
-        JSON.stringify(updatedProfile.interests) !== JSON.stringify(profileData.interests)
-      ) {
-        setProfileData(updatedProfile);
-        clearUpdates();
-      }
-    }
-  }, [profileUpdates, user, profileData, clearUpdates]);
+  }, [user?.id, user?.email]);
 
   const updateProfile = useCallback(async (updatedData: UserProfileData) => {
-    if (!user) return;
+    if (!user?.id) {
+      throw new Error('User not authenticated');
+    }
 
-    console.log('useUserProfile - Updating profile:', updatedData);
-    
+    setUpdating(true);
     try {
-      setUpdating(true);
-      const profileData = mapUserProfileToDatabase(updatedData);
-      const { error } = await upsertUserProfile(profileData);
+      // Update profile table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: updatedData.first_name,
+          last_name: updatedData.last_name,
+          phone: updatedData.phone,
+          location: updatedData.location,
+          bio: updatedData.bio,
+          avatar_url: updatedData.avatar_url,
+          banner_url: updatedData.banner_url,
+          skills: updatedData.skills,
+          interests: updatedData.interests,
+          website: updatedData.website,
+          facebook: updatedData.social_links?.facebook || '',
+          twitter: updatedData.social_links?.twitter || '',
+          instagram: updatedData.social_links?.instagram || '',
+          linkedin: updatedData.social_links?.linkedin || '',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
-      if (error) {
-        console.error('useUserProfile - Error updating profile:', error);
-        throw error;
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        throw new Error(profileError.message);
       }
 
+      // Update local state
       setProfileData(updatedData);
-      
-      syncProfileToPreferences(updatedData).catch(console.error);
-      calculateImpactMetrics().catch(console.error);
-    } catch (err) {
-      console.error('useUserProfile - Error in updateProfile:', err);
-      throw err;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated."
+      });
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
     } finally {
       setUpdating(false);
     }
-  }, [user, syncProfileToPreferences, calculateImpactMetrics]);
+  }, [user?.id, toast]);
+
+  // Fetch profile data on mount and when user changes
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
 
   return {
     profileData,
-    loading: initialLoading,
+    loading,
     updating,
     error,
-    updateProfile
+    updateProfile,
+    refreshProfile: fetchProfileData
   };
 };
