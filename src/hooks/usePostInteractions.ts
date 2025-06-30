@@ -1,276 +1,283 @@
 
-import { useToast } from "@/hooks/use-toast";
-import { FeedPost, Comment } from "@/types/feed";
+import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-export const usePostInteractions = (
-  posts: FeedPost[], 
-  setPosts: React.Dispatch<React.SetStateAction<FeedPost[]>>
-) => {
+export const usePostInteractions = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
-  const handleLike = (postId: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1
-            }
-          : post
-      )
-    );
-  };
+  const setLoading = useCallback((postId: string, action: string, loading: boolean) => {
+    const key = `${postId}_${action}`;
+    setLoadingStates(prev => ({ ...prev, [key]: loading }));
+  }, []);
 
-  const handleShare = (postId: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              isShared: true,
-              shares: post.shares + 1
-            }
-          : post
-      )
-    );
-    
-    toast({
-      title: "Post shared!",
-      description: "This post has been shared with your network.",
-    });
-  };
+  const isLoading = useCallback((postId: string, action: string) => {
+    const key = `${postId}_${action}`;
+    return loadingStates[key] || false;
+  }, [loadingStates]);
 
-  const handleBookmark = (postId: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => 
-        post.id === postId 
-          ? { ...post, isBookmarked: !post.isBookmarked }
-          : post
-      )
-    );
-    
-    const post = posts.find(p => p.id === postId);
-    toast({
-      title: post?.isBookmarked ? "Bookmark removed" : "Post bookmarked!",
-      description: post?.isBookmarked ? "Post removed from bookmarks." : "Post saved to your bookmarks.",
-    });
-  };
+  const handleLike = useCallback(async (postId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like posts",
+        variant: "destructive"
+      });
+      return false;
+    }
 
-  const handleReaction = (postId: string, reactionType: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id !== postId) return post;
+    if (isLoading(postId, 'like')) return false;
+
+    try {
+      setLoading(postId, 'like', true);
+      console.log('Liking post:', postId);
+
+      // Extract actual post ID if it's a campaign
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+
+      // Check if user already liked this post
+      const { data: existingLike, error: checkError } = await supabase
+        .from('post_interactions')
+        .select('id')
+        .eq('post_id', actualPostId)
+        .eq('user_id', user.id)
+        .eq('interaction_type', 'like')
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking existing like:', checkError);
+        throw checkError;
+      }
+
+      if (existingLike) {
+        // Unlike - remove the like
+        const { error: deleteError } = await supabase
+          .from('post_interactions')
+          .delete()
+          .eq('id', existingLike.id);
+
+        if (deleteError) throw deleteError;
         
-        const reactions = post.reactions || [];
-        const existingReaction = reactions.find(r => r.type === reactionType);
-        const userHasReacted = reactions.some(r => r.hasReacted);
-        
-        let updatedReactions;
-        
-        if (userHasReacted) {
-          // Remove user's previous reaction and add new one
-          updatedReactions = reactions.map(r => 
-            r.hasReacted 
-              ? { ...r, hasReacted: false, count: Math.max(0, r.count - 1) }
-              : r
-          );
-          
-          if (existingReaction) {
-            updatedReactions = updatedReactions.map(r =>
-              r.type === reactionType 
-                ? { ...r, hasReacted: true, count: r.count + 1 }
-                : r
-            );
-          } else {
-            updatedReactions.push({ 
-              type: reactionType, 
-              emoji: getReactionEmoji(reactionType), 
-              count: 1, 
-              hasReacted: true 
-            });
-          }
-        } else {
-          // Add new reaction
-          if (existingReaction) {
-            updatedReactions = reactions.map(r =>
-              r.type === reactionType 
-                ? { ...r, hasReacted: true, count: r.count + 1 }
-                : r
-            );
-          } else {
-            updatedReactions = [...reactions, { 
-              type: reactionType, 
-              emoji: getReactionEmoji(reactionType), 
-              count: 1, 
-              hasReacted: true 
-            }];
-          }
-        }
-        
-        return { ...post, reactions: updatedReactions };
-      })
-    );
-  };
-
-  const handleAddComment = (postId: string, content: string) => {
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      author: "You",
-      avatar: "",
-      content,
-      timestamp: "Just now",
-      likes: 0,
-      isLiked: false,
-      reactions: [], // Initialize with empty reactions array
-    };
-
-    setPosts(prevPosts => 
-      prevPosts.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              comments: [...(post.comments || []), newComment]
-            }
-          : post
-      )
-    );
-  };
-
-  const handleLikeComment = (postId: string, commentId: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id !== postId) return post;
-        
-        const updateCommentsLikes = (comments: Comment[]): Comment[] => {
-          return comments.map(comment => {
-            if (comment.id === commentId) {
-              return {
-                ...comment,
-                isLiked: !comment.isLiked,
-                likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1
-              };
-            }
-            if (comment.replies) {
-              return {
-                ...comment,
-                replies: updateCommentsLikes(comment.replies)
-              };
-            }
-            return comment;
+        console.log('Post unliked successfully');
+        toast({
+          title: "Post unliked",
+          description: "Your like has been removed"
+        });
+        return false; // Now unliked
+      } else {
+        // Like - add new like
+        const { error: insertError } = await supabase
+          .from('post_interactions')
+          .insert({
+            post_id: actualPostId,
+            user_id: user.id,
+            interaction_type: 'like'
           });
-        };
-        
-        return {
-          ...post,
-          comments: updateCommentsLikes(post.comments || [])
-        };
-      })
-    );
-  };
 
-  const handleCommentReaction = (postId: string, commentId: string, reactionType: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id !== postId) return post;
+        if (insertError) throw insertError;
         
-        const updateCommentReactions = (comments: Comment[]): Comment[] => {
-          return comments.map(comment => {
-            if (comment.id === commentId) {
-              const reactions = comment.reactions || [];
-              const existingReaction = reactions.find(r => r.type === reactionType);
-              const userHasReacted = reactions.some(r => r.hasReacted);
-              
-              let updatedReactions;
-              
-              if (userHasReacted) {
-                // Remove user's previous reaction and add new one
-                updatedReactions = reactions.map(r => 
-                  r.hasReacted 
-                    ? { ...r, hasReacted: false, count: Math.max(0, r.count - 1) }
-                    : r
-                );
-                
-                if (existingReaction) {
-                  updatedReactions = updatedReactions.map(r =>
-                    r.type === reactionType 
-                      ? { ...r, hasReacted: true, count: r.count + 1 }
-                      : r
-                  );
-                } else {
-                  updatedReactions.push({ 
-                    type: reactionType, 
-                    emoji: getReactionEmoji(reactionType), 
-                    count: 1, 
-                    hasReacted: true 
-                  });
-                }
-              } else {
-                // Add new reaction
-                if (existingReaction) {
-                  updatedReactions = reactions.map(r =>
-                    r.type === reactionType 
-                      ? { ...r, hasReacted: true, count: r.count + 1 }
-                      : r
-                  );
-                } else {
-                  updatedReactions = [...reactions, { 
-                    type: reactionType, 
-                    emoji: getReactionEmoji(reactionType), 
-                    count: 1, 
-                    hasReacted: true 
-                  }];
-                }
-              }
-              
-              return { ...comment, reactions: updatedReactions };
-            }
-            if (comment.replies) {
-              return {
-                ...comment,
-                replies: updateCommentReactions(comment.replies)
-              };
-            }
-            return comment;
+        console.log('Post liked successfully');
+        toast({
+          title: "Post liked!",
+          description: "Your reaction has been recorded"
+        });
+        return true; // Now liked
+      }
+    } catch (error: any) {
+      console.error('Error handling like:', error);
+      toast({
+        title: "Failed to like post",
+        description: error.message || "Please try again",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setLoading(postId, 'like', false);
+    }
+  }, [user, toast, isLoading, setLoading]);
+
+  const handleBookmark = useCallback(async (postId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to bookmark posts",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (isLoading(postId, 'bookmark')) return false;
+
+    try {
+      setLoading(postId, 'bookmark', true);
+      console.log('Bookmarking post:', postId);
+
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+
+      // Check if user already bookmarked this post
+      const { data: existingBookmark, error: checkError } = await supabase
+        .from('post_interactions')
+        .select('id')
+        .eq('post_id', actualPostId)
+        .eq('user_id', user.id)
+        .eq('interaction_type', 'bookmark')
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking existing bookmark:', checkError);
+        throw checkError;
+      }
+
+      if (existingBookmark) {
+        // Remove bookmark
+        const { error: deleteError } = await supabase
+          .from('post_interactions')
+          .delete()
+          .eq('id', existingBookmark.id);
+
+        if (deleteError) throw deleteError;
+        
+        console.log('Post unbookmarked successfully');
+        toast({
+          title: "Bookmark removed",
+          description: "Post removed from your saved items"
+        });
+        return false;
+      } else {
+        // Add bookmark
+        const { error: insertError } = await supabase
+          .from('post_interactions')
+          .insert({
+            post_id: actualPostId,
+            user_id: user.id,
+            interaction_type: 'bookmark'
           });
-        };
+
+        if (insertError) throw insertError;
         
-        return {
-          ...post,
-          comments: updateCommentReactions(post.comments || [])
-        };
-      })
-    );
-  };
+        console.log('Post bookmarked successfully');
+        toast({
+          title: "Post bookmarked!",
+          description: "You can find it in your saved posts"
+        });
+        return true;
+      }
+    } catch (error: any) {
+      console.error('Error handling bookmark:', error);
+      toast({
+        title: "Failed to bookmark post",
+        description: error.message || "Please try again",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setLoading(postId, 'bookmark', false);
+    }
+  }, [user, toast, isLoading, setLoading]);
 
-  const handleRespond = (postId: string) => {
-    toast({
-      title: "Response sent!",
-      description: "Your offer to help has been sent to the requester.",
-    });
-  };
+  const handleAddComment = useCallback(async (postId: string, content: string) => {
+    if (!user || !content.trim()) {
+      toast({
+        title: "Invalid comment",
+        description: "Please enter a comment",
+        variant: "destructive"
+      });
+      return false;
+    }
 
-  const getReactionEmoji = (type: string) => {
-    const emojiMap: { [key: string]: string } = {
-      'like': '👍',
-      'love': '❤️',
-      'support': '🤝',
-      'laugh': '😂',
-      'wow': '😮',
-      'sad': '😢',
-      'angry': '😠',
-    };
-    return emojiMap[type] || '👍';
-  };
+    if (isLoading(postId, 'comment')) return false;
+
+    try {
+      setLoading(postId, 'comment', true);
+      console.log('Adding comment to post:', postId);
+
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+
+      const { error } = await supabase
+        .from('post_interactions')
+        .insert({
+          post_id: actualPostId,
+          user_id: user.id,
+          interaction_type: 'comment',
+          content: content.trim()
+        });
+
+      if (error) throw error;
+
+      console.log('Comment added successfully');
+      toast({
+        title: "Comment added!",
+        description: "Your comment has been posted"
+      });
+      return true;
+    } catch (error: any) {
+      console.error('Error adding comment:', error);
+      toast({
+        title: "Failed to add comment",
+        description: error.message || "Please try again",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setLoading(postId, 'comment', false);
+    }
+  }, [user, toast, isLoading, setLoading]);
+
+  const handleShare = useCallback(async (postId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to share posts",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (isLoading(postId, 'share')) return false;
+
+    try {
+      setLoading(postId, 'share', true);
+      console.log('Sharing post:', postId);
+
+      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
+
+      const { error } = await supabase
+        .from('post_interactions')
+        .insert({
+          post_id: actualPostId,
+          user_id: user.id,
+          interaction_type: 'share'
+        });
+
+      if (error) throw error;
+
+      console.log('Post shared successfully');
+      toast({
+        title: "Post shared!",
+        description: "The post has been shared with your network"
+      });
+      return true;
+    } catch (error: any) {
+      console.error('Error sharing post:', error);
+      toast({
+        title: "Failed to share post",
+        description: error.message || "Please try again",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setLoading(postId, 'share', false);
+    }
+  }, [user, toast, isLoading, setLoading]);
 
   return {
     handleLike,
-    handleShare,
-    handleRespond,
     handleBookmark,
-    handleReaction,
     handleAddComment,
-    handleLikeComment,
-    handleCommentReaction,
+    handleShare,
+    isLoading
   };
 };

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
-import ForgotPasswordForm from "./ForgotPasswordForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface EnhancedAuthFormProps {
   isLogin: boolean;
@@ -15,17 +15,20 @@ interface EnhancedAuthFormProps {
 }
 
 const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthFormProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: ""
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    feedback: ""
+  });
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,324 +36,389 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
   };
 
   const validatePassword = (password: string) => {
-    if (isLogin) return password.length > 0;
+    let score = 0;
+    let feedback = [];
+
+    if (password.length >= 8) score++;
+    else feedback.push("at least 8 characters");
+
+    if (/[A-Z]/.test(password)) score++;
+    else feedback.push("an uppercase letter");
+
+    if (/[a-z]/.test(password)) score++;
+    else feedback.push("a lowercase letter");
+
+    if (/[0-9]/.test(password)) score++;
+    else feedback.push("a number");
+
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    else feedback.push("a special character");
+
+    return {
+      score,
+      feedback: feedback.length > 0 ? `Add ${feedback.join(", ")}` : "Strong password!"
+    };
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
     
-    const minLength = password.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    
-    return minLength && hasUpperCase && hasLowerCase && hasNumbers;
-  };
+    // Clear specific field error
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-    if (emailError) setEmailError("");
-  };
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-    if (passwordError) setPasswordError("");
-  };
-
-  const checkIfUserNeedsOnboarding = async (userId: string) => {
-    try {
-      const { data } = await supabase
-        .from('questionnaire_responses')
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle();
-      
-      return !data; // Return true if no questionnaire response exists
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      return true; // Default to requiring onboarding if error
+    // Update password strength for password field
+    if (field === "password" && !isLogin) {
+      setPasswordStrength(validatePassword(value));
     }
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (!isLogin && formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+    }
+
+    if (!isLogin) {
+      if (!formData.firstName.trim()) {
+        newErrors.firstName = "First name is required";
+      }
+      if (!formData.lastName.trim()) {
+        newErrors.lastName = "Last name is required";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Reset errors
-    setEmailError("");
-    setPasswordError("");
-
-    // Validate inputs
-    if (!validateEmail(email)) {
-      setEmailError("Please enter a valid email address");
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      if (isLogin) {
-        setPasswordError("Password is required");
-      } else {
-        setPasswordError("Password must be at least 8 characters with uppercase, lowercase, and numbers");
-      }
-      return;
-    }
-
-    if (!isLogin && !firstName.trim()) {
+    if (!validateForm()) {
       toast({
-        title: "First name required",
-        description: "Please enter your first name",
+        title: "Form validation failed",
+        description: "Please fix the errors below",
         variant: "destructive"
       });
       return;
     }
 
-    if (!isLogin && !lastName.trim()) {
-      toast({
-        title: "Last name required",
-        description: "Please enter your last name",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!isLogin && !username.trim()) {
-      toast({
-        title: "Username required",
-        description: "Please enter a username",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       if (isLogin) {
+        console.log("Attempting login for:", formData.email);
+        
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.toLowerCase().trim(),
-          password,
+          email: formData.email.trim(),
+          password: formData.password,
         });
 
         if (error) {
+          console.error("Login error:", error);
+          
+          // Handle specific auth errors
           if (error.message.includes("Invalid login credentials")) {
-            setEmailError("Invalid email or password");
-            setPasswordError("Invalid email or password");
-          } else if (error.message.includes("Email not confirmed")) {
+            setErrors({ 
+              email: "Invalid email or password",
+              password: "Invalid email or password"
+            });
             toast({
-              title: "Email not verified",
-              description: "Please check your email and click the verification link before signing in.",
+              title: "Login failed",
+              description: "Invalid email or password. Please check your credentials.",
               variant: "destructive"
             });
-          } else if (error.message.includes("Too many requests")) {
+          } else if (error.message.includes("Email not confirmed")) {
             toast({
-              title: "Too many attempts",
-              description: "Please wait a moment before trying again.",
+              title: "Email verification required",
+              description: "Please check your email and click the verification link.",
               variant: "destructive"
             });
           } else {
             toast({
-              title: "Login Error",
+              title: "Login failed",
               description: error.message,
               variant: "destructive"
             });
           }
-        } else if (data.user) {
-          // Check if user needs onboarding
-          const needsOnboarding = await checkIfUserNeedsOnboarding(data.user.id);
-          
+          return;
+        }
+
+        if (data.user) {
+          console.log("Login successful");
           toast({
             title: "Welcome back!",
-            description: "You have successfully logged in.",
+            description: "You have successfully signed in."
           });
-          
-          // Redirect based on onboarding status
-          if (needsOnboarding) {
-            window.location.href = '/profile-registration';
-          } else {
-            onSuccess();
-          }
+          onSuccess();
         }
       } else {
+        console.log("Attempting signup for:", formData.email);
+        
         const { data, error } = await supabase.auth.signUp({
-          email: email.toLowerCase().trim(),
-          password,
+          email: formData.email.trim(),
+          password: formData.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
-              first_name: firstName.trim(),
-              last_name: lastName.trim(),
-              username: username.trim(),
-            },
-            emailRedirectTo: `${window.location.origin}/profile-registration`
-          },
+              first_name: formData.firstName.trim(),
+              last_name: formData.lastName.trim(),
+              display_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`
+            }
+          }
         });
 
         if (error) {
-          if (error.message.includes("already registered")) {
-            setEmailError("An account with this email already exists");
+          console.error("Signup error:", error);
+          
+          if (error.message.includes("User already registered")) {
+            setErrors({ email: "An account with this email already exists" });
             toast({
               title: "Account exists",
               description: "An account with this email already exists. Try signing in instead.",
               variant: "destructive"
             });
-          } else if (error.message.includes("Password")) {
-            setPasswordError(error.message);
           } else {
             toast({
-              title: "Signup Error",
+              title: "Signup failed",
               description: error.message,
               variant: "destructive"
             });
           }
-        } else if (data.user) {
+          return;
+        }
+
+        if (data.user) {
+          console.log("Signup successful, user created:", data.user.id);
+          
+          // Create profile record
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: data.user.id,
+                first_name: formData.firstName.trim(),
+                last_name: formData.lastName.trim(),
+                email: formData.email.trim(),
+                waitlist_status: 'pending'
+              });
+
+            if (profileError) {
+              console.error("Error creating profile:", profileError);
+              // Don't fail the entire signup for profile creation error
+            }
+          } catch (profileError) {
+            console.error("Profile creation error:", profileError);
+          }
+
           toast({
-            title: "Welcome to SouLVE!",
-            description: "Account created! You'll be guided through a quick setup to personalize your experience.",
+            title: "Account created!",
+            description: "Please check your email to verify your account, then you'll be added to our waitlist for approval."
           });
           
-          // For new signups, always go to onboarding
-          window.location.href = '/profile-registration';
+          // Clear form
+          setFormData({
+            email: "",
+            password: "",
+            firstName: "",
+            lastName: ""
+          });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Auth error:", error);
       toast({
-        title: "Unexpected Error",
-        description: "Something went wrong. Please try again.",
+        title: "Authentication error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (showForgotPassword) {
-    return <ForgotPasswordForm onBackToLogin={() => setShowForgotPassword(false)} />;
-  }
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength.score <= 1) return "text-red-500";
+    if (passwordStrength.score <= 3) return "text-yellow-500";
+    return "text-green-500";
+  };
+
+  const getPasswordStrengthBars = () => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <div
+        key={i}
+        className={`h-1 w-full rounded ${
+          i < passwordStrength.score 
+            ? passwordStrength.score <= 1 
+              ? "bg-red-500" 
+              : passwordStrength.score <= 3 
+                ? "bg-yellow-500" 
+                : "bg-green-500"
+            : "bg-gray-200"
+        }`}
+      />
+    ));
+  };
 
   return (
-    <form onSubmit={handleAuth} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {!isLogin && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName" className="flex items-center space-x-2">
+              <User className="h-4 w-4" />
+              <span>First Name</span>
+            </Label>
             <Input
               id="firstName"
               type="text"
-              placeholder="John"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              disabled={loading}
-              required={!isLogin}
+              value={formData.firstName}
+              onChange={(e) => handleInputChange("firstName", e.target.value)}
+              placeholder="Enter your first name"
+              disabled={isLoading}
+              className={errors.firstName ? "border-red-300" : ""}
             />
+            {errors.firstName && (
+              <p className="text-sm text-red-500 flex items-center space-x-1">
+                <AlertCircle className="h-3 w-3" />
+                <span>{errors.firstName}</span>
+              </p>
+            )}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="lastName">Last Name</Label>
             <Input
               id="lastName"
               type="text"
-              placeholder="Doe"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              disabled={loading}
-              required={!isLogin}
+              value={formData.lastName}
+              onChange={(e) => handleInputChange("lastName", e.target.value)}
+              placeholder="Enter your last name"
+              disabled={isLoading}
+              className={errors.lastName ? "border-red-300" : ""}
             />
+            {errors.lastName && (
+              <p className="text-sm text-red-500 flex items-center space-x-1">
+                <AlertCircle className="h-3 w-3" />
+                <span>{errors.lastName}</span>
+              </p>
+            )}
           </div>
-        </div>
-      )}
-
-      {!isLogin && (
-        <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
-          <Input
-            id="username"
-            type="text"
-            placeholder="johndoe"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={loading}
-            required={!isLogin}
-          />
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="flex items-center space-x-2">
+          <Mail className="h-4 w-4" />
+          <span>Email</span>
+        </Label>
         <Input
           id="email"
           type="email"
-          placeholder="john@example.com"
-          value={email}
-          onChange={(e) => handleEmailChange(e.target.value)}
-          disabled={loading}
-          required
-          className={emailError ? "border-red-500 focus-visible:ring-red-500" : ""}
+          value={formData.email}
+          onChange={(e) => handleInputChange("email", e.target.value)}
+          placeholder="Enter your email"
+          disabled={isLoading}
+          className={errors.email ? "border-red-300" : ""}
         />
-        {emailError && (
-          <div className="flex items-center space-x-1 text-red-600 text-sm">
-            <AlertCircle className="h-4 w-4" />
-            <span>{emailError}</span>
-          </div>
+        {errors.email && (
+          <p className="text-sm text-red-500 flex items-center space-x-1">
+            <AlertCircle className="h-3 w-3" />
+            <span>{errors.email}</span>
+          </p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="flex items-center space-x-2">
+          <Lock className="h-4 w-4" />
+          <span>Password</span>
+        </Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
+            value={formData.password}
+            onChange={(e) => handleInputChange("password", e.target.value)}
             placeholder={isLogin ? "Enter your password" : "Create a strong password"}
-            value={password}
-            onChange={(e) => handlePasswordChange(e.target.value)}
-            disabled={loading}
-            required
-            className={passwordError ? "border-red-500 focus-visible:ring-red-500 pr-10" : "pr-10"}
+            disabled={isLoading}
+            className={`pr-10 ${errors.password ? "border-red-300" : ""}`}
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={() => setShowPassword(!showPassword)}
-            disabled={loading}
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            disabled={isLoading}
           >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
         </div>
-        {passwordError && (
-          <div className="flex items-center space-x-1 text-red-600 text-sm">
-            <AlertCircle className="h-4 w-4" />
-            <span>{passwordError}</span>
+        
+        {errors.password && (
+          <p className="text-sm text-red-500 flex items-center space-x-1">
+            <AlertCircle className="h-3 w-3" />
+            <span>{errors.password}</span>
+          </p>
+        )}
+
+        {!isLogin && formData.password && (
+          <div className="space-y-2">
+            <div className="flex space-x-1">
+              {getPasswordStrengthBars()}
+            </div>
+            <p className={`text-xs ${getPasswordStrengthColor()}`}>
+              {passwordStrength.feedback}
+            </p>
           </div>
         )}
       </div>
 
+      <Button 
+        type="submit" 
+        className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600" 
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>{isLogin ? "Signing in..." : "Creating account..."}</span>
+          </div>
+        ) : (
+          isLogin ? "Sign In" : "Create Account"
+        )}
+      </Button>
+
       {isLogin && (
-        <div className="text-right">
+        <div className="text-center">
           <Button
             type="button"
             variant="link"
-            className="text-teal-600 hover:text-teal-700 p-0 h-auto"
-            onClick={() => setShowForgotPassword(true)}
-            disabled={loading}
+            className="text-sm text-teal-600 hover:text-teal-700"
+            onClick={() => {
+              // TODO: Implement forgot password functionality
+              toast({
+                title: "Password reset",
+                description: "Password reset functionality will be available soon."
+              });
+            }}
           >
             Forgot your password?
           </Button>
         </div>
       )}
-
-      <Button 
-        type="submit" 
-        className="w-full bg-teal-600 hover:bg-teal-700" 
-        disabled={loading}
-      >
-        {loading ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {isLogin ? "Signing in..." : "Creating account..."}
-          </>
-        ) : (
-          isLogin ? "Sign In" : "Create Account"
-        )}
-      </Button>
     </form>
   );
 };
