@@ -11,12 +11,25 @@ interface SearchSuggestion {
   metadata?: string;
 }
 
+interface RecommendationResult {
+  id: string;
+  type: 'user' | 'post' | 'campaign';
+  title: string;
+  description: string;
+  relevanceScore: number;
+  location?: string;
+  tags?: string[];
+  avatar?: string;
+  metadata: any;
+}
+
 interface SearchSuggestionsProps {
   query: string;
   onSelect: (suggestion: string) => void;
   recentSearches: string[];
   onSelectRecent: (search: string) => void;
   onClearRecent: () => void;
+  recommendations?: RecommendationResult[];
 }
 
 const mockSuggestions: SearchSuggestion[] = [
@@ -33,7 +46,8 @@ const SearchSuggestions = ({
   onSelect, 
   recentSearches, 
   onSelectRecent, 
-  onClearRecent 
+  onClearRecent,
+  recommendations = []
 }: SearchSuggestionsProps) => {
   const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>([]);
 
