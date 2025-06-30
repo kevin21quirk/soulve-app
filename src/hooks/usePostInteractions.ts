@@ -273,11 +273,36 @@ export const usePostInteractions = () => {
     }
   }, [user, toast, isLoading, setLoading]);
 
+  // Placeholder methods for interface compatibility
+  const handleRespond = useCallback(async (postId: string) => {
+    console.log('handleRespond placeholder called for:', postId);
+    return true;
+  }, []);
+
+  const handleReaction = useCallback(async (postId: string, reactionType: string) => {
+    console.log('handleReaction placeholder called for:', postId, reactionType);
+    return true;
+  }, []);
+
+  const handleLikeComment = useCallback(async (postId: string, commentId: string) => {
+    console.log('handleLikeComment placeholder called for:', postId, commentId);
+    return true;
+  }, []);
+
+  const handleCommentReaction = useCallback(async (postId: string, commentId: string, reactionType: string) => {
+    console.log('handleCommentReaction placeholder called for:', postId, commentId, reactionType);
+    return true;
+  }, []);
+
   return {
     handleLike,
     handleBookmark,
     handleAddComment,
     handleShare,
+    handleRespond,
+    handleReaction,
+    handleLikeComment,
+    handleCommentReaction,
     isLoading
   };
 };

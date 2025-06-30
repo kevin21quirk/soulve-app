@@ -64,7 +64,7 @@ export const useSocialFeed = () => {
     handleAddComment: originalHandleAddComment,
     handleLikeComment,
     handleCommentReaction,
-  } = usePostInteractions(posts, setPosts);
+  } = usePostInteractions();
 
   const {
     isLoading,
@@ -80,17 +80,17 @@ export const useSocialFeed = () => {
 
   // Enhanced handlers with interaction tracking
   const handleLike = async (postId: string) => {
-    originalHandleLike(postId);
+    await originalHandleLike(postId);
     await trackPostLike(postId);
   };
 
   const handleShare = async (postId: string) => {
-    originalHandleShare(postId);
+    await originalHandleShare(postId);
     await trackPostShare(postId);
   };
 
   const handleAddComment = async (postId: string, content: string) => {
-    originalHandleAddComment(postId, content);
+    await originalHandleAddComment(postId, content);
     await trackPostComment(postId);
   };
 
