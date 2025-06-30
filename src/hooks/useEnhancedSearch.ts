@@ -69,9 +69,9 @@ export const useEnhancedSearch = () => {
           return bUrgency - aUrgency;
         
         case 'relevant':
-          // Simple relevance based on interactions
-          const aRelevance = (a.likes || 0) + (a.comments || 0) + (a.shares || 0);
-          const bRelevance = (b.likes || 0) + (b.comments || 0) + (b.shares || 0);
+          // Simple relevance based on interactions - fix type handling
+          const aRelevance = (a.likes || 0) + (Array.isArray(a.comments) ? a.comments.length : 0) + (a.shares || 0);
+          const bRelevance = (b.likes || 0) + (Array.isArray(b.comments) ? b.comments.length : 0) + (b.shares || 0);
           return bRelevance - aRelevance;
         
         case 'recent':

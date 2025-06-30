@@ -67,7 +67,7 @@ export const useUserProfile = () => {
         bio: profile.bio || '',
         avatar: profile.avatar_url || '',
         banner: profile.banner_url || '',
-        bannerType: profile.banner_type || null,
+        bannerType: (profile.banner_type as "video" | "image") || null, // Fix type casting
         joinDate: profile.created_at || new Date().toISOString(),
         trustScore: metrics?.trust_score || 50,
         helpCount: metrics?.help_provided_count || 0,

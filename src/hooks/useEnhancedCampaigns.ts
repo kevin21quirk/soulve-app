@@ -95,8 +95,9 @@ export const useEnhancedCampaigns = () => {
           creator_id: user.id,
           current_amount: 0,
           status: 'draft',
-          goal_type: 'monetary', // Required field
-          organization_type: 'individual' // Required field
+          goal_type: 'monetary',
+          organization_type: 'individual',
+          category: campaignData.category || 'general' // Ensure category is always provided
         })
         .select()
         .single();
