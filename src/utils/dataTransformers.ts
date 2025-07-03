@@ -69,7 +69,6 @@ export const transformPostToFeedPost = (post: PostWithProfile): FeedPost => {
     feeling: undefined,
     media: media,
     reactions: [],
-    comments: transformedComments,
-    taggedUsers: []
+    comments: transformedComments
   };
 };
