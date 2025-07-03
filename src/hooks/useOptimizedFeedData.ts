@@ -25,44 +25,60 @@ export const useOptimizedFeedData = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Memoized query function to prevent recreation
+  // Memoized query function with manual joins
   const fetchPosts = useCallback(async () => {
     if (!user) return;
 
     try {
-      // Optimized query with proper indexing and selective fields
-      const { data, error } = await supabase
+      // First, fetch posts
+      const { data: postsData, error: postsError } = await supabase
         .from('posts')
-        .select(`
-          id,
-          title,
-          content,
-          author_id,
-          category,
-          created_at,
-          urgency,
-          is_active,
-          profiles!posts_author_id_fkey (
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('id, title, content, author_id, category, created_at, urgency, is_active')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(20); // Limit initial load for performance
+        .limit(20);
 
-      if (error) throw error;
+      if (postsError) throw postsError;
 
-      // Transform data efficiently
-      const transformedPosts = data?.map(post => ({
-        ...post,
-        author: post.profiles ? {
-          first_name: post.profiles.first_name || '',
-          last_name: post.profiles.last_name || '',
-          avatar_url: post.profiles.avatar_url || ''
-        } : undefined
-      })) || [];
+      if (!postsData || postsData.length === 0) {
+        setPosts([]);
+        return;
+      }
+
+      // Get all unique author IDs
+      const authorIds = [...new Set(postsData.map(post => post.author_id))];
+
+      // Fetch profiles for all authors
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', authorIds);
+
+      if (profilesError) {
+        console.warn('Error fetching profiles:', profilesError);
+      }
+
+      // Create a map of profiles for quick lookup
+      const profilesMap = new Map();
+      if (profilesData) {
+        profilesData.forEach(profile => {
+          profilesMap.set(profile.id, profile);
+        });
+      }
+
+      // Manually join the data
+      const transformedPosts = postsData.map(post => {
+        const profile = profilesMap.get(post.author_id);
+        
+        return {
+          ...post,
+          author: profile ? {
+            first_name: profile.first_name || '',
+            last_name: profile.last_name || '',
+            avatar_url: profile.avatar_url || ''
+          } : undefined
+        };
+      });
 
       setPosts(transformedPosts);
     } catch (error) {

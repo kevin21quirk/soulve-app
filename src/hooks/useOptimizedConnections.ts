@@ -25,7 +25,7 @@ export const useOptimizedConnections = () => {
   const [pendingRequests, setPendingRequests] = useState<OptimizedConnection[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Optimized fetch function
+  // Optimized fetch function with manual joins
   const fetchConnections = useCallback(async () => {
     if (!user) return;
 
@@ -35,46 +35,70 @@ export const useOptimizedConnections = () => {
       const data = await optimizedCache.getOrSet(
         cacheKey,
         async () => {
-          const { data, error } = await supabase
+          // First, fetch connections
+          const { data: connectionsData, error: connectionsError } = await supabase
             .from('connections')
-            .select(`
-              id,
-              status,
-              created_at,
-              requester_id,
-              addressee_id,
-              requester:profiles!connections_requester_id_fkey (
-                id,
-                first_name,
-                last_name,
-                avatar_url,
-                location
-              ),
-              addressee:profiles!connections_addressee_id_fkey (
-                id,
-                first_name,
-                last_name,
-                avatar_url,
-                location
-              )
-            `)
+            .select('id, status, created_at, requester_id, addressee_id')
             .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
             .order('created_at', { ascending: false });
 
-          if (error) throw error;
-          return data || [];
+          if (connectionsError) throw connectionsError;
+
+          if (!connectionsData || connectionsData.length === 0) {
+            return [];
+          }
+
+          // Get all unique user IDs from connections
+          const userIds = new Set<string>();
+          connectionsData.forEach(conn => {
+            userIds.add(conn.requester_id);
+            userIds.add(conn.addressee_id);
+          });
+
+          // Remove current user's ID
+          userIds.delete(user.id);
+
+          // Fetch profiles for all users in connections
+          const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, avatar_url, location')
+            .in('id', Array.from(userIds));
+
+          if (profilesError) {
+            console.warn('Error fetching profiles:', profilesError);
+          }
+
+          // Create a map of profiles for quick lookup
+          const profilesMap = new Map();
+          if (profilesData) {
+            profilesData.forEach(profile => {
+              profilesMap.set(profile.id, profile);
+            });
+          }
+
+          // Manually join the data
+          return connectionsData.map(conn => {
+            const otherUserId = conn.requester_id === user.id ? conn.addressee_id : conn.requester_id;
+            const profile = profilesMap.get(otherUserId);
+            
+            return {
+              ...conn,
+              user: profile ? {
+                id: profile.id,
+                first_name: profile.first_name || '',
+                last_name: profile.last_name || '',
+                avatar_url: profile.avatar_url || '',
+                location: profile.location || ''
+              } : undefined
+            };
+          });
         },
         3 * 60 * 1000 // 3 minutes cache
       );
 
-      // Transform and separate data efficiently
-      const transformedConnections = data.map(conn => ({
-        ...conn,
-        user: conn.requester_id === user.id ? conn.addressee : conn.requester
-      }));
-
-      const accepted = transformedConnections.filter(c => c.status === 'accepted');
-      const pending = transformedConnections.filter(c => 
+      // Separate connections by status
+      const accepted = data.filter(c => c.status === 'accepted');
+      const pending = data.filter(c => 
         c.status === 'pending' && c.addressee_id === user.id
       );
 
