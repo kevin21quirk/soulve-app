@@ -109,16 +109,16 @@ const FeedPostCard = ({
             </div>
           </div>
           <div className="flex items-center space-x-1">
-            {user?.id !== post.id && (
+            {user?.id !== post.authorId && (
               <UserModerationMenu
-                userId={post.id}
+                userId={post.authorId || post.id}
                 userName={post.author}
                 postId={post.id}
               />
             )}
             <PostActions
               postId={post.id}
-              authorId={post.id}
+              authorId={post.authorId || post.id}
               onPostDeleted={onPostDeleted}
               onReportPost={() => {/* Handle report post */}}
             />

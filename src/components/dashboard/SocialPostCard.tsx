@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -155,7 +156,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
 
           <PostActions
             postId={post.id}
-            authorId={post.id}
+            authorId={post.authorId || post.id}
             onPostDeleted={onPostDeleted}
             onReportPost={() => {}}
           />
