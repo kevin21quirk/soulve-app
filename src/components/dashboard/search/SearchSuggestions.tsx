@@ -53,14 +53,27 @@ const SearchSuggestions = ({
 
   useEffect(() => {
     if (query) {
-      const filtered = mockSuggestions.filter(suggestion =>
+      // Convert recommendations to suggestions format first
+      const recommendationSuggestions: SearchSuggestion[] = recommendations.map(rec => ({
+        id: rec.id,
+        text: rec.title,
+        type: rec.type === 'user' ? 'user' : 'topic' as 'user' | 'location' | 'hashtag' | 'topic',
+        icon: rec.type === 'user' ? User : Search,
+        metadata: `${rec.relevanceScore}% match`
+      }));
+
+      // Filter mock suggestions
+      const filteredMock = mockSuggestions.filter(suggestion =>
         suggestion.text.toLowerCase().includes(query.toLowerCase())
       );
-      setFilteredSuggestions(filtered);
+
+      // Combine recommendations (first) with filtered mock suggestions
+      const combined = [...recommendationSuggestions, ...filteredMock];
+      setFilteredSuggestions(combined);
     } else {
       setFilteredSuggestions([]);
     }
-  }, [query]);
+  }, [query, recommendations]);
 
   const getSuggestionIcon = (type: string) => {
     switch (type) {
