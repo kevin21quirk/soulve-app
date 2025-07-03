@@ -1,93 +1,51 @@
 
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./contexts/AuthContext";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import ProfileRegistration from "./pages/ProfileRegistration";
-import Index from "./pages/Index";
-import ProtectedRoute from "./components/ProtectedRoute";
-import MobileLoadingScreen from "./components/MobileLoadingScreen";
-import MobileNavigation from "./components/mobile/MobileNavigation";
-import MobileFeed from "./components/mobile/MobileFeed";
-import MobileDiscover from "./components/mobile/MobileDiscover";
-import MobileActivity from "./components/mobile/MobileActivity";
-import MobileAnalytics from "./components/mobile/MobileAnalytics";
-import MobileInstallPrompt from "@/components/mobile/MobileInstallPrompt";
-import { MobileGestureProvider } from "@/components/mobile/MobileGestureProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ErrorProvider } from "@/contexts/ErrorContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Auth from "@/pages/Auth";
+import Dashboard from "@/pages/Dashboard";
+import WaitlistDashboard from "@/pages/WaitlistDashboard";
+import EmailVerificationHandler from "@/components/auth/EmailVerificationHandler";
+import PasswordResetHandler from "@/components/auth/PasswordResetHandler";
+import ProfileRegistration from "@/pages/ProfileRegistration";
 
 function App() {
-  const [activeTab, setActiveTab] = React.useState("feed");
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  // Only show loading for mobile route
-  React.useEffect(() => {
-    if (window.location.pathname === '/mobile') {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1500);
-    }
-  }, []);
-
-  const renderMobileContent = () => {
-    switch (activeTab) {
-      case "feed":
-        return <MobileFeed />;
-      case "discover":
-        return <MobileDiscover />;
-      case "notifications":
-        return <MobileActivity />;
-      case "impact":
-        return <MobileAnalytics />;
-      case "points":
-        return <MobileAnalytics />;
-      default:
-        return <MobileFeed />;
-    }
-  };
-
   return (
-    <MobileGestureProvider>
-      <AuthProvider>
-        <div className="min-h-screen bg-white">
-          <Toaster />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/profile-registration" element={<ProfileRegistration />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/mobile"
-              element={
-                isLoading ? (
-                  <MobileLoadingScreen />
-                ) : (
-                  <>
-                    {renderMobileContent()}
-                    <MobileNavigation
-                      activeTab={activeTab}
-                      onTabChange={setActiveTab}
-                    />
-                  </>
-                )
-              }
-            />
-          </Routes>
-          
-          {/* Mobile Install Prompt */}
-          <MobileInstallPrompt />
-        </div>
-      </AuthProvider>
-    </MobileGestureProvider>
+    <ErrorBoundary>
+      <ErrorProvider>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/verify-email" element={<EmailVerificationHandler />} />
+              <Route path="/reset-password" element={<PasswordResetHandler />} />
+              <Route path="/profile-registration" element={<ProfileRegistration />} />
+              <Route path="/waitlist" element={<WaitlistDashboard />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+            <Toaster />
+          </Router>
+        </AuthProvider>
+      </ErrorProvider>
+    </ErrorBoundary>
   );
 }
 

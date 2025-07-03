@@ -1,9 +1,8 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { mapCategoryToDb } from "@/utils/categoryMapping";
+import { supabase } from '@/integrations/supabase/client';
+import { ContentModerationService } from './contentModerationService';
 
-export interface UnifiedPostData {
+interface CreatePostData {
   title?: string;
   content: string;
   category: string;
@@ -14,56 +13,65 @@ export interface UnifiedPostData {
   media_urls?: string[];
 }
 
-export const createUnifiedPost = async (postData: UnifiedPostData): Promise<string> => {
-  const { data: { user } } = await supabase.auth.getUser();
+export const createUnifiedPost = async (postData: CreatePostData) => {
+  console.log('createUnifiedPost - Starting with data:', postData);
   
-  if (!user) {
-    throw new Error('User must be authenticated to create posts');
+  // Get authenticated user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    throw new Error('User not authenticated');
   }
 
-  console.log('unifiedPostService - Original category:', postData.category);
+  // Content moderation check
+  try {
+    const moderationResult = await ContentModerationService.filterContent(
+      postData.content,
+      postData.title
+    );
 
-  // Ensure we have required fields
-  if (!postData.content?.trim()) {
-    throw new Error('Post content is required');
+    // Block if content is not allowed
+    if (!moderationResult.isAllowed) {
+      throw new Error(`Content blocked: ${moderationResult.reasons.join(', ')}`);
+    }
+
+    // Log if content is flagged but allowed
+    if (moderationResult.autoAction === 'flag') {
+      console.log('Content flagged for review:', moderationResult.reasons);
+    }
+  } catch (moderationError) {
+    console.error('Content moderation failed:', moderationError);
+    // Continue with post creation but log the error
+    // In production, you might want to flag these for manual review
   }
 
-  if (!postData.category?.trim()) {
-    throw new Error('Post category is required');
-  }
-
-  // Map the category to database format
-  const dbCategory = mapCategoryToDb(postData.category);
-  console.log('unifiedPostService - Mapped category:', dbCategory);
-
-  // Prepare the final post data
-  const finalPostData = {
-    title: postData.title || postData.content.split('\n')[0].substring(0, 100) || 'Untitled Post',
+  // Create the post
+  const postToInsert = {
+    author_id: user.id,
+    title: postData.title || '',
     content: postData.content,
-    category: dbCategory,
+    category: postData.category,
+    location: postData.location || '',
     urgency: postData.urgency || 'medium',
-    location: postData.location || null,
     tags: postData.tags || [],
     visibility: postData.visibility || 'public',
     media_urls: postData.media_urls || [],
-    author_id: user.id,
     is_active: true
   };
 
-  console.log('unifiedPostService - Final post data:', finalPostData);
+  console.log('createUnifiedPost - Inserting post:', postToInsert);
 
-  // Insert post into database
-  const { data, error } = await supabase
+  const { data: post, error: insertError } = await supabase
     .from('posts')
-    .insert(finalPostData)
+    .insert(postToInsert)
     .select()
     .single();
 
-  if (error) {
-    console.error('unifiedPostService - Database error:', error);
-    throw new Error(`Failed to create post: ${error.message}`);
+  if (insertError) {
+    console.error('createUnifiedPost - Insert error:', insertError);
+    throw new Error(`Failed to create post: ${insertError.message}`);
   }
 
-  console.log('unifiedPostService - Post created successfully:', data.id);
-  return data.id;
+  console.log('createUnifiedPost - Post created successfully:', post.id);
+  return post.id;
 };
