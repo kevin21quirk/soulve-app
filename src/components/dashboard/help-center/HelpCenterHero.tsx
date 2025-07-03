@@ -9,6 +9,10 @@ interface ImpactStats {
   activeCampaigns: number;
 }
 
+interface HelpCenterHeroProps {
+  onCreateHelpRequest: () => void;
+}
+
 const impactStats: ImpactStats = {
   totalHelped: 15420,
   hoursVolunteered: 8750,
@@ -16,7 +20,7 @@ const impactStats: ImpactStats = {
   activeCampaigns: 127
 };
 
-const HelpCenterHero = () => {
+const HelpCenterHero = ({ onCreateHelpRequest }: HelpCenterHeroProps) => {
   return (
     <div className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-xl p-6 text-white">
       <div className="flex items-center justify-between">
@@ -49,7 +53,12 @@ const HelpCenterHero = () => {
           </div>
         </div>
         <div className="text-right">
-          <Button variant="secondary" size="lg" className="mb-2 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm">
+          <Button 
+            onClick={onCreateHelpRequest}
+            variant="secondary" 
+            size="lg" 
+            className="mb-2 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Create Help Request
           </Button>

@@ -20,6 +20,7 @@ import {
   Award
 } from "lucide-react";
 import HelpCenterHero from "./help-center/HelpCenterHero";
+import HelpRequestModal from "./help-center/HelpRequestModal";
 import UrgentAlerts from "./help-center/UrgentAlerts";
 import TrendingCauses from "./help-center/TrendingCauses";
 import SearchFilters from "./help-center/SearchFilters";
@@ -38,43 +39,28 @@ const HelpCenter = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedUrgency, setSelectedUrgency] = useState("all");
   const [pendingFeedPost, setPendingFeedPost] = useState<HelpCenterPost | undefined>();
+  const [showHelpRequestModal, setShowHelpRequestModal] = useState(false);
   
   const { publishHelpCenterToFeed } = useAutoFeedIntegration();
   const { toast } = useToast();
 
-  // Mock function to simulate help center post creation
-  const handleCreateHelpPost = (title: string, description: string, category: 'help-needed' | 'help-offered') => {
-    const helpPost: HelpCenterPost = {
-      id: Date.now().toString(),
-      title,
-      description,
-      author: "You",
-      category,
-      location: "Your Area",
-      urgency: 'medium',
-      tags: ['help-center', category]
-    };
-
-    // Auto-publish to feed
-    publishHelpCenterToFeed(helpPost);
-    
-    toast({
-      title: "Help request posted!",
-      description: "Your request has been posted in the Help Center and shared with the community feed.",
-    });
-  };
-
   // Handler for help actions from DiscoverTab
   const handleHelpAction = (type: string, target: string) => {
-    toast({
-      title: `${type} action`,
-      description: `Initiating ${type} for ${target}`,
-    });
+    if (type === 'volunteer' || type === 'donate' || type === 'share') {
+      toast({
+        title: `${type.charAt(0).toUpperCase() + type.slice(1)} action`,
+        description: `Initiating ${type} for ${target}`,
+      });
+    }
+  };
+
+  const handleCreateHelpRequest = () => {
+    setShowHelpRequestModal(true);
   };
 
   return (
     <div className="space-y-6">
-      <HelpCenterHero />
+      <HelpCenterHero onCreateHelpRequest={handleCreateHelpRequest} />
       
       <UrgentAlerts />
 
@@ -102,11 +88,7 @@ const HelpCenter = () => {
           </Button>
           
           <Button 
-            onClick={() => handleCreateHelpPost(
-              "Quick Help Request", 
-              "I need assistance with something in my area", 
-              "help-needed"
-            )}
+            onClick={handleCreateHelpRequest}
             className="bg-soulve-teal hover:bg-soulve-teal/90 text-white border-none"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -153,6 +135,12 @@ const HelpCenter = () => {
       <AutoFeedPublisher 
         helpPost={pendingFeedPost}
         onPublished={() => setPendingFeedPost(undefined)}
+      />
+
+      {/* Help Request Modal */}
+      <HelpRequestModal
+        isOpen={showHelpRequestModal}
+        onClose={() => setShowHelpRequestModal(false)}
       />
     </div>
   );
