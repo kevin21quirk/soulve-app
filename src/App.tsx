@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
@@ -17,32 +17,30 @@ function App() {
     <ErrorBoundary>
       <ErrorProvider>
         <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/verify-email" element={<EmailVerificationHandler />} />
-              <Route path="/reset-password" element={<PasswordResetHandler />} />
-              <Route path="/profile-registration" element={<ProfileRegistration />} />
-              <Route path="/waitlist" element={<WaitlistDashboard />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-            <Toaster />
-          </Router>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/verify-email" element={<EmailVerificationHandler />} />
+            <Route path="/reset-password" element={<PasswordResetHandler />} />
+            <Route path="/profile-registration" element={<ProfileRegistration />} />
+            <Route path="/waitlist" element={<WaitlistDashboard />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+          <Toaster />
         </AuthProvider>
       </ErrorProvider>
     </ErrorBoundary>
