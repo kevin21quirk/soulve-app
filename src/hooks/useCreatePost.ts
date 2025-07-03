@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUnifiedPost } from '@/services/unifiedPostService';
 import { useContentModeration } from './useContentModeration';
+import { usePostCreationRateLimit } from './useRateLimit';
 
 export interface CreatePostData {
   title?: string;
@@ -19,10 +20,22 @@ export const useCreatePost = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { moderateContent, isModeratingContent } = useContentModeration();
+  const rateLimit = usePostCreationRateLimit();
 
   const createPost = async (postData: CreatePostData) => {
     console.log('useCreatePost - Starting with data:', postData);
     
+    // Check rate limit first
+    if (rateLimit.isLimited) {
+      const resetTime = rateLimit.resetTime?.toLocaleTimeString() || 'soon';
+      toast({
+        title: "Too many posts",
+        description: `You've reached the posting limit. Try again after ${resetTime}.`,
+        variant: "destructive"
+      });
+      throw new Error('Rate limit exceeded');
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -33,6 +46,11 @@ export const useCreatePost = () => {
 
       if (!postData.category?.trim()) {
         throw new Error('Please select a category');
+      }
+
+      // Record rate limit attempt
+      if (!(rateLimit as any).recordAttempt()) {
+        throw new Error('Rate limit exceeded');
       }
 
       // Content moderation check
@@ -71,6 +89,8 @@ export const useCreatePost = () => {
         errorMessage = 'Please add content to your post';
       } else if (error.message.includes('Content blocked')) {
         errorMessage = error.message;
+      } else if (error.message.includes('Rate limit')) {
+        errorMessage = `Posting too frequently. ${rateLimit.remainingAttempts} posts remaining.`;
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -89,6 +109,7 @@ export const useCreatePost = () => {
 
   return {
     createPost,
-    isSubmitting: isSubmitting || isModeratingContent
+    isSubmitting: isSubmitting || isModeratingContent,
+    rateLimit
   };
 };

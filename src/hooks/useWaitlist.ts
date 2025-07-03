@@ -82,6 +82,27 @@ export const useWaitlist = () => {
     setWaitlistUsers(data || []);
   };
 
+  // Send email notification
+  const sendEmailNotification = async (userProfile: WaitlistUser, type: 'approved' | 'denied', reason?: string) => {
+    try {
+      const { data: authUser } = await supabase.auth.admin.getUserById(userProfile.id);
+      if (!authUser.user?.email) return;
+
+      await supabase.functions.invoke('send-waitlist-email', {
+        body: {
+          to: authUser.user.email,
+          firstName: userProfile.first_name || 'User',
+          lastName: userProfile.last_name || '',
+          type,
+          reason
+        }
+      });
+    } catch (error) {
+      console.error('Error sending email notification:', error);
+      // Don't throw - email failure shouldn't block approval/denial
+    }
+  };
+
   // Approve user
   const approveUser = async (userId: string, notes?: string) => {
     if (!user) return;
@@ -102,9 +123,15 @@ export const useWaitlist = () => {
           .eq('id', userId);
       }
 
+      // Send email notification
+      const userProfile = waitlistUsers.find(u => u.id === userId);
+      if (userProfile) {
+        await sendEmailNotification(userProfile, 'approved');
+      }
+
       toast({
         title: "User Approved",
-        description: "User has been approved and can now access the dashboard.",
+        description: "User has been approved and notified via email.",
       });
 
       fetchWaitlistUsers();
@@ -131,9 +158,15 @@ export const useWaitlist = () => {
 
       if (error) throw error;
 
+      // Send email notification
+      const userProfile = waitlistUsers.find(u => u.id === userId);
+      if (userProfile) {
+        await sendEmailNotification(userProfile, 'denied', reason);
+      }
+
       toast({
         title: "User Denied",
-        description: "User has been denied access.",
+        description: "User has been denied and notified via email.",
       });
 
       fetchWaitlistUsers();
