@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -62,7 +61,7 @@ const EnhancedCampaignBuilder = () => {
       tags: template.template_data.tags || []
     });
     setShowForm(true);
-    setActiveTab("create");
+    setActiveTab("templates");
   };
 
   const handleCreateFromScratch = () => {
@@ -92,7 +91,7 @@ const EnhancedCampaignBuilder = () => {
       promotion_budget: 0
     });
     setShowForm(true);
-    setActiveTab("create");
+    setActiveTab("templates");
   };
 
   const handleFormDataChange = (data: CampaignFormData) => {

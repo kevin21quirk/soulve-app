@@ -17,7 +17,7 @@ export const useReactions = (reactions?: Reaction[]) => {
   }, [reactions]);
 
   const totalReactions = useMemo(() => {
-    return Object.values(reactionCounts).reduce((sum, count) => sum + count, 0);
+    return Object.values(reactionCounts).reduce((sum, count) => sum + (count || 0), 0);
   }, [reactionCounts]);
 
   const hasUserReacted = useMemo(() => {

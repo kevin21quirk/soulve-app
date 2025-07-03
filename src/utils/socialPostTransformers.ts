@@ -5,7 +5,7 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
   return {
     id: socialPost.id,
     author: socialPost.author_name || 'Anonymous',
-    authorId: socialPost.author_id, // Include the author ID for delete functionality
+    authorId: socialPost.author_id,
     avatar: socialPost.author_avatar || '',
     timestamp: formatTimestamp(socialPost.created_at),
     title: socialPost.title,
@@ -20,7 +20,11 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     shares: socialPost.shares_count || 0,
     isLiked: socialPost.is_liked || false,
     isBookmarked: socialPost.is_bookmarked || false,
-    comments: []
+    isShared: socialPost.is_shared || false,
+    comments: [],
+    reactions: [],
+    feeling: socialPost.feeling,
+    visibility: socialPost.visibility || 'public'
   };
 };
 

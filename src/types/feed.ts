@@ -2,7 +2,7 @@
 export interface FeedPost {
   id: string;
   author: string;
-  authorId?: string; // Make sure this field exists
+  authorId?: string;
   avatar: string;
   timestamp: string;
   title: string;
@@ -17,7 +17,11 @@ export interface FeedPost {
   shares: number;
   isLiked: boolean;
   isBookmarked: boolean;
+  isShared: boolean;
   comments?: Comment[];
+  reactions?: Reaction[];
+  feeling?: string;
+  visibility?: string;
 }
 
 export interface MediaItem {
@@ -35,4 +39,11 @@ export interface Comment {
   timestamp: string;
   likes: number;
   isLiked: boolean;
+}
+
+export interface Reaction {
+  type: string;
+  emoji: string;
+  count: number;
+  hasReacted: boolean;
 }
