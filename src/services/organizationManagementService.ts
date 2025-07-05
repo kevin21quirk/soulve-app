@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface OrganizationTeamMember {
@@ -39,7 +38,7 @@ export class OrganizationManagementService {
       .from('organization_team_members')
       .select(`
         *,
-        profile:profiles(first_name, last_name, avatar_url)
+        profiles!inner(first_name, last_name, avatar_url)
       `)
       .eq('organization_id', organizationId)
       .eq('is_active', true)
@@ -50,7 +49,12 @@ export class OrganizationManagementService {
       ...member,
       permissions: typeof member.permissions === 'string' 
         ? JSON.parse(member.permissions) 
-        : member.permissions || {}
+        : member.permissions || {},
+      profile: member.profiles ? {
+        first_name: member.profiles.first_name || '',
+        last_name: member.profiles.last_name || '',
+        avatar_url: member.profiles.avatar_url
+      } : undefined
     }));
   }
 

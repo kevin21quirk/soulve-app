@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface VolunteerOpportunity {
@@ -108,7 +107,7 @@ export class VolunteerManagementService {
       .from('volunteer_applications')
       .select(`
         *,
-        profile:profiles(first_name, last_name, avatar_url)
+        profiles!inner(first_name, last_name, avatar_url)
       `)
       .eq('opportunity_id', opportunityId)
       .order('applied_at', { ascending: false });
@@ -118,7 +117,12 @@ export class VolunteerManagementService {
       ...application,
       emergency_contact: typeof application.emergency_contact === 'string' 
         ? JSON.parse(application.emergency_contact) 
-        : application.emergency_contact || {}
+        : application.emergency_contact || {},
+      profile: application.profiles ? {
+        first_name: application.profiles.first_name || '',
+        last_name: application.profiles.last_name || '',
+        avatar_url: application.profiles.avatar_url
+      } : undefined
     }));
   }
 
