@@ -69,7 +69,20 @@ export class VolunteerManagementService {
       .insert({
         organization_id: organizationId,
         created_by: user.data.user.id,
-        ...opportunityData
+        title: opportunityData.title || '',
+        description: opportunityData.description || '',
+        requirements: opportunityData.requirements,
+        skills_needed: opportunityData.skills_needed || [],
+        time_commitment: opportunityData.time_commitment,
+        location: opportunityData.location,
+        is_remote: opportunityData.is_remote || false,
+        start_date: opportunityData.start_date,
+        end_date: opportunityData.end_date,
+        max_volunteers: opportunityData.max_volunteers,
+        status: opportunityData.status || 'active',
+        application_deadline: opportunityData.application_deadline,
+        background_check_required: opportunityData.background_check_required || false,
+        training_required: opportunityData.training_required || false
       })
       .select()
       .single();
@@ -101,7 +114,12 @@ export class VolunteerManagementService {
       .order('applied_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(application => ({
+      ...application,
+      emergency_contact: typeof application.emergency_contact === 'string' 
+        ? JSON.parse(application.emergency_contact) 
+        : application.emergency_contact || {}
+    }));
   }
 
   static async applyForOpportunity(opportunityId: string, applicationData: Partial<VolunteerApplication>) {
@@ -113,7 +131,10 @@ export class VolunteerManagementService {
       .insert({
         opportunity_id: opportunityId,
         user_id: user.data.user.id,
-        ...applicationData
+        application_message: applicationData.application_message,
+        availability: applicationData.availability,
+        relevant_experience: applicationData.relevant_experience,
+        emergency_contact: applicationData.emergency_contact || {}
       })
       .select()
       .single();
@@ -158,16 +179,23 @@ export class VolunteerManagementService {
   static async getVolunteerAnalytics(organizationId: string) {
     const { data: opportunities } = await supabase
       .from('volunteer_opportunities')
-      .select('*, volunteer_applications(*)')
+      .select('*')
       .eq('organization_id', organizationId);
 
     if (!opportunities) return null;
 
+    // Get applications count
+    const opportunityIds = opportunities.map(o => o.id);
+    const { data: applications } = await supabase
+      .from('volunteer_applications')
+      .select('*')
+      .in('opportunity_id', opportunityIds);
+
     const totalOpportunities = opportunities.length;
     const activeOpportunities = opportunities.filter(o => o.status === 'active').length;
-    const totalApplications = opportunities.reduce((sum, o) => sum + (o.volunteer_applications?.length || 0), 0);
+    const totalApplications = applications?.length || 0;
     const totalVolunteers = new Set(
-      opportunities.flatMap(o => o.volunteer_applications?.map((a: any) => a.user_id) || [])
+      applications?.map(a => a.user_id) || []
     ).size;
 
     return {

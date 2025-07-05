@@ -46,7 +46,12 @@ export class OrganizationManagementService {
       .order('joined_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(member => ({
+      ...member,
+      permissions: typeof member.permissions === 'string' 
+        ? JSON.parse(member.permissions) 
+        : member.permissions || {}
+    }));
   }
 
   static async inviteTeamMember(organizationId: string, email: string, role: string, title?: string) {
