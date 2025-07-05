@@ -92,6 +92,60 @@ export type Database = {
           },
         ]
       }
+      campaign_detailed_analytics: {
+        Row: {
+          average_donation: number | null
+          campaign_id: string
+          conversion_rate: number | null
+          created_at: string | null
+          date: string
+          demographics: Json | null
+          donations_amount: number | null
+          donations_count: number | null
+          id: string
+          new_donors: number | null
+          returning_donors: number | null
+          shares: number | null
+          traffic_sources: Json | null
+          unique_visitors: number | null
+          views: number | null
+        }
+        Insert: {
+          average_donation?: number | null
+          campaign_id: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          date: string
+          demographics?: Json | null
+          donations_amount?: number | null
+          donations_count?: number | null
+          id?: string
+          new_donors?: number | null
+          returning_donors?: number | null
+          shares?: number | null
+          traffic_sources?: Json | null
+          unique_visitors?: number | null
+          views?: number | null
+        }
+        Update: {
+          average_donation?: number | null
+          campaign_id?: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          date?: string
+          demographics?: Json | null
+          donations_amount?: number | null
+          donations_count?: number | null
+          id?: string
+          new_donors?: number | null
+          returning_donors?: number | null
+          shares?: number | null
+          traffic_sources?: Json | null
+          unique_visitors?: number | null
+          views?: number | null
+        }
+        Relationships: []
+      }
       campaign_donations: {
         Row: {
           amount: number
@@ -718,6 +772,141 @@ export type Database = {
           },
         ]
       }
+      corporate_partnerships: {
+        Row: {
+          benefits_offered: string | null
+          company_name: string
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          created_at: string | null
+          documents: Json | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          partnership_type: string | null
+          partnership_value: number | null
+          renewal_date: string | null
+          requirements: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          benefits_offered?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          documents?: Json | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          partnership_type?: string | null
+          partnership_value?: number | null
+          renewal_date?: string | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          benefits_offered?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          documents?: Json | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          partnership_type?: string | null
+          partnership_value?: number | null
+          renewal_date?: string | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      donors: {
+        Row: {
+          address: Json | null
+          average_donation: number | null
+          communication_preferences: Json | null
+          created_at: string | null
+          donation_count: number | null
+          donor_status: string | null
+          donor_type: string | null
+          email: string
+          first_donation_date: string | null
+          first_name: string | null
+          id: string
+          last_donation_date: string | null
+          last_name: string | null
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          preferred_contact_method: string | null
+          tags: string[] | null
+          total_donated: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: Json | null
+          average_donation?: number | null
+          communication_preferences?: Json | null
+          created_at?: string | null
+          donation_count?: number | null
+          donor_status?: string | null
+          donor_type?: string | null
+          email: string
+          first_donation_date?: string | null
+          first_name?: string | null
+          id?: string
+          last_donation_date?: string | null
+          last_name?: string | null
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          preferred_contact_method?: string | null
+          tags?: string[] | null
+          total_donated?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: Json | null
+          average_donation?: number | null
+          communication_preferences?: Json | null
+          created_at?: string | null
+          donation_count?: number | null
+          donor_status?: string | null
+          donor_type?: string | null
+          email?: string
+          first_donation_date?: string | null
+          first_name?: string | null
+          id?: string
+          last_donation_date?: string | null
+          last_name?: string | null
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          preferred_contact_method?: string | null
+          tags?: string[] | null
+          total_donated?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       evidence_submissions: {
         Row: {
           activity_id: string | null
@@ -813,6 +1002,78 @@ export type Database = {
           threshold_value?: number
           time_window?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      grants: {
+        Row: {
+          amount_awarded: number | null
+          amount_requested: number | null
+          application_deadline: string | null
+          application_requirements: string | null
+          application_status: string | null
+          created_at: string | null
+          decision_date: string | null
+          documents: Json | null
+          eligibility_requirements: string | null
+          focus_area: string | null
+          funder_name: string
+          grant_title: string
+          grant_type: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          project_end_date: string | null
+          project_start_date: string | null
+          reporting_requirements: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_awarded?: number | null
+          amount_requested?: number | null
+          application_deadline?: string | null
+          application_requirements?: string | null
+          application_status?: string | null
+          created_at?: string | null
+          decision_date?: string | null
+          documents?: Json | null
+          eligibility_requirements?: string | null
+          focus_area?: string | null
+          funder_name: string
+          grant_title: string
+          grant_type?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          project_end_date?: string | null
+          project_start_date?: string | null
+          reporting_requirements?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_awarded?: number | null
+          amount_requested?: number | null
+          application_deadline?: string | null
+          application_requirements?: string | null
+          application_status?: string | null
+          created_at?: string | null
+          decision_date?: string | null
+          documents?: Json | null
+          eligibility_requirements?: string | null
+          focus_area?: string | null
+          funder_name?: string
+          grant_title?: string
+          grant_type?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          project_end_date?: string | null
+          project_start_date?: string | null
+          reporting_requirements?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1183,6 +1444,48 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invitation_token: string
+          invited_by: string
+          organization_id: string
+          role: string
+          status: string
+          title: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invitation_token?: string
+          invited_by: string
+          organization_id: string
+          role?: string
+          status?: string
+          title?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          organization_id?: string
+          role?: string
+          status?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -1279,6 +1582,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organization_settings: {
+        Row: {
+          analytics_preferences: Json | null
+          branding: Json | null
+          communication_templates: Json | null
+          created_at: string | null
+          donation_settings: Json | null
+          id: string
+          integration_settings: Json | null
+          notification_preferences: Json | null
+          organization_id: string
+          updated_at: string | null
+          volunteer_settings: Json | null
+        }
+        Insert: {
+          analytics_preferences?: Json | null
+          branding?: Json | null
+          communication_templates?: Json | null
+          created_at?: string | null
+          donation_settings?: Json | null
+          id?: string
+          integration_settings?: Json | null
+          notification_preferences?: Json | null
+          organization_id: string
+          updated_at?: string | null
+          volunteer_settings?: Json | null
+        }
+        Update: {
+          analytics_preferences?: Json | null
+          branding?: Json | null
+          communication_templates?: Json | null
+          created_at?: string | null
+          donation_settings?: Json | null
+          id?: string
+          integration_settings?: Json | null
+          notification_preferences?: Json | null
+          organization_id?: string
+          updated_at?: string | null
+          volunteer_settings?: Json | null
+        }
+        Relationships: []
+      }
+      organization_team_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          is_active: boolean | null
+          joined_at: string | null
+          organization_id: string
+          permissions: Json | null
+          role: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          organization_id: string
+          permissions?: Json | null
+          role?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          organization_id?: string
+          permissions?: Json | null
+          role?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       organizations: {
         Row: {
@@ -2504,6 +2894,132 @@ export type Database = {
           verification_type?: string
           verified_at?: string | null
           verified_by?: string | null
+        }
+        Relationships: []
+      }
+      volunteer_applications: {
+        Row: {
+          application_message: string | null
+          applied_at: string | null
+          availability: string | null
+          background_check_status: string | null
+          emergency_contact: Json | null
+          end_date: string | null
+          hours_logged: number | null
+          id: string
+          opportunity_id: string
+          relevant_experience: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string | null
+          status: string | null
+          training_status: string | null
+          user_id: string
+        }
+        Insert: {
+          application_message?: string | null
+          applied_at?: string | null
+          availability?: string | null
+          background_check_status?: string | null
+          emergency_contact?: Json | null
+          end_date?: string | null
+          hours_logged?: number | null
+          id?: string
+          opportunity_id: string
+          relevant_experience?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string | null
+          status?: string | null
+          training_status?: string | null
+          user_id: string
+        }
+        Update: {
+          application_message?: string | null
+          applied_at?: string | null
+          availability?: string | null
+          background_check_status?: string | null
+          emergency_contact?: Json | null
+          end_date?: string | null
+          hours_logged?: number | null
+          id?: string
+          opportunity_id?: string
+          relevant_experience?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string | null
+          status?: string | null
+          training_status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      volunteer_opportunities: {
+        Row: {
+          application_deadline: string | null
+          background_check_required: boolean | null
+          created_at: string | null
+          created_by: string
+          current_volunteers: number | null
+          description: string
+          end_date: string | null
+          id: string
+          is_remote: boolean | null
+          location: string | null
+          max_volunteers: number | null
+          organization_id: string
+          requirements: string | null
+          skills_needed: string[] | null
+          start_date: string | null
+          status: string | null
+          time_commitment: string | null
+          title: string
+          training_required: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          background_check_required?: boolean | null
+          created_at?: string | null
+          created_by: string
+          current_volunteers?: number | null
+          description: string
+          end_date?: string | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_volunteers?: number | null
+          organization_id: string
+          requirements?: string | null
+          skills_needed?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          time_commitment?: string | null
+          title: string
+          training_required?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_deadline?: string | null
+          background_check_required?: boolean | null
+          created_at?: string | null
+          created_by?: string
+          current_volunteers?: number | null
+          description?: string
+          end_date?: string | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_volunteers?: number | null
+          organization_id?: string
+          requirements?: string | null
+          skills_needed?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          time_commitment?: string | null
+          title?: string
+          training_required?: boolean | null
+          updated_at?: string | null
         }
         Relationships: []
       }
