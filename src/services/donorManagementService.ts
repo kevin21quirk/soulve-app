@@ -9,10 +9,10 @@ export interface Donor {
   first_name?: string;
   last_name?: string;
   phone?: string;
-  address?: Record<string, any>;
+  address?: any;
   donor_type: string;
   preferred_contact_method: string;
-  communication_preferences: Record<string, any>;
+  communication_preferences: any;
   total_donated: number;
   donation_count: number;
   first_donation_date?: string;
@@ -42,7 +42,11 @@ export class DonorManagementService {
       .order('total_donated', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(donor => ({
+      ...donor,
+      address: donor.address || {},
+      communication_preferences: donor.communication_preferences || {}
+    }));
   }
 
   static async createDonor(organizationId: string, donorData: Partial<Donor>) {
@@ -50,7 +54,13 @@ export class DonorManagementService {
       .from('donors')
       .insert({
         organization_id: organizationId,
-        ...donorData
+        email: donorData.email || '',
+        first_name: donorData.first_name,
+        last_name: donorData.last_name,
+        phone: donorData.phone,
+        donor_type: donorData.donor_type || 'individual',
+        preferred_contact_method: donorData.preferred_contact_method || 'email',
+        notes: donorData.notes
       })
       .select()
       .single();
@@ -105,7 +115,11 @@ export class DonorManagementService {
       .order('total_donated', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(donor => ({
+      ...donor,
+      address: donor.address || {},
+      communication_preferences: donor.communication_preferences || {}
+    }));
   }
 
   static async getDonorsBySegment(organizationId: string, segment: string): Promise<Donor[]> {
@@ -132,6 +146,10 @@ export class DonorManagementService {
     const { data, error } = await query.order('total_donated', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(donor => ({
+      ...donor,
+      address: donor.address || {},
+      communication_preferences: donor.communication_preferences || {}
+    }));
   }
 }
