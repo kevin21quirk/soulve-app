@@ -36,26 +36,42 @@ export class OrganizationManagementService {
   static async getTeamMembers(organizationId: string): Promise<OrganizationTeamMember[]> {
     const { data, error } = await supabase
       .from('organization_team_members')
-      .select(`
-        *,
-        profiles!inner(first_name, last_name, avatar_url)
-      `)
+      .select('*')
       .eq('organization_id', organizationId)
       .eq('is_active', true)
       .order('joined_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(member => ({
-      ...member,
-      permissions: typeof member.permissions === 'string' 
-        ? JSON.parse(member.permissions) 
-        : member.permissions || {},
-      profile: member.profiles ? {
-        first_name: member.profiles.first_name || '',
-        last_name: member.profiles.last_name || '',
-        avatar_url: member.profiles.avatar_url
-      } : undefined
-    }));
+    
+    // Get profiles for all team members
+    const memberData = data || [];
+    const userIds = memberData.map(member => member.user_id);
+    
+    if (userIds.length === 0) return [];
+    
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, avatar_url')
+      .in('id', userIds);
+    
+    if (profileError) throw profileError;
+    
+    const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || []);
+    
+    return memberData.map(member => {
+      const profile = profileMap.get(member.user_id);
+      return {
+        ...member,
+        permissions: typeof member.permissions === 'string' 
+          ? JSON.parse(member.permissions) 
+          : member.permissions || {},
+        profile: profile ? {
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          avatar_url: profile.avatar_url
+        } : undefined
+      };
+    });
   }
 
   static async inviteTeamMember(organizationId: string, email: string, role: string, title?: string) {

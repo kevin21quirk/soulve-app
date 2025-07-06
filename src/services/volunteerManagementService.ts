@@ -105,25 +105,41 @@ export class VolunteerManagementService {
   static async getApplications(opportunityId: string): Promise<VolunteerApplication[]> {
     const { data, error } = await supabase
       .from('volunteer_applications')
-      .select(`
-        *,
-        profiles!inner(first_name, last_name, avatar_url)
-      `)
+      .select('*')
       .eq('opportunity_id', opportunityId)
       .order('applied_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(application => ({
-      ...application,
-      emergency_contact: typeof application.emergency_contact === 'string' 
-        ? JSON.parse(application.emergency_contact) 
-        : application.emergency_contact || {},
-      profile: application.profiles ? {
-        first_name: application.profiles.first_name || '',
-        last_name: application.profiles.last_name || '',
-        avatar_url: application.profiles.avatar_url
-      } : undefined
-    }));
+    
+    // Get profiles for all applicants
+    const applicationData = data || [];
+    const userIds = applicationData.map(application => application.user_id);
+    
+    if (userIds.length === 0) return [];
+    
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, avatar_url')
+      .in('id', userIds);
+    
+    if (profileError) throw profileError;
+    
+    const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || []);
+    
+    return applicationData.map(application => {
+      const profile = profileMap.get(application.user_id);
+      return {
+        ...application,
+        emergency_contact: typeof application.emergency_contact === 'string' 
+          ? JSON.parse(application.emergency_contact) 
+          : application.emergency_contact || {},
+        profile: profile ? {
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          avatar_url: profile.avatar_url
+        } : undefined
+      };
+    });
   }
 
   static async applyForOpportunity(opportunityId: string, applicationData: Partial<VolunteerApplication>) {
