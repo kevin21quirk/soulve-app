@@ -76,13 +76,13 @@ export interface CSRInitiative {
 export class BusinessManagementService {
   static async getProducts(organizationId: string): Promise<BusinessProduct[]> {
     const { data, error } = await supabase
-      .from('business_products')
+      .from('business_products' as any)
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(product => ({
+    return (data || []).map((product: any) => ({
       ...product,
       features: Array.isArray(product.features) ? product.features : [],
       images: Array.isArray(product.images) ? product.images : []
@@ -91,7 +91,7 @@ export class BusinessManagementService {
 
   static async createProduct(organizationId: string, productData: Partial<BusinessProduct>) {
     const { data, error } = await supabase
-      .from('business_products')
+      .from('business_products' as any)
       .insert({
         organization_id: organizationId,
         name: productData.name || '',
@@ -114,13 +114,13 @@ export class BusinessManagementService {
 
   static async getPartnerships(organizationId: string): Promise<BusinessPartnership[]> {
     const { data, error } = await supabase
-      .from('business_partnerships')
+      .from('business_partnerships' as any)
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(partnership => ({
+    return (data || []).map((partnership: any) => ({
       ...partnership,
       objectives: Array.isArray(partnership.objectives) ? partnership.objectives : [],
       deliverables: Array.isArray(partnership.deliverables) ? partnership.deliverables : []
@@ -129,7 +129,7 @@ export class BusinessManagementService {
 
   static async createPartnership(organizationId: string, partnershipData: Partial<BusinessPartnership>) {
     const { data, error } = await supabase
-      .from('business_partnerships')
+      .from('business_partnerships' as any)
       .insert({
         organization_id: organizationId,
         partner_name: partnershipData.partner_name || '',
@@ -153,7 +153,7 @@ export class BusinessManagementService {
 
   static async getEmployeeEngagement(organizationId: string): Promise<EmployeeEngagement[]> {
     const { data, error } = await supabase
-      .from('employee_engagement')
+      .from('employee_engagement' as any)
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
@@ -162,7 +162,7 @@ export class BusinessManagementService {
     
     // Get profiles for all employees
     const engagementData = data || [];
-    const employeeIds = engagementData.map(engagement => engagement.employee_id);
+    const employeeIds = engagementData.map((engagement: any) => engagement.employee_id);
     
     if (employeeIds.length === 0) return [];
     
@@ -175,7 +175,7 @@ export class BusinessManagementService {
     
     const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || []);
     
-    return engagementData.map(engagement => {
+    return engagementData.map((engagement: any) => {
       const profile = profileMap.get(engagement.employee_id);
       return {
         ...engagement,
@@ -190,13 +190,13 @@ export class BusinessManagementService {
 
   static async getCSRInitiatives(organizationId: string): Promise<CSRInitiative[]> {
     const { data, error } = await supabase
-      .from('csr_initiatives')
+      .from('csr_initiatives' as any)
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(initiative => ({
+    return (data || []).map((initiative: any) => ({
       ...initiative,
       impact_metrics: typeof initiative.impact_metrics === 'string' 
         ? JSON.parse(initiative.impact_metrics) 
@@ -207,7 +207,7 @@ export class BusinessManagementService {
 
   static async createCSRInitiative(organizationId: string, initiativeData: Partial<CSRInitiative>) {
     const { data, error } = await supabase
-      .from('csr_initiatives')
+      .from('csr_initiatives' as any)
       .insert({
         organization_id: organizationId,
         title: initiativeData.title || '',
