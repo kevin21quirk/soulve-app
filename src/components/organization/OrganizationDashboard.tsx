@@ -14,19 +14,26 @@ import {
   FileText,
   Building,
   Target,
-  Award
+  Award,
+  Package,
+  Handshake,
+  Globe
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import TeamManagement from "./TeamManagement";
 import DonorManagement from "./DonorManagement";
 import VolunteerManagement from "./VolunteerManagement";
 import GrantManagement from "./GrantManagement";
 import OrganizationAnalytics from "./OrganizationAnalytics";
+import BusinessProductManagement from "./BusinessProductManagement";
+import BusinessEmployeeEngagement from "./BusinessEmployeeEngagement";
 import { OrganizationManagementService } from "@/services/organizationManagementService";
 import { DonorManagementService } from "@/services/donorManagementService";
 import { VolunteerManagementService } from "@/services/volunteerManagementService";
 import { GrantManagementService } from "@/services/grantManagementService";
+import { BusinessManagementService } from "@/services/businessManagementService";
 
 interface OrganizationDashboardProps {
   organizationId: string;
