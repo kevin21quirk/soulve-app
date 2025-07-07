@@ -5,22 +5,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building, Users, Settings, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchUserOrganizations } from "@/services/organizationService";
 import OrganizationDashboard from "@/components/organization/OrganizationDashboard";
+import CreateOrganizationDialog from "@/components/organization/CreateOrganizationDialog";
+import FindOrganizationsDialog from "@/components/organization/FindOrganizationsDialog";
+import JoinOrganizationDialog from "@/components/organization/JoinOrganizationDialog";
 
 interface UserOrganization {
   id: string;
-  organization_id: string;
-  organization: {
-    id: string;
-    name: string;
-    organization_type: string;
-    description?: string;
-    avatar_url?: string;
-  };
+  organizationId: string;
+  organizationName: string;
   role: string;
   title?: string;
-  is_active: boolean;
+  isCurrent: boolean;
 }
 
 const OrganizationTab = () => {
@@ -36,30 +33,12 @@ const OrganizationTab = () => {
   }, [user]);
 
   const loadUserOrganizations = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('organization_members')
-        .select(`
-          id,
-          organization_id,
-          role,
-          title,
-          is_active,
-          organization:organizations(
-            id,
-            name,
-            organization_type,
-            description,
-            avatar_url
-          )
-        `)
-        .eq('user_id', user?.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrganizations(data || []);
+      const orgs = await fetchUserOrganizations(user.id);
+      setOrganizations(orgs);
     } catch (error) {
       console.error('Error loading organizations:', error);
     } finally {
@@ -102,7 +81,7 @@ const OrganizationTab = () => {
 
   // If an organization is selected, show its dashboard
   if (selectedOrg) {
-    const selectedOrgData = organizations.find(org => org.organization_id === selectedOrg);
+    const selectedOrgData = organizations.find(org => org.organizationId === selectedOrg);
     if (selectedOrgData) {
       return (
         <div className="space-y-4">
@@ -117,7 +96,7 @@ const OrganizationTab = () => {
           </div>
           <OrganizationDashboard
             organizationId={selectedOrg}
-            organizationName={selectedOrgData.organization.name}
+            organizationName={selectedOrgData.organizationName}
           />
         </div>
       );
@@ -134,10 +113,7 @@ const OrganizationTab = () => {
             Organizations you're part of and manage
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Join Organization
-        </Button>
+        <JoinOrganizationDialog onOrganizationJoined={loadUserOrganizations} />
       </div>
 
       {/* Organizations List */}
@@ -147,26 +123,18 @@ const OrganizationTab = () => {
             <Card
               key={orgMembership.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => setSelectedOrg(orgMembership.organization_id)}
+              onClick={() => setSelectedOrg(orgMembership.organizationId)}
             >
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
-                    {orgMembership.organization.avatar_url ? (
-                      <img
-                        src={orgMembership.organization.avatar_url}
-                        alt={orgMembership.organization.name}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <Building className="h-6 w-6 text-white" />
-                    )}
+                    <Building className="h-6 w-6 text-white" />
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <h3 className="font-semibold text-gray-900">
-                        {orgMembership.organization.name}
+                        {orgMembership.organizationName}
                       </h3>
                       <Badge className={getRoleColor(orgMembership.role)}>
                         {orgMembership.role}
@@ -180,17 +148,12 @@ const OrganizationTab = () => {
                     )}
                     
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      {getOrgTypeIcon(orgMembership.organization.organization_type)}
-                      <span className="capitalize">
-                        {orgMembership.organization.organization_type.replace('_', ' ')}
-                      </span>
+                      <Building className="h-4 w-4" />
+                      <span>Organization</span>
+                      {orgMembership.isCurrent && (
+                        <Badge variant="secondary" className="text-xs">Current</Badge>
+                      )}
                     </div>
-                    
-                    {orgMembership.organization.description && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {orgMembership.organization.description}
-                      </p>
-                    )}
                   </div>
                   
                   <Button
@@ -198,7 +161,7 @@ const OrganizationTab = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedOrg(orgMembership.organization_id);
+                      setSelectedOrg(orgMembership.organizationId);
                     }}
                   >
                     <Settings className="h-4 w-4" />
@@ -219,14 +182,8 @@ const OrganizationTab = () => {
               You're not currently part of any organizations. Join or create one to get started.
             </p>
             <div className="flex justify-center space-x-3">
-              <Button variant="outline">
-                <Building className="h-4 w-4 mr-2" />
-                Create Organization
-              </Button>
-              <Button className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-                <Users className="h-4 w-4 mr-2" />
-                Find Organizations
-              </Button>
+              <CreateOrganizationDialog onOrganizationCreated={loadUserOrganizations} />
+              <FindOrganizationsDialog onOrganizationJoined={loadUserOrganizations} />
             </div>
           </CardContent>
         </Card>
