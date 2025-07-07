@@ -29,6 +29,8 @@ import GrantManagement from "./GrantManagement";
 import OrganizationAnalytics from "./OrganizationAnalytics";
 import BusinessProductManagement from "./BusinessProductManagement";
 import BusinessEmployeeEngagement from "./BusinessEmployeeEngagement";
+import BusinessCSRManagement from "./BusinessCSRManagement";
+import BusinessPartnershipManagement from "./BusinessPartnershipManagement";
 import { OrganizationManagementService } from "@/services/organizationManagementService";
 import { DonorManagementService } from "@/services/donorManagementService";
 import { VolunteerManagementService } from "@/services/volunteerManagementService";
@@ -194,11 +196,13 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="donors">Donors</TabsTrigger>
-          <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
+          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="employees">Employees</TabsTrigger>
+          <TabsTrigger value="csr">CSR</TabsTrigger>
+          <TabsTrigger value="partnerships">Partners</TabsTrigger>
           <TabsTrigger value="grants">Grants</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
@@ -266,12 +270,20 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
           <TeamManagement organizationId={organizationId} />
         </TabsContent>
 
-        <TabsContent value="donors" className="mt-4">
-          <DonorManagement organizationId={organizationId} />
+        <TabsContent value="products" className="mt-4">
+          <BusinessProductManagement organizationId={organizationId} />
         </TabsContent>
 
-        <TabsContent value="volunteers" className="mt-4">
-          <VolunteerManagement organizationId={organizationId} />
+        <TabsContent value="employees" className="mt-4">
+          <BusinessEmployeeEngagement organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="csr" className="mt-4">
+          <BusinessCSRManagement organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="partnerships" className="mt-4">
+          <BusinessPartnershipManagement organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="grants" className="mt-4">
