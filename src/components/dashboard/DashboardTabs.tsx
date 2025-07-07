@@ -10,6 +10,7 @@ import ProfileTab from "./tabs/ProfileTab";
 import MainTabsList from "./tabs/MainTabsList";
 import CombinedImpactAnalyticsTab from "./tabs/CombinedImpactAnalyticsTab";
 import EnhancedHelpCenterTab from "./tabs/EnhancedHelpCenterTab";
+import OrganizationTab from "../tabs/OrganizationTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -41,6 +42,10 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
 
       <TabsContent value="campaigns" className="space-y-6">
         <CampaignsTab />
+      </TabsContent>
+
+      <TabsContent value="organizations" className="space-y-6">
+        <OrganizationTab />
       </TabsContent>
 
       <TabsContent value="impact-analytics" className="space-y-6">
