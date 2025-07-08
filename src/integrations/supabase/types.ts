@@ -38,6 +38,142 @@ export type Database = {
         }
         Relationships: []
       }
+      business_partnerships: {
+        Row: {
+          contact_email: string | null
+          contact_person: string | null
+          created_at: string
+          deliverables: string[] | null
+          description: string | null
+          end_date: string | null
+          id: string
+          objectives: string[] | null
+          organization_id: string
+          partner_name: string
+          partnership_type: string
+          start_date: string | null
+          status: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          deliverables?: string[] | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          objectives?: string[] | null
+          organization_id: string
+          partner_name: string
+          partnership_type?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          deliverables?: string[] | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          objectives?: string[] | null
+          organization_id?: string
+          partner_name?: string
+          partnership_type?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_partnerships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_products: {
+        Row: {
+          category: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          is_featured: boolean | null
+          launch_date: string | null
+          name: string
+          organization_id: string
+          price_range: string | null
+          social_impact_statement: string | null
+          status: string
+          target_audience: string | null
+          updated_at: string
+          view_count: number | null
+          website_url: string | null
+        }
+        Insert: {
+          category?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          launch_date?: string | null
+          name: string
+          organization_id: string
+          price_range?: string | null
+          social_impact_statement?: string | null
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+          view_count?: number | null
+          website_url?: string | null
+        }
+        Update: {
+          category?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          launch_date?: string | null
+          name?: string
+          organization_id?: string
+          price_range?: string | null
+          social_impact_statement?: string | null
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+          view_count?: number | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_analytics: {
         Row: {
           avg_time_on_page: number | null
@@ -840,6 +976,71 @@ export type Database = {
         }
         Relationships: []
       }
+      csr_initiatives: {
+        Row: {
+          actual_beneficiaries: number | null
+          budget_allocated: number | null
+          budget_spent: number | null
+          category: string
+          created_at: string
+          description: string
+          end_date: string | null
+          id: string
+          impact_metrics: Json | null
+          organization_id: string
+          sdg_goals: string[] | null
+          start_date: string | null
+          status: string
+          target_beneficiaries: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_beneficiaries?: number | null
+          budget_allocated?: number | null
+          budget_spent?: number | null
+          category?: string
+          created_at?: string
+          description: string
+          end_date?: string | null
+          id?: string
+          impact_metrics?: Json | null
+          organization_id: string
+          sdg_goals?: string[] | null
+          start_date?: string | null
+          status?: string
+          target_beneficiaries?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_beneficiaries?: number | null
+          budget_allocated?: number | null
+          budget_spent?: number | null
+          category?: string
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          impact_metrics?: Json | null
+          organization_id?: string
+          sdg_goals?: string[] | null
+          start_date?: string | null
+          status?: string
+          target_beneficiaries?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csr_initiatives_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       donors: {
         Row: {
           address: Json | null
@@ -911,6 +1112,59 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      employee_engagement: {
+        Row: {
+          activity_type: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          employee_id: string
+          hours_contributed: number
+          id: string
+          impact_points: number
+          organization_id: string
+          title: string
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          activity_type: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          employee_id: string
+          hours_contributed?: number
+          id?: string
+          impact_points?: number
+          organization_id: string
+          title: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          activity_type?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          employee_id?: string
+          hours_contributed?: number
+          id?: string
+          impact_points?: number
+          organization_id?: string
+          title?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_engagement_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       evidence_submissions: {
         Row: {
@@ -3145,6 +3399,10 @@ export type Database = {
       }
       is_campaign_creator: {
         Args: { campaign_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_organization_admin: {
+        Args: { org_id: string; user_id: string }
         Returns: boolean
       }
       is_user_admin: {
