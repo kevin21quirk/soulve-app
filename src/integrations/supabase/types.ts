@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -3292,26 +3292,26 @@ export type Database = {
         Returns: undefined
       }
       approve_waitlist_user: {
-        Args: { target_user_id: string; approving_admin_id: string }
+        Args: { approving_admin_id: string; target_user_id: string }
         Returns: undefined
       }
       award_impact_points: {
         Args: {
-          target_user_id: string
           activity_type: string
-          points: number
           description: string
           metadata?: Json
+          points: number
+          target_user_id: string
         }
         Returns: string
       }
       award_user_points: {
         Args: {
-          target_user_id: string
           activity_type: string
-          points: number
           description: string
           metadata?: Json
+          points: number
+          target_user_id: string
         }
         Returns: string
       }
@@ -3354,39 +3354,39 @@ export type Database = {
       generate_user_recommendations: {
         Args: { target_user_id: string }
         Returns: {
+          confidence_score: number
+          metadata: Json
+          reasoning: string
           recommendation_type: string
           target_id: string
-          confidence_score: number
-          reasoning: string
-          metadata: Json
         }[]
       }
       generate_user_recommendations_with_orgs: {
         Args: { target_user_id: string }
         Returns: {
+          confidence_score: number
+          metadata: Json
+          reasoning: string
           recommendation_type: string
           target_id: string
-          confidence_score: number
-          reasoning: string
-          metadata: Json
         }[]
       }
       get_post_reaction_counts: {
         Args: { target_post_id: string }
         Returns: {
-          reaction_type: string
           count: number
+          reaction_type: string
           user_reacted: boolean
         }[]
       }
       get_user_organizations: {
         Args: { target_user_id: string }
         Returns: {
+          is_current: boolean
           organization_id: string
           organization_name: string
           role: string
           title: string
-          is_current: boolean
         }[]
       }
       get_user_total_points: {
@@ -3411,8 +3411,8 @@ export type Database = {
       }
       match_safe_space_helper: {
         Args: {
-          p_requester_id: string
           p_issue_category: string
+          p_requester_id: string
           p_urgency_level: string
         }
         Returns: string
