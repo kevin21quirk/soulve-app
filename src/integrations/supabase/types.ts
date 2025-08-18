@@ -2719,6 +2719,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "story_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       story_updates: {
@@ -2770,6 +2777,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_updates_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -3284,7 +3298,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string | null
+          interests: string[] | null
+          last_name: string | null
+          location: string | null
+          skills: string[] | null
+          website: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       apply_point_decay: {
@@ -3341,6 +3370,10 @@ export type Database = {
       }
       can_access_dashboard: {
         Args: { user_uuid: string }
+        Returns: boolean
+      }
+      can_view_profile: {
+        Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
       }
       cleanup_expired_safe_space_messages: {
