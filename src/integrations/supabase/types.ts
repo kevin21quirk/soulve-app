@@ -842,6 +842,79 @@ export type Database = {
         }
         Relationships: []
       }
+      carbon_footprint_data: {
+        Row: {
+          activity_data: number
+          activity_unit: string
+          co2_equivalent: number
+          created_at: string
+          created_by: string | null
+          emission_factor: number
+          emission_source: string
+          id: string
+          notes: string | null
+          organization_id: string | null
+          reporting_period: string
+          scope_type: number
+          updated_at: string
+          verification_status: string | null
+        }
+        Insert: {
+          activity_data: number
+          activity_unit: string
+          co2_equivalent: number
+          created_at?: string
+          created_by?: string | null
+          emission_factor: number
+          emission_source: string
+          id?: string
+          notes?: string | null
+          organization_id?: string | null
+          reporting_period: string
+          scope_type: number
+          updated_at?: string
+          verification_status?: string | null
+        }
+        Update: {
+          activity_data?: number
+          activity_unit?: string
+          co2_equivalent?: number
+          created_at?: string
+          created_by?: string | null
+          emission_factor?: number
+          emission_source?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string | null
+          reporting_period?: string
+          scope_type?: number
+          updated_at?: string
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carbon_footprint_data_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carbon_footprint_data_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carbon_footprint_data_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           addressee_id: string
@@ -1159,6 +1232,272 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "employee_engagement_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      esg_compliance_reports: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          framework_id: string | null
+          generated_by: string | null
+          generated_data: Json | null
+          id: string
+          organization_id: string | null
+          report_type: string
+          report_url: string | null
+          reporting_period_end: string
+          reporting_period_start: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          framework_id?: string | null
+          generated_by?: string | null
+          generated_data?: Json | null
+          id?: string
+          organization_id?: string | null
+          report_type: string
+          report_url?: string | null
+          reporting_period_end: string
+          reporting_period_start: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          framework_id?: string | null
+          generated_by?: string | null
+          generated_data?: Json | null
+          id?: string
+          organization_id?: string | null
+          report_type?: string
+          report_url?: string | null
+          reporting_period_end?: string
+          reporting_period_start?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_compliance_reports_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_compliance_reports_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_compliance_reports_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "esg_frameworks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_compliance_reports_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_compliance_reports_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_compliance_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      esg_frameworks: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          official_url: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          official_url?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          official_url?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
+      esg_indicators: {
+        Row: {
+          calculation_method: string | null
+          category: string
+          created_at: string
+          description: string | null
+          framework_id: string | null
+          id: string
+          indicator_code: string
+          is_quantitative: boolean | null
+          materiality_level: string | null
+          name: string
+          reporting_frequency: string | null
+          subcategory: string | null
+          unit_of_measurement: string | null
+          updated_at: string
+        }
+        Insert: {
+          calculation_method?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          framework_id?: string | null
+          id?: string
+          indicator_code: string
+          is_quantitative?: boolean | null
+          materiality_level?: string | null
+          name: string
+          reporting_frequency?: string | null
+          subcategory?: string | null
+          unit_of_measurement?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calculation_method?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          framework_id?: string | null
+          id?: string
+          indicator_code?: string
+          is_quantitative?: boolean | null
+          materiality_level?: string | null
+          name?: string
+          reporting_frequency?: string | null
+          subcategory?: string | null
+          unit_of_measurement?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_indicators_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "esg_frameworks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      esg_targets: {
+        Row: {
+          baseline_value: number | null
+          baseline_year: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          indicator_id: string | null
+          organization_id: string | null
+          progress_percentage: number | null
+          status: string | null
+          target_name: string
+          target_value: number | null
+          target_year: number | null
+          updated_at: string
+        }
+        Insert: {
+          baseline_value?: number | null
+          baseline_year?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          target_name: string
+          target_value?: number | null
+          target_year?: number | null
+          updated_at?: string
+        }
+        Update: {
+          baseline_value?: number | null
+          baseline_year?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          target_name?: string
+          target_value?: number | null
+          target_year?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_targets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_targets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_targets_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "esg_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_targets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -1613,6 +1952,80 @@ export type Database = {
         }
         Relationships: []
       }
+      materiality_assessments: {
+        Row: {
+          action_plan: string | null
+          assessment_year: number
+          business_impact: number
+          created_at: string
+          created_by: string | null
+          id: string
+          indicator_id: string | null
+          organization_id: string | null
+          priority_level: string | null
+          stakeholder_feedback: string | null
+          stakeholder_importance: number
+          updated_at: string
+        }
+        Insert: {
+          action_plan?: string | null
+          assessment_year: number
+          business_impact: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id?: string | null
+          priority_level?: string | null
+          stakeholder_feedback?: string | null
+          stakeholder_importance: number
+          updated_at?: string
+        }
+        Update: {
+          action_plan?: string | null
+          assessment_year?: number
+          business_impact?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id?: string | null
+          priority_level?: string | null
+          stakeholder_feedback?: string | null
+          stakeholder_importance?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiality_assessments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiality_assessments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiality_assessments_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "esg_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiality_assessments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_name: string | null
@@ -1702,6 +2115,83 @@ export type Database = {
           type?: string
         }
         Relationships: []
+      }
+      organization_esg_data: {
+        Row: {
+          collected_by: string | null
+          created_at: string
+          data_source: string | null
+          id: string
+          indicator_id: string | null
+          notes: string | null
+          organization_id: string | null
+          reporting_period: string
+          text_value: string | null
+          unit: string | null
+          updated_at: string
+          value: number | null
+          verification_status: string | null
+        }
+        Insert: {
+          collected_by?: string | null
+          created_at?: string
+          data_source?: string | null
+          id?: string
+          indicator_id?: string | null
+          notes?: string | null
+          organization_id?: string | null
+          reporting_period: string
+          text_value?: string | null
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          verification_status?: string | null
+        }
+        Update: {
+          collected_by?: string | null
+          created_at?: string
+          data_source?: string | null
+          id?: string
+          indicator_id?: string | null
+          notes?: string | null
+          organization_id?: string | null
+          reporting_period?: string
+          text_value?: string | null
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_esg_data_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_esg_data_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_esg_data_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "esg_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_esg_data_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organization_invitations: {
         Row: {
@@ -2679,6 +3169,79 @@ export type Database = {
         }
         Relationships: []
       }
+      stakeholder_engagement_metrics: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          engagement_method: string | null
+          id: string
+          measurement_date: string
+          metric_name: string
+          metric_unit: string | null
+          metric_value: number | null
+          notes: string | null
+          organization_id: string | null
+          response_rate: number | null
+          satisfaction_score: number | null
+          stakeholder_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          engagement_method?: string | null
+          id?: string
+          measurement_date: string
+          metric_name: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          notes?: string | null
+          organization_id?: string | null
+          response_rate?: number | null
+          satisfaction_score?: number | null
+          stakeholder_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          engagement_method?: string | null
+          id?: string
+          measurement_date?: string
+          metric_name?: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          notes?: string | null
+          organization_id?: string | null
+          response_rate?: number | null
+          satisfaction_score?: number | null
+          stakeholder_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_engagement_metrics_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stakeholder_engagement_metrics_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stakeholder_engagement_metrics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       story_participants: {
         Row: {
           id: string
@@ -3352,6 +3915,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: number
       }
+      calculate_esg_score: {
+        Args: { assessment_year: number; org_id: string }
+        Returns: number
+      }
       calculate_trust_score: {
         Args: { user_uuid: string }
         Returns: number
@@ -3402,6 +3969,15 @@ export type Database = {
           reasoning: string
           recommendation_type: string
           target_id: string
+        }[]
+      }
+      get_esg_compliance_status: {
+        Args: { org_id: string }
+        Returns: {
+          compliance_percentage: number
+          framework_name: string
+          last_update: string
+          missing_indicators: number
         }[]
       }
       get_post_reaction_counts: {
