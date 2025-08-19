@@ -4348,10 +4348,6 @@ export type Database = {
         Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
       }
-      can_view_public_profile: {
-        Args: { profile_user_id: string }
-        Returns: boolean
-      }
       cleanup_expired_safe_space_messages: {
         Args: Record<PropertyKey, never>
         Returns: undefined
