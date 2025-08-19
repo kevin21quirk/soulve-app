@@ -17,6 +17,10 @@ import ESGOverviewCard from "./ESGOverviewCard";
 import ComplianceStatusCard from "./ComplianceStatusCard";
 import CarbonFootprintCard from "./CarbonFootprintCard";
 import StakeholderEngagementCard from "./StakeholderEngagementCard";
+import ESGGoalsCard from "./ESGGoalsCard";
+import ESGRecommendationsCard from "./ESGRecommendationsCard";
+import ESGRiskAssessmentCard from "./ESGRiskAssessmentCard";
+import ESGDataInputForm from "./ESGDataInputForm";
 
 const ESGDashboard = () => {
   const { user } = useAuth();
@@ -87,7 +91,7 @@ const ESGDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-100">
           <TabsTrigger 
             value="overview"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
@@ -112,6 +116,12 @@ const ESGDashboard = () => {
           >
             Social
           </TabsTrigger>
+          <TabsTrigger 
+            value="data-input"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+          >
+            Data Input
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -122,6 +132,20 @@ const ESGDashboard = () => {
             />
             <StakeholderEngagementCard 
               engagementData={mockData.stakeholderEngagement}
+              isLoading={false}
+            />
+            <ESGGoalsCard 
+              goals={mockData.goals}
+              isLoading={false}
+            />
+            <ESGRecommendationsCard 
+              recommendations={mockData.recommendations}
+              isLoading={false}
+            />
+          </div>
+          <div className="mt-6">
+            <ESGRiskAssessmentCard 
+              risks={mockData.risks}
               isLoading={false}
             />
           </div>
@@ -216,6 +240,10 @@ const ESGDashboard = () => {
               </Card>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="data-input" className="mt-6">
+          <ESGDataInputForm />
         </TabsContent>
       </Tabs>
     </div>

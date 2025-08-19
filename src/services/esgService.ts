@@ -303,6 +303,292 @@ export const useStakeholderEngagement = (organizationId: string) => {
 };
 
 // Mock data for development
+// New interface definitions for additional ESG data
+export interface ESGDataEntry {
+  id: string;
+  organization_id: string;
+  indicator_id: string;
+  reporting_period: string;
+  value: number;
+  text_value: string;
+  unit: string;
+  data_source: string;
+  verification_status: 'unverified' | 'internal' | 'third_party';
+  supporting_documents: any[];
+  notes: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ESGGoal {
+  id: string;
+  organization_id: string;
+  indicator_id: string;
+  goal_name: string;
+  description: string;
+  target_value: number;
+  target_unit: string;
+  baseline_value: number;
+  baseline_year: number;
+  target_year: number;
+  current_value: number;
+  progress_percentage: number;
+  status: 'active' | 'completed' | 'paused' | 'cancelled';
+  priority_level: 'low' | 'medium' | 'high' | 'critical';
+  category: 'environmental' | 'social' | 'governance';
+  milestones: any[];
+  responsible_team: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ESGReport {
+  id: string;
+  organization_id: string;
+  report_name: string;
+  report_type: 'gri' | 'sasb' | 'tcfd' | 'ungc' | 'integrated' | 'custom';
+  framework_version: string;
+  reporting_period_start: string;
+  reporting_period_end: string;
+  status: 'draft' | 'in_review' | 'approved' | 'published';
+  template_data: any;
+  generated_content: string;
+  cover_image: string;
+  executive_summary: string;
+  created_by: string;
+  approved_by: string;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ESGRecommendation {
+  id: string;
+  organization_id: string;
+  recommendation_type: 'improvement' | 'risk_mitigation' | 'best_practice' | 'compliance' | 'efficiency';
+  priority_score: number;
+  title: string;
+  description: string;
+  recommended_actions: any[];
+  potential_impact: string;
+  implementation_effort: 'low' | 'medium' | 'high';
+  estimated_cost_range: string;
+  related_indicators: any[];
+  data_sources: any[];
+  confidence_score: number;
+  status: 'new' | 'reviewed' | 'accepted' | 'rejected' | 'implemented';
+  reviewed_by: string;
+  reviewed_at: string;
+  implementation_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ESGRisk {
+  id: string;
+  organization_id: string;
+  risk_name: string;
+  risk_category: 'environmental' | 'social' | 'governance';
+  risk_type: 'physical' | 'transition' | 'regulatory' | 'reputational' | 'operational';
+  description: string;
+  probability_score: number;
+  impact_score: number;
+  risk_score: number;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  mitigation_strategies: any[];
+  residual_risk_score: number;
+  owner_department: string;
+  review_frequency: string;
+  last_reviewed: string;
+  next_review_date: string;
+  status: 'active' | 'mitigated' | 'transferred' | 'accepted';
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StakeholderGroup {
+  id: string;
+  organization_id: string;
+  group_name: string;
+  stakeholder_type: 'employees' | 'investors' | 'customers' | 'suppliers' | 'community' | 'regulators' | 'ngos';
+  description: string;
+  engagement_methods: any[];
+  contact_frequency: string;
+  key_interests: any[];
+  influence_level: 'low' | 'medium' | 'high';
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ESGBenchmark {
+  id: string;
+  industry_sector: string;
+  indicator_id: string;
+  benchmark_type: 'industry_average' | 'top_quartile' | 'best_practice' | 'regulatory_minimum';
+  value: number;
+  unit: string;
+  data_source: string;
+  reporting_year: number;
+  geographical_scope: string;
+  sample_size: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Extended query keys
+export const ESG_EXTENDED_QUERY_KEYS = {
+  ...ESG_QUERY_KEYS,
+  ESG_DATA_ENTRIES: (orgId: string) => ['esg', 'data-entries', orgId] as const,
+  ESG_GOALS: (orgId: string) => ['esg', 'goals', orgId] as const,
+  ESG_REPORTS: (orgId: string) => ['esg', 'reports', orgId] as const,
+  ESG_RECOMMENDATIONS: (orgId: string) => ['esg', 'recommendations', orgId] as const,
+  ESG_RISKS: (orgId: string) => ['esg', 'risks', orgId] as const,
+  STAKEHOLDER_GROUPS: (orgId: string) => ['esg', 'stakeholder-groups', orgId] as const,
+  ESG_BENCHMARKS: (industrySelector: string) => ['esg', 'benchmarks', industrySelector] as const,
+} as const;
+
+// New service functions for additional ESG features
+export const useESGDataEntries = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_DATA_ENTRIES(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_data_entries')
+        .select(`
+          *,
+          indicator:esg_indicators(*)
+        `)
+        .eq('organization_id', organizationId)
+        .order('reporting_period', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGDataEntry[];
+    },
+    enabled: !!organizationId,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useESGGoals = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_GOALS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_goals')
+        .select(`
+          *,
+          indicator:esg_indicators(*)
+        `)
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGGoal[];
+    },
+    enabled: !!organizationId,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useESGReports = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_REPORTS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_reports')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGReport[];
+    },
+    enabled: !!organizationId,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useESGRecommendations = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_RECOMMENDATIONS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_recommendations')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('priority_score', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGRecommendation[];
+    },
+    enabled: !!organizationId,
+    staleTime: 30 * 60 * 1000,
+  });
+};
+
+export const useESGRisks = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_RISKS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_risks')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('risk_score', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGRisk[];
+    },
+    enabled: !!organizationId,
+    staleTime: 30 * 60 * 1000,
+  });
+};
+
+export const useStakeholderGroups = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.STAKEHOLDER_GROUPS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stakeholder_groups')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('is_active', true)
+        .order('influence_level', { ascending: false });
+      
+      if (error) throw error;
+      return data as StakeholderGroup[];
+    },
+    enabled: !!organizationId,
+    staleTime: 30 * 60 * 1000,
+  });
+};
+
+export const useESGBenchmarks = (industrySelector: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_BENCHMARKS(industrySelector),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_benchmarks')
+        .select(`
+          *,
+          indicator:esg_indicators(*)
+        `)
+        .eq('industry_sector', industrySelector)
+        .order('reporting_year', { ascending: false });
+      
+      if (error) throw error;
+      return data as ESGBenchmark[];
+    },
+    enabled: !!industrySelector,
+    staleTime: 60 * 60 * 1000,
+  });
+};
+
+// Mock data for development (enhanced)
 export const getMockESGData = () => ({
   esgScore: {
     environmental: 78,
@@ -342,5 +628,76 @@ export const getMockESGData = () => ({
     },
     overallEngagement: 4.1,
     totalStakeholders: 4
-  }
+  },
+  // Additional mock data for new features
+  goals: [
+    {
+      id: '1',
+      goal_name: 'Carbon Neutrality',
+      target_value: 0,
+      target_year: 2030,
+      current_value: 2450,
+      progress_percentage: 15,
+      status: 'active',
+      category: 'environmental',
+      priority_level: 'critical'
+    },
+    {
+      id: '2',
+      goal_name: 'Employee Diversity',
+      target_value: 50,
+      target_year: 2025,
+      current_value: 35,
+      progress_percentage: 70,
+      status: 'active',
+      category: 'social',
+      priority_level: 'high'
+    }
+  ],
+  recommendations: [
+    {
+      id: '1',
+      title: 'Implement LED Lighting',
+      recommendation_type: 'efficiency',
+      priority_score: 85,
+      description: 'Replace traditional lighting with LED systems to reduce energy consumption by 40%',
+      implementation_effort: 'medium',
+      potential_impact: 'High energy savings and reduced carbon footprint',
+      status: 'new'
+    },
+    {
+      id: '2',
+      title: 'Supplier ESG Assessment',
+      recommendation_type: 'best_practice',
+      priority_score: 78,
+      description: 'Implement comprehensive ESG screening for all suppliers',
+      implementation_effort: 'high',
+      potential_impact: 'Improved supply chain sustainability',
+      status: 'new'
+    }
+  ],
+  risks: [
+    {
+      id: '1',
+      risk_name: 'Climate Change Physical Risk',
+      risk_category: 'environmental',
+      risk_type: 'physical',
+      probability_score: 4,
+      impact_score: 5,
+      risk_score: 20,
+      risk_level: 'critical',
+      description: 'Increased frequency of extreme weather events affecting operations'
+    },
+    {
+      id: '2',
+      risk_name: 'Data Privacy Regulations',
+      risk_category: 'governance',
+      risk_type: 'regulatory',
+      probability_score: 3,
+      impact_score: 4,
+      risk_score: 12,
+      risk_level: 'medium',
+      description: 'Evolving data protection regulations may require significant compliance updates'
+    }
+  ]
 });

@@ -1239,6 +1239,51 @@ export type Database = {
           },
         ]
       }
+      esg_benchmarks: {
+        Row: {
+          benchmark_type: string
+          created_at: string
+          data_source: string | null
+          geographical_scope: string | null
+          id: string
+          indicator_id: string
+          industry_sector: string
+          reporting_year: number
+          sample_size: number | null
+          unit: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          benchmark_type: string
+          created_at?: string
+          data_source?: string | null
+          geographical_scope?: string | null
+          id?: string
+          indicator_id: string
+          industry_sector: string
+          reporting_year: number
+          sample_size?: number | null
+          unit?: string | null
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          benchmark_type?: string
+          created_at?: string
+          data_source?: string | null
+          geographical_scope?: string | null
+          id?: string
+          indicator_id?: string
+          industry_sector?: string
+          reporting_year?: number
+          sample_size?: number | null
+          unit?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       esg_compliance_reports: {
         Row: {
           approved_by: string | null
@@ -1330,6 +1375,57 @@ export type Database = {
           },
         ]
       }
+      esg_data_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_source: string | null
+          id: string
+          indicator_id: string
+          notes: string | null
+          organization_id: string
+          reporting_period: string
+          supporting_documents: Json | null
+          text_value: string | null
+          unit: string | null
+          updated_at: string
+          value: number | null
+          verification_status: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_source?: string | null
+          id?: string
+          indicator_id: string
+          notes?: string | null
+          organization_id: string
+          reporting_period: string
+          supporting_documents?: Json | null
+          text_value?: string | null
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          verification_status?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_source?: string | null
+          id?: string
+          indicator_id?: string
+          notes?: string | null
+          organization_id?: string
+          reporting_period?: string
+          supporting_documents?: Json | null
+          text_value?: string | null
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
       esg_frameworks: {
         Row: {
           code: string
@@ -1363,6 +1459,75 @@ export type Database = {
           official_url?: string | null
           updated_at?: string
           version?: string | null
+        }
+        Relationships: []
+      }
+      esg_goals: {
+        Row: {
+          baseline_value: number | null
+          baseline_year: number | null
+          category: string
+          created_at: string
+          created_by: string | null
+          current_value: number | null
+          description: string | null
+          goal_name: string
+          id: string
+          indicator_id: string | null
+          milestones: Json | null
+          organization_id: string
+          priority_level: string | null
+          progress_percentage: number | null
+          responsible_team: string | null
+          status: string | null
+          target_unit: string | null
+          target_value: number | null
+          target_year: number
+          updated_at: string
+        }
+        Insert: {
+          baseline_value?: number | null
+          baseline_year?: number | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          current_value?: number | null
+          description?: string | null
+          goal_name: string
+          id?: string
+          indicator_id?: string | null
+          milestones?: Json | null
+          organization_id: string
+          priority_level?: string | null
+          progress_percentage?: number | null
+          responsible_team?: string | null
+          status?: string | null
+          target_unit?: string | null
+          target_value?: number | null
+          target_year: number
+          updated_at?: string
+        }
+        Update: {
+          baseline_value?: number | null
+          baseline_year?: number | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          current_value?: number | null
+          description?: string | null
+          goal_name?: string
+          id?: string
+          indicator_id?: string | null
+          milestones?: Json | null
+          organization_id?: string
+          priority_level?: string | null
+          progress_percentage?: number | null
+          responsible_team?: string | null
+          status?: string | null
+          target_unit?: string | null
+          target_value?: number | null
+          target_year?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1424,6 +1589,201 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      esg_recommendations: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          data_sources: Json | null
+          description: string
+          estimated_cost_range: string | null
+          id: string
+          implementation_date: string | null
+          implementation_effort: string | null
+          organization_id: string
+          potential_impact: string | null
+          priority_score: number | null
+          recommendation_type: string
+          recommended_actions: Json | null
+          related_indicators: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          data_sources?: Json | null
+          description: string
+          estimated_cost_range?: string | null
+          id?: string
+          implementation_date?: string | null
+          implementation_effort?: string | null
+          organization_id: string
+          potential_impact?: string | null
+          priority_score?: number | null
+          recommendation_type: string
+          recommended_actions?: Json | null
+          related_indicators?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          data_sources?: Json | null
+          description?: string
+          estimated_cost_range?: string | null
+          id?: string
+          implementation_date?: string | null
+          implementation_effort?: string | null
+          organization_id?: string
+          potential_impact?: string | null
+          priority_score?: number | null
+          recommendation_type?: string
+          recommended_actions?: Json | null
+          related_indicators?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      esg_reports: {
+        Row: {
+          approved_by: string | null
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          executive_summary: string | null
+          framework_version: string | null
+          generated_content: string | null
+          id: string
+          organization_id: string
+          published_at: string | null
+          report_name: string
+          report_type: string
+          reporting_period_end: string
+          reporting_period_start: string
+          status: string | null
+          template_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          executive_summary?: string | null
+          framework_version?: string | null
+          generated_content?: string | null
+          id?: string
+          organization_id: string
+          published_at?: string | null
+          report_name: string
+          report_type: string
+          reporting_period_end: string
+          reporting_period_start: string
+          status?: string | null
+          template_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          executive_summary?: string | null
+          framework_version?: string | null
+          generated_content?: string | null
+          id?: string
+          organization_id?: string
+          published_at?: string | null
+          report_name?: string
+          report_type?: string
+          reporting_period_end?: string
+          reporting_period_start?: string
+          status?: string | null
+          template_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      esg_risks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          impact_score: number | null
+          last_reviewed: string | null
+          mitigation_strategies: Json | null
+          next_review_date: string | null
+          organization_id: string
+          owner_department: string | null
+          probability_score: number | null
+          residual_risk_score: number | null
+          review_frequency: string | null
+          risk_category: string
+          risk_level: string | null
+          risk_name: string
+          risk_score: number | null
+          risk_type: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          impact_score?: number | null
+          last_reviewed?: string | null
+          mitigation_strategies?: Json | null
+          next_review_date?: string | null
+          organization_id: string
+          owner_department?: string | null
+          probability_score?: number | null
+          residual_risk_score?: number | null
+          review_frequency?: string | null
+          risk_category: string
+          risk_level?: string | null
+          risk_name: string
+          risk_score?: number | null
+          risk_type: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          impact_score?: number | null
+          last_reviewed?: string | null
+          mitigation_strategies?: Json | null
+          next_review_date?: string | null
+          organization_id?: string
+          owner_department?: string | null
+          probability_score?: number | null
+          residual_risk_score?: number | null
+          review_frequency?: string | null
+          risk_category?: string
+          risk_level?: string | null
+          risk_name?: string
+          risk_score?: number | null
+          risk_type?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       esg_targets: {
         Row: {
@@ -3241,6 +3601,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stakeholder_groups: {
+        Row: {
+          contact_frequency: string | null
+          created_at: string
+          description: string | null
+          engagement_methods: Json | null
+          group_name: string
+          id: string
+          influence_level: string | null
+          is_active: boolean | null
+          key_interests: Json | null
+          organization_id: string
+          stakeholder_type: string
+          updated_at: string
+        }
+        Insert: {
+          contact_frequency?: string | null
+          created_at?: string
+          description?: string | null
+          engagement_methods?: Json | null
+          group_name: string
+          id?: string
+          influence_level?: string | null
+          is_active?: boolean | null
+          key_interests?: Json | null
+          organization_id: string
+          stakeholder_type: string
+          updated_at?: string
+        }
+        Update: {
+          contact_frequency?: string | null
+          created_at?: string
+          description?: string | null
+          engagement_methods?: Json | null
+          group_name?: string
+          id?: string
+          influence_level?: string | null
+          is_active?: boolean | null
+          key_interests?: Json | null
+          organization_id?: string
+          stakeholder_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       story_participants: {
         Row: {
