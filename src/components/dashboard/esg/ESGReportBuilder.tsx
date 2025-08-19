@@ -117,11 +117,11 @@ const ESGReportBuilder = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
+          <Button variant="secondary" size="sm">
             <Save className="h-4 w-4 mr-2" />
             Save Draft
           </Button>
-          <Button size="sm">
+          <Button variant="gradient" size="sm">
             <Send className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
