@@ -4206,6 +4206,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_organization_invitation: {
+        Args: { token_input: string }
+        Returns: boolean
+      }
       apply_point_decay: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -4384,6 +4388,19 @@ export type Database = {
       update_campaign_amount: {
         Args: { campaign_uuid: string; donation_amount: number }
         Returns: undefined
+      }
+      validate_organization_invitation: {
+        Args: { token_input: string }
+        Returns: {
+          email: string
+          expires_at: string
+          invitation_id: string
+          invited_by: string
+          is_valid: boolean
+          organization_id: string
+          role: string
+          title: string
+        }[]
       }
     }
     Enums: {
