@@ -900,13 +900,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "carbon_footprint_data_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "carbon_footprint_data_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -1339,13 +1332,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "esg_compliance_reports_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "esg_compliance_reports_framework_id_fkey"
             columns: ["framework_id"]
             isOneToOne: false
@@ -1357,13 +1343,6 @@ export type Database = {
             columns: ["generated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "esg_compliance_reports_generated_by_fkey"
-            columns: ["generated_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1840,13 +1819,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "esg_targets_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2364,13 +2336,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "materiality_assessments_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "materiality_assessments_indicator_id_fkey"
             columns: ["indicator_id"]
             isOneToOne: false
@@ -2528,13 +2493,6 @@ export type Database = {
             columns: ["collected_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "organization_esg_data_collected_by_fkey"
-            columns: ["collected_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -3587,13 +3545,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "stakeholder_engagement_metrics_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "stakeholder_engagement_metrics_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -3687,13 +3638,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "story_participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       story_updates: {
@@ -3745,13 +3689,6 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "story_updates_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -4266,22 +4203,7 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          banner_url: string | null
-          bio: string | null
-          created_at: string | null
-          first_name: string | null
-          id: string | null
-          interests: string[] | null
-          last_name: string | null
-          location: string | null
-          skills: string[] | null
-          website: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       apply_point_decay: {
