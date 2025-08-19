@@ -355,7 +355,7 @@ const ESGReportBuilder = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {(reportData.selectedSections.length > 0 ? reportData.selectedSections : selectedTemplateData.sections).map((section, index) => (
                       <div key={section} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-white rounded border">
-                        <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
                           {index + 1}
                         </div>
                         <span className="font-medium">{section}</span>
