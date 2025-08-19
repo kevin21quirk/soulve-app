@@ -4266,6 +4266,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      can_access_donor_details: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
       can_view_profile: {
         Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
@@ -4296,6 +4300,26 @@ export type Database = {
           reasoning: string
           recommendation_type: string
           target_id: string
+        }[]
+      }
+      get_donor_statistics: {
+        Args: { org_id: string }
+        Returns: {
+          average_donation: number
+          created_at: string
+          donation_count: number
+          donor_status: string
+          donor_type: string
+          first_donation_date: string
+          first_initial: string
+          id: string
+          last_donation_date: string
+          last_initial: string
+          masked_email: string
+          organization_id: string
+          tags: string[]
+          total_donated: number
+          updated_at: string
         }[]
       }
       get_esg_compliance_status: {
