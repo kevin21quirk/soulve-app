@@ -96,52 +96,52 @@ const ESGDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-8 bg-gray-100 text-xs">
+        <TabsList className="grid w-full grid-cols-8 bg-secondary/20 text-xs">
           <TabsTrigger 
             value="overview"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Overview
           </TabsTrigger>
           <TabsTrigger 
             value="materiality"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Materiality
           </TabsTrigger>
           <TabsTrigger 
             value="benchmarks"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Benchmarks
           </TabsTrigger>
           <TabsTrigger 
             value="reports"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Reports
           </TabsTrigger>
           <TabsTrigger 
             value="ai-insights"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             AI Insights
           </TabsTrigger>
           <TabsTrigger 
             value="stakeholders"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Stakeholders
           </TabsTrigger>
           <TabsTrigger 
             value="compliance"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Compliance
           </TabsTrigger>
           <TabsTrigger 
             value="data-input"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+            className="bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Data Input
           </TabsTrigger>
