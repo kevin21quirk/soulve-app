@@ -21,6 +21,11 @@ import ESGGoalsCard from "./ESGGoalsCard";
 import ESGRecommendationsCard from "./ESGRecommendationsCard";
 import ESGRiskAssessmentCard from "./ESGRiskAssessmentCard";
 import ESGDataInputForm from "./ESGDataInputForm";
+import MaterialityAssessmentMatrix from "./MaterialityAssessmentMatrix";
+import ESGBenchmarkingCard from "./ESGBenchmarkingCard";
+import ESGReportBuilder from "./ESGReportBuilder";
+import AIInsightsDashboard from "./AIInsightsDashboard";
+import StakeholderPortal from "./StakeholderPortal";
 
 const ESGDashboard = () => {
   const { user } = useAuth();
@@ -91,34 +96,52 @@ const ESGDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-8 bg-gray-100 text-xs">
           <TabsTrigger 
             value="overview"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
           >
             Overview
           </TabsTrigger>
           <TabsTrigger 
+            value="materiality"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+          >
+            Materiality
+          </TabsTrigger>
+          <TabsTrigger 
+            value="benchmarks"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+          >
+            Benchmarks
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reports"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+          >
+            Reports
+          </TabsTrigger>
+          <TabsTrigger 
+            value="ai-insights"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+          >
+            AI Insights
+          </TabsTrigger>
+          <TabsTrigger 
+            value="stakeholders"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
+          >
+            Stakeholders
+          </TabsTrigger>
+          <TabsTrigger 
             value="compliance"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
           >
             Compliance
           </TabsTrigger>
           <TabsTrigger 
-            value="environmental"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
-          >
-            Environmental
-          </TabsTrigger>
-          <TabsTrigger 
-            value="social"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
-          >
-            Social
-          </TabsTrigger>
-          <TabsTrigger 
             value="data-input"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white text-xs"
           >
             Data Input
           </TabsTrigger>
@@ -151,6 +174,27 @@ const ESGDashboard = () => {
           </div>
         </TabsContent>
 
+
+        <TabsContent value="materiality" className="mt-6">
+          <MaterialityAssessmentMatrix />
+        </TabsContent>
+
+        <TabsContent value="benchmarks" className="mt-6">
+          <ESGBenchmarkingCard />
+        </TabsContent>
+
+        <TabsContent value="reports" className="mt-6">
+          <ESGReportBuilder />
+        </TabsContent>
+
+        <TabsContent value="ai-insights" className="mt-6">
+          <AIInsightsDashboard />
+        </TabsContent>
+
+        <TabsContent value="stakeholders" className="mt-6">
+          <StakeholderPortal />
+        </TabsContent>
+
         <TabsContent value="compliance" className="mt-6">
           <div className="space-y-6">
             <ComplianceStatusCard 
@@ -179,66 +223,6 @@ const ESGDashboard = () => {
                 ))}
               </div>
             </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="environmental" className="mt-6">
-          <div className="space-y-6">
-            <CarbonFootprintCard 
-              carbonData={mockData.carbonFootprint}
-              isLoading={false}
-            />
-            
-            {/* Additional Environmental Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
-                <h4 className="font-medium text-green-800 mb-2">Water Usage</h4>
-                <div className="text-2xl font-bold text-green-700">1.2M</div>
-                <div className="text-sm text-green-600">Liters per month</div>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200">
-                <h4 className="font-medium text-blue-800 mb-2">Waste Reduction</h4>
-                <div className="text-2xl font-bold text-blue-700">85%</div>
-                <div className="text-sm text-blue-600">Recycling rate</div>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200">
-                <h4 className="font-medium text-yellow-800 mb-2">Renewable Energy</h4>
-                <div className="text-2xl font-bold text-yellow-700">45%</div>
-                <div className="text-sm text-yellow-600">Of total consumption</div>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="social" className="mt-6">
-          <div className="space-y-6">
-            <StakeholderEngagementCard 
-              engagementData={mockData.stakeholderEngagement}
-              isLoading={false}
-            />
-            
-            {/* Additional Social Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200">
-                <h4 className="font-medium text-purple-800 mb-2">Employee Diversity</h4>
-                <div className="text-2xl font-bold text-purple-700">67%</div>
-                <div className="text-sm text-purple-600">Leadership diversity</div>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-pink-50 to-rose-50 border border-pink-200">
-                <h4 className="font-medium text-pink-800 mb-2">Training Hours</h4>
-                <div className="text-2xl font-bold text-pink-700">42.5</div>
-                <div className="text-sm text-pink-600">Hours per employee</div>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200">
-                <h4 className="font-medium text-indigo-800 mb-2">Safety Score</h4>
-                <div className="text-2xl font-bold text-indigo-700">98.2%</div>
-                <div className="text-sm text-indigo-600">Incident-free days</div>
-              </Card>
-            </div>
           </div>
         </TabsContent>
 
