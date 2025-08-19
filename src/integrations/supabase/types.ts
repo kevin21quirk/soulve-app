@@ -3100,6 +3100,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_buckets: {
+        Row: {
+          bucket_type: string
+          created_at: string | null
+          id: string
+          last_refill: string | null
+          max_tokens: number
+          refill_rate: number
+          tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          bucket_type: string
+          created_at?: string | null
+          id?: string
+          last_refill?: string | null
+          max_tokens: number
+          refill_rate?: number
+          tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          bucket_type?: string
+          created_at?: string | null
+          id?: string
+          last_refill?: string | null
+          max_tokens?: number
+          refill_rate?: number
+          tokens?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       recommendation_cache: {
         Row: {
           confidence_score: number
@@ -3484,6 +3517,45 @@ export type Database = {
           start_date?: string
           target_categories?: string[] | null
           title?: string
+        }
+        Relationships: []
+      }
+      security_audit_log: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -4276,6 +4348,15 @@ export type Database = {
       }
       can_view_profile: {
         Args: { profile_user_id: string; viewer_id: string }
+        Returns: boolean
+      }
+      check_rate_limit: {
+        Args: {
+          limit_type: string
+          max_requests?: number
+          target_user_id: string
+          window_seconds?: number
+        }
         Returns: boolean
       }
       cleanup_expired_safe_space_messages: {
