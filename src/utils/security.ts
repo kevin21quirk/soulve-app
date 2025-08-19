@@ -4,12 +4,21 @@
  */
 
 /**
- * Sanitize HTML content to prevent XSS attacks
+ * Enhanced HTML sanitization to prevent XSS attacks
  */
 export const sanitizeHtml = (html: string): string => {
+  if (!html) return '';
+  
+  // Create a temporary div to contain the HTML
   const div = document.createElement('div');
   div.textContent = html;
-  return div.innerHTML;
+  
+  // Remove any remaining HTML entities that could be dangerous
+  return div.innerHTML
+    .replace(/&lt;script/gi, '&amp;lt;script')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .replace(/data:/gi, '');
 };
 
 /**
@@ -33,11 +42,15 @@ export const validateInput = {
   },
 
   /**
-   * Sanitize text content for display
+   * Enhanced text sanitization for display
    */
   text: (text: string): string => {
+    if (!text) return '';
     return text
-      .replace(/[<>'"]/g, '') // Remove potentially dangerous characters
+      .replace(/[<>'"&]/g, '') // Remove potentially dangerous characters
+      .replace(/javascript:/gi, '') // Remove javascript protocol
+      .replace(/on\w+=/gi, '') // Remove event handlers
+      .replace(/data:/gi, '') // Remove data URLs
       .trim()
       .substring(0, 1000); // Limit length
   },
@@ -55,13 +68,55 @@ export const validateInput = {
   },
 
   /**
-   * Sanitize search query
+   * Enhanced search query sanitization
    */
   searchQuery: (query: string): string => {
+    if (!query) return '';
     return query
-      .replace(/[<>'"&]/g, '') // Remove HTML/script injection characters
+      .replace(/[<>'"&;()]/g, '') // Remove dangerous characters
+      .replace(/javascript:/gi, '') // Remove javascript protocol
+      .replace(/data:/gi, '') // Remove data URLs
+      .replace(/vbscript:/gi, '') // Remove vbscript protocol
+      .replace(/--/g, '') // Remove SQL comment markers
+      .replace(/\/\*/g, '') // Remove SQL block comment start
+      .replace(/\*\//g, '') // Remove SQL block comment end
       .trim()
       .substring(0, 100); // Limit search query length
+  },
+
+  /**
+   * Server-side validation for critical operations
+   */
+  serverValidation: {
+    isValidPostContent: (content: string): boolean => {
+      if (!content || content.length > 5000) return false;
+      // Check for suspicious patterns
+      const suspiciousPatterns = [
+        /<script/i,
+        /javascript:/i,
+        /on\w+=/i,
+        /data:text\/html/i,
+        /vbscript:/i
+      ];
+      return !suspiciousPatterns.some(pattern => pattern.test(content));
+    },
+    
+    isValidEmail: (email: string): boolean => {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailRegex.test(email) && email.length <= 254 && !email.includes('..') && !email.startsWith('.') && !email.endsWith('.');
+    },
+    
+    isValidUrl: (url: string): boolean => {
+      try {
+        const urlObj = new URL(url);
+        return ['http:', 'https:'].includes(urlObj.protocol) && 
+               !urlObj.hostname.includes('localhost') &&
+               !urlObj.hostname.startsWith('127.') &&
+               !urlObj.hostname.startsWith('192.168.');
+      } catch {
+        return false;
+      }
+    }
   },
 };
 
