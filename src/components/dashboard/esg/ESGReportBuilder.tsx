@@ -132,19 +132,19 @@ const ESGReportBuilder = () => {
         <TabsList className="grid w-full grid-cols-3 bg-secondary/20">
           <TabsTrigger 
             value="templates"
-            className="text-soulve-teal hover:text-soulve-blue data-[state=active]:bg-gradient-to-r data-[state=active]:from-soulve-teal data-[state=active]:to-soulve-blue data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Templates
           </TabsTrigger>
           <TabsTrigger 
             value="customize"
-            className="text-soulve-teal hover:text-soulve-blue data-[state=active]:bg-gradient-to-r data-[state=active]:from-soulve-teal data-[state=active]:to-soulve-blue data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Customize
           </TabsTrigger>
           <TabsTrigger 
             value="preview"
-            className="text-soulve-teal hover:text-soulve-blue data-[state=active]:bg-gradient-to-r data-[state=active]:from-soulve-teal data-[state=active]:to-soulve-blue data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Preview
           </TabsTrigger>
@@ -191,7 +191,7 @@ const ESGReportBuilder = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-soulve-teal/20">
+                  <div className="mt-4 pt-4 border-t border-gray-200">
                     <div className="flex flex-wrap gap-1">
                       {template.sections.slice(0, 3).map((section) => (
                         <Badge key={section} variant="secondary" className="text-xs">
@@ -260,13 +260,13 @@ const ESGReportBuilder = () => {
                 <div className="space-y-3">
                   {selectedTemplateData.sections.map((section) => (
                     <div key={section} className="flex items-center space-x-3">
-                       <input
-                         type="checkbox"
-                         id={section}
-                         checked={reportData.selectedSections.includes(section)}
-                         onChange={() => handleSectionToggle(section)}
-                         className="rounded border-soulve-teal text-soulve-teal focus:ring-soulve-teal"
-                       />
+                      <input
+                        type="checkbox"
+                        id={section}
+                        checked={reportData.selectedSections.includes(section)}
+                        onChange={() => handleSectionToggle(section)}
+                        className="rounded border-gray-300 text-primary focus:ring-primary"
+                      />
                       <Label htmlFor={section} className="flex-1 cursor-pointer">
                         {section}
                       </Label>
@@ -274,37 +274,37 @@ const ESGReportBuilder = () => {
                   ))}
                 </div>
 
-                 {/* Data Completeness Indicator */}
-                 <div className="mt-6 p-4 bg-gradient-to-r from-soulve-teal/10 to-soulve-blue/10 rounded-lg border border-soulve-teal/30">
-                   <h4 className="font-medium text-soulve-teal mb-2">Data Completeness</h4>
-                   <div className="space-y-2">
-                     <div className="flex justify-between text-sm">
-                       <span className="text-soulve-teal">Environmental Data</span>
-                       <span className="font-medium text-soulve-teal">85%</span>
-                     </div>
-                     <div className="w-full bg-soulve-teal/20 rounded-full h-2">
-                       <div className="bg-soulve-teal h-2 rounded-full" style={{ width: '85%' }}></div>
-                     </div>
-                   </div>
-                   <div className="space-y-2 mt-2">
-                     <div className="flex justify-between text-sm">
-                       <span className="text-soulve-blue">Social Data</span>
-                       <span className="font-medium text-soulve-blue">72%</span>
-                     </div>
-                     <div className="w-full bg-soulve-blue/20 rounded-full h-2">
-                       <div className="bg-soulve-blue h-2 rounded-full" style={{ width: '72%' }}></div>
-                     </div>
-                   </div>
-                   <div className="space-y-2 mt-2">
-                     <div className="flex justify-between text-sm">
-                       <span className="text-soulve-purple">Governance Data</span>
-                       <span className="font-medium text-soulve-purple">90%</span>
-                     </div>
-                     <div className="w-full bg-soulve-purple/20 rounded-full h-2">
-                       <div className="bg-soulve-purple h-2 rounded-full" style={{ width: '90%' }}></div>
-                     </div>
-                   </div>
-                 </div>
+                {/* Data Completeness Indicator */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                  <h4 className="font-medium text-blue-800 mb-2">Data Completeness</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-600">Environmental Data</span>
+                      <span className="font-medium text-blue-800">85%</span>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mt-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-600">Social Data</span>
+                      <span className="font-medium text-blue-800">72%</span>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '72%' }}></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mt-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-600">Governance Data</span>
+                      <span className="font-medium text-blue-800">90%</span>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '90%' }}></div>
+                    </div>
+                  </div>
+                </div>
               </Card>
             </div>
           )}
@@ -328,8 +328,8 @@ const ESGReportBuilder = () => {
 
             {selectedTemplateData && (
               <div className="space-y-6">
-                 {/* Report Header */}
-                 <div className="text-center border-b border-soulve-teal/20 pb-6">
+                {/* Report Header */}
+                <div className="text-center border-b border-gray-200 pb-6">
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     {reportData.title || selectedTemplateData.name}
                   </h1>
@@ -354,26 +354,26 @@ const ESGReportBuilder = () => {
                   <h2 className="text-lg font-semibold mb-3">Report Contents</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {(reportData.selectedSections.length > 0 ? reportData.selectedSections : selectedTemplateData.sections).map((section, index) => (
-                       <div key={section} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-soulve-teal/5 to-soulve-blue/5 rounded border border-soulve-teal/20">
-                         <div className="w-8 h-8 bg-gradient-to-r from-soulve-teal to-soulve-blue rounded-full flex items-center justify-center text-white text-sm font-bold">
-                           {index + 1}
-                         </div>
+                      <div key={section} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-white rounded border">
+                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          {index + 1}
+                        </div>
                         <span className="font-medium">{section}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                 {/* Generation Status */}
-                 <div className="bg-gradient-to-r from-soulve-teal/10 to-soulve-blue/10 border border-soulve-teal/30 rounded-lg p-4">
-                   <div className="flex items-center space-x-2">
-                     <CheckCircle className="h-5 w-5 text-soulve-teal" />
-                     <span className="font-medium text-soulve-teal">Ready to Generate</span>
-                   </div>
-                   <p className="text-soulve-blue text-sm mt-1">
-                     All required data is available. Report can be generated in approximately 5-10 minutes.
-                   </p>
-                 </div>
+                {/* Generation Status */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span className="font-medium text-green-800">Ready to Generate</span>
+                  </div>
+                  <p className="text-green-600 text-sm mt-1">
+                    All required data is available. Report can be generated in approximately 5-10 minutes.
+                  </p>
+                </div>
               </div>
             )}
           </Card>
