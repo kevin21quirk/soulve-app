@@ -129,22 +129,22 @@ const ESGReportBuilder = () => {
       </div>
 
       <Tabs defaultValue="templates" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-3 bg-secondary/20">
           <TabsTrigger 
             value="templates"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Templates
           </TabsTrigger>
           <TabsTrigger 
             value="customize"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Customize
           </TabsTrigger>
           <TabsTrigger 
             value="preview"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+            className="text-gray-600 hover:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Preview
           </TabsTrigger>
