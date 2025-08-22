@@ -2351,6 +2351,36 @@ export type Database = {
           },
         ]
       }
+      message_access_log: {
+        Row: {
+          access_type: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          message_id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          access_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          message_id: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          message_id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_name: string | null
@@ -4346,6 +4376,10 @@ export type Database = {
         Args: { org_id: string }
         Returns: boolean
       }
+      can_access_message: {
+        Args: { message_recipient_id: string; message_sender_id: string }
+        Returns: boolean
+      }
       can_view_profile: {
         Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
@@ -4360,6 +4394,10 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_safe_space_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_message_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
