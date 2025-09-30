@@ -14,6 +14,10 @@ import FindOrganizationsDialog from "@/components/organization/FindOrganizations
 import JoinOrganizationDialog from "@/components/organization/JoinOrganizationDialog";
 import ESGDashboard from "@/components/dashboard/esg/ESGDashboard";
 import BusinessCSRManagement from "@/components/organization/BusinessCSRManagement";
+import TeamManagement from "@/components/organization/TeamManagement";
+import DonorManagement from "@/components/organization/DonorManagement";
+import VolunteerManagement from "@/components/organization/VolunteerManagement";
+import GrantManagement from "@/components/organization/GrantManagement";
 
 interface UserOrganization {
   id: string;
@@ -31,6 +35,7 @@ const OrganizationTab = () => {
   const [loading, setLoading] = useState(true);
   const [selectedToolCategory, setSelectedToolCategory] = useState<string | null>(null);
   const [selectedBusinessTool, setSelectedBusinessTool] = useState<'esg' | 'csr'>('esg');
+  const [selectedCharityTool, setSelectedCharityTool] = useState<'team' | 'donors' | 'volunteers' | 'grants'>('team');
 
   useEffect(() => {
     if (user) {
@@ -143,7 +148,85 @@ const OrganizationTab = () => {
       );
     }
 
-    // For other categories, show organization selection
+    // Charity Tools - Show mini-dashboard with Team, Donors, Volunteers, Grants
+    if (selectedToolCategory === 'charity') {
+      return (
+        <div className="space-y-6">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedToolCategory(null)}
+            size="sm"
+          >
+            ← Back to Organisation Tools
+          </Button>
+          
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={selectedCharityTool === 'team' ? 'default' : 'outline'}
+              onClick={() => setSelectedCharityTool('team')}
+            >
+              Team Management
+            </Button>
+            <Button
+              variant={selectedCharityTool === 'donors' ? 'default' : 'outline'}
+              onClick={() => setSelectedCharityTool('donors')}
+            >
+              Donor Management
+            </Button>
+            <Button
+              variant={selectedCharityTool === 'volunteers' ? 'default' : 'outline'}
+              onClick={() => setSelectedCharityTool('volunteers')}
+            >
+              Volunteer Management
+            </Button>
+            <Button
+              variant={selectedCharityTool === 'grants' ? 'default' : 'outline'}
+              onClick={() => setSelectedCharityTool('grants')}
+            >
+              Grant Management
+            </Button>
+          </div>
+
+          {organizations.length > 0 ? (
+            <>
+              {selectedCharityTool === 'team' && (
+                <TeamManagement organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCharityTool === 'donors' && (
+                <DonorManagement organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCharityTool === 'volunteers' && (
+                <VolunteerManagement organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCharityTool === 'grants' && (
+                <GrantManagement organizationId={organizations[0].organizationId} />
+              )}
+            </>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Organizations Yet
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Create or join a charity organization to access these management tools.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <CreateOrganizationDialog onOrganizationCreated={loadUserOrganizations} />
+                  <FindOrganizationsDialog onOrganizationJoined={loadUserOrganizations} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      );
+    }
+
+    // For civic tools, show organization selection
     return (
       <div className="space-y-6">
         <Button
