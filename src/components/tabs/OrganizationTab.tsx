@@ -25,6 +25,7 @@ const OrganizationTab = () => {
   const [organizations, setOrganizations] = useState<UserOrganization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -103,6 +104,15 @@ const OrganizationTab = () => {
     }
   }
 
+  // Filter organizations based on selected type
+  const filteredOrganizations = selectedFilter
+    ? organizations.filter(org => {
+        // This will need to match against actual organization type from the database
+        // For now, we'll show all orgs until we fetch the full org data with type
+        return true;
+      })
+    : organizations;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -113,11 +123,27 @@ const OrganizationTab = () => {
             Comprehensive tools for charities, businesses, and civic organisations
           </p>
         </div>
+        {selectedFilter && (
+          <Button
+            variant="outline"
+            onClick={() => setSelectedFilter(null)}
+            size="sm"
+          >
+            Clear Filter
+          </Button>
+        )}
       </div>
 
       {/* Tool Categories */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`cursor-pointer hover:shadow-lg transition-all ${
+            selectedFilter === 'charity' 
+              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
+              : ''
+          }`}
+          onClick={() => setSelectedFilter(selectedFilter === 'charity' ? null : 'charity')}
+        >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
@@ -139,7 +165,14 @@ const OrganizationTab = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`cursor-pointer hover:shadow-lg transition-all ${
+            selectedFilter === 'business' 
+              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
+              : ''
+          }`}
+          onClick={() => setSelectedFilter(selectedFilter === 'business' ? null : 'business')}
+        >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
@@ -161,7 +194,14 @@ const OrganizationTab = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`cursor-pointer hover:shadow-lg transition-all ${
+            selectedFilter === 'civic' 
+              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
+              : ''
+          }`}
+          onClick={() => setSelectedFilter(selectedFilter === 'civic' ? null : 'civic')}
+        >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
@@ -196,9 +236,9 @@ const OrganizationTab = () => {
       </div>
 
       {/* Organizations List */}
-      {organizations.length > 0 ? (
+      {filteredOrganizations.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {organizations.map((orgMembership) => (
+          {filteredOrganizations.map((orgMembership) => (
             <Card
               key={orgMembership.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
