@@ -122,13 +122,43 @@ export class RecommendationService {
     return scoreMap[interactionType as keyof typeof scoreMap] || 1;
   }
 
-  // Generate recommendations using the database function
+  // Generate recommendations using AI first, then fallback to database
   static async generateRecommendations(userId: string): Promise<Recommendation[]> {
     try {
       // First sync user preferences to ensure they're up to date
       await this.syncUserPreferences(userId);
 
-      // Call the database function to generate recommendations
+      // Try AI-powered recommendations first
+      try {
+        const { data: aiData, error: aiError } = await supabase.functions.invoke(
+          'ai-recommendations',
+          {
+            body: {
+              userId,
+              userPreferences: await this.getUserPreferences(userId),
+              existingConnections: await this.getExistingConnections(userId)
+            }
+          }
+        );
+
+        if (!aiError && aiData?.recommendations?.length > 0) {
+          console.log('Using AI-powered recommendations');
+          return aiData.recommendations.map((rec: any) => ({
+            id: `${rec.type}-${rec.targetId}`,
+            type: rec.type as any,
+            title: this.generateTitle(rec.type, rec.metadata),
+            description: rec.reasoning,
+            confidence: rec.confidence,
+            reasoning: rec.reasoning,
+            actionLabel: this.getActionLabel(rec.type),
+            data: rec.metadata
+          }));
+        }
+      } catch (aiError) {
+        console.log('AI recommendations unavailable, using database fallback:', aiError);
+      }
+
+      // Fallback to database function
       const { data, error } = await supabase
         .rpc('generate_user_recommendations', { target_user_id: userId });
 
@@ -161,6 +191,23 @@ export class RecommendationService {
       console.error('Error in generateRecommendations:', error);
       return this.getFallbackRecommendations();
     }
+  }
+
+  private static async getUserPreferences(userId: string) {
+    const { data } = await supabase
+      .from('user_preferences')
+      .select('preference_type, preference_value')
+      .eq('user_id', userId);
+    return data || [];
+  }
+
+  private static async getExistingConnections(userId: string) {
+    const { data } = await supabase
+      .from('connections')
+      .select('requester_id, addressee_id')
+      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+      .eq('status', 'accepted');
+    return data || [];
   }
 
   private static generateTitle(type: string, metadata: any): string {

@@ -1,1 +1,13 @@
 project_id = "anuvztvypsihzlbkewci"
+
+[functions.send-waitlist-email]
+verify_jwt = false
+
+[functions.ai-recommendations]
+verify_jwt = true
+
+[functions.ai-campaign-suggestions]
+verify_jwt = true
+
+[functions.ai-esg-insights]
+verify_jwt = true
