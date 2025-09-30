@@ -13,6 +13,7 @@ import CreateOrganizationDialog from "@/components/organization/CreateOrganizati
 import FindOrganizationsDialog from "@/components/organization/FindOrganizationsDialog";
 import JoinOrganizationDialog from "@/components/organization/JoinOrganizationDialog";
 import ESGDashboard from "@/components/dashboard/esg/ESGDashboard";
+import BusinessCSRManagement from "@/components/organization/BusinessCSRManagement";
 
 interface UserOrganization {
   id: string;
@@ -29,6 +30,7 @@ const OrganizationTab = () => {
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedToolCategory, setSelectedToolCategory] = useState<string | null>(null);
+  const [selectedBusinessTool, setSelectedBusinessTool] = useState<'esg' | 'csr'>('esg');
 
   useEffect(() => {
     if (user) {
@@ -85,7 +87,7 @@ const OrganizationTab = () => {
 
   // If a tool category is selected, show the tools view
   if (selectedToolCategory) {
-    // Business Tools - Show ESG Dashboard directly
+    // Business Tools - Show mini-dashboard with ESG and CSR
     if (selectedToolCategory === 'business') {
       return (
         <div className="space-y-6">
@@ -97,7 +99,46 @@ const OrganizationTab = () => {
             ← Back to Organisation Tools
           </Button>
           
-          <ESGDashboard organizations={organizations} />
+          <div className="flex gap-2">
+            <Button
+              variant={selectedBusinessTool === 'esg' ? 'default' : 'outline'}
+              onClick={() => setSelectedBusinessTool('esg')}
+            >
+              ESG Dashboard
+            </Button>
+            <Button
+              variant={selectedBusinessTool === 'csr' ? 'default' : 'outline'}
+              onClick={() => setSelectedBusinessTool('csr')}
+            >
+              CSR Management
+            </Button>
+          </div>
+
+          {selectedBusinessTool === 'esg' && (
+            <ESGDashboard organizations={organizations} />
+          )}
+          
+          {selectedBusinessTool === 'csr' && organizations.length > 0 && (
+            <BusinessCSRManagement organizationId={organizations[0].organizationId} />
+          )}
+          
+          {selectedBusinessTool === 'csr' && organizations.length === 0 && (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Organizations Yet
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Create or join an organization to access CSR Management tools.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <CreateOrganizationDialog onOrganizationCreated={loadUserOrganizations} />
+                  <FindOrganizationsDialog onOrganizationJoined={loadUserOrganizations} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       );
     }
