@@ -31,6 +31,7 @@ import BusinessProductManagement from "./BusinessProductManagement";
 import BusinessEmployeeEngagement from "./BusinessEmployeeEngagement";
 import BusinessCSRManagement from "./BusinessCSRManagement";
 import BusinessPartnershipManagement from "./BusinessPartnershipManagement";
+import ESGDashboard from "@/components/dashboard/esg/ESGDashboard";
 import { OrganizationManagementService } from "@/services/organizationManagementService";
 import { DonorManagementService } from "@/services/donorManagementService";
 import { VolunteerManagementService } from "@/services/volunteerManagementService";
@@ -196,15 +197,61 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="employees">Employees</TabsTrigger>
-          <TabsTrigger value="csr">CSR</TabsTrigger>
-          <TabsTrigger value="partnerships">Partners</TabsTrigger>
-          <TabsTrigger value="grants">Grants</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-9 bg-secondary/20">
+          <TabsTrigger 
+            value="overview"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="team"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Team
+          </TabsTrigger>
+          <TabsTrigger 
+            value="esg"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            ESG
+          </TabsTrigger>
+          <TabsTrigger 
+            value="products"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Products
+          </TabsTrigger>
+          <TabsTrigger 
+            value="employees"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Employees
+          </TabsTrigger>
+          <TabsTrigger 
+            value="csr"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            CSR
+          </TabsTrigger>
+          <TabsTrigger 
+            value="partnerships"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Partners
+          </TabsTrigger>
+          <TabsTrigger 
+            value="grants"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Grants
+          </TabsTrigger>
+          <TabsTrigger 
+            value="analytics"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Analytics
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
@@ -268,6 +315,10 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
 
         <TabsContent value="team" className="mt-4">
           <TeamManagement organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="esg" className="mt-4">
+          <ESGDashboard />
         </TabsContent>
 
         <TabsContent value="products" className="mt-4">

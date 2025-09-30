@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, Users, Settings, Plus } from "lucide-react";
+import { Building, Users, Settings, Plus, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchUserOrganizations } from "@/services/organizationService";
 import OrganizationDashboard from "@/components/organization/OrganizationDashboard";
@@ -108,9 +108,88 @@ const OrganizationTab = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Organizations</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Organisation Tools</h2>
           <p className="text-gray-600">
-            Organizations you're part of and manage
+            Comprehensive tools for charities, businesses, and civic organisations
+          </p>
+        </div>
+      </div>
+
+      {/* Tool Categories */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
+                <Heart className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Charity Tools</h3>
+                <p className="text-sm text-gray-600">NGOs & Nonprofits</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Volunteer management, donor tracking, grant management, and fundraising analytics for charitable organizations.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="text-xs">Volunteers</Badge>
+              <Badge variant="secondary" className="text-xs">Donors</Badge>
+              <Badge variant="secondary" className="text-xs">Grants</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
+                <Building className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Business Tools</h3>
+                <p className="text-sm text-gray-600">Corporate & SMEs</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              ESG reporting, product management, employee engagement, CSR programs, and partnership management for businesses.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="text-xs">ESG</Badge>
+              <Badge variant="secondary" className="text-xs">CSR</Badge>
+              <Badge variant="secondary" className="text-xs">Products</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Civic Tools</h3>
+                <p className="text-sm text-gray-600">Councils & MPs</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Public engagement, policy tracking, citizen services, and community management for civic leaders.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="text-xs">Engagement</Badge>
+              <Badge variant="secondary" className="text-xs">Policy</Badge>
+              <Badge variant="secondary" className="text-xs">Services</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* My Organizations Section */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900">My Organisations</h3>
+          <p className="text-gray-600">
+            Organisations you're part of and manage
           </p>
         </div>
         <JoinOrganizationDialog onOrganizationJoined={loadUserOrganizations} />

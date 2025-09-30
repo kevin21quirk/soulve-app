@@ -9,17 +9,25 @@ const CombinedImpactAnalyticsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Impact & Analytics</h2>
+        <p className="text-gray-600">
+          Track your personal impact and engagement metrics
+        </p>
+      </div>
+
       <Tabs defaultValue="impact" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-2 bg-secondary/20">
           <TabsTrigger 
             value="impact"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
           >
             Impact Dashboard
           </TabsTrigger>
           <TabsTrigger 
             value="analytics"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
           >
             Analytics & Points
           </TabsTrigger>

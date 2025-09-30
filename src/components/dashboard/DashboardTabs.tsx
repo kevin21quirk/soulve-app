@@ -44,7 +44,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
         <CampaignsTab />
       </TabsContent>
 
-      <TabsContent value="organizations" className="space-y-6">
+      <TabsContent value="organisation-tools" className="space-y-6">
         <OrganizationTab />
       </TabsContent>
 
