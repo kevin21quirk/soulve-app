@@ -32,9 +32,26 @@ export const useEnhancedPoints = () => {
         EnhancedPointsService.getUserRedFlags(user.id)
       ]);
 
-      setMetrics(userMetrics);
-      setTrustDomains(domains);
-      setRedFlags(flags);
+      // Use default metrics if none exist
+      setMetrics(userMetrics || {
+        user_id: user.id,
+        impact_score: 0,
+        trust_score: 50,
+        help_provided_count: 0,
+        help_received_count: 0,
+        volunteer_hours: 0,
+        donation_amount: 0,
+        connections_count: 0,
+        response_time_hours: 0,
+        average_rating: 0,
+        red_flag_count: 0,
+        xp_points: 0,
+        decay_applied_count: 0,
+        last_activity_date: null,
+        calculated_at: new Date().toISOString()
+      });
+      setTrustDomains(domains || []);
+      setRedFlags(flags || []);
 
       // Load recent activities
       const { data: activities } = await supabase

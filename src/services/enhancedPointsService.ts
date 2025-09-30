@@ -166,9 +166,13 @@ export class EnhancedPointsService {
       .from('impact_metrics')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error) {
+      console.error('Error fetching user metrics:', error);
+      return null;
+    }
+    
     return data as EnhancedImpactMetrics | null;
   }
 
@@ -180,8 +184,11 @@ export class EnhancedPointsService {
       .eq('user_id', userId)
       .order('domain_score', { ascending: false });
 
-    if (error) throw error;
-    return data as TrustDomain[];
+    if (error) {
+      console.error('Error fetching trust domains:', error);
+      return [];
+    }
+    return data as TrustDomain[] || [];
   }
 
   // Get user's red flags
@@ -193,8 +200,11 @@ export class EnhancedPointsService {
       .eq('status', 'active')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data as RedFlag[];
+    if (error) {
+      console.error('Error fetching red flags:', error);
+      return [];
+    }
+    return data as RedFlag[] || [];
   }
 
   // Submit evidence for an activity

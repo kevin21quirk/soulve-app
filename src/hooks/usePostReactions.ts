@@ -43,6 +43,7 @@ export const usePostReactions = (postId: string) => {
       if (countsError) {
         console.error('Error fetching reaction counts:', countsError);
         setReactions([]);
+        setLoading(false);
         return;
       }
 
@@ -66,8 +67,7 @@ export const usePostReactions = (postId: string) => {
           .eq('reaction_type', reaction.reaction_type);
 
         if (usersError) {
-          console.error('Error fetching reaction users:', usersError);
-          // Continue with just the count data if user details fail
+          console.warn('Could not fetch reaction users, using count only:', usersError.message);
           reactionsWithUsers.push({
             emoji: reaction.reaction_type,
             count: Number(reaction.count),
