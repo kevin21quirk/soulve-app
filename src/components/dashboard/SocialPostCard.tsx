@@ -35,7 +35,6 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   };
 
   const handleReactionSelect = (emoji: string) => {
-    console.log('Reaction selected:', emoji, 'for post:', post.id);
     toggleReaction(emoji);
     if (onReaction) {
       onReaction(post.id, emoji);
@@ -43,10 +42,6 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   };
 
   const handleShare = () => {
-    console.log('SocialPostCard - Share button clicked for post:', post.id);
-    console.log('SocialPostCard - Complete post data:', post);
-    
-    // Ensure we have all required post data with proper fallbacks
     const shareEventData = {
       originalPost: {
         id: post.id || '',
@@ -63,22 +58,15 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
       type: 'share'
     };
     
-    console.log('SocialPostCard - Creating share event with validated data:', shareEventData);
-    
     try {
       const shareEvent = new CustomEvent('sharePost', {
         detail: shareEventData
       });
       
-      console.log('SocialPostCard - Dispatching share event');
       window.dispatchEvent(shareEvent);
-      
-      // Verify event was dispatched
-      console.log('SocialPostCard - Share event dispatched successfully');
-      
-      onShare(); // Keep the original callback for any analytics
+      onShare();
     } catch (error) {
-      console.error('SocialPostCard - Error creating/dispatching share event:', error);
+      // Error handling for share event
     }
   };
 

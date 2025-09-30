@@ -46,8 +46,6 @@ export const RealMessaging = () => {
 
   // Enable real-time updates for messages
   useEffect(() => {
-    console.log('RealMessaging - Setting up real-time message subscriptions');
-    
     const messagesChannel = supabase
       .channel('messages-realtime')
       .on(
@@ -57,9 +55,7 @@ export const RealMessaging = () => {
           schema: 'public',
           table: 'messages'
         },
-        (payload) => {
-          console.log('RealMessaging - Real-time message update:', payload);
-          // Refresh conversations and messages
+        () => {
           refetchConversations();
           if (selectedConversation) {
             refetchMessages();
@@ -69,7 +65,6 @@ export const RealMessaging = () => {
       .subscribe();
 
     return () => {
-      console.log('RealMessaging - Cleaning up real-time message subscriptions');
       supabase.removeChannel(messagesChannel);
     };
   }, [refetchConversations, refetchMessages, selectedConversation]);
@@ -85,7 +80,7 @@ export const RealMessaging = () => {
       });
       setNewMessage("");
     } catch (error) {
-      console.error("Failed to send message:", error);
+      // Error handled by mutation
     }
   };
 

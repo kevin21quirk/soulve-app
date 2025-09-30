@@ -25,8 +25,6 @@ const RealSocialFeed = () => {
 
   // Enhanced real-time updates for posts and campaigns
   useEffect(() => {
-    console.log('RealSocialFeed - Setting up enhanced real-time subscriptions');
-    
     const postsChannel = supabase
       .channel('posts-realtime-feed')
       .on(
@@ -36,10 +34,7 @@ const RealSocialFeed = () => {
           schema: 'public',
           table: 'posts'
         },
-        (payload) => {
-          console.log('RealSocialFeed - Real-time post update:', payload);
-          refreshFeed();
-        }
+        () => refreshFeed()
       )
       .subscribe();
 
@@ -52,10 +47,7 @@ const RealSocialFeed = () => {
           schema: 'public',
           table: 'campaigns'
         },
-        (payload) => {
-          console.log('RealSocialFeed - Real-time campaign update:', payload);
-          refreshFeed();
-        }
+        () => refreshFeed()
       )
       .subscribe();
 
@@ -68,14 +60,10 @@ const RealSocialFeed = () => {
           schema: 'public',
           table: 'post_interactions'
         },
-        (payload) => {
-          console.log('RealSocialFeed - Real-time interaction update:', payload);
-          refreshFeed();
-        }
+        () => refreshFeed()
       )
       .subscribe();
 
-    // Listen for reaction changes
     const reactionsChannel = supabase
       .channel('reactions-realtime-feed')
       .on(
@@ -85,26 +73,17 @@ const RealSocialFeed = () => {
           schema: 'public',
           table: 'post_reactions'
         },
-        (payload) => {
-          console.log('RealSocialFeed - Real-time reaction update:', payload);
-          // Immediate refresh when reactions change for better UX
-          refreshFeed();
-        }
+        () => refreshFeed()
       )
       .subscribe();
 
-    // Listen for custom campaign creation events
-    const handleCampaignCreated = (event: CustomEvent) => {
-      console.log('RealSocialFeed - Campaign created event received:', event.detail);
-      setTimeout(() => {
-        refreshFeed();
-      }, 1000);
+    const handleCampaignCreated = () => {
+      setTimeout(() => refreshFeed(), 1000);
     };
 
     window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
 
     return () => {
-      console.log('RealSocialFeed - Cleaning up enhanced real-time subscriptions');
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(campaignsChannel);
       supabase.removeChannel(interactionsChannel);
@@ -114,15 +93,12 @@ const RealSocialFeed = () => {
   }, [refreshFeed]);
 
   const handlePostCreated = () => {
-    console.log('RealSocialFeed - Post created, refreshing feed and closing create post');
     setShowCreatePost(false);
     refreshFeed();
   };
 
-  const handleReaction = (postId: string, reactionType: string) => {
-    console.log('RealSocialFeed - Reaction handled:', postId, reactionType);
-    // The reaction is handled by usePostReactions hook
-    // This callback is for any additional tracking or analytics
+  const handleReaction = (_postId: string, _reactionType: string) => {
+    // Reaction handled by usePostReactions hook
   };
 
   if (loading && posts.length === 0) {
@@ -226,10 +202,7 @@ const RealSocialFeed = () => {
               key={post.id}
               post={transformSocialPostToFeedPost(post)}
               onLike={() => handleLike(post.id)}
-              onShare={() => {
-                console.log('RealSocialFeed - Share button clicked for post:', post.id);
-                handleShare(post.id);
-              }}
+              onShare={() => handleShare(post.id)}
               onBookmark={() => handleBookmark(post.id)}
               onComment={(content) => handleAddComment(post.id, content)}
               onReaction={handleReaction}
