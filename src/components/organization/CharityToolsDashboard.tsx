@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Users, 
   Heart, 
@@ -213,57 +214,112 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {/* Quick Actions */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Recent Activity</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">New volunteer application received</p>
-                    <span className="text-xs text-muted-foreground ml-auto">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">New donor contribution</p>
-                    <span className="text-xs text-muted-foreground ml-auto">1 day ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">Grant deadline approaching</p>
-                    <span className="text-xs text-muted-foreground ml-auto">3 days ago</span>
-                  </div>
+                <h3 className="font-semibold text-foreground mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <Button 
+                    onClick={() => setActiveTab("team")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Users className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Manage Team</p>
+                      <p className="text-xs text-muted-foreground">Add and invite members</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("volunteers")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <UserPlus className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Volunteers</p>
+                      <p className="text-xs text-muted-foreground">Create opportunities</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("donors")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Heart className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Donors</p>
+                      <p className="text-xs text-muted-foreground">Add and track donors</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("grants")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <FileText className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Grants</p>
+                      <p className="text-xs text-muted-foreground">Manage applications</p>
+                    </div>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Upcoming Deadlines</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-destructive/10 rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">Community Grant Application</p>
-                      <p className="text-sm text-muted-foreground">Due in 5 days</p>
-                    </div>
-                    <Badge variant="destructive">Urgent</Badge>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Recent Activity</h3>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">Volunteer Training Session</p>
-                      <p className="text-sm text-muted-foreground">Due in 2 weeks</p>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">New volunteer application received</p>
+                      <span className="text-xs text-muted-foreground ml-auto">2 hours ago</span>
                     </div>
-                    <Badge variant="secondary">Upcoming</Badge>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">New donor contribution</p>
+                      <span className="text-xs text-muted-foreground ml-auto">1 day ago</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">Grant deadline approaching</p>
+                      <span className="text-xs text-muted-foreground ml-auto">3 days ago</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Upcoming Deadlines</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-destructive/10 rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">Community Grant Application</p>
+                        <p className="text-sm text-muted-foreground">Due in 5 days</p>
+                      </div>
+                      <Badge variant="destructive">Urgent</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">Volunteer Training Session</p>
+                        <p className="text-sm text-muted-foreground">Due in 2 weeks</p>
+                      </div>
+                      <Badge variant="secondary">Upcoming</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 

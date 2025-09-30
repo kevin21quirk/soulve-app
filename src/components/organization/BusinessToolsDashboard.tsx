@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Users, 
   Package, 
@@ -221,57 +222,123 @@ const BusinessToolsDashboard = ({ organizationId, organizationName }: BusinessTo
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {/* Quick Actions */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Recent Activity</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">New product launched successfully</p>
-                    <span className="text-xs text-muted-foreground ml-auto">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">ESG report published</p>
-                    <span className="text-xs text-muted-foreground ml-auto">1 day ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <p className="text-sm text-foreground">New partnership established</p>
-                    <span className="text-xs text-muted-foreground ml-auto">3 days ago</span>
-                  </div>
+                <h3 className="font-semibold text-foreground mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                  <Button 
+                    onClick={() => setActiveTab("team")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Users className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Manage Team</p>
+                      <p className="text-xs text-muted-foreground">Add members</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("esg")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Leaf className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">ESG</p>
+                      <p className="text-xs text-muted-foreground">Track metrics</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("products")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Package className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Products</p>
+                      <p className="text-xs text-muted-foreground">Add products</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("csr")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Target className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">CSR</p>
+                      <p className="text-xs text-muted-foreground">Manage initiatives</p>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab("partnerships")}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 gap-2"
+                  >
+                    <Handshake className="h-5 w-5" />
+                    <div className="text-left">
+                      <p className="font-medium">Partners</p>
+                      <p className="text-xs text-muted-foreground">Add partners</p>
+                    </div>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Upcoming Milestones</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">Q4 ESG Compliance Report</p>
-                      <p className="text-sm text-muted-foreground">Due in 2 weeks</p>
-                    </div>
-                    <Badge variant="secondary">Upcoming</Badge>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Recent Activity</h3>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">Annual CSR Review</p>
-                      <p className="text-sm text-muted-foreground">Due in 1 month</p>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">New product launched successfully</p>
+                      <span className="text-xs text-muted-foreground ml-auto">2 hours ago</span>
                     </div>
-                    <Badge variant="secondary">Scheduled</Badge>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">ESG report published</p>
+                      <span className="text-xs text-muted-foreground ml-auto">1 day ago</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <p className="text-sm text-foreground">New partnership established</p>
+                      <span className="text-xs text-muted-foreground ml-auto">3 days ago</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Upcoming Milestones</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">Q4 ESG Compliance Report</p>
+                        <p className="text-sm text-muted-foreground">Due in 2 weeks</p>
+                      </div>
+                      <Badge variant="secondary">Upcoming</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">Annual CSR Review</p>
+                        <p className="text-sm text-muted-foreground">Due in 1 month</p>
+                      </div>
+                      <Badge variant="secondary">Scheduled</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 
