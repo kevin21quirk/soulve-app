@@ -7,6 +7,8 @@ import { Building, Users, Settings, Plus, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchUserOrganizations } from "@/services/organizationService";
 import OrganizationDashboard from "@/components/organization/OrganizationDashboard";
+import CharityToolsDashboard from "@/components/organization/CharityToolsDashboard";
+import BusinessToolsDashboard from "@/components/organization/BusinessToolsDashboard";
 import CreateOrganizationDialog from "@/components/organization/CreateOrganizationDialog";
 import FindOrganizationsDialog from "@/components/organization/FindOrganizationsDialog";
 import JoinOrganizationDialog from "@/components/organization/JoinOrganizationDialog";
@@ -117,7 +119,6 @@ const OrganizationTab = () => {
                 key={orgMembership.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => {
-                  setSelectedToolCategory(null);
                   setSelectedOrg(orgMembership.organizationId);
                 }}
               >
@@ -186,16 +187,33 @@ const OrganizationTab = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
-              onClick={() => setSelectedOrg(null)}
+              onClick={() => {
+                setSelectedOrg(null);
+                setSelectedToolCategory(null);
+              }}
               size="sm"
             >
-              ← Back to Organisation Tools
+              ← Back to {selectedToolCategory ? `${selectedToolCategory.charAt(0).toUpperCase() + selectedToolCategory.slice(1)} Tools` : 'Organisation Tools'}
             </Button>
           </div>
-          <OrganizationDashboard
-            organizationId={selectedOrg}
-            organizationName={selectedOrgData.organizationName}
-          />
+          
+          {/* Render category-specific dashboard if coming from tool category */}
+          {selectedToolCategory === 'charity' ? (
+            <CharityToolsDashboard
+              organizationId={selectedOrg}
+              organizationName={selectedOrgData.organizationName}
+            />
+          ) : selectedToolCategory === 'business' ? (
+            <BusinessToolsDashboard
+              organizationId={selectedOrg}
+              organizationName={selectedOrgData.organizationName}
+            />
+          ) : (
+            <OrganizationDashboard
+              organizationId={selectedOrg}
+              organizationName={selectedOrgData.organizationName}
+            />
+          )}
         </div>
       );
     }
