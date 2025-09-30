@@ -27,8 +27,6 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
   const { toast } = useToast();
 
   const reportError = useCallback((error: Error, context?: string) => {
-    console.error(`Error ${context ? `in ${context}` : ''}:`, error);
-    
     setErrors(prev => [...prev, { error, context, timestamp: new Date() }]);
     
     toast({

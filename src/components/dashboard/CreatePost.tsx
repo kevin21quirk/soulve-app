@@ -20,44 +20,24 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const [sharedPost, setSharedPost] = useState<any>(null);
 
   const handlePostSubmit = async (data: any) => {
-    console.log('CreatePost - Handling post submission:', data);
-    
     try {
-      const result = await createPost(data);
-      console.log('CreatePost - Post created successfully:', result);
-      
+      await createPost(data);
       setIsExpanded(false);
       setShowModal(false);
-      setSharedPost(null); // Clear shared post after creating
+      setSharedPost(null);
     } catch (error) {
-      console.error('CreatePost - Failed to create post:', error);
+      // Error is handled by useUnifiedPostCreation hook
     }
   };
 
-  // Listen for share events with enhanced debugging and error handling
+  // Listen for share events
   useEffect(() => {
-    console.log('CreatePost - Setting up share event listener');
-    
     const handleShareEvent = (event: CustomEvent) => {
-      console.log('CreatePost - Share event received:', event.detail);
-      
       try {
-        if (!event.detail) {
-          console.warn('CreatePost - No event detail provided');
-          return;
-        }
-
+        if (!event.detail?.originalPost) return;
+        
         const originalPost = event.detail.originalPost;
         
-        if (!originalPost) {
-          console.warn('CreatePost - No original post in share event');
-          return;
-        }
-        
-        console.log('CreatePost - Original post data:', originalPost);
-        console.log('CreatePost - Setting shared post and opening modal');
-        
-        // Ensure we have the correct data structure with safe fallbacks
         const processedPost = {
           id: originalPost.id || '',
           author: originalPost.author || 'Unknown Author',
@@ -69,26 +49,16 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
           tags: Array.isArray(originalPost.tags) ? originalPost.tags : []
         };
         
-        console.log('CreatePost - Processed post data:', processedPost);
         setSharedPost(processedPost);
         setShowModal(true);
       } catch (error) {
-        console.error('CreatePost - Error handling share event:', error);
+        // Silent error handling for share events
       }
     };
 
     window.addEventListener('sharePost', handleShareEvent as EventListener);
-
-    return () => {
-      console.log('CreatePost - Cleaning up share event listener');
-      window.removeEventListener('sharePost', handleShareEvent as EventListener);
-    };
+    return () => window.removeEventListener('sharePost', handleShareEvent as EventListener);
   }, []);
-
-  // Debug modal state changes
-  useEffect(() => {
-    console.log('CreatePost - Modal state changed. showModal:', showModal, 'sharedPost:', sharedPost);
-  }, [showModal, sharedPost]);
 
   if (!user) return null;
 
@@ -106,10 +76,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
             <Button
               variant="outline"
               className="flex-1 justify-start text-gray-500 hover:bg-white/60"
-              onClick={() => {
-                console.log('CreatePost - Manual create post button clicked');
-                setShowModal(true);
-              }}
+              onClick={() => setShowModal(true)}
               disabled={isCreating}
             >
               {isCreating ? "Creating post..." : "What's happening in your community?"}
@@ -117,17 +84,13 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <SocialPostCollapsed onExpand={() => {
-            console.log('CreatePost - Expand button clicked');
-            setShowModal(true);
-          }} />
+          <SocialPostCollapsed onExpand={() => setShowModal(true)} />
         </CardContent>
       </Card>
 
       <CreatePostModal
         isOpen={showModal}
         onClose={() => {
-          console.log('CreatePost - Closing modal and clearing shared post');
           setShowModal(false);
           setSharedPost(null);
         }}

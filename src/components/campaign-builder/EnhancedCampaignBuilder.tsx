@@ -113,8 +113,6 @@ const EnhancedCampaignBuilder = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Creating campaign with enhanced data:', formData);
-
       // Insert campaign into database with explicit active status
       const { data: campaign, error } = await supabase
         .from('campaigns')
@@ -147,12 +145,7 @@ const EnhancedCampaignBuilder = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error creating campaign:', error);
-        throw error;
-      }
-
-      console.log('Campaign created successfully with status:', campaign.status);
+      if (error) throw error;
       
       // Trigger auto-publish to feed with enhanced data
       const campaignUpdate = {
@@ -208,7 +201,6 @@ const EnhancedCampaignBuilder = () => {
       setActiveTab("templates");
       
     } catch (error) {
-      console.error('Error creating campaign:', error);
       toast({
         title: "Error",
         description: "Failed to create campaign. Please try again.",
@@ -224,7 +216,7 @@ const EnhancedCampaignBuilder = () => {
   };
 
   const handleQuickUpdate = () => {
-    console.log("Quick update functionality triggered");
+    // Quick update functionality
   };
 
   const handleBackToTemplates = () => {

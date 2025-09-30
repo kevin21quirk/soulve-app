@@ -16,11 +16,7 @@ export class CampaignOperationsService {
       .eq('status', 'active')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Campaigns fetch error:', error);
-      throw new Error(error.message);
-    }
-
+    if (error) throw new Error(error.message);
     return data || [];
   }
 
@@ -33,11 +29,7 @@ export class CampaignOperationsService {
       .eq('creator_id', this.userId)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('User campaigns fetch error:', error);
-      throw new Error(error.message);
-    }
-
+    if (error) throw new Error(error.message);
     return data || [];
   }
 
@@ -56,10 +48,7 @@ export class CampaignOperationsService {
       .select()
       .single();
 
-    if (error) {
-      console.error('Campaign creation error:', error);
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
     this.showToast({
       title: "Campaign Created",
@@ -85,10 +74,7 @@ export class CampaignOperationsService {
       .select()
       .single();
 
-    if (error) {
-      console.error('Campaign update error:', error);
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
     this.showToast({
       title: "Campaign Updated",
@@ -109,10 +95,7 @@ export class CampaignOperationsService {
       .eq('id', campaignId)
       .eq('creator_id', this.userId);
 
-    if (error) {
-      console.error('Campaign deletion error:', error);
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
     this.showToast({
       title: "Campaign Deleted",

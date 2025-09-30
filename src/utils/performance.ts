@@ -1,16 +1,19 @@
 
 import { useEffect, useState } from "react";
 
-// Performance tracking utility
+// Performance tracking utility (disabled in production)
 export const usePerformanceTracker = (componentName: string) => {
   useEffect(() => {
-    const startTime = performance.now();
-    
-    return () => {
-      const endTime = performance.now();
-      const renderTime = endTime - startTime;
-      console.info(`Performance Metric - ${componentName}_render: ${renderTime.toFixed(2)}ms`);
-    };
+    if (import.meta.env.DEV) {
+      const startTime = performance.now();
+      return () => {
+        const endTime = performance.now();
+        const renderTime = endTime - startTime;
+        if (renderTime > 100) {
+          console.warn(`Slow render - ${componentName}: ${renderTime.toFixed(2)}ms`);
+        }
+      };
+    }
   }, [componentName]);
 };
 
@@ -35,6 +38,5 @@ export const useDebounce = <T>(value: T, delay: number): T => {
 export const performanceMonitor = {
   cleanup: () => {
     // Cleanup function for tests
-    console.log('Performance monitor cleanup');
   }
 };

@@ -20,7 +20,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
       // No user, redirect to auth
       if (!user) {
-        console.log('No authenticated user, redirecting to auth');
         navigate('/auth', { replace: true });
         return;
       }
@@ -36,12 +35,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
         
         if (!completed) {
-          console.log('User has not completed onboarding, redirecting to profile registration');
           navigate('/profile-registration', { replace: true });
           return;
         }
       } catch (error) {
-        console.error('Error checking onboarding status:', error);
         // If error checking onboarding, allow access to dashboard
       }
 

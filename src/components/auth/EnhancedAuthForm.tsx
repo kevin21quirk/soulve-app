@@ -118,16 +118,12 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
     try {
       if (isLogin) {
-        console.log("Attempting login for:", formData.email);
-        
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email.trim(),
           password: formData.password,
         });
 
         if (error) {
-          console.error("Login error:", error);
-          
           // Handle specific auth errors
           if (error.message.includes("Invalid login credentials")) {
             setErrors({ 
@@ -156,7 +152,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
-          console.log("Login successful");
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
@@ -164,8 +159,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           onSuccess();
         }
       } else {
-        console.log("Attempting signup for:", formData.email);
-        
         const { data, error } = await supabase.auth.signUp({
           email: formData.email.trim(),
           password: formData.password,
@@ -180,8 +173,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         });
 
         if (error) {
-          console.error("Signup error:", error);
-          
           if (error.message.includes("User already registered")) {
             setErrors({ email: "An account with this email already exists" });
             toast({
@@ -200,8 +191,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
-          console.log("Signup successful, user created:", data.user.id);
-          
           // Create profile record
           try {
             const { error: profileError } = await supabase
@@ -215,11 +204,10 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
               });
 
             if (profileError) {
-              console.error("Error creating profile:", profileError);
               // Don't fail the entire signup for profile creation error
             }
           } catch (profileError) {
-            console.error("Profile creation error:", profileError);
+            // Silent error handling for profile creation
           }
 
           toast({
@@ -237,7 +225,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
       }
     } catch (error: any) {
-      console.error("Auth error:", error);
       toast({
         title: "Authentication error",
         description: "An unexpected error occurred. Please try again.",
