@@ -25,7 +25,7 @@ const OrganizationTab = () => {
   const [organizations, setOrganizations] = useState<UserOrganization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [selectedToolCategory, setSelectedToolCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -80,6 +80,103 @@ const OrganizationTab = () => {
     );
   }
 
+  // If a tool category is selected, show the tools view
+  if (selectedToolCategory) {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="outline"
+          onClick={() => setSelectedToolCategory(null)}
+          size="sm"
+        >
+          ← Back to Organisation Tools
+        </Button>
+        
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {selectedToolCategory === 'charity' && 'Charity Tools'}
+            {selectedToolCategory === 'business' && 'Business Tools'}
+            {selectedToolCategory === 'civic' && 'Civic Tools'}
+          </h2>
+          <p className="text-gray-600">
+            {selectedToolCategory === 'charity' && 'Tools for NGOs, nonprofits, and charitable organizations'}
+            {selectedToolCategory === 'business' && 'Tools for corporate businesses and SMEs'}
+            {selectedToolCategory === 'civic' && 'Tools for councils, MPs, and civic leaders'}
+          </p>
+        </div>
+
+        {/* Tool-specific Organizations */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {organizations
+            .filter(org => {
+              // Filter based on tool category - for now show all until we have organization_type data
+              return true;
+            })
+            .map((orgMembership) => (
+              <Card
+                key={orgMembership.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  setSelectedToolCategory(null);
+                  setSelectedOrg(orgMembership.organizationId);
+                }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
+                      {selectedToolCategory === 'charity' && <Heart className="h-6 w-6 text-white" />}
+                      {selectedToolCategory === 'business' && <Building className="h-6 w-6 text-white" />}
+                      {selectedToolCategory === 'civic' && <Users className="h-6 w-6 text-white" />}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="font-semibold text-gray-900">
+                          {orgMembership.organizationName}
+                        </h3>
+                        <Badge className={getRoleColor(orgMembership.role)}>
+                          {orgMembership.role}
+                        </Badge>
+                      </div>
+                      
+                      {orgMembership.title && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          {orgMembership.title}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <Building className="h-4 w-4" />
+                        <span>Click to access tools</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          
+          {organizations.length === 0 && (
+            <Card className="lg:col-span-2">
+              <CardContent className="p-8 text-center">
+                <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Organizations Yet
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Create or join a {selectedToolCategory} organization to access these tools.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <CreateOrganizationDialog onOrganizationCreated={loadUserOrganizations} />
+                  <FindOrganizationsDialog onOrganizationJoined={loadUserOrganizations} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // If an organization is selected, show its dashboard
   if (selectedOrg) {
     const selectedOrgData = organizations.find(org => org.organizationId === selectedOrg);
@@ -92,7 +189,7 @@ const OrganizationTab = () => {
               onClick={() => setSelectedOrg(null)}
               size="sm"
             >
-              ← Back to Organizations
+              ← Back to Organisation Tools
             </Button>
           </div>
           <OrganizationDashboard
@@ -104,15 +201,6 @@ const OrganizationTab = () => {
     }
   }
 
-  // Filter organizations based on selected type
-  const filteredOrganizations = selectedFilter
-    ? organizations.filter(org => {
-        // This will need to match against actual organization type from the database
-        // For now, we'll show all orgs until we fetch the full org data with type
-        return true;
-      })
-    : organizations;
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -123,26 +211,13 @@ const OrganizationTab = () => {
             Comprehensive tools for charities, businesses, and civic organisations
           </p>
         </div>
-        {selectedFilter && (
-          <Button
-            variant="outline"
-            onClick={() => setSelectedFilter(null)}
-            size="sm"
-          >
-            Clear Filter
-          </Button>
-        )}
       </div>
 
       {/* Tool Categories */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card 
-          className={`cursor-pointer hover:shadow-lg transition-all ${
-            selectedFilter === 'charity' 
-              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
-              : ''
-          }`}
-          onClick={() => setSelectedFilter(selectedFilter === 'charity' ? null : 'charity')}
+          className="cursor-pointer hover:shadow-lg hover:scale-105 transition-all"
+          onClick={() => setSelectedToolCategory('charity')}
         >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
@@ -166,12 +241,8 @@ const OrganizationTab = () => {
         </Card>
 
         <Card 
-          className={`cursor-pointer hover:shadow-lg transition-all ${
-            selectedFilter === 'business' 
-              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
-              : ''
-          }`}
-          onClick={() => setSelectedFilter(selectedFilter === 'business' ? null : 'business')}
+          className="cursor-pointer hover:shadow-lg hover:scale-105 transition-all"
+          onClick={() => setSelectedToolCategory('business')}
         >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
@@ -195,12 +266,8 @@ const OrganizationTab = () => {
         </Card>
 
         <Card 
-          className={`cursor-pointer hover:shadow-lg transition-all ${
-            selectedFilter === 'civic' 
-              ? 'ring-2 ring-[#0ce4af] shadow-lg' 
-              : ''
-          }`}
-          onClick={() => setSelectedFilter(selectedFilter === 'civic' ? null : 'civic')}
+          className="cursor-pointer hover:shadow-lg hover:scale-105 transition-all"
+          onClick={() => setSelectedToolCategory('civic')}
         >
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
@@ -236,9 +303,9 @@ const OrganizationTab = () => {
       </div>
 
       {/* Organizations List */}
-      {filteredOrganizations.length > 0 ? (
+      {organizations.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredOrganizations.map((orgMembership) => (
+          {organizations.map((orgMembership) => (
             <Card
               key={orgMembership.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
