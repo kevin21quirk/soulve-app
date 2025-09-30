@@ -5,20 +5,20 @@ export class PointsCalculator {
   private static config: PointsSystemConfig = {
     basePointValues: {
       help_completed: 25,
-      emergency_help: 50,
+      emergency_help: 100,
       recurring_help: 35,
       group_help: 40,
-      donation: 10,
-      recurring_donation: 15,
-      fundraiser_created: 30,
-      fundraiser_raised: 5,
-      matching_donation: 20,
-      profile_verification: 15,
-      crb_check: 50,
+      donation: 2,              // Base £1 = 2 points (tiered in enhanced service)
+      recurring_donation: 4,    // Base £1 = 4 points for recurring
+      fundraiser_created: 200,  // Creating campaign now worth 200
+      fundraiser_raised: 2,     // Base £1 = 2 points (tiered in enhanced service)
+      matching_donation: 8,     // Base £1 = 8 points for matching
+      profile_verification: 25,
+      crb_check: 100,
       verification_anniversary: 10,
       positive_feedback: 5,
       user_referral: 20,
-      community_group_created: 40,
+      community_group_created: 75,
       community_event_organized: 60,
       ambassador_activity: 30
     },
@@ -32,55 +32,55 @@ export class PointsCalculator {
     trustLevels: [
       {
         level: "new_user",
-        name: "New User",
+        name: "Basic Member",
         minPoints: 0,
         color: "text-gray-500",
-        benefits: ["Basic platform access", "Limited help requests"]
+        benefits: ["Basic platform access", "Community participation"]
       },
       {
         level: "verified_helper",
         name: "Verified Helper",
         minPoints: 100,
         color: "text-blue-500",
-        benefits: ["Increased limits", "Profile badge", "Priority matching"]
+        benefits: ["Verified badge", "Increased visibility", "Priority matching"]
       },
       {
         level: "trusted_helper",
         name: "Trusted Helper",
         minPoints: 500,
         color: "text-green-500",
-        benefits: ["Unlimited requests", "Mentor access", "Advanced features"]
+        benefits: ["Trust badge", "Advanced features", "Group creation"]
       },
       {
         level: "community_leader",
         name: "Community Leader",
-        minPoints: 1500,
+        minPoints: 1000,
         color: "text-purple-500",
-        benefits: ["Moderation tools", "Group creation", "Featured status"]
+        benefits: ["Leadership badge", "Moderation tools", "Featured status"]
       },
       {
         level: "impact_champion",
         name: "Impact Champion",
-        minPoints: 3000,
+        minPoints: 5000,
         color: "text-yellow-500",
-        benefits: ["All privileges", "Advisory access", "Partnership benefits"]
+        benefits: ["Champion badge", "Advisory access", "Partnership opportunities"]
       }
     ],
     cooldownPeriods: {
       help_completed: 0,
-      emergency_help: 60,
+      emergency_help: 0,          // NO cooldown - emergencies don't wait
       recurring_help: 1440,
       group_help: 0,
-      donation: 0,
-      recurring_donation: 10080,
-      fundraiser_created: 10080,
-      fundraiser_raised: 0,
-      matching_donation: 0,
+      donation: 0,                // NO cooldown - unlimited donations
+      recurring_donation: 0,      // NO cooldown
+      fundraiser_created: 10080,  // 1 week cooldown
+      fundraiser_raised: 0,       // NO cooldown - unlimited fundraising
+      matching_donation: 0,       // NO cooldown
       profile_verification: 0,
-      crb_check: 525600,
+      crb_check: 525600,         // 1 year cooldown
       verification_anniversary: 525600,
       positive_feedback: 60,
-      user_referral: 1440,
+      user_referral: 0,          // NO cooldown - encourage viral growth
       community_group_created: 10080,
       community_event_organized: 1440,
       ambassador_activity: 1440

@@ -102,20 +102,39 @@ export interface EnhancedImpactActivity {
   updated_at: string;
 }
 
-// Enhanced point categories with updated values
+// Enhanced point categories with updated values - REVENUE-FOCUSED SYSTEM
 export const ENHANCED_POINT_VALUES: Record<string, number> = {
-  // Help & Community (10-50 points based on effort/rating)
-  help_completed: 25, // Base value, scaled 10-50
+  // Help & Community Actions
+  help_completed: 25,
   emergency_help: 100,
   recurring_help: 15,
   group_help: 30,
   
-  // Donations (£1 = 1 point base) - NEVER DECAY
-  donation: 1, // Per £1 donated
-  recurring_donation: 1.2, // 20% bonus
-  fundraiser_created: 50,
-  fundraiser_raised: 0.5, // Per £1 raised for others
-  matching_donation: 2, // Double points
+  // Donations - Tiered by Amount (£1 = X points) - NEVER DECAY
+  donation_tier_1: 2,      // £0-£49: £1 = 2 points
+  donation_tier_2: 4,      // £50-£249: £1 = 4 points
+  donation_tier_3: 6,      // £250-£999: £1 = 6 points
+  donation_tier_4: 8,      // £1,000-£4,999: £1 = 8 points
+  donation_tier_5: 10,     // £5,000+: £1 = 10 points
+  
+  // Legacy point values (for backward compatibility)
+  donation: 2,
+  recurring_donation: 4,
+  matching_donation: 8,
+  
+  // Fundraising - High Value Revenue Generation
+  fundraiser_created: 200,              // Creating campaign
+  fundraiser_tier_1: 2,                 // Raising £0-£499: £1 = 2 points
+  fundraiser_tier_2: 3,                 // Raising £500-£2,499: £1 = 3 points
+  fundraiser_tier_3: 4,                 // Raising £2,500-£9,999: £1 = 4 points
+  fundraiser_tier_4: 5,                 // Raising £10,000+: £1 = 5 points
+  fundraiser_raised: 2,                 // Legacy value
+  
+  // Premium Subscriptions - Recurring Revenue
+  premium_monthly: 500,                 // £10/month subscription
+  premium_quarterly: 1800,              // £25/quarter subscription (bonus 200)
+  premium_annual: 7000,                 // £100/year subscription (bonus 1000)
+  premium_vip: 15000,                   // £250/year VIP subscription
   
   // Engagement & Growth (low values for frequency actions)
   weekly_login: 1,
@@ -154,92 +173,119 @@ export const DECAY_EXEMPT_ACTIVITIES = [
 // Enhanced trust tier thresholds
 export const ENHANCED_TRUST_TIERS = [
   {
-    level: 'basic',
     name: 'Basic Member',
     minPoints: 0,
     maxPoints: 99,
     color: 'text-gray-600',
     bgColor: 'bg-gray-100',
-    benefits: [
-      'Access to basic features',
-      'Can request help',
-      'Can participate in discussions'
-    ]
+    borderColor: 'border-gray-300',
+    icon: '🌱',
+    benefits: ['Basic platform access', 'Community participation', 'Help request capability']
   },
   {
-    level: 'verified_helper',
     name: 'Verified Helper',
     minPoints: 100,
     maxPoints: 499,
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
-    benefits: [
-      'Priority in help requests',
-      'Can create fundraisers',
-      'Access to community groups',
-      'Verification badges'
-    ]
+    borderColor: 'border-blue-300',
+    icon: '🤝',
+    benefits: ['Verified badge', 'Increased visibility', 'Priority in matching']
   },
   {
-    level: 'trusted_helper',
     name: 'Trusted Helper',
     minPoints: 500,
     maxPoints: 999,
     color: 'text-green-600',
     bgColor: 'bg-green-100',
-    benefits: [
-      'Can mentor new users',
-      'Access to exclusive events',
-      'Reduced verification requirements',
-      'Priority support'
-    ]
+    borderColor: 'border-green-300',
+    icon: '⭐',
+    benefits: ['Trust badge', 'Advanced features', 'Group creation', 'Event hosting']
   },
   {
-    level: 'community_leader',
     name: 'Community Leader',
     minPoints: 1000,
     maxPoints: 4999,
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
-    benefits: [
-      'Can moderate discussions',
-      'Featured in recommendations',
-      'Access to beta features',
-      'Leadership opportunities'
-    ]
+    borderColor: 'border-purple-300',
+    icon: '👑',
+    benefits: ['Leadership badge', 'Moderation tools', 'Featured profile', 'Campaign priority']
   },
   {
-    level: 'impact_champion',
     name: 'Impact Champion',
     minPoints: 5000,
-    maxPoints: Infinity,
-    color: 'text-gold-600',
+    maxPoints: 19999,
+    color: 'text-yellow-600',
     bgColor: 'bg-yellow-100',
-    benefits: [
-      'Platform ambassador status',
-      'Direct access to team',
-      'Influence platform features',
-      'Speaking opportunities'
-    ]
+    borderColor: 'border-yellow-300',
+    icon: '🏆',
+    benefits: ['Champion badge', 'All features', 'Advisory access', 'Partnership opportunities']
+  },
+  {
+    name: 'Platinum Patron',
+    minPoints: 20000,
+    maxPoints: 49999,
+    color: 'text-cyan-600',
+    bgColor: 'bg-cyan-100',
+    borderColor: 'border-cyan-300',
+    icon: '💎',
+    benefits: ['Platinum badge', 'VIP support', 'Exclusive events', 'Revenue insights', 'Early feature access']
+  },
+  {
+    name: 'Diamond Donor',
+    minPoints: 50000,
+    maxPoints: 99999,
+    color: 'text-pink-600',
+    bgColor: 'bg-pink-100',
+    borderColor: 'border-pink-300',
+    icon: '💍',
+    benefits: ['Diamond badge', 'Dedicated support', 'Strategic partnership', 'Co-branding opportunities', 'Quarterly strategy calls']
+  },
+  {
+    name: 'Legacy Builder',
+    minPoints: 100000,
+    maxPoints: 499999,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-100',
+    borderColor: 'border-amber-300',
+    icon: '🌟',
+    benefits: ['Legacy badge', 'Named recognition', 'Board advisory role', 'Revenue share program', 'Custom features']
+  },
+  {
+    name: 'Visionary Founder',
+    minPoints: 500000,
+    maxPoints: Infinity,
+    color: 'text-rose-600',
+    bgColor: 'bg-rose-100',
+    borderColor: 'border-rose-300',
+    icon: '🚀',
+    benefits: ['Founder badge', 'Permanent recognition', 'Equity opportunities', 'Strategic decision input', 'Lifetime VIP status']
   }
 ];
 
 export interface FraudProtectionConfig {
-  pointBurstThreshold: number; // 300 points/day
-  patternFarmingThreshold: number; // 10 same actions/month
-  decayRate: number; // 5% per 30 days (non-campaign activities only)
-  maxDecay: number; // 50% total cap
-  inactivityPeriod: number; // 30 days
-  evidenceRequiredThreshold: number; // Points value requiring evidence
-  highValueActionThreshold: number; // Points requiring manual review
+  pointBurstThreshold: number;
+  pointBurstThresholdRevenue: number;
+  patternFarmingThreshold: number;
+  rapidSuccessionThreshold: number;
+  decayRate: number;
+  maxDecay: number;
+  inactivityPeriod: number;
+  evidenceRequiredThreshold: number;
+  highValueActionThreshold: number;
+  autoFlagRiskScore: number;
 }
 
 export const DEFAULT_FRAUD_CONFIG: FraudProtectionConfig = {
-  pointBurstThreshold: 300,
-  patternFarmingThreshold: 10,
-  decayRate: 5, // Only applies to non-campaign activities
-  maxDecay: 50,
-  inactivityPeriod: 30,
-  evidenceRequiredThreshold: 50,
-  highValueActionThreshold: 100
+  pointBurstThreshold: 1000,              // Max 1000 points per day (non-revenue)
+  pointBurstThresholdRevenue: Infinity,   // UNLIMITED for donations/fundraising
+  patternFarmingThreshold: 15,            // Max 15 same actions per month (increased)
+  rapidSuccessionThreshold: 20,           // Max 20 actions per hour (increased)
+  decayRate: 5,                           // 5% per 30 days (non-campaign only)
+  maxDecay: 50,                           // 50% total cap
+  inactivityPeriod: 30,                   // 30 days
+  evidenceRequiredThreshold: 100,         // Actions worth 100+ points need evidence
+  highValueActionThreshold: 200,          // 200+ points require manual review
+  autoFlagRiskScore: 8.0                  // Auto-flag if risk score ≥ 8.0
 };

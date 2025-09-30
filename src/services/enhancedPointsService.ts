@@ -81,6 +81,10 @@ export class EnhancedPointsService {
   ): Promise<number> {
     let riskScore = 0;
 
+    // Revenue-generating activities have NO point burst limits
+    const revenueActivities = ['donation', 'recurring_donation', 'fundraiser_raised', 'matching_donation', 'premium_monthly', 'premium_quarterly', 'premium_annual'];
+    const isRevenueActivity = revenueActivities.includes(activityType);
+
     // Check recent activity patterns
     const { data: recentActivities } = await supabase
       .from('impact_activities')
@@ -90,23 +94,36 @@ export class EnhancedPointsService {
       .order('created_at', { ascending: false });
 
     if (recentActivities) {
-      const todayPoints = recentActivities.reduce((sum, act) => sum + act.points_earned, 0);
+      // Separate revenue and non-revenue points
+      const todayRevenuePoints = recentActivities
+        .filter(act => revenueActivities.includes(act.activity_type))
+        .reduce((sum, act) => sum + act.points_earned, 0);
+      
+      const todayNonRevenuePoints = recentActivities
+        .filter(act => !revenueActivities.includes(act.activity_type))
+        .reduce((sum, act) => sum + act.points_earned, 0);
+      
       const sameTypeCount = recentActivities.filter(act => act.activity_type === activityType).length;
       
-      // High points in short time
-      if (todayPoints + points > DEFAULT_FRAUD_CONFIG.pointBurstThreshold) {
+      // Apply point burst detection ONLY to non-revenue activities
+      if (!isRevenueActivity && todayNonRevenuePoints + points > DEFAULT_FRAUD_CONFIG.pointBurstThreshold) {
         riskScore += 8.0;
       }
       
-      // Repetitive actions
-      if (sameTypeCount > 5) {
+      // Repetitive actions (more lenient now)
+      if (sameTypeCount > DEFAULT_FRAUD_CONFIG.patternFarmingThreshold) {
         riskScore += 6.0;
       }
       
-      // Rapid succession
-      if (recentActivities.length > 10) {
+      // Rapid succession (more lenient now)
+      if (recentActivities.length > DEFAULT_FRAUD_CONFIG.rapidSuccessionThreshold) {
         riskScore += 4.0;
       }
+    }
+
+    // Revenue activities get significantly lower risk scores
+    if (isRevenueActivity) {
+      riskScore = riskScore * 0.3; // 70% risk reduction for revenue
     }
 
     return Math.min(riskScore, 10.0);
@@ -223,14 +240,18 @@ export class EnhancedPointsService {
     return data as FraudDetectionLog[];
   }
 
-  // Calculate trust tier from points
+  // Calculate trust tier from points - EXPANDED TIER SYSTEM
   static getTrustTier(points: number) {
     const tiers = [
-      { name: 'Impact Champion', min: 5000, color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
-      { name: 'Community Leader', min: 1000, color: 'text-purple-600', bgColor: 'bg-purple-100' },
-      { name: 'Trusted Helper', min: 500, color: 'text-green-600', bgColor: 'bg-green-100' },
-      { name: 'Verified Helper', min: 100, color: 'text-blue-600', bgColor: 'bg-blue-100' },
-      { name: 'Basic Member', min: 0, color: 'text-gray-600', bgColor: 'bg-gray-100' }
+      { name: 'Visionary Founder', min: 500000, color: 'text-rose-600', bgColor: 'bg-rose-100', icon: '🚀' },
+      { name: 'Legacy Builder', min: 100000, color: 'text-amber-600', bgColor: 'bg-amber-100', icon: '🌟' },
+      { name: 'Diamond Donor', min: 50000, color: 'text-pink-600', bgColor: 'bg-pink-100', icon: '💍' },
+      { name: 'Platinum Patron', min: 20000, color: 'text-cyan-600', bgColor: 'bg-cyan-100', icon: '💎' },
+      { name: 'Impact Champion', min: 5000, color: 'text-yellow-600', bgColor: 'bg-yellow-100', icon: '🏆' },
+      { name: 'Community Leader', min: 1000, color: 'text-purple-600', bgColor: 'bg-purple-100', icon: '👑' },
+      { name: 'Trusted Helper', min: 500, color: 'text-green-600', bgColor: 'bg-green-100', icon: '⭐' },
+      { name: 'Verified Helper', min: 100, color: 'text-blue-600', bgColor: 'bg-blue-100', icon: '🤝' },
+      { name: 'Basic Member', min: 0, color: 'text-gray-600', bgColor: 'bg-gray-100', icon: '🌱' }
     ];
 
     return tiers.find(tier => points >= tier.min) || tiers[tiers.length - 1];
@@ -263,19 +284,33 @@ export class EnhancedPointsService {
     );
   }
 
-  // Award donation points (£1 = 1 point)
+  // Award donation points with TIERED SYSTEM
   static async awardDonationPoints(
     userId: string,
     amount: number,
     isRecurring: boolean = false,
     isMatching: boolean = false
   ): Promise<void> {
-    let pointsPerPound = ENHANCED_POINT_VALUES.donation;
+    // Tiered donation point calculation
+    let pointsPerPound: number;
     
     if (isMatching) {
-      pointsPerPound = ENHANCED_POINT_VALUES.matching_donation;
+      pointsPerPound = ENHANCED_POINT_VALUES.matching_donation; // £1 = 8 points
     } else if (isRecurring) {
-      pointsPerPound = ENHANCED_POINT_VALUES.recurring_donation;
+      pointsPerPound = ENHANCED_POINT_VALUES.recurring_donation; // £1 = 4 points
+    } else {
+      // Tiered system for one-time donations
+      if (amount >= 5000) {
+        pointsPerPound = ENHANCED_POINT_VALUES.donation_tier_5; // £1 = 10 points
+      } else if (amount >= 1000) {
+        pointsPerPound = ENHANCED_POINT_VALUES.donation_tier_4; // £1 = 8 points
+      } else if (amount >= 250) {
+        pointsPerPound = ENHANCED_POINT_VALUES.donation_tier_3; // £1 = 6 points
+      } else if (amount >= 50) {
+        pointsPerPound = ENHANCED_POINT_VALUES.donation_tier_2; // £1 = 4 points
+      } else {
+        pointsPerPound = ENHANCED_POINT_VALUES.donation_tier_1; // £1 = 2 points
+      }
     }
 
     const finalPoints = Math.round(amount * pointsPerPound);
@@ -284,15 +319,82 @@ export class EnhancedPointsService {
       userId,
       isRecurring ? 'recurring_donation' : 'donation',
       finalPoints,
-      `Donated £${amount}${isRecurring ? ' (recurring)' : ''}${isMatching ? ' (matching)' : ''}`,
+      `Donated £${amount}${isRecurring ? ' (recurring)' : ''}${isMatching ? ' (matching)' : ''} - Tier ${pointsPerPound}x`,
       {
         amount,
         is_recurring: isRecurring,
         is_matching: isMatching,
-        points_per_pound: pointsPerPound
+        points_per_pound: pointsPerPound,
+        tier: pointsPerPound
       },
       3,
-      amount >= 100 // Require evidence for donations ≥£100
+      amount >= 500 // Require evidence for donations ≥£500
+    );
+  }
+
+  // Award fundraising points with TIERED SYSTEM
+  static async awardFundraisingPoints(
+    userId: string,
+    amountRaised: number,
+    campaignId: string
+  ): Promise<void> {
+    // Tiered fundraising point calculation
+    let pointsPerPound: number;
+    
+    if (amountRaised >= 10000) {
+      pointsPerPound = ENHANCED_POINT_VALUES.fundraiser_tier_4; // £1 = 5 points
+    } else if (amountRaised >= 2500) {
+      pointsPerPound = ENHANCED_POINT_VALUES.fundraiser_tier_3; // £1 = 4 points
+    } else if (amountRaised >= 500) {
+      pointsPerPound = ENHANCED_POINT_VALUES.fundraiser_tier_2; // £1 = 3 points
+    } else {
+      pointsPerPound = ENHANCED_POINT_VALUES.fundraiser_tier_1; // £1 = 2 points
+    }
+
+    const finalPoints = Math.round(amountRaised * pointsPerPound);
+
+    await this.awardPoints(
+      userId,
+      'fundraiser_raised',
+      finalPoints,
+      `Raised £${amountRaised} for campaign - Tier ${pointsPerPound}x`,
+      {
+        amount_raised: amountRaised,
+        campaign_id: campaignId,
+        points_per_pound: pointsPerPound,
+        tier: pointsPerPound
+      },
+      5, // High effort level for fundraising
+      amountRaised >= 1000 // Require evidence for £1000+
+    );
+  }
+
+  // Award premium subscription points
+  static async awardPremiumSubscriptionPoints(
+    userId: string,
+    subscriptionType: 'monthly' | 'quarterly' | 'annual' | 'vip',
+    subscriptionId: string
+  ): Promise<void> {
+    const pointsMap = {
+      monthly: ENHANCED_POINT_VALUES.premium_monthly,      // 500 points
+      quarterly: ENHANCED_POINT_VALUES.premium_quarterly,  // 1800 points
+      annual: ENHANCED_POINT_VALUES.premium_annual,        // 7000 points
+      vip: ENHANCED_POINT_VALUES.premium_vip               // 15000 points
+    };
+
+    const points = pointsMap[subscriptionType];
+
+    await this.awardPoints(
+      userId,
+      `premium_${subscriptionType}`,
+      points,
+      `Premium ${subscriptionType} subscription activated`,
+      {
+        subscription_type: subscriptionType,
+        subscription_id: subscriptionId
+      },
+      5, // High effort/value
+      false // No evidence needed - verified by payment
     );
   }
 }
