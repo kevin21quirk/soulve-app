@@ -18,6 +18,10 @@ import TeamManagement from "@/components/organization/TeamManagement";
 import DonorManagement from "@/components/organization/DonorManagement";
 import VolunteerManagement from "@/components/organization/VolunteerManagement";
 import GrantManagement from "@/components/organization/GrantManagement";
+import PublicEngagement from "@/components/organization/PublicEngagement";
+import PolicyTracking from "@/components/organization/PolicyTracking";
+import CitizenServices from "@/components/organization/CitizenServices";
+import CommunityManagement from "@/components/organization/CommunityManagement";
 
 interface UserOrganization {
   id: string;
@@ -36,6 +40,7 @@ const OrganizationTab = () => {
   const [selectedToolCategory, setSelectedToolCategory] = useState<string | null>(null);
   const [selectedBusinessTool, setSelectedBusinessTool] = useState<'esg' | 'csr'>('esg');
   const [selectedCharityTool, setSelectedCharityTool] = useState<'team' | 'donors' | 'volunteers' | 'grants'>('team');
+  const [selectedCivicTool, setSelectedCivicTool] = useState<'engagement' | 'policy' | 'services' | 'community'>('engagement');
 
   useEffect(() => {
     if (user) {
@@ -226,7 +231,85 @@ const OrganizationTab = () => {
       );
     }
 
-    // For civic tools, show organization selection
+    // Civic Tools - Show mini-dashboard with Engagement, Policy, Services, Community
+    if (selectedToolCategory === 'civic') {
+      return (
+        <div className="space-y-6">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedToolCategory(null)}
+            size="sm"
+          >
+            ← Back to Organisation Tools
+          </Button>
+          
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={selectedCivicTool === 'engagement' ? 'default' : 'outline'}
+              onClick={() => setSelectedCivicTool('engagement')}
+            >
+              Public Engagement
+            </Button>
+            <Button
+              variant={selectedCivicTool === 'policy' ? 'default' : 'outline'}
+              onClick={() => setSelectedCivicTool('policy')}
+            >
+              Policy Tracking
+            </Button>
+            <Button
+              variant={selectedCivicTool === 'services' ? 'default' : 'outline'}
+              onClick={() => setSelectedCivicTool('services')}
+            >
+              Citizen Services
+            </Button>
+            <Button
+              variant={selectedCivicTool === 'community' ? 'default' : 'outline'}
+              onClick={() => setSelectedCivicTool('community')}
+            >
+              Community Management
+            </Button>
+          </div>
+
+          {organizations.length > 0 ? (
+            <>
+              {selectedCivicTool === 'engagement' && (
+                <PublicEngagement organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCivicTool === 'policy' && (
+                <PolicyTracking organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCivicTool === 'services' && (
+                <CitizenServices organizationId={organizations[0].organizationId} />
+              )}
+              
+              {selectedCivicTool === 'community' && (
+                <CommunityManagement organizationId={organizations[0].organizationId} />
+              )}
+            </>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Organizations Yet
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Create or join a civic organization to access these management tools.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <CreateOrganizationDialog onOrganizationCreated={loadUserOrganizations} />
+                  <FindOrganizationsDialog onOrganizationJoined={loadUserOrganizations} />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      );
+    }
+
+    // For other categories (fallback)
     return (
       <div className="space-y-6">
         <Button
@@ -239,23 +322,16 @@ const OrganizationTab = () => {
         
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {selectedToolCategory === 'charity' && 'Charity Tools'}
-            {selectedToolCategory === 'civic' && 'Civic Tools'}
+            Organisation Tools
           </h2>
           <p className="text-gray-600">
-            {selectedToolCategory === 'charity' && 'Tools for NGOs, nonprofits, and charitable organizations'}
-            {selectedToolCategory === 'civic' && 'Tools for councils, MPs, and civic leaders'}
+            Select an organization to manage
           </p>
         </div>
 
         {/* Tool-specific Organizations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {organizations
-            .filter(org => {
-              // Filter based on tool category - for now show all until we have organization_type data
-              return true;
-            })
-            .map((orgMembership) => (
+          {organizations.map((orgMembership) => (
               <Card
                 key={orgMembership.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
@@ -266,8 +342,7 @@ const OrganizationTab = () => {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
-                      {selectedToolCategory === 'charity' && <Heart className="h-6 w-6 text-white" />}
-                      {selectedToolCategory === 'civic' && <Users className="h-6 w-6 text-white" />}
+                      <Building className="h-6 w-6 text-white" />
                     </div>
                     
                     <div className="flex-1">
