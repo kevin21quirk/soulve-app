@@ -12,6 +12,7 @@ import BusinessToolsDashboard from "@/components/organization/BusinessToolsDashb
 import CreateOrganizationDialog from "@/components/organization/CreateOrganizationDialog";
 import FindOrganizationsDialog from "@/components/organization/FindOrganizationsDialog";
 import JoinOrganizationDialog from "@/components/organization/JoinOrganizationDialog";
+import ESGDashboard from "@/components/dashboard/esg/ESGDashboard";
 
 interface UserOrganization {
   id: string;
@@ -84,6 +85,24 @@ const OrganizationTab = () => {
 
   // If a tool category is selected, show the tools view
   if (selectedToolCategory) {
+    // Business Tools - Show ESG Dashboard directly
+    if (selectedToolCategory === 'business') {
+      return (
+        <div className="space-y-6">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedToolCategory(null)}
+            size="sm"
+          >
+            ← Back to Organisation Tools
+          </Button>
+          
+          <ESGDashboard organizations={organizations} />
+        </div>
+      );
+    }
+
+    // For other categories, show organization selection
     return (
       <div className="space-y-6">
         <Button
@@ -97,12 +116,10 @@ const OrganizationTab = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {selectedToolCategory === 'charity' && 'Charity Tools'}
-            {selectedToolCategory === 'business' && 'Business Tools'}
             {selectedToolCategory === 'civic' && 'Civic Tools'}
           </h2>
           <p className="text-gray-600">
             {selectedToolCategory === 'charity' && 'Tools for NGOs, nonprofits, and charitable organizations'}
-            {selectedToolCategory === 'business' && 'Tools for corporate businesses and SMEs'}
             {selectedToolCategory === 'civic' && 'Tools for councils, MPs, and civic leaders'}
           </p>
         </div>
@@ -126,7 +143,6 @@ const OrganizationTab = () => {
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg flex items-center justify-center">
                       {selectedToolCategory === 'charity' && <Heart className="h-6 w-6 text-white" />}
-                      {selectedToolCategory === 'business' && <Building className="h-6 w-6 text-white" />}
                       {selectedToolCategory === 'civic' && <Users className="h-6 w-6 text-white" />}
                     </div>
                     

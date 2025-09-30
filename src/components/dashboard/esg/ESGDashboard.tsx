@@ -3,8 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BarChart3, FileText, Settings, Download, RefreshCw } from "lucide-react";
+import { BarChart3, FileText, Settings, Download, RefreshCw, Building } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   useESGScore, 
   useESGComplianceStatus, 
@@ -27,9 +34,24 @@ import ESGReportBuilder from "./ESGReportBuilder";
 import AIInsightsDashboard from "./AIInsightsDashboard";
 import StakeholderPortal from "./StakeholderPortal";
 
-const ESGDashboard = () => {
+interface Organization {
+  id: string;
+  organizationId: string;
+  organizationName: string;
+  role: string;
+  title?: string;
+  isCurrent: boolean;
+}
+
+interface ESGDashboardProps {
+  organizations?: Organization[];
+}
+
+const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   const { user } = useAuth();
-  const [selectedOrganizationId] = useState("demo-org-id"); // In real app, get from context or props
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState<string>(
+    organizations.length > 0 ? organizations[0].organizationId : "demo-org-id"
+  );
   const [refreshing, setRefreshing] = useState(false);
 
   // Use mock data for now - replace with real queries when organization data is available
@@ -55,8 +77,8 @@ const ESGDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex-1">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             ESG Analytics Dashboard
           </h1>
@@ -65,6 +87,21 @@ const ESGDashboard = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
+          {organizations.length > 0 && (
+            <Select value={selectedOrganizationId} onValueChange={setSelectedOrganizationId}>
+              <SelectTrigger className="w-[250px]">
+                <Building className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Select organization" />
+              </SelectTrigger>
+              <SelectContent>
+                {organizations.map((org) => (
+                  <SelectItem key={org.organizationId} value={org.organizationId}>
+                    {org.organizationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
             <BarChart3 className="h-3 w-3 mr-1" />
             Enterprise Grade
