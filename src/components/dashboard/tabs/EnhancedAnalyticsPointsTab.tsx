@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import EnhancedAnalyticsDashboard from "../EnhancedAnalyticsDashboard";
 import EnhancedGamificationPanel from "../EnhancedGamificationPanel";
-import ESGDashboard from "../esg/ESGDashboard";
 import MobileAnalyticsPoints from "../../mobile/MobileAnalyticsPoints";
 import EnhancedPointsDisplay from "../../enhanced-points/EnhancedPointsDisplay";
 import FraudProtectionAlert from "../../enhanced-points/FraudProtectionAlert";
@@ -27,18 +26,12 @@ const EnhancedAnalyticsPointsTab = () => {
       <FraudProtectionAlert />
       
       <Tabs defaultValue="enhanced-points" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100">
           <TabsTrigger 
             value="enhanced-points"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
           >
             Points & Trust
-          </TabsTrigger>
-          <TabsTrigger 
-            value="esg"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            ESG Analytics
           </TabsTrigger>
           <TabsTrigger 
             value="gamification"
@@ -56,10 +49,6 @@ const EnhancedAnalyticsPointsTab = () => {
 
         <TabsContent value="enhanced-points" className="mt-6">
           <EnhancedPointsDisplay />
-        </TabsContent>
-
-        <TabsContent value="esg" className="mt-6">
-          <ESGDashboard />
         </TabsContent>
 
         <TabsContent value="gamification" className="mt-6">
