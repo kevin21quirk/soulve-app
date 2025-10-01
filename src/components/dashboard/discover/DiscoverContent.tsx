@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { formatDistanceToNow } from "date-fns";
+import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
 
 const DiscoverContent = () => {
   const [localQuery, setLocalQuery] = useState("");
@@ -293,10 +294,7 @@ const DiscoverContent = () => {
         {/* Search Results */}
         <div className="space-y-4">
           {isLoading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-500 mt-2">Searching content...</p>
-            </div>
+            <EnhancedLoadingState message="Searching content..." />
           )}
 
           {!isLoading && searchResults.length === 0 && filters.query && (

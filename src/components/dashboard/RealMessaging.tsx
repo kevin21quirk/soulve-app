@@ -10,6 +10,7 @@ import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
 
 export const RealMessaging = () => {
   const { user } = useAuth();
@@ -121,8 +122,8 @@ export const RealMessaging = () => {
     return (
       <div className="grid lg:grid-cols-3 gap-6 h-[600px]">
         <Card>
-          <CardContent className="p-6 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+          <CardContent className="p-6">
+            <EnhancedLoadingState message="Loading conversations..." />
           </CardContent>
         </Card>
       </div>
@@ -309,9 +310,7 @@ export const RealMessaging = () => {
             <CardContent className="flex-1 overflow-hidden p-0">
               <ScrollArea className="h-[400px] p-4">
                 {messagesLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
-                  </div>
+                  <EnhancedLoadingState size="sm" message="Loading messages..." />
                 ) : messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full text-gray-500">
                     <p>No messages yet. Start the conversation!</p>
