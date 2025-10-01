@@ -168,8 +168,8 @@ const PostStoryUpdater = ({ postId, postTitle, onUpdateAdded }: PostStoryUpdater
 
     setLoading(true);
     try {
-      // TODO: Upload media file to storage if present
-      const mediaUrl = mediaFile ? '' : undefined; // Will implement media upload later
+      // Media upload will be integrated with storage service when implementing full media management
+      const mediaUrl = mediaFile ? '' : undefined;
       const mediaType = mediaFile?.type.startsWith('video/') ? 'video' : 'image';
 
       const statsData = {

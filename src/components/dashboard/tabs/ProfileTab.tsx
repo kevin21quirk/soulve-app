@@ -14,10 +14,6 @@ const ProfileTab = () => {
   // Check if current user is admin (Matthew Walker)
   const isAdmin = user?.id === 'f13567a6-7606-48ef-9333-dd661199eaf1';
 
-  // Debug log to see what profile data we're getting
-  console.log("ProfileTab - Current user:", user);
-  console.log("ProfileTab - Is admin:", isAdmin);
-
   return (
     <div className="space-y-6">
       {/* Admin Panel - Only visible to admin with collapse functionality */}

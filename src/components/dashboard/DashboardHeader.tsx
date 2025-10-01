@@ -37,7 +37,7 @@ const DashboardHeader = ({
   const isMobile = useIsMobile();
 
   const handleSearchSubmit = (query: string) => {
-    console.log("Search query:", query);
+    // Search handled by EnhancedSearchBar component
   };
 
   const handleNotificationClick = () => {

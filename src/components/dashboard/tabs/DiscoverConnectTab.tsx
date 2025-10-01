@@ -13,8 +13,7 @@ const DiscoverConnectTab = () => {
   };
 
   const handleMessage = (userId: string) => {
-    // TODO: Navigate to messaging with this user
-    console.log('Message user:', userId);
+    navigate('/dashboard?tab=messages');
   };
 
   return (

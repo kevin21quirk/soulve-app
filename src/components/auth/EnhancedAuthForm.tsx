@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 interface EnhancedAuthFormProps {
   isLogin: boolean;
@@ -29,6 +30,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
     score: 0,
     feedback: ""
   });
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -115,26 +117,14 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
     }
 
     setIsLoading(true);
-    console.log('🔐 Starting authentication...', { isLogin, email: formData.email });
-
     try {
       if (isLogin) {
-        console.log('📧 Attempting sign in...');
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error} = await supabase.auth.signInWithPassword({
           email: formData.email.trim(),
           password: formData.password,
         });
 
-        console.log('🔍 Login response:', { 
-          hasData: !!data, 
-          hasUser: !!data?.user, 
-          hasError: !!error,
-          errorMessage: error?.message,
-          errorStatus: error?.status 
-        });
-
         if (error) {
-          console.error('❌ Login error:', error);
           
           // Check for connection/service errors
           const isConnectionError = 
@@ -178,7 +168,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
-          console.log('✅ Login successful:', { userId: data.user.id, email: data.user.email });
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
@@ -186,15 +175,9 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           onSuccess();
         }
       } else {
-        // Signup flow
-        console.log('📝 Attempting sign up...');
-        
-        // Use the current origin for redirect
         const redirectUrl = window.location.origin.includes('lovable') 
           ? `${window.location.origin}/#/dashboard`
           : `${window.location.origin}/dashboard`;
-        
-        console.log('🔗 Email redirect URL:', redirectUrl);
 
         const { data, error } = await supabase.auth.signUp({
           email: formData.email.trim(),
@@ -209,15 +192,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           }
         });
 
-        console.log('🔍 Signup response:', { 
-          hasData: !!data, 
-          hasUser: !!data?.user, 
-          hasError: !!error,
-          errorMessage: error?.message 
-        });
-
         if (error) {
-          console.error('❌ Signup error:', error);
           
           const isConnectionError = 
             error.message?.includes('upstream') || 
@@ -250,8 +225,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
-          console.log('✅ Signup successful:', { userId: data.user.id, email: data.user.email });
-          
           toast({
             title: "Account created!",
             description: "Please check your email to verify your account, then you'll be added to our waitlist for approval."
@@ -267,7 +240,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
       }
     } catch (error: any) {
-      console.error('💥 Unexpected authentication error:', error);
       
       // Check for network/connection errors
       const isNetworkError = 
@@ -456,18 +428,18 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
             type="button"
             variant="link"
             className="text-sm text-teal-600 hover:text-teal-700"
-            onClick={() => {
-              // TODO: Implement forgot password functionality
-              toast({
-                title: "Password reset",
-                description: "Password reset functionality will be available soon."
-              });
-            }}
+            onClick={() => setShowForgotPassword(true)}
           >
             Forgot your password?
           </Button>
         </div>
       )}
+
+      <ForgotPasswordModal
+        open={showForgotPassword}
+        onOpenChange={setShowForgotPassword}
+        onBackToLogin={() => setShowForgotPassword(false)}
+      />
     </form>
   );
 };

@@ -24,8 +24,6 @@ const UserProfileBanner = ({
   const displayBanner = bannerFile ? bannerFile.preview : banner;
   const displayBannerType = bannerFile ? bannerFile.type : bannerType;
 
-  console.log('Banner debug:', { banner, bannerType, displayBanner, displayBannerType, isEditing });
-
   if (isEditing) {
     return (
       <div className="space-y-4">

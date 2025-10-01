@@ -48,8 +48,7 @@ const EnhancedSocialFeed = () => {
   };
 
   const handlePostCreated = () => {
-    console.log('Post created, refreshing feed');
-    refetch(); // Refresh the posts when a new one is created
+    refetch();
   };
 
   const handleLike = async (postId: string) => {
@@ -66,10 +65,7 @@ const EnhancedSocialFeed = () => {
         postId,
         interactionType: 'like'
       });
-      
-      console.log('Like interaction completed');
     } catch (error) {
-      console.error('Error liking post:', error);
       // Revert optimistic update on error
       revertOptimisticUpdate();
     }
@@ -99,10 +95,7 @@ const EnhancedSocialFeed = () => {
         interactionType: 'comment',
         content
       });
-      
-      console.log('Comment added successfully');
     } catch (error) {
-      console.error('Error commenting on post:', error);
       // Revert optimistic update on error
       revertOptimisticUpdate();
     }

@@ -70,8 +70,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   };
 
   const handleExportReport = () => {
-    // Implement ESG report export functionality
-    console.log("Exporting ESG report...");
+    // Export functionality will be implemented with full report builder
   };
 
   return (

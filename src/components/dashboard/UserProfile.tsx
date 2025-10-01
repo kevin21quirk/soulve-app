@@ -18,7 +18,6 @@ const UserProfile = () => {
   const [showPointsDetails, setShowPointsDetails] = useState(false);
 
   const handleViewPointsDetails = () => {
-    console.log("Trust score button clicked - showing points details");
     setShowPointsDetails(true);
     toast({
       title: "Points Breakdown",
