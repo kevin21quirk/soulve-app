@@ -25,12 +25,10 @@ export const useMessages = (userId: string | undefined) => {
     if (!userId) return;
 
     if (loadingRef.current[partnerId] && !forceReload) {
-      console.log('Already loading messages for:', partnerId);
       return;
     }
 
     if (!forceReload && messages[partnerId]?.length > 0) {
-      console.log('Using cached messages for:', partnerId);
       return;
     }
 
@@ -38,7 +36,6 @@ export const useMessages = (userId: string | undefined) => {
     setConversationError(partnerId, null);
 
     try {
-      console.log('Loading messages between:', userId, 'and', partnerId);
       
       const { data, error } = await supabase
         .from('messages')
@@ -51,8 +48,6 @@ export const useMessages = (userId: string | undefined) => {
         throw new Error(`Failed to load messages: ${error.message}`);
       }
 
-      console.log('Loaded messages for conversation:', data?.length || 0);
-      
       const convertedMessages = (data || []).map(msg => convertToMessage(msg));
       
       setMessages(prev => ({
@@ -66,7 +61,6 @@ export const useMessages = (userId: string | undefined) => {
         .map(msg => msg.id);
 
       if (unreadMessages.length > 0) {
-        console.log('Marking messages as read:', unreadMessages.length);
         const { error: updateError } = await supabase
           .from('messages')
           .update({ is_read: true })
@@ -123,8 +117,6 @@ export const useMessages = (userId: string | undefined) => {
     }));
 
     try {
-      console.log('Sending message from', userId, 'to', recipientId, ':', content);
-      
       const messageData: any = {
         sender_id: userId,
         recipient_id: recipientId,
@@ -150,8 +142,6 @@ export const useMessages = (userId: string | undefined) => {
         console.error('Error inserting message:', error);
         throw new Error(`Failed to send message: ${error.message}`);
       }
-
-      console.log('Message sent successfully:', data);
 
       // Replace optimistic message with real one
       const convertedMessage = convertToMessage(data);

@@ -38,7 +38,6 @@ const Dashboard = () => {
         setHasCompletedOnboarding(completed);
 
         if (!completed) {
-          console.log('User has not completed onboarding, redirecting to profile registration');
           navigate('/profile-registration', { replace: true });
           return;
         }

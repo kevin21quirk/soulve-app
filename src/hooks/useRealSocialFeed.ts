@@ -35,8 +35,6 @@ export const useRealSocialFeed = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      console.log('useRealSocialFeed - Fetching posts and campaigns...');
-      
       // Fetch both posts and campaigns with enhanced filtering
       const [postsResult, campaignsResult] = await Promise.all([
         supabase
@@ -64,15 +62,10 @@ export const useRealSocialFeed = () => {
       const postsData = postsResult.data || [];
       const campaignsData = campaignsResult.data || [];
 
-      console.log('useRealSocialFeed - Raw posts data:', postsData);
-      console.log('useRealSocialFeed - Raw campaigns data:', campaignsData);
-
       // Get unique author IDs from both posts and campaigns
       const postAuthorIds = postsData.map(post => post.author_id);
       const campaignAuthorIds = campaignsData.map(campaign => campaign.creator_id);
       const authorIds = [...new Set([...postAuthorIds, ...campaignAuthorIds])];
-
-      console.log('useRealSocialFeed - Author IDs:', authorIds);
 
       // Fetch profiles for these authors
       let profilesData = [];
@@ -88,8 +81,6 @@ export const useRealSocialFeed = () => {
           profilesData = profiles || [];
         }
       }
-
-      console.log('useRealSocialFeed - Profiles data:', profilesData);
 
       // Create a profiles map for quick lookup
       const profilesMap = new Map();
@@ -197,10 +188,6 @@ export const useRealSocialFeed = () => {
       const allPosts = [...transformedPosts, ...transformedCampaigns].sort((a, b) => 
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
-
-      console.log('useRealSocialFeed - Final combined posts:', allPosts);
-      console.log('useRealSocialFeed - Active campaigns in feed:', transformedCampaigns.filter(c => c.status === 'active').length);
-      console.log('useRealSocialFeed - Draft campaigns in feed:', transformedCampaigns.filter(c => c.status === 'draft').length);
       
       setPosts(allPosts);
     } catch (error: any) {
@@ -217,7 +204,6 @@ export const useRealSocialFeed = () => {
   }, [toast, user]);
 
   const refreshFeed = useCallback(() => {
-    console.log('useRealSocialFeed - Manual refresh triggered');
     setRefreshing(true);
     fetchPosts();
   }, [fetchPosts]);
@@ -227,8 +213,6 @@ export const useRealSocialFeed = () => {
     if (!user) return;
 
     try {
-      console.log('useRealSocialFeed - Liking post:', postId);
-      
       // Extract actual post ID if it's a campaign
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
       
@@ -413,8 +397,6 @@ export const useRealSocialFeed = () => {
   // Enhanced real-time subscription with better campaign handling
   useEffect(() => {
     if (!user) return;
-
-    console.log('useRealSocialFeed - Setting up enhanced real-time subscription');
     
     const postsChannel = supabase
       .channel('posts-realtime-enhanced')
@@ -422,8 +404,7 @@ export const useRealSocialFeed = () => {
         event: '*',
         schema: 'public',
         table: 'posts'
-      }, (payload) => {
-        console.log('useRealSocialFeed - Real-time post update received:', payload);
+      }, () => {
         fetchPosts();
       })
       .subscribe();
@@ -434,15 +415,13 @@ export const useRealSocialFeed = () => {
         event: '*',
         schema: 'public',
         table: 'campaigns'
-      }, (payload) => {
-        console.log('useRealSocialFeed - Real-time campaign update received:', payload);
+      }, () => {
         // Immediate refresh when campaigns change
         fetchPosts();
       })
       .subscribe();
 
     return () => {
-      console.log('useRealSocialFeed - Cleaning up enhanced real-time subscription');
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(campaignsChannel);
     };
@@ -451,7 +430,6 @@ export const useRealSocialFeed = () => {
   // Initial fetch
   useEffect(() => {
     if (user) {
-      console.log('useRealSocialFeed - Initial fetch for user:', user.id);
       fetchPosts();
     }
   }, [user, fetchPosts]);

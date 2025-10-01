@@ -28,8 +28,6 @@ export const useRealtimeSubscription = ({
     if (!userId) return;
 
     const setupRealtimeSubscription = () => {
-      console.log('Setting up real-time subscription for user:', userId);
-
       // Clean up existing channel
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
@@ -46,8 +44,6 @@ export const useRealtimeSubscription = ({
             filter: `recipient_id=eq.${userId}`
           },
           (payload) => {
-            console.log('Received new message via realtime:', payload);
-            
             try {
               const dbMessage: DatabaseMessage = {
                 id: payload.new.id,
@@ -93,8 +89,6 @@ export const useRealtimeSubscription = ({
             filter: `sender_id=eq.${userId}`
           },
           (payload) => {
-            console.log('Message updated via realtime:', payload);
-            
             // Handle read status updates
             if (payload.new.is_read && !payload.old.is_read) {
               onMessageRead(payload.new.id);
@@ -102,10 +96,7 @@ export const useRealtimeSubscription = ({
           }
         )
         .subscribe((status) => {
-          console.log('Real-time subscription status:', status);
-          
           if (status === 'SUBSCRIBED') {
-            console.log('Successfully subscribed to real-time updates');
             // Clear any reconnection timeout
             if (reconnectTimeoutRef.current) {
               clearTimeout(reconnectTimeoutRef.current);
@@ -122,8 +113,6 @@ export const useRealtimeSubscription = ({
             reconnectTimeoutRef.current = setTimeout(() => {
               setupRealtimeSubscription();
             }, 3000);
-          } else if (status === 'CLOSED') {
-            console.log('Real-time channel closed');
           }
         });
 
@@ -133,7 +122,6 @@ export const useRealtimeSubscription = ({
     setupRealtimeSubscription();
 
     return () => {
-      console.log('Cleaning up real-time subscription');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }

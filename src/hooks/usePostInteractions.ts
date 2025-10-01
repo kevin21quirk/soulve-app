@@ -33,7 +33,6 @@ export const usePostInteractions = () => {
 
     try {
       setLoading(postId, 'like', true);
-      console.log('Liking post:', postId);
 
       // Extract actual post ID if it's a campaign
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
@@ -61,7 +60,6 @@ export const usePostInteractions = () => {
 
         if (deleteError) throw deleteError;
         
-        console.log('Post unliked successfully');
         toast({
           title: "Post unliked",
           description: "Your like has been removed"
@@ -79,7 +77,6 @@ export const usePostInteractions = () => {
 
         if (insertError) throw insertError;
         
-        console.log('Post liked successfully');
         toast({
           title: "Post liked!",
           description: "Your reaction has been recorded"
@@ -113,7 +110,6 @@ export const usePostInteractions = () => {
 
     try {
       setLoading(postId, 'bookmark', true);
-      console.log('Bookmarking post:', postId);
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
@@ -140,7 +136,6 @@ export const usePostInteractions = () => {
 
         if (deleteError) throw deleteError;
         
-        console.log('Post unbookmarked successfully');
         toast({
           title: "Bookmark removed",
           description: "Post removed from your saved items"
@@ -158,7 +153,6 @@ export const usePostInteractions = () => {
 
         if (insertError) throw insertError;
         
-        console.log('Post bookmarked successfully');
         toast({
           title: "Post bookmarked!",
           description: "You can find it in your saved posts"
@@ -192,7 +186,6 @@ export const usePostInteractions = () => {
 
     try {
       setLoading(postId, 'comment', true);
-      console.log('Adding comment to post:', postId);
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
@@ -207,7 +200,6 @@ export const usePostInteractions = () => {
 
       if (error) throw error;
 
-      console.log('Comment added successfully');
       toast({
         title: "Comment added!",
         description: "Your comment has been posted"
@@ -240,7 +232,6 @@ export const usePostInteractions = () => {
 
     try {
       setLoading(postId, 'share', true);
-      console.log('Sharing post:', postId);
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
@@ -254,7 +245,6 @@ export const usePostInteractions = () => {
 
       if (error) throw error;
 
-      console.log('Post shared successfully');
       toast({
         title: "Post shared!",
         description: "The post has been shared with your network"
@@ -275,22 +265,18 @@ export const usePostInteractions = () => {
 
   // Placeholder methods for interface compatibility
   const handleRespond = useCallback(async (postId: string) => {
-    console.log('handleRespond placeholder called for:', postId);
     return true;
   }, []);
 
   const handleReaction = useCallback(async (postId: string, reactionType: string) => {
-    console.log('handleReaction placeholder called for:', postId, reactionType);
     return true;
   }, []);
 
   const handleLikeComment = useCallback(async (postId: string, commentId: string) => {
-    console.log('handleLikeComment placeholder called for:', postId, commentId);
     return true;
   }, []);
 
   const handleCommentReaction = useCallback(async (postId: string, commentId: string, reactionType: string) => {
-    console.log('handleCommentReaction placeholder called for:', postId, commentId, reactionType);
     return true;
   }, []);
 

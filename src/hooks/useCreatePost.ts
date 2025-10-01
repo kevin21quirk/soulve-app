@@ -23,8 +23,6 @@ export const useCreatePost = () => {
   const rateLimit = usePostCreationRateLimit();
 
   const createPost = async (postData: CreatePostData) => {
-    console.log('useCreatePost - Starting with data:', postData);
-    
     // Check rate limit first
     if (rateLimit.isLimited) {
       const resetTime = rateLimit.resetTime?.toLocaleTimeString() || 'soon';

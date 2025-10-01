@@ -33,7 +33,6 @@ export const usePostReactions = (postId: string) => {
     if (!postId) return;
 
     const actualPostId = getActualPostId(postId);
-    console.log('Fetching reactions for post:', actualPostId);
     
     try {
       // Get reaction counts and user reaction status
@@ -46,8 +45,6 @@ export const usePostReactions = (postId: string) => {
         setLoading(false);
         return;
       }
-
-      console.log('Reaction counts received:', reactionCounts);
 
       // Get detailed user information for each reaction type
       const reactionsWithUsers: ReactionData[] = [];
@@ -94,7 +91,6 @@ export const usePostReactions = (postId: string) => {
         });
       }
 
-      console.log('Final reactions with users:', reactionsWithUsers);
       setReactions(reactionsWithUsers);
     } catch (error) {
       console.error('Error fetching reactions:', error);
@@ -106,12 +102,10 @@ export const usePostReactions = (postId: string) => {
 
   const toggleReaction = useCallback(async (emoji: string) => {
     if (!user || !postId) {
-      console.warn('Cannot toggle reaction: missing user or postId', { user: !!user, postId });
       return;
     }
 
     const actualPostId = getActualPostId(postId);
-    console.log('Toggling reaction:', emoji, 'for post:', actualPostId);
 
     try {
       const { data: result, error } = await supabase
@@ -124,8 +118,6 @@ export const usePostReactions = (postId: string) => {
         console.error('Error toggling reaction:', error);
         throw error;
       }
-
-      console.log('Toggle reaction result:', result);
 
       // Refresh reactions after toggle
       await fetchReactions();
@@ -157,7 +149,6 @@ export const usePostReactions = (postId: string) => {
     if (!postId) return;
 
     const actualPostId = getActualPostId(postId);
-    console.log('Setting up real-time subscription for post:', actualPostId);
 
     const channel = supabase
       .channel(`post-reactions-${actualPostId}`)
@@ -170,14 +161,12 @@ export const usePostReactions = (postId: string) => {
           filter: `post_id=eq.${actualPostId}`
         },
         (payload) => {
-          console.log('Real-time reaction update:', payload);
           fetchReactions();
         }
       )
       .subscribe();
 
     return () => {
-      console.log('Cleaning up real-time subscription for post:', actualPostId);
       supabase.removeChannel(channel);
     };
   }, [postId, fetchReactions]);

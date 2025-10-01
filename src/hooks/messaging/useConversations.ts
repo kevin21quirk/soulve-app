@@ -15,7 +15,6 @@ export const useConversations = (userId: string | undefined) => {
     if (!userId) return;
 
     if (loadingRef.current) {
-      console.log('Already loading conversations');
       return;
     }
 
@@ -24,7 +23,6 @@ export const useConversations = (userId: string | undefined) => {
     setError(null);
 
     try {
-      console.log('Loading conversations for user:', userId);
       
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
@@ -44,7 +42,6 @@ export const useConversations = (userId: string | undefined) => {
       });
 
       if (partnerIds.size === 0) {
-        console.log('No conversations found');
         setConversations([]);
         return;
       }
@@ -103,7 +100,6 @@ export const useConversations = (userId: string | undefined) => {
       const conversationsList = Array.from(conversationsMap.values())
         .sort((a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime());
       
-      console.log('Loaded conversations:', conversationsList.length);
       setConversations(conversationsList);
 
     } catch (error: any) {
@@ -138,7 +134,6 @@ export const useConversations = (userId: string | undefined) => {
         updated.splice(existingIndex, 1);
         updated.unshift(conversation);
       } else {
-        console.log('New conversation detected, reloading...');
         loadConversations(false);
       }
       
