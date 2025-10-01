@@ -45,8 +45,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setLoading(false);
           setInitialized(true);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error in auth initialization:', error);
+        
+        // Check if it's a connection error
+        if (error.message?.includes('upstream') || error.message?.includes('503')) {
+          console.error('Backend connection error detected - Supabase may be unavailable');
+        }
+        
         if (mounted) {
           setLoading(false);
           setInitialized(true);

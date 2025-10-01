@@ -125,7 +125,13 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
         if (error) {
           // Handle specific auth errors
-          if (error.message.includes("Invalid login credentials")) {
+          if (error.message?.includes('upstream') || error.message?.includes('503')) {
+            toast({
+              title: "Service Unavailable",
+              description: "Authentication service is temporarily unavailable. Please try again in a few moments.",
+              variant: "destructive"
+            });
+          } else if (error.message.includes("Invalid login credentials")) {
             setErrors({ 
               email: "Invalid email or password",
               password: "Invalid email or password"
@@ -173,7 +179,13 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         });
 
         if (error) {
-          if (error.message.includes("User already registered")) {
+          if (error.message?.includes('upstream') || error.message?.includes('503')) {
+            toast({
+              title: "Service Unavailable",
+              description: "Authentication service is temporarily unavailable. Please try again in a few moments.",
+              variant: "destructive"
+            });
+          } else if (error.message.includes("User already registered")) {
             setErrors({ email: "An account with this email already exists" });
             toast({
               title: "Account exists",
@@ -225,11 +237,20 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
       }
     } catch (error: any) {
-      toast({
-        title: "Authentication error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      // Check for network/connection errors
+      if (error.message?.includes('upstream') || error.message?.includes('503') || error.name === 'NetworkError') {
+        toast({
+          title: "Connection Error",
+          description: "Unable to connect to authentication service. Please check your internet connection and try again in a few moments.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Authentication error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
