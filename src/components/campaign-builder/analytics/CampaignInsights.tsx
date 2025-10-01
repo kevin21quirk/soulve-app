@@ -115,7 +115,7 @@ const CampaignInsights = () => {
       description: 'Your supporters are most active between 7-9 PM. Consider posting updates during this time.',
       action: {
         label: 'Schedule Update',
-        onClick: () => console.log('Schedule update clicked')
+        onClick: () => {}
       }
     },
     {
@@ -124,7 +124,7 @@ const CampaignInsights = () => {
       description: 'Social media engagement has dropped 15% this week. Consider sharing more visual content.',
       action: {
         label: 'Add Media',
-        onClick: () => console.log('Add media clicked')
+        onClick: () => {}
       }
     },
     {
@@ -133,7 +133,7 @@ const CampaignInsights = () => {
       description: 'Donations typically increase by 40% in the next month. Plan your final push strategy.',
       action: {
         label: 'Plan Strategy',
-        onClick: () => console.log('Plan strategy clicked')
+        onClick: () => {}
       }
     },
     {

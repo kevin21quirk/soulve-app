@@ -80,9 +80,6 @@ const SocialShareButton = ({ campaign, variant = "default", className }: SocialS
     action();
     setShowShareOptions(false);
     
-    // Track social sharing analytics
-    console.log(`Shared campaign ${campaign.id} on ${platform}`);
-    
     toast({
       title: "Shared Successfully!",
       description: `Campaign shared on ${platform}. Thank you for spreading the word!`,

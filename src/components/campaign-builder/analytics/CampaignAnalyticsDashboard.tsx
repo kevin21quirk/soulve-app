@@ -32,7 +32,6 @@ const CampaignAnalyticsDashboard = ({ campaignId }: CampaignAnalyticsDashboardPr
   };
 
   const handleExport = () => {
-    console.log("Exporting analytics data...");
     // In real app, this would generate and download a report
   };
 

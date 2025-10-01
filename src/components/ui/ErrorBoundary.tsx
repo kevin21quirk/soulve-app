@@ -3,6 +3,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { securityAuditService } from '@/services/securityAuditService';
 
 interface Props {
   children: ReactNode;
@@ -30,7 +31,16 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Log error to security audit service for proper monitoring
+    securityAuditService.logAction({
+      action_type: 'error_boundary_caught',
+      severity: 'high',
+      details: {
+        error: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack
+      }
+    });
     
     this.setState({
       error,

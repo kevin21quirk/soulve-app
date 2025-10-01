@@ -40,7 +40,6 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
 
   const handleMediaChange = (files: MediaFile[]) => {
     setSelectedMedia(files);
-    console.log('Campaign media updated:', files.length, 'files');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

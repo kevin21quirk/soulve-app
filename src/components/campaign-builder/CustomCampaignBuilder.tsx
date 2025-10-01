@@ -19,11 +19,11 @@ const CustomCampaignBuilder = () => {
   ];
 
   const handleCampaignCreated = (title: string, description: string, type: 'fundraising' | 'volunteer' | 'awareness' | 'community') => {
-    console.log("Campaign created:", { title, description, type });
+    // Campaign created successfully
   };
 
   const handleSuccess = () => {
-    console.log("Campaign creation successful");
+    // Campaign creation successful
   };
 
   return (
