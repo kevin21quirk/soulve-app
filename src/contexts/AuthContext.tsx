@@ -46,11 +46,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setInitialized(true);
         }
       } catch (error: any) {
-        console.error('Error in auth initialization:', error);
+        console.error('❌ Error in auth initialization:', error);
         
         // Check if it's a connection error
-        if (error.message?.includes('upstream') || error.message?.includes('503')) {
-          console.error('Backend connection error detected - Supabase may be unavailable');
+        const isConnectionError = 
+          error.message?.includes('upstream') || 
+          error.message?.includes('503') ||
+          error.message?.includes('connect') ||
+          error.name === 'NetworkError';
+          
+        if (isConnectionError) {
+          console.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues after upgrade');
         }
         
         if (mounted) {

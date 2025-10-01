@@ -115,42 +115,62 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
     }
 
     setIsLoading(true);
+    console.log('🔐 Starting authentication...', { isLogin, email: formData.email });
 
     try {
       if (isLogin) {
+        console.log('📧 Attempting sign in...');
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email.trim(),
           password: formData.password,
         });
 
+        console.log('🔍 Login response:', { 
+          hasData: !!data, 
+          hasUser: !!data?.user, 
+          hasError: !!error,
+          errorMessage: error?.message,
+          errorStatus: error?.status 
+        });
+
         if (error) {
-          // Handle specific auth errors
-          if (error.message?.includes('upstream') || error.message?.includes('503')) {
+          console.error('❌ Login error:', error);
+          
+          // Check for connection/service errors
+          const isConnectionError = 
+            error.message?.includes('upstream') || 
+            error.message?.includes('503') ||
+            error.message?.includes('connect') ||
+            error.message?.includes('network') ||
+            error.status === 503;
+
+          if (isConnectionError) {
             toast({
-              title: "Service Unavailable",
-              description: "Authentication service is temporarily unavailable. Please try again in a few moments.",
-              variant: "destructive"
+              title: "Service Temporarily Unavailable",
+              description: "The authentication service is experiencing issues. This may be due to recent updates. Please try again in a few minutes or contact support if this persists.",
+              variant: "destructive",
+              duration: 6000
             });
-          } else if (error.message.includes("Invalid login credentials")) {
+          } else if (error.message?.includes("Invalid login credentials") || error.message?.includes("Invalid")) {
             setErrors({ 
               email: "Invalid email or password",
               password: "Invalid email or password"
             });
             toast({
               title: "Login failed",
-              description: "Invalid email or password. Please check your credentials.",
+              description: "Invalid email or password. Please check your credentials and try again.",
               variant: "destructive"
             });
-          } else if (error.message.includes("Email not confirmed")) {
+          } else if (error.message?.includes("Email not confirmed")) {
             toast({
               title: "Email verification required",
-              description: "Please check your email and click the verification link.",
+              description: "Please check your email and click the verification link before signing in.",
               variant: "destructive"
             });
           } else {
             toast({
               title: "Login failed",
-              description: error.message,
+              description: error.message || "An unexpected error occurred. Please try again.",
               variant: "destructive"
             });
           }
@@ -158,6 +178,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
+          console.log('✅ Login successful:', { userId: data.user.id, email: data.user.email });
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
@@ -165,11 +186,21 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           onSuccess();
         }
       } else {
+        // Signup flow
+        console.log('📝 Attempting sign up...');
+        
+        // Use the current origin for redirect
+        const redirectUrl = window.location.origin.includes('lovable') 
+          ? `${window.location.origin}/#/dashboard`
+          : `${window.location.origin}/dashboard`;
+        
+        console.log('🔗 Email redirect URL:', redirectUrl);
+
         const { data, error } = await supabase.auth.signUp({
           email: formData.email.trim(),
           password: formData.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: redirectUrl,
             data: {
               first_name: formData.firstName.trim(),
               last_name: formData.lastName.trim(),
@@ -178,14 +209,30 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           }
         });
 
+        console.log('🔍 Signup response:', { 
+          hasData: !!data, 
+          hasUser: !!data?.user, 
+          hasError: !!error,
+          errorMessage: error?.message 
+        });
+
         if (error) {
-          if (error.message?.includes('upstream') || error.message?.includes('503')) {
+          console.error('❌ Signup error:', error);
+          
+          const isConnectionError = 
+            error.message?.includes('upstream') || 
+            error.message?.includes('503') ||
+            error.message?.includes('connect') ||
+            error.status === 503;
+
+          if (isConnectionError) {
             toast({
-              title: "Service Unavailable",
-              description: "Authentication service is temporarily unavailable. Please try again in a few moments.",
-              variant: "destructive"
+              title: "Service Temporarily Unavailable",
+              description: "The authentication service is experiencing issues. Please try again in a few minutes.",
+              variant: "destructive",
+              duration: 6000
             });
-          } else if (error.message.includes("User already registered")) {
+          } else if (error.message?.includes("User already registered") || error.message?.includes("already")) {
             setErrors({ email: "An account with this email already exists" });
             toast({
               title: "Account exists",
@@ -195,7 +242,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           } else {
             toast({
               title: "Signup failed",
-              description: error.message,
+              description: error.message || "An unexpected error occurred. Please try again.",
               variant: "destructive"
             });
           }
@@ -203,25 +250,8 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
-          // Create profile record
-          try {
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .insert({
-                id: data.user.id,
-                first_name: formData.firstName.trim(),
-                last_name: formData.lastName.trim(),
-                email: formData.email.trim(),
-                waitlist_status: 'pending'
-              });
-
-            if (profileError) {
-              // Don't fail the entire signup for profile creation error
-            }
-          } catch (profileError) {
-            // Silent error handling for profile creation
-          }
-
+          console.log('✅ Signup successful:', { userId: data.user.id, email: data.user.email });
+          
           toast({
             title: "Account created!",
             description: "Please check your email to verify your account, then you'll be added to our waitlist for approval."
@@ -237,17 +267,28 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
       }
     } catch (error: any) {
+      console.error('💥 Unexpected authentication error:', error);
+      
       // Check for network/connection errors
-      if (error.message?.includes('upstream') || error.message?.includes('503') || error.name === 'NetworkError') {
+      const isNetworkError = 
+        error.message?.includes('upstream') || 
+        error.message?.includes('503') || 
+        error.message?.includes('connect') ||
+        error.message?.includes('network') ||
+        error.name === 'NetworkError' ||
+        error.name === 'FetchError';
+
+      if (isNetworkError) {
         toast({
           title: "Connection Error",
-          description: "Unable to connect to authentication service. Please check your internet connection and try again in a few moments.",
-          variant: "destructive"
+          description: "Unable to connect to the authentication service. Your Supabase backend may be experiencing issues after the upgrade. Please wait a few minutes and try again.",
+          variant: "destructive",
+          duration: 8000
         });
       } else {
         toast({
           title: "Authentication error",
-          description: "An unexpected error occurred. Please try again.",
+          description: error.message || "An unexpected error occurred. Please try again or contact support if this persists.",
           variant: "destructive"
         });
       }
