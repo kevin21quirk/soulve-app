@@ -67,16 +67,13 @@ export const usePublicProfile = (userId: string) => {
           return;
         }
 
-        // Get user data from auth for join date and email
-        const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(userId);
-        
-        if (userError && userError.message !== 'User not found') {
-          console.warn('Could not fetch user auth data:', userError);
-        }
-
-        // Map to UserProfileData format
+        // Map to UserProfileData format - profile table has all we need
         const userProfileData = mapDatabaseProfileToUserProfile(
-          user || { id: userId, email: '', created_at: new Date().toISOString() },
+          { 
+            id: userId, 
+            email: '', 
+            created_at: profile.created_at || new Date().toISOString() 
+          },
           profile
         );
 
