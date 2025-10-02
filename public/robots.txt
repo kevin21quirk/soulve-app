@@ -11,4 +11,4 @@ Disallow: /settings
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://join-soulve.com/sitemap.xml
