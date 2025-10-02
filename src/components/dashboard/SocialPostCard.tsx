@@ -11,6 +11,7 @@ import { usePostReactions } from '@/hooks/usePostReactions';
 import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
 import ReactionDisplay from '@/components/ui/reaction-display';
 import PostActions from './PostActions';
+import { ConnectToHelpButton } from '@/components/connect';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -282,6 +283,21 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
           </Button>
         </div>
+
+        {/* Connect to Help Button */}
+        {(post.category === 'help-needed' || post.category === 'campaign') && (
+          <div className="mt-4 pt-4 border-t">
+            <ConnectToHelpButton
+              postId={post.id}
+              postTitle={post.title}
+              postAuthor={{
+                name: post.author,
+                avatar: post.avatar,
+              }}
+              category={post.category}
+            />
+          </div>
+        )}
 
         {/* Comments Section */}
         {showComments && (
