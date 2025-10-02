@@ -7,7 +7,7 @@ import {
   BarChart3, 
   TrendingUp, 
   Users, 
-  DollarSign,
+  PoundSterling,
   Eye,
   Share2,
   Heart,
@@ -41,7 +41,7 @@ const CampaignAnalytics = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
+              <PoundSterling className="h-4 w-4 text-green-600" />
               <div>
                 <p className="text-sm text-gray-600">Total Raised</p>
                 <p className="text-2xl font-bold">£{analyticsData.totalRaised.toLocaleString()}</p>
