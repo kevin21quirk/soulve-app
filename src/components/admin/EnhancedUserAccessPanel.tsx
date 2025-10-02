@@ -6,9 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, Users, UserCheck, UserX, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Users, UserCheck, UserX, Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface UserProfile {
   id: string;
@@ -28,6 +39,9 @@ const EnhancedUserAccessPanel = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('all');
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetUserId, setResetUserId] = useState<string | null>(null);
+  const [resetFullProfile, setResetFullProfile] = useState(false);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -140,6 +154,44 @@ const EnhancedUserAccessPanel = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleResetOnboarding = async () => {
+    if (!resetUserId) return;
+
+    try {
+      const { error } = await supabase.rpc('reset_user_onboarding' as any, {
+        target_user_id: resetUserId,
+        reset_profile_data: resetFullProfile
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Onboarding Reset",
+        description: resetFullProfile 
+          ? "User onboarding and profile data have been reset"
+          : "User onboarding has been reset"
+      });
+      
+      setResetDialogOpen(false);
+      setResetUserId(null);
+      setResetFullProfile(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error resetting onboarding:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset user onboarding",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openResetDialog = (userId: string) => {
+    setResetUserId(userId);
+    setResetFullProfile(false);
+    setResetDialogOpen(true);
   };
 
   const filteredUsers = users.filter(user => {
@@ -298,6 +350,15 @@ const EnhancedUserAccessPanel = () => {
                     <div className="flex items-center space-x-3">
                       {getStatusBadge(user.waitlist_status)}
                       
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openResetDialog(user.id)}
+                        className="border-amber-500 text-amber-600 hover:bg-amber-50"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                      
                       {user.waitlist_status === 'pending' && (
                         <div className="flex space-x-2">
                           <Button
@@ -324,6 +385,53 @@ const EnhancedUserAccessPanel = () => {
           </div>
         </Tabs>
       </CardContent>
+
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset User Onboarding</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>
+                This will delete the user's questionnaire response, requiring them to complete 
+                the registration flow again on their next login.
+              </p>
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Checkbox 
+                  id="fullReset" 
+                  checked={resetFullProfile}
+                  onCheckedChange={(checked) => setResetFullProfile(checked === true)}
+                />
+                <label
+                  htmlFor="fullReset"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Also reset profile data (name, bio, location, skills)
+                </label>
+              </div>
+              
+              <p className="text-amber-600 font-semibold">
+                Warning: This action cannot be undone.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setResetDialogOpen(false);
+              setResetUserId(null);
+              setResetFullProfile(false);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleResetOnboarding}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              Reset Onboarding
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
