@@ -132,10 +132,21 @@ export const useSendMessage = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ recipientId, content, messageType = 'text' }: { 
+    mutationFn: async ({ 
+      recipientId, 
+      content, 
+      messageType = 'text',
+      attachment
+    }: { 
       recipientId: string; 
       content: string; 
       messageType?: 'text' | 'image' | 'file' | 'voice';
+      attachment?: {
+        url: string;
+        name: string;
+        size: number;
+        type: string;
+      } | null;
     }) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
@@ -146,7 +157,11 @@ export const useSendMessage = () => {
           sender_id: user.user.id,
           recipient_id: recipientId,
           content,
-          message_type: messageType,
+          message_type: attachment ? attachment.type : messageType,
+          attachment_url: attachment?.url,
+          attachment_name: attachment?.name,
+          attachment_size: attachment?.size,
+          attachment_type: attachment?.type,
           is_read: false
         })
         .select()

@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Search, MoreVertical, Phone, Video, Plus, Users } from "lucide-react";
+import { Search, MoreVertical, Phone, Video, Plus, Users } from "lucide-react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/services/realMessagingService";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
+import MessageInput from "@/components/messaging/MessageInput";
+import MessagesList from "@/components/messaging/MessagesList";
 
 export const RealMessaging = () => {
   const { user } = useAuth();
@@ -70,14 +72,14 @@ export const RealMessaging = () => {
     };
   }, [refetchConversations, refetchMessages, selectedConversation]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation) return;
+  const handleSendMessage = async (content: string, attachment?: any) => {
+    if (!selectedConversation) return;
 
     try {
       await sendMessage.mutateAsync({
         recipientId: selectedConversation,
-        content: newMessage.trim()
+        content: content,
+        attachment: attachment
       });
       setNewMessage("");
     } catch (error) {
@@ -307,71 +309,20 @@ export const RealMessaging = () => {
             </CardHeader>
 
             {/* Messages */}
-            <CardContent className="flex-1 overflow-hidden p-0">
-              <ScrollArea className="h-[400px] p-4">
-                {messagesLoading ? (
-                  <EnhancedLoadingState size="sm" message="Loading messages..." />
-                ) : messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    <p>No messages yet. Start the conversation!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {messages.map((message) => {
-                      const isOwn = message.sender_id === user?.id;
-                      const senderName = message.sender_profile 
-                        ? `${message.sender_profile.first_name || ''} ${message.sender_profile.last_name || ''}`.trim() || 'You'
-                        : 'You';
-
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-                        >
-                          <div className={`max-w-[70%] ${isOwn ? "order-2" : "order-1"}`}>
-                            {!isOwn && (
-                              <p className="text-xs text-gray-500 mb-1 px-3">{senderName}</p>
-                            )}
-                            <div
-                              className={`px-4 py-2 rounded-2xl ${
-                                isOwn
-                                  ? "bg-blue-600 text-white rounded-br-md"
-                                  : "bg-gray-100 text-gray-900 rounded-bl-md"
-                              }`}
-                            >
-                              <p className="text-sm">{message.content}</p>
-                              <p className={`text-xs mt-1 ${isOwn ? "text-blue-100" : "text-gray-500"}`}>
-                                {format(new Date(message.created_at), 'HH:mm')}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
+            <MessagesList 
+              messages={messages}
+              userId={user?.id}
+              loading={messagesLoading}
+            />
 
             {/* Message Input */}
-            <div className="border-t p-4">
-              <form onSubmit={handleSendMessage} className="flex space-x-2">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1"
-                  disabled={sendMessage.isPending}
-                />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  disabled={!newMessage.trim() || sendMessage.isPending}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
+            <MessageInput
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              onSendMessage={handleSendMessage}
+              sending={sendMessage.isPending}
+              partnerId={selectedConversation}
+            />
           </Card>
         ) : selectedConversation && !selectedConv ? (
           // New conversation selected but no existing conversation data
@@ -394,24 +345,13 @@ export const RealMessaging = () => {
               </div>
             </CardContent>
 
-            <div className="border-t p-4">
-              <form onSubmit={handleSendMessage} className="flex space-x-2">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your first message..."
-                  className="flex-1"
-                  disabled={sendMessage.isPending}
-                />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  disabled={!newMessage.trim() || sendMessage.isPending}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
+            <MessageInput
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              onSendMessage={handleSendMessage}
+              sending={sendMessage.isPending}
+              partnerId={selectedConversation}
+            />
           </Card>
         ) : (
           <Card className="h-full flex items-center justify-center">
