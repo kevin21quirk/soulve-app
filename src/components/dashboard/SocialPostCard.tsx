@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,9 +25,16 @@ interface SocialPostCardProps {
 }
 
 const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const { reactions, toggleReaction } = usePostReactions(post.id);
+
+  const handleProfileClick = () => {
+    if (post.authorId) {
+      navigate(`/profile/${post.authorId}`);
+    }
+  };
 
   const handleComment = () => {
     if (newComment.trim()) {
@@ -110,7 +118,10 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3 flex-1">
-            <Avatar className="h-10 w-10">
+            <Avatar 
+              className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+              onClick={handleProfileClick}
+            >
               <AvatarImage src={post.avatar} />
               <AvatarFallback>
                 {post.author.split(' ').map(n => n[0]).join('')}
@@ -119,7 +130,12 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-gray-900">{post.author}</h3>
+                <h3 
+                  className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                  onClick={handleProfileClick}
+                >
+                  {post.author}
+                </h3>
                 <Badge variant="outline" className={getCategoryColor(post.category)}>
                   {post.category.replace('-', ' ')}
                 </Badge>

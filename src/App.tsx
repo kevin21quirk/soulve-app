@@ -11,6 +11,7 @@ import WaitlistDashboard from "@/pages/WaitlistDashboard";
 import EmailVerificationHandler from "@/components/auth/EmailVerificationHandler";
 import PasswordResetHandler from "@/components/auth/PasswordResetHandler";
 import ProfileRegistration from "@/pages/ProfileRegistration";
+import PublicProfile from "@/pages/PublicProfile";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/verify-email" element={<EmailVerificationHandler />} />
             <Route path="/reset-password" element={<PasswordResetHandler />} />
             <Route path="/profile-registration" element={<ProfileRegistration />} />
+            <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/waitlist" element={<WaitlistDashboard />} />
             <Route 
               path="/dashboard" 
