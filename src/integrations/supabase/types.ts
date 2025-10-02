@@ -2570,6 +2570,84 @@ export type Database = {
           },
         ]
       }
+      notification_filters: {
+        Row: {
+          created_at: string | null
+          filter_config: Json
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          filter_config: Json
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          filter_config?: Json
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          default_action_type: string | null
+          default_priority: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          message_template: string
+          metadata_schema: Json | null
+          name: string
+          title_template: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          default_action_type?: string | null
+          default_priority?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_template: string
+          metadata_schema?: Json | null
+          name: string
+          title_template: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          default_action_type?: string | null
+          default_priority?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_template?: string
+          metadata_schema?: Json | null
+          name?: string
+          title_template?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_type: string | null
@@ -3680,6 +3758,74 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_notifications: {
+        Row: {
+          action_type: string | null
+          action_url: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          priority: string | null
+          recipient_id: string
+          scheduled_for: string
+          sender_id: string | null
+          sent_at: string | null
+          status: string | null
+          template_id: string | null
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          priority?: string | null
+          recipient_id: string
+          scheduled_for: string
+          sender_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          priority?: string | null
+          recipient_id?: string
+          scheduled_for?: string
+          sender_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_notifications_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seasonal_challenges: {
         Row: {
           created_at: string
@@ -4512,6 +4658,14 @@ export type Database = {
         }
         Returns: string
       }
+      bulk_delete_notifications: {
+        Args: { notification_ids: string[]; older_than_days?: number }
+        Returns: number
+      }
+      bulk_mark_notifications_read: {
+        Args: { mark_all?: boolean; notification_ids?: string[] }
+        Returns: number
+      }
       calculate_campaign_performance_score: {
         Args: { campaign_uuid: string }
         Returns: number
@@ -4710,6 +4864,20 @@ export type Database = {
           p_urgency_level: string
         }
         Returns: string
+      }
+      process_scheduled_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      render_notification_template: {
+        Args: { template_id_input: string; variables?: Json }
+        Returns: {
+          action_type: string
+          message: string
+          priority: string
+          title: string
+          type: string
+        }[]
       }
       toggle_post_reaction: {
         Args: { target_post_id: string; target_reaction_type: string }
