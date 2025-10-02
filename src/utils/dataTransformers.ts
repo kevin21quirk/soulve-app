@@ -51,6 +51,7 @@ export const transformPostToFeedPost = (post: PostWithProfile): FeedPost => {
   return {
     id: post.id,
     author: authorName,
+    authorId: post.author_id,
     avatar: avatarUrl,
     title: post.title,
     description: post.content,
