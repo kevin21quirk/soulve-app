@@ -1,70 +1,51 @@
-
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-
-interface OfflineNotification {
-  id: string;
-  type: "donation" | "campaign" | "message" | "social" | "system";
-  title: string;
-  message: string;
-  timestamp: string;
-  isRead: boolean;
-  metadata?: any;
-  syncStatus: "pending" | "synced" | "failed";
-}
-
-interface OfflineNotificationState {
-  notifications: OfflineNotification[];
-  isOnline: boolean;
-  lastSyncTime: Date | null;
-  pendingSyncCount: number;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { notificationStorage, CachedNotification } from '@/utils/notificationStorage';
+import { syncQueue } from '@/utils/syncQueue';
 
 export const useOfflineNotifications = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [notifications, setNotifications] = useState<CachedNotification[]>([]);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const { toast } = useToast();
-  const [state, setState] = useState<OfflineNotificationState>({
-    notifications: [],
-    isOnline: navigator.onLine,
-    lastSyncTime: null,
-    pendingSyncCount: 0
-  });
 
-  // Initialize from localStorage
+  // Initialize storage
   useEffect(() => {
-    const stored = localStorage.getItem('offline-notifications');
-    if (stored) {
-      try {
-        const parsedNotifications = JSON.parse(stored);
-        setState(prev => ({
-          ...prev,
-          notifications: parsedNotifications,
-          pendingSyncCount: parsedNotifications.filter((n: OfflineNotification) => 
-            n.syncStatus === 'pending'
-          ).length
-        }));
-      } catch (error) {
-        console.error('Failed to parse stored notifications:', error);
-      }
+    notificationStorage.init().catch(console.error);
+  }, []);
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      const allNotifications = await notificationStorage.getAllNotifications();
+      setNotifications(allNotifications);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
     }
+  }, []);
+
+  const updatePendingCount = useCallback(async () => {
+    const count = await syncQueue.getPendingCount();
+    setPendingSyncCount(count);
   }, []);
 
   // Monitor online/offline status
   useEffect(() => {
     const handleOnline = () => {
-      setState(prev => ({ ...prev, isOnline: true }));
+      setIsOnline(true);
       toast({
-        title: "Connection restored",
-        description: "Syncing offline notifications...",
+        title: 'Back online',
+        description: 'Syncing offline notifications...',
       });
-      syncOfflineNotifications();
+      syncQueue.processQueue();
     };
 
     const handleOffline = () => {
-      setState(prev => ({ ...prev, isOnline: false }));
+      setIsOnline(false);
       toast({
-        title: "You're offline",
-        description: "Notifications will be cached locally",
-        variant: "destructive"
+        title: 'You are offline',
+        description: 'Notifications will be cached locally',
+        variant: 'destructive',
       });
     };
 
@@ -75,160 +56,158 @@ export const useOfflineNotifications = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [toast]);
 
-  // Save to localStorage whenever notifications change
+  // Subscribe to sync queue changes
   useEffect(() => {
-    localStorage.setItem('offline-notifications', JSON.stringify(state.notifications));
-  }, [state.notifications]);
+    const unsubscribe = syncQueue.subscribe(() => {
+      loadNotifications();
+      updatePendingCount();
+    });
 
-  const addNotification = (notification: Omit<OfflineNotification, 'id' | 'timestamp' | 'syncStatus'>) => {
-    const newNotification: OfflineNotification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      syncStatus: state.isOnline ? 'synced' : 'pending'
+    return () => {
+      unsubscribe();
     };
+  }, [loadNotifications, updatePendingCount]);
 
-    setState(prev => ({
-      ...prev,
-      notifications: [newNotification, ...prev.notifications.slice(0, 99)], // Keep last 100
-      pendingSyncCount: state.isOnline ? prev.pendingSyncCount : prev.pendingSyncCount + 1
-    }));
+  // Load notifications on mount
+  useEffect(() => {
+    loadNotifications();
+    updatePendingCount();
+  }, [loadNotifications, updatePendingCount]);
 
-    // If online, immediately try to sync
-    if (state.isOnline) {
-      syncNotification(newNotification);
-    }
-
-    return newNotification;
-  };
-
-  const markAsRead = (id: string) => {
-    setState(prev => ({
-      ...prev,
-      notifications: prev.notifications.map(notification =>
-        notification.id === id
-          ? { 
-              ...notification, 
-              isRead: true,
-              syncStatus: state.isOnline && notification.syncStatus === 'synced' ? 'synced' : 'pending'
-            }
-          : notification
-      ),
-      pendingSyncCount: state.isOnline ? prev.pendingSyncCount : prev.pendingSyncCount + 1
-    }));
-  };
-
-  const deleteNotification = (id: string) => {
-    setState(prev => ({
-      ...prev,
-      notifications: prev.notifications.filter(notification => notification.id !== id)
-    }));
-  };
-
-  const syncNotification = async (notification: OfflineNotification) => {
+  const cacheNotification = useCallback(async (notificationData: any) => {
     try {
-      // Simulate API call to sync notification
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setState(prev => ({
-        ...prev,
-        notifications: prev.notifications.map(n =>
-          n.id === notification.id ? { ...n, syncStatus: 'synced' } : n
-        ),
-        pendingSyncCount: Math.max(0, prev.pendingSyncCount - 1)
-      }));
+      await syncQueue.addToQueue(notificationData);
+      await loadNotifications();
+      await updatePendingCount();
     } catch (error) {
-      setState(prev => ({
-        ...prev,
-        notifications: prev.notifications.map(n =>
-          n.id === notification.id ? { ...n, syncStatus: 'failed' } : n
-        )
-      }));
+      console.error('Failed to cache notification:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save notification',
+        variant: 'destructive',
+      });
     }
-  };
+  }, [loadNotifications, updatePendingCount, toast]);
 
-  const syncOfflineNotifications = async () => {
-    const pendingNotifications = state.notifications.filter(n => n.syncStatus === 'pending');
-    
-    if (pendingNotifications.length === 0) {
-      setState(prev => ({ ...prev, lastSyncTime: new Date() }));
+  const syncOfflineNotifications = useCallback(async () => {
+    if (!isOnline) {
+      toast({
+        title: 'Offline',
+        description: 'Cannot sync while offline',
+        variant: 'destructive',
+      });
       return;
     }
 
     try {
-      // Sync all pending notifications
-      await Promise.all(pendingNotifications.map(notification => syncNotification(notification)));
-      
-      setState(prev => ({ 
-        ...prev, 
-        lastSyncTime: new Date(),
-        pendingSyncCount: 0
-      }));
-
+      await syncQueue.processQueue();
+      setLastSyncTime(new Date());
       toast({
-        title: "Sync completed",
-        description: `${pendingNotifications.length} notifications synced`,
+        title: 'Sync complete',
+        description: 'All notifications have been synced',
       });
     } catch (error) {
+      console.error('Sync failed:', error);
       toast({
-        title: "Sync failed",
-        description: "Some notifications couldn't be synced",
-        variant: "destructive"
+        title: 'Sync failed',
+        description: 'Some notifications could not be synced',
+        variant: 'destructive',
       });
     }
-  };
+  }, [isOnline, toast]);
 
-  const retryFailedSync = async () => {
-    const failedNotifications = state.notifications.filter(n => n.syncStatus === 'failed');
-    
-    setState(prev => ({
-      ...prev,
-      notifications: prev.notifications.map(n =>
-        n.syncStatus === 'failed' ? { ...n, syncStatus: 'pending' } : n
-      ),
-      pendingSyncCount: prev.pendingSyncCount + failedNotifications.length
-    }));
-
-    if (state.isOnline) {
-      await syncOfflineNotifications();
+  const retryFailedSync = useCallback(async () => {
+    try {
+      await syncQueue.retryFailed();
+      toast({
+        title: 'Retry initiated',
+        description: 'Attempting to sync failed notifications',
+      });
+    } catch (error) {
+      console.error('Retry failed:', error);
+      toast({
+        title: 'Retry failed',
+        description: 'Could not retry failed notifications',
+        variant: 'destructive',
+      });
     }
-  };
+  }, [toast]);
 
-  const clearCache = () => {
-    setState({
-      notifications: [],
-      isOnline: navigator.onLine,
-      lastSyncTime: null,
-      pendingSyncCount: 0
-    });
-    localStorage.removeItem('offline-notifications');
-  };
+  const clearCache = useCallback(async () => {
+    try {
+      await notificationStorage.clearAll();
+      await loadNotifications();
+      await updatePendingCount();
+      toast({
+        title: 'Cache cleared',
+        description: 'All cached notifications have been removed',
+      });
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to clear cache',
+        variant: 'destructive',
+      });
+    }
+  }, [loadNotifications, updatePendingCount, toast]);
 
-  const getStorageSize = () => {
-    const stored = localStorage.getItem('offline-notifications');
-    return stored ? new Blob([stored]).size : 0;
-  };
+  const [storageSize, setStorageSize] = useState<string>('0 B');
 
-  const getStorageSizeFormatted = () => {
-    const bytes = getStorageSize();
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-  };
+  // Update storage size periodically
+  useEffect(() => {
+    const updateSize = async () => {
+      const size = await notificationStorage.getStorageSize();
+      setStorageSize(size);
+    };
+    
+    updateSize();
+    const interval = setInterval(updateSize, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [notifications]);
+
+  const markAsRead = useCallback(async (id: string) => {
+    try {
+      const notification = await notificationStorage.getNotification(id);
+      if (notification && notification.data) {
+        notification.data.is_read = true;
+        await notificationStorage.saveNotification(notification);
+        await loadNotifications();
+      }
+    } catch (error) {
+      console.error('Failed to mark as read:', error);
+    }
+  }, [loadNotifications]);
+
+  const deleteNotification = useCallback(async (id: string) => {
+    try {
+      await notificationStorage.deleteNotification(id);
+      await loadNotifications();
+      await updatePendingCount();
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  }, [loadNotifications, updatePendingCount]);
+
+  const getStorageSize = useCallback(() => storageSize, [storageSize]);
+
+  const unreadCount = notifications.filter(n => n.data?.is_read === false).length;
 
   return {
-    ...state,
-    addNotification,
-    markAsRead,
-    deleteNotification,
+    isOnline,
+    notifications,
+    pendingSyncCount,
+    lastSyncTime,
+    cacheNotification,
     syncOfflineNotifications,
     retryFailedSync,
     clearCache,
-    getStorageSize: getStorageSizeFormatted,
-    unreadCount: state.notifications.filter(n => !n.isRead).length
+    getStorageSize,
+    markAsRead,
+    deleteNotification,
+    unreadCount,
   };
 };

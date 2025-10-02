@@ -73,12 +73,27 @@ const EnhancedNotificationCenter = ({ isOpen, onClose }: EnhancedNotificationCen
       created_at: n.created_at,
       timestamp: n.timestamp
     })),
-    ...offlineNotifications.notifications.map(n => ({
-      ...n,
-      is_read: n.isRead,
-      created_at: n.timestamp,
-      timestamp: n.timestamp
-    }))
+    ...offlineNotifications.notifications
+      .filter(n => n.data) // Only include notifications with data
+      .map(n => ({
+        id: n.id,
+        type: n.data.type || 'system',
+        title: n.data.title || 'Notification',
+        message: n.data.message || '',
+        isRead: n.data.is_read || false,
+        is_read: n.data.is_read || false,
+        created_at: new Date(n.timestamp).toISOString(),
+        timestamp: new Date(n.timestamp).toISOString(),
+        metadata: n.data.metadata,
+        sender_id: n.data.sender_id,
+        priority: n.data.priority,
+        action_url: n.data.action_url,
+        action_type: n.data.action_type,
+        group_key: n.data.group_key,
+        grouped_with: n.data.grouped_with,
+        delivery_status: n.data.delivery_status,
+        read_at: n.data.read_at,
+      }))
   ].sort((a, b) => {
     const aDate = new Date(a.created_at || a.timestamp || Date.now());
     const bDate = new Date(b.created_at || b.timestamp || Date.now());
