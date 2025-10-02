@@ -162,8 +162,8 @@ const CampaignList = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Raised</p>
-                      <p className="font-semibold">${campaign.raised.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">of ${campaign.goal.toLocaleString()}</p>
+                      <p className="font-semibold">£{campaign.raised.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">of £{campaign.goal.toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Supporters</p>

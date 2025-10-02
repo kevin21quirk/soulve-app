@@ -58,13 +58,13 @@ export const useImpactTracking = () => {
         user.id,
         'donation',
         points,
-        `Donated $${amount} to ${cause}`,
+        `Donated £${amount} to ${cause}`,
         { amount, cause, organization }
       );
 
       toast({
         title: "Donation Impact Recorded! 💝",
-        description: `+${points} points for your $${amount} donation`,
+        description: `+${points} points for your £${amount} donation`,
       });
     } catch (error) {
       console.error('Error tracking donation:', error);

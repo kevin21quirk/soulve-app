@@ -205,11 +205,11 @@ const EnhancedCampaignAnalytics = ({
               <div>
                 <div className="text-sm text-gray-600">Total Raised</div>
                 <div className="text-xl font-bold">
-                  ${enhancedAnalytics.donationAmount.toLocaleString()}
+                  £{enhancedAnalytics.donationAmount.toLocaleString()}
                 </div>
                 {donationStats && (
                   <div className="text-xs text-gray-500">
-                    Avg: ${Math.round(donationStats.averageDonation).toLocaleString()}
+                    Avg: £{Math.round(donationStats.averageDonation).toLocaleString()}
                   </div>
                 )}
               </div>

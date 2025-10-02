@@ -362,7 +362,7 @@ const AdvancedNotificationFilters = ({
         {/* Amount Range */}
         <div>
           <Label className="text-sm font-medium">
-            Amount Range: ${filters.amountRange[0]} - ${filters.amountRange[1]}
+            Amount Range: £{filters.amountRange[0]} - £{filters.amountRange[1]}
           </Label>
           <div className="mt-2">
             <Slider

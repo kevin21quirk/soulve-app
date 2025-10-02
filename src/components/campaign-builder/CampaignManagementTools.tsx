@@ -109,7 +109,7 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
                   <TrendingUp className="h-4 w-4 text-purple-600" />
                   <div>
                     <p className="text-sm text-gray-600">Total Raised</p>
-                    <p className="text-2xl font-bold">$5,500</p>
+                    <p className="text-2xl font-bold">£5,500</p>
                   </div>
                 </div>
               </CardContent>
@@ -142,8 +142,8 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
 
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
-                      <span>${campaign.raised.toLocaleString()} raised</span>
-                      <span>${campaign.goal.toLocaleString()} goal</span>
+                      <span>£{campaign.raised.toLocaleString()} raised</span>
+                      <span>£{campaign.goal.toLocaleString()} goal</span>
                     </div>
                     <Progress value={campaign.progress} className="h-2" />
                   </div>

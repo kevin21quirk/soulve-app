@@ -67,7 +67,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
 
     switch (notification.type) {
       case "donation":
-        return `${metadata.donorName} donated $${metadata.amount} to "${metadata.campaignTitle}"`;
+        return `${metadata.donorName} donated £${metadata.amount} to "${metadata.campaignTitle}"`;
       case "social":
         return `${metadata.senderName} ${metadata.actionType} your post`;
       default:

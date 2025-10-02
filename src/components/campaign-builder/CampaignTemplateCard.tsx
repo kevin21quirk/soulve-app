@@ -80,7 +80,7 @@ const CampaignTemplateCard = ({ template, onSelect, onUse, showPopularBadge }: C
           </div>
           <div className="flex items-center space-x-1 text-gray-600">
             <Target className="h-3 w-3" />
-            <span>${(template.targetAmount || template.template_data.suggested_goal_amount || 0).toLocaleString()}</span>
+            <span>£{(template.targetAmount || template.template_data.suggested_goal_amount || 0).toLocaleString()}</span>
           </div>
           <div className="flex items-center space-x-1 text-gray-600">
             <Users className="h-3 w-3" />

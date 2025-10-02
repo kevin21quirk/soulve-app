@@ -36,14 +36,14 @@ const GoalsTab = ({ register, setValue, watch }: GoalsTabProps) => {
         {goalType === 'monetary' && (
           <div className="space-y-2">
             <Label htmlFor="currency">Currency</Label>
-            <Select onValueChange={(value) => setValue('currency', value)} defaultValue="USD">
+            <Select onValueChange={(value) => setValue('currency', value)} defaultValue="GBP">
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="GBP">GBP (£)</SelectItem>
                 <SelectItem value="USD">USD ($)</SelectItem>
                 <SelectItem value="EUR">EUR (€)</SelectItem>
-                <SelectItem value="GBP">GBP (£)</SelectItem>
                 <SelectItem value="CAD">CAD ($)</SelectItem>
               </SelectContent>
             </Select>

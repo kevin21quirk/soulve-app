@@ -81,7 +81,7 @@ const CampaignTemplatePreview = ({ template, isOpen, onClose, onUse }: CampaignT
                   <Target className="h-4 w-4 text-gray-500" />
                   <div>
                     <p className="text-sm text-gray-500">Target Amount</p>
-                    <p className="font-medium">${(template.template_data.suggested_goal_amount || 0).toLocaleString()}</p>
+                    <p className="font-medium">£{(template.template_data.suggested_goal_amount || 0).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">

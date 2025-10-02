@@ -141,7 +141,7 @@ const RecentActivitiesFeed = () => {
                         {activity.metadata && Object.keys(activity.metadata).length > 0 && (
                           <div className="mt-2 text-xs text-gray-500">
                             {activity.metadata.hours && `${activity.metadata.hours} hours`}
-                            {activity.metadata.amount && `$${activity.metadata.amount}`}
+                            {activity.metadata.amount && `£${activity.metadata.amount}`}
                             {activity.metadata.organization && ` • ${activity.metadata.organization}`}
                           </div>
                         )}

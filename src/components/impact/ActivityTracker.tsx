@@ -152,7 +152,7 @@ const ActivityTracker = () => {
                 {activityType === 'donation' && (
                   <>
                     <div>
-                      <Label htmlFor="amount">Amount Donated ($)</Label>
+                      <Label htmlFor="amount">Amount Donated (£)</Label>
                       <Input
                         id="amount"
                         type="number"

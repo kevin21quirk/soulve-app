@@ -60,7 +60,7 @@ const DonationTrendChart = () => {
                   dataKey="amount" 
                   stroke="#10b981" 
                   strokeWidth={2}
-                  name="Amount ($)"
+                  name="Amount (£)"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -105,7 +105,7 @@ const DonationTrendChart = () => {
             </div>
             <div className="p-4 bg-purple-50 rounded-lg">
               <h4 className="font-semibold text-purple-900">Average Amount</h4>
-              <p className="text-purple-700">$85 per donation (up 8%)</p>
+              <p className="text-purple-700">£85 per donation (up 8%)</p>
             </div>
             <div className="p-4 bg-orange-50 rounded-lg">
               <h4 className="font-semibold text-orange-900">Frequency</h4>

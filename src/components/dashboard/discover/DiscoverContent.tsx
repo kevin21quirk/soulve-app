@@ -355,8 +355,8 @@ const DiscoverContent = () => {
                     {item.type === 'campaign' && item.goal_amount && (
                       <div className="bg-gray-100 rounded-lg p-3 mb-3">
                         <div className="flex justify-between text-sm">
-                          <span>Raised: ${item.current_amount || 0}</span>
-                          <span>Goal: ${item.goal_amount}</span>
+                          <span>Raised: £{item.current_amount || 0}</span>
+                          <span>Goal: £{item.goal_amount}</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                           <div 

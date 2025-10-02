@@ -135,8 +135,8 @@ const SocialShareButton = ({ campaign, variant = "default", className }: SocialS
 
           <div className="text-xs text-gray-500 space-y-1">
             <p><strong>Campaign:</strong> {shareData.title}</p>
-            <p><strong>Goal:</strong> ${shareData.goalAmount?.toLocaleString()}</p>
-            <p><strong>Raised:</strong> ${shareData.currentAmount?.toLocaleString()}</p>
+            <p><strong>Goal:</strong> £{shareData.goalAmount?.toLocaleString()}</p>
+            <p><strong>Raised:</strong> £{shareData.currentAmount?.toLocaleString()}</p>
           </div>
         </CardContent>
       </Card>

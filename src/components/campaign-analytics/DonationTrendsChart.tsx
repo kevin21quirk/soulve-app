@@ -44,7 +44,7 @@ const DonationTrendsChart = ({ donations }: DonationTrendsChartProps) => {
               <DollarSign className="h-4 w-4 text-green-600" />
               <div>
                 <div className="text-sm text-gray-600">Total Raised</div>
-                <div className="text-xl font-bold">${totalAmount.toLocaleString()}</div>
+                <div className="text-xl font-bold">£{totalAmount.toLocaleString()}</div>
               </div>
             </div>
           </CardContent>
@@ -56,7 +56,7 @@ const DonationTrendsChart = ({ donations }: DonationTrendsChartProps) => {
               <TrendingUp className="h-4 w-4 text-blue-600" />
               <div>
                 <div className="text-sm text-gray-600">Average Donation</div>
-                <div className="text-xl font-bold">${averageDonation.toFixed(2)}</div>
+                <div className="text-xl font-bold">£{averageDonation.toFixed(2)}</div>
               </div>
             </div>
           </CardContent>
@@ -89,10 +89,10 @@ const DonationTrendsChart = ({ donations }: DonationTrendsChartProps) => {
                   dataKey="date" 
                   tickFormatter={(value) => new Date(value).toLocaleDateString()}
                 />
-                <YAxis tickFormatter={(value) => `$${value}`} />
+                <YAxis tickFormatter={(value) => `£${value}`} />
                 <Tooltip 
                   labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']}
+                  formatter={(value: number) => [`£${value.toLocaleString()}`, 'Amount']}
                 />
                 <Line 
                   type="monotone" 

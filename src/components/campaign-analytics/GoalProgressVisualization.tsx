@@ -32,7 +32,7 @@ const GoalProgressVisualization = ({
   goalAmount,
   currentAmount,
   goalType,
-  currency = 'USD',
+  currency = 'GBP',
   daysRemaining = 15,
   totalDays = 30,
   recentDonations = []
@@ -56,7 +56,7 @@ const GoalProgressVisualization = ({
 
   const formatValue = (value: number) => {
     if (goalType === 'monetary') {
-      return `$${value.toLocaleString()}`;
+      return `£${value.toLocaleString()}`;
     }
     return value.toLocaleString();
   };

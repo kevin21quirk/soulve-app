@@ -117,7 +117,7 @@ const CampaignForm = ({ onCampaignCreated, onSuccess, selectedTemplate }: Campai
           </div>
 
           <div>
-            <Label htmlFor="goalAmount">Goal Amount ($)</Label>
+            <Label htmlFor="goalAmount">Goal Amount (£)</Label>
             <Input
               id="goalAmount"
               type="number"

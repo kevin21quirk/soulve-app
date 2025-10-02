@@ -107,7 +107,7 @@ const PerformanceInsightsPanel = ({
       results.push({
         type: 'warning',
         title: 'Pace Behind Target',
-        description: `Need $${dailyTarget.toFixed(0)}/day to reach goal. Current pace: $${currentDaily.toFixed(0)}/day`,
+        description: `Need £${dailyTarget.toFixed(0)}/day to reach goal. Current pace: £${currentDaily.toFixed(0)}/day`,
         trend: { direction: 'down', percentage: -15.2 }
       });
     }

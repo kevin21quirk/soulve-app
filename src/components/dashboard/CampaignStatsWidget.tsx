@@ -41,7 +41,7 @@ const CampaignStatsWidget = () => {
           
           <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
             <DollarSign className="h-5 w-5 text-green-600 mx-auto mb-1" />
-            <div className="text-lg font-bold">${stats.totalRaised.toLocaleString()}</div>
+            <div className="text-lg font-bold">£{stats.totalRaised.toLocaleString()}</div>
             <div className="text-xs text-gray-600">Raised</div>
           </div>
           

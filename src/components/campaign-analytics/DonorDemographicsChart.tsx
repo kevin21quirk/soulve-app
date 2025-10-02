@@ -175,9 +175,9 @@ const DonorDemographicsChart = ({ donations }: DonorDemographicsChartProps) => {
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={topCountries} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" tickFormatter={(value) => `$${value}`} />
+              <XAxis type="number" tickFormatter={(value) => `£${value}`} />
               <YAxis dataKey="name" type="category" width={100} />
-              <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']} />
+              <Tooltip formatter={(value: number) => [`£${value.toLocaleString()}`, 'Amount']} />
               <Bar dataKey="amount" fill="#0ce4af" />
             </BarChart>
           </ResponsiveContainer>

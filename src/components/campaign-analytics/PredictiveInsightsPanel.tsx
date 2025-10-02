@@ -92,7 +92,7 @@ const PredictiveInsightsPanel = () => {
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">${predictions.goalCompletion.finalAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">£{predictions.goalCompletion.finalAmount.toLocaleString()}</div>
               <div className="text-sm text-gray-600">Projected Final Amount</div>
               <div className="flex items-center justify-center mt-1">
                 <TrendingUp className="h-4 w-4 text-green-500 mr-1" />

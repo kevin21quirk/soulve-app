@@ -55,13 +55,13 @@ const AdvancedCampaignMetrics = ({ campaignId }: AdvancedCampaignMetricsProps) =
         <CardContent>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-2xl font-bold">${metrics.totalRaised.toLocaleString()}</span>
-              <span className="text-gray-600">of ${metrics.goalAmount.toLocaleString()}</span>
+              <span className="text-2xl font-bold">£{metrics.totalRaised.toLocaleString()}</span>
+              <span className="text-gray-600">of £{metrics.goalAmount.toLocaleString()}</span>
             </div>
             <Progress value={metrics.fundingProgress} className="h-3" />
             <div className="flex justify-between text-sm text-gray-600">
               <span>{metrics.fundingProgress}% funded</span>
-              <span>${(metrics.goalAmount - metrics.totalRaised).toLocaleString()} to go</span>
+              <span>£{(metrics.goalAmount - metrics.totalRaised).toLocaleString()} to go</span>
             </div>
           </div>
         </CardContent>
@@ -91,7 +91,7 @@ const AdvancedCampaignMetrics = ({ campaignId }: AdvancedCampaignMetricsProps) =
               <DollarSign className="h-5 w-5 text-green-600" />
               <div>
                 <div className="text-sm text-gray-600">Avg Donation</div>
-                <div className="text-xl font-bold">${metrics.avgDonation}</div>
+                <div className="text-xl font-bold">£{metrics.avgDonation}</div>
                 <div className="flex items-center text-xs text-green-600">
                   {getTrendIcon(metrics.dailyGrowth)}
                   +{metrics.dailyGrowth}%

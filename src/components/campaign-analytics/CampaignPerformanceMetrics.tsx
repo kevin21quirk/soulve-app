@@ -96,8 +96,8 @@ const CampaignPerformanceMetrics = ({
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-2xl font-bold">${currentAmount?.toLocaleString() || 0}</span>
-                <span className="text-lg text-gray-600">of ${goalAmount.toLocaleString()}</span>
+                <span className="text-2xl font-bold">£{currentAmount?.toLocaleString() || 0}</span>
+                <span className="text-lg text-gray-600">of £{goalAmount.toLocaleString()}</span>
               </div>
               <Progress value={progressPercentage} className="h-3" />
               <div className="flex justify-between text-sm text-gray-600">
@@ -139,7 +139,7 @@ const CampaignPerformanceMetrics = ({
                 <div className="text-sm text-gray-600">Donors</div>
                 <div className="text-xl font-bold">{analytics.totalDonations}</div>
                 <div className="text-xs text-gray-500">
-                  ${avgDonationAmount.toFixed(2)} avg
+                  £{avgDonationAmount.toFixed(2)} avg
                 </div>
               </div>
             </div>

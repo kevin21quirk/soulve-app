@@ -113,7 +113,7 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="goal_amount">Goal Amount ($)</Label>
+          <Label htmlFor="goal_amount">Goal Amount (£)</Label>
           <Input
             id="goal_amount"
             type="text"
@@ -135,7 +135,9 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="GBP">GBP</SelectItem>
               <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="EUR">EUR</SelectItem>
               <SelectItem value="EUR">EUR</SelectItem>
               <SelectItem value="GBP">GBP</SelectItem>
             </SelectContent>

@@ -69,12 +69,12 @@ const CampaignMetricsCard = ({ campaignId }: CampaignMetricsCardProps) => {
   const metrics = [
     {
       title: "Total Raised",
-      value: "$12,450",
+      value: "£12,450",
       change: 15.2,
       changeType: 'positive' as const,
       icon: <DollarSign className="h-4 w-4" />,
       progress: 62.25,
-      description: "Goal: $20,000"
+      description: "Goal: £20,000"
     },
     {
       title: "Supporters",

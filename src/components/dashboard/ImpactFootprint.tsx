@@ -39,7 +39,7 @@ const ImpactFootprint = ({ activities, userName }: ImpactFootprintProps) => {
   const getEmotionalMessage = (activity: TrustActivity) => {
     switch (activity.type) {
       case "donation":
-        return `${userName} made a difference by donating $${activity.amount} to ${activity.organization}`;
+        return `${userName} made a difference by donating £${activity.amount} to ${activity.organization}`;
       case "volunteer":
         return `${userName} dedicated ${activity.hours} hours volunteering for ${activity.organization}`;
       case "help_provided":

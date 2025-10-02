@@ -18,7 +18,7 @@ const TrustStatsGrid = ({ trustFootprint }: TrustStatsGridProps) => {
     },
     {
       label: "Amount Donated",
-      value: `$${trustFootprint.totalDonated.toLocaleString()}`,
+      value: `£${trustFootprint.totalDonated.toLocaleString()}`,
       icon: DollarSign,
       color: "text-green-500",
       bgColor: "bg-green-50"

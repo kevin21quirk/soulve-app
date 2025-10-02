@@ -87,7 +87,7 @@ const CampaignPerformanceChart = () => {
                   <Tooltip 
                     labelFormatter={(value) => `Date: ${value}`}
                     formatter={(value, name) => [
-                      name === 'amount' ? `$${value}` : value,
+                      name === 'amount' ? `£${value}` : value,
                       name === 'amount' ? 'Amount Raised' : 'New Supporters'
                     ]}
                   />

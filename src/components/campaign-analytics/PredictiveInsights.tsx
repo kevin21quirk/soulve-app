@@ -171,7 +171,7 @@ const PredictiveInsights = ({
           <CardContent>
             <div className="space-y-2">
               <div className="text-2xl font-bold">
-                ${dailyDonations ? dailyDonations.value.toLocaleString() : '1,500'}
+                £{dailyDonations ? dailyDonations.value.toLocaleString() : '1,500'}
               </div>
               <div className="text-sm text-gray-600">Predicted daily donations</div>
               <div className="flex items-center space-x-2">
@@ -197,10 +197,10 @@ const PredictiveInsights = ({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" />
                 <YAxis 
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`}
                 />
                 <Tooltip 
-                  formatter={(value) => [`$${value.toLocaleString()}`, '']}
+                  formatter={(value) => [`£${value.toLocaleString()}`, '']}
                   labelFormatter={(label) => label}
                 />
                 <Area

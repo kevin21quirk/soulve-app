@@ -88,7 +88,7 @@ const CampaignAnalyticsDashboard = ({ campaignId }: CampaignAnalyticsDashboardPr
           <CardContent>
             <div className="text-2xl font-bold">62.3%</div>
             <p className="text-xs text-muted-foreground">
-              $12,450 of $20,000 goal
+              £12,450 of £20,000 goal
             </p>
           </CardContent>
         </Card>
@@ -149,7 +149,7 @@ const CampaignAnalyticsDashboard = ({ campaignId }: CampaignAnalyticsDashboardPr
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Average Donation</span>
-                    <span className="font-semibold">$98.03</span>
+                    <span className="font-semibold">£98.03</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Peak Donation Time</span>

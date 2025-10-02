@@ -93,7 +93,7 @@ const DonorJourneyAnalytics = ({ donations }: DonorJourneyAnalyticsProps) => {
                 <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'count' ? `${value} donations` : `$${value.toLocaleString()}`,
+                    name === 'count' ? `${value} donations` : `£${value.toLocaleString()}`,
                     name === 'count' ? 'Donations' : 'Amount'
                   ]}
                 />
@@ -167,7 +167,7 @@ const DonorJourneyAnalytics = ({ donations }: DonorJourneyAnalyticsProps) => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">${item.amount.toLocaleString()}</div>
+                    <div className="font-semibold">£{item.amount.toLocaleString()}</div>
                     <div className="text-xs text-gray-500">
                       {((item.amount / donations.reduce((sum, d) => sum + d.amount, 0)) * 100).toFixed(1)}%
                     </div>
@@ -198,10 +198,10 @@ const DonorJourneyAnalytics = ({ donations }: DonorJourneyAnalyticsProps) => {
                     <div className="space-y-1">
                       <div className="text-2xl font-bold">{typeData.length}</div>
                       <div className="text-sm text-gray-500">
-                        ${totalAmount.toLocaleString()} total
+                        £{totalAmount.toLocaleString()} total
                       </div>
                       <div className="text-xs text-gray-400">
-                        ${avgAmount.toFixed(0)} avg
+                        £{avgAmount.toFixed(0)} avg
                       </div>
                     </div>
                   </div>

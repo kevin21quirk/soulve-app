@@ -44,7 +44,7 @@ const CampaignAnalytics = () => {
               <DollarSign className="h-4 w-4 text-green-600" />
               <div>
                 <p className="text-sm text-gray-600">Total Raised</p>
-                <p className="text-2xl font-bold">${analyticsData.totalRaised.toLocaleString()}</p>
+                <p className="text-2xl font-bold">£{analyticsData.totalRaised.toLocaleString()}</p>
                 <p className="text-xs text-green-600">+12% from last week</p>
               </div>
             </div>
@@ -99,8 +99,8 @@ const CampaignAnalytics = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>${analyticsData.totalRaised.toLocaleString()} raised</span>
-              <span>${analyticsData.goal.toLocaleString()} goal</span>
+              <span>£{analyticsData.totalRaised.toLocaleString()} raised</span>
+              <span>£{analyticsData.goal.toLocaleString()} goal</span>
             </div>
             <Progress value={progressPercentage} className="h-3" />
             <div className="text-xs text-gray-500">
@@ -110,7 +110,7 @@ const CampaignAnalytics = () => {
 
           <div className="grid grid-cols-3 gap-4 pt-4 border-t">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">${analyticsData.avgDonation}</p>
+              <p className="text-2xl font-bold text-gray-900">£{analyticsData.avgDonation}</p>
               <p className="text-sm text-gray-600">Avg. Donation</p>
             </div>
             <div className="text-center">
