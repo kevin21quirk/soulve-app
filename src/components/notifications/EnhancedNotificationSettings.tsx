@@ -200,12 +200,36 @@ const EnhancedNotificationSettings = ({ onClose }: EnhancedNotificationSettingsP
                 <Mail className="h-4 w-4 text-green-600" />
                 <div>
                   <Label>Email Notifications</Label>
-                  <p className="text-xs text-gray-500">Daily digest and important updates</p>
+                  <p className="text-xs text-gray-500">Important updates via email</p>
                 </div>
               </div>
               <Switch
                 checked={preferences.email_enabled}
                 onCheckedChange={(enabled) => updatePreferences({ email_enabled: enabled })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between ml-7">
+              <div>
+                <Label className="text-xs">Email Digest</Label>
+                <p className="text-xs text-gray-500">Daily summary of notifications</p>
+              </div>
+              <Switch
+                checked={preferences.email_digest_enabled}
+                onCheckedChange={(enabled) => updatePreferences({ email_digest_enabled: enabled })}
+                disabled={!preferences.email_enabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between ml-7">
+              <div>
+                <Label className="text-xs">Instant Email</Label>
+                <p className="text-xs text-gray-500">Get urgent notifications immediately</p>
+              </div>
+              <Switch
+                checked={preferences.email_instant_enabled}
+                onCheckedChange={(enabled) => updatePreferences({ email_instant_enabled: enabled })}
+                disabled={!preferences.email_enabled}
               />
             </div>
 

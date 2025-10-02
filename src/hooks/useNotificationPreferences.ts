@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 interface NotificationPreferences {
   push_enabled: boolean;
   email_enabled: boolean;
+  email_digest_enabled: boolean;
+  email_instant_enabled: boolean;
   sound_enabled: boolean;
   categories: {
     connection_requests: boolean;
@@ -24,6 +26,8 @@ interface NotificationPreferences {
 const defaultPreferences: NotificationPreferences = {
   push_enabled: true,
   email_enabled: true,
+  email_digest_enabled: true,
+  email_instant_enabled: false,
   sound_enabled: true,
   categories: {
     connection_requests: true,

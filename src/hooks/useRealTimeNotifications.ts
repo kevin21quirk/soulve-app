@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationAnalytics } from './useNotificationAnalytics';
+import { useNotificationGrouping } from './useNotificationGrouping';
 
 interface Notification {
   id: string;
@@ -15,6 +17,12 @@ interface Notification {
   sender_id?: string;
   timestamp: string;
   isRead: boolean;
+  priority?: 'urgent' | 'high' | 'normal' | 'low';
+  action_url?: string;
+  action_type?: 'accept' | 'decline' | 'reply' | 'view' | 'like' | 'share';
+  group_key?: string;
+  delivery_status?: 'pending' | 'delivered' | 'read' | 'failed';
+  read_at?: string;
 }
 
 export const useRealTimeNotifications = () => {
@@ -23,6 +31,8 @@ export const useRealTimeNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { trackEvent, trackDelivery } = useNotificationAnalytics();
+  const { groupedNotifications } = useNotificationGrouping(notifications);
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -47,7 +57,13 @@ export const useRealTimeNotifications = () => {
         metadata: notification.metadata,
         sender_id: notification.sender_id,
         timestamp: notification.created_at,
-        isRead: notification.is_read
+        isRead: notification.is_read,
+        priority: (notification.priority as 'urgent' | 'high' | 'normal' | 'low') || 'normal',
+        action_url: notification.action_url || undefined,
+        action_type: (notification.action_type as 'accept' | 'decline' | 'reply' | 'view' | 'like' | 'share') || undefined,
+        group_key: notification.group_key || undefined,
+        delivery_status: (notification.delivery_status as 'pending' | 'delivered' | 'read' | 'failed') || 'pending',
+        read_at: notification.read_at || undefined
       }));
 
       setNotifications(formattedNotifications);
@@ -61,21 +77,35 @@ export const useRealTimeNotifications = () => {
 
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
+      const now = new Date().toISOString();
       await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ 
+          is_read: true,
+          read_at: now,
+          delivery_status: 'read'
+        })
         .eq('id', notificationId);
+
+      // Track analytics
+      await trackEvent(notificationId, 'viewed');
 
       setNotifications(prev => 
         prev.map(n => 
-          n.id === notificationId ? { ...n, is_read: true, isRead: true } : n
+          n.id === notificationId ? { 
+            ...n, 
+            is_read: true, 
+            isRead: true,
+            read_at: now,
+            delivery_status: 'read'
+          } : n
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
-  }, []);
+  }, [trackEvent]);
 
   const markAllAsRead = useCallback(async () => {
     if (!user) return;
@@ -175,6 +205,7 @@ export const useRealTimeNotifications = () => {
 
   return {
     notifications,
+    groupedNotifications,
     unreadCount,
     loading,
     markAsRead,

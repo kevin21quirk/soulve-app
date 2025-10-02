@@ -1,5 +1,9 @@
 
 // Unified notification types for the application
+export type NotificationPriority = 'urgent' | 'high' | 'normal' | 'low';
+export type NotificationActionType = 'accept' | 'decline' | 'reply' | 'view' | 'like' | 'share';
+export type DeliveryStatus = 'pending' | 'delivered' | 'read' | 'failed';
+
 export interface BaseNotification {
   id: string;
   type: string;
@@ -9,6 +13,13 @@ export interface BaseNotification {
   timestamp?: string;
   metadata?: any;
   sender_id?: string;
+  priority?: NotificationPriority;
+  action_url?: string;
+  action_type?: NotificationActionType;
+  group_key?: string;
+  grouped_with?: string;
+  delivery_status?: DeliveryStatus;
+  read_at?: string;
 }
 
 export interface OnlineNotification extends BaseNotification {
@@ -27,6 +38,9 @@ export interface UnifiedNotification extends BaseNotification {
   is_read: boolean;
   created_at?: string;
   timestamp?: string;
+  groupCount?: number;
+  groupedItems?: BaseNotification[];
+  isGroup?: boolean;
 }
 
 // Mobile notification item interface

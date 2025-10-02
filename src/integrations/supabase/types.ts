@@ -2488,41 +2488,152 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_analytics: {
+        Row: {
+          created_at: string | null
+          event_metadata: Json | null
+          event_type: string
+          id: string
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_metadata?: Json | null
+          event_type: string
+          id?: string
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_metadata?: Json | null
+          event_type?: string
+          id?: string
+          notification_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_analytics_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_delivery_log: {
+        Row: {
+          action_taken: string | null
+          clicked_at: string | null
+          created_at: string | null
+          delivered_at: string | null
+          delivery_method: string
+          device_info: Json | null
+          id: string
+          notification_id: string
+          opened_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_taken?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_method: string
+          device_info?: Json | null
+          id?: string
+          notification_id: string
+          opened_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_taken?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_method?: string
+          device_info?: Json | null
+          id?: string
+          notification_id?: string
+          opened_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_delivery_log_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
+          action_type: string | null
+          action_url: string | null
           created_at: string
+          delivery_status: string | null
+          group_key: string | null
+          grouped_with: string | null
           id: string
           is_read: boolean
           message: string
           metadata: Json | null
+          priority: string | null
+          read_at: string | null
           recipient_id: string
           sender_id: string | null
           title: string
           type: string
         }
         Insert: {
+          action_type?: string | null
+          action_url?: string | null
           created_at?: string
+          delivery_status?: string | null
+          group_key?: string | null
+          grouped_with?: string | null
           id?: string
           is_read?: boolean
           message: string
           metadata?: Json | null
+          priority?: string | null
+          read_at?: string | null
           recipient_id: string
           sender_id?: string | null
           title: string
           type: string
         }
         Update: {
+          action_type?: string | null
+          action_url?: string | null
           created_at?: string
+          delivery_status?: string | null
+          group_key?: string | null
+          grouped_with?: string | null
           id?: string
           is_read?: boolean
           message?: string
           metadata?: Json | null
+          priority?: string | null
+          read_at?: string | null
           recipient_id?: string
           sender_id?: string | null
           title?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_grouped_with_fkey"
+            columns: ["grouped_with"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organization_esg_data: {
         Row: {
@@ -4515,6 +4626,17 @@ export type Database = {
           missing_indicators: number
         }[]
       }
+      get_notification_analytics: {
+        Args: { p_days_back?: number; p_user_id: string }
+        Returns: {
+          click_rate: number
+          clicked_count: number
+          delivered_count: number
+          open_rate: number
+          opened_count: number
+          total_notifications: number
+        }[]
+      }
       get_or_create_conversation: {
         Args: { user1_id: string; user2_id: string }
         Returns: string
@@ -4552,6 +4674,10 @@ export type Database = {
       get_user_total_points: {
         Args: { target_user_id: string }
         Returns: number
+      }
+      group_similar_notifications: {
+        Args: { p_time_window?: unknown; p_type: string; p_user_id: string }
+        Returns: string
       }
       is_admin: {
         Args: { user_uuid: string }
