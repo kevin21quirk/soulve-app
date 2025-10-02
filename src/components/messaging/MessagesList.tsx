@@ -93,8 +93,7 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   };
 
   return (
-    <CardContent className="flex-1 overflow-hidden p-0">
-      <ScrollArea className="h-[400px] p-4">
+    <ScrollArea className="h-full p-4">
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="flex items-center space-x-2">
@@ -161,7 +160,6 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
           </div>
         )}
       </ScrollArea>
-    </CardContent>
   );
 };
 

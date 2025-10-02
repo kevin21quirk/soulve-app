@@ -133,70 +133,70 @@ export const RealMessaging = () => {
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-6 h-[600px]">
-      {/* Conversations List */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Messages</CardTitle>
+    <div className="flex h-[calc(100vh-200px)] bg-background rounded-lg overflow-hidden border">
+      {/* Conversations Sidebar */}
+      <div className="w-[360px] border-r flex flex-col bg-card">
+        <div className="p-4 border-b">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-2xl font-bold">Chats</h2>
             <Button 
               onClick={() => setShowNewConversation(!showNewConversation)}
               size="sm"
-              variant="outline"
+              variant="ghost"
+              className="rounded-full h-9 w-9 p-0"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              New
+              <Plus className="h-5 w-5" />
             </Button>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder={showNewConversation ? "Search people..." : "Search conversations..."}
               value={showNewConversation ? searchUsers : searchQuery}
               onChange={(e) => showNewConversation ? setSearchUsers(e.target.value) : setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-9 bg-muted/50 border-0 rounded-full"
             />
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[480px]">
+        </div>
+        <ScrollArea className="flex-1">
             {showNewConversation ? (
               // New Conversation View
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Start New Conversation</h3>
+              <div className="p-2">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <h3 className="font-semibold text-sm">New Message</h3>
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={() => setShowNewConversation(false)}
+                    className="h-8 text-xs"
                   >
                     Cancel
                   </Button>
                 </div>
                 {filteredUsers.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-muted-foreground py-8 px-4">
                     <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>No users found</p>
+                    <p className="text-sm">No users found</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {filteredUsers.map((user) => {
                       const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Anonymous';
                       return (
                         <div
                           key={user.id}
                           onClick={() => handleStartNewConversation(user.id)}
-                          className="p-3 hover:bg-gray-50 cursor-pointer rounded-lg border"
+                          className="px-3 py-2 hover:bg-muted/50 cursor-pointer rounded-lg transition-colors"
                         >
                           <div className="flex items-center space-x-3">
-                            <Avatar className="h-10 w-10">
+                            <Avatar className="h-12 w-12">
                               <AvatarImage src={user.avatar_url || ''} alt={userName} />
                               <AvatarFallback>
                                 {userName.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <h4 className="font-medium text-gray-900">{userName}</h4>
+                              <h4 className="font-medium">{userName}</h4>
                             </div>
                           </div>
                         </div>
@@ -209,12 +209,12 @@ export const RealMessaging = () => {
               // Existing Conversations View
               <>
                 {filteredConversations.length === 0 ? (
-                  <div className="p-6 text-center text-gray-500">
+                  <div className="p-6 text-center text-muted-foreground">
                     <p>No conversations yet.</p>
-                    <p className="text-sm mt-1">Click "New" to start messaging!</p>
+                    <p className="text-sm mt-1">Click + to start messaging!</p>
                   </div>
                 ) : (
-                  <div className="space-y-1">
+                  <div>
                     {filteredConversations.map((conversation) => {
                       const partnerName = conversation.partner_profile 
                         ? `${conversation.partner_profile.first_name || ''} ${conversation.partner_profile.last_name || ''}`.trim() || 'Anonymous'
@@ -224,39 +224,43 @@ export const RealMessaging = () => {
                         <div
                           key={conversation.id}
                           onClick={() => handleConversationSelect(conversation.partner_id)}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer border-l-4 transition-colors ${
+                          className={`px-3 py-3 cursor-pointer transition-colors ${
                             selectedConversation === conversation.partner_id
-                              ? "bg-blue-50 border-l-blue-500"
-                              : "border-l-transparent"
+                              ? "bg-muted"
+                              : "hover:bg-muted/50"
                           }`}
                         >
                           <div className="flex items-center space-x-3">
                             <div className="relative">
-                              <Avatar className="h-12 w-12">
+                              <Avatar className="h-14 w-14">
                                 <AvatarImage src={conversation.partner_profile?.avatar_url || ''} alt={partnerName} />
-                                <AvatarFallback>
+                                <AvatarFallback className="text-lg">
                                   {partnerName.split(' ').map(n => n[0]).join('').toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               {conversation.is_read === false && (
-                                <div className="absolute -top-1 -right-1 h-3 w-3 bg-blue-600 rounded-full"></div>
+                                <div className="absolute -top-1 -right-1 h-4 w-4 bg-primary rounded-full border-2 border-card"></div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-gray-900 truncate">{partnerName}</h4>
-                                <span className="text-xs text-gray-500">
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="font-semibold truncate">{partnerName}</h4>
+                                <span className="text-xs text-muted-foreground">
                                   {format(new Date(conversation.last_message_time), 'MMM d')}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-600 truncate mt-1">
-                                {conversation.last_message}
-                              </p>
-                              {conversation.unread_count > 0 && (
-                                <Badge variant="secondary" className="mt-1 text-xs">
-                                  {conversation.unread_count} new
-                                </Badge>
-                              )}
+                              <div className="flex items-center justify-between">
+                                <p className={`text-sm truncate ${
+                                  conversation.unread_count > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                                }`}>
+                                  {conversation.last_message}
+                                </p>
+                                {conversation.unread_count > 0 && (
+                                  <div className="ml-2 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                                    {conversation.unread_count}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -267,53 +271,52 @@ export const RealMessaging = () => {
               </>
             )}
           </ScrollArea>
-        </CardContent>
-      </Card>
+        </div>
 
       {/* Message Thread */}
-      <div className="lg:col-span-2">
+      <div className="flex-1 flex flex-col bg-card">
         {selectedConversation && selectedConv ? (
-          <Card className="h-full flex flex-col">
+          <>
             {/* Header */}
-            <CardHeader className="pb-3 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={selectedConv.partner_profile?.avatar_url || ''} />
-                    <AvatarFallback>
-                      {(selectedConv.partner_profile?.first_name?.[0] || '') + (selectedConv.partner_profile?.last_name?.[0] || '')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">
-                      {selectedConv.partner_profile 
-                        ? `${selectedConv.partner_profile.first_name || ''} ${selectedConv.partner_profile.last_name || ''}`.trim() || 'Anonymous'
-                        : 'Anonymous'
-                      }
-                    </h3>
-                    <p className="text-sm text-gray-500">Active now</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="sm">
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Video className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+            <div className="p-4 border-b flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={selectedConv.partner_profile?.avatar_url || ''} />
+                  <AvatarFallback>
+                    {(selectedConv.partner_profile?.first_name?.[0] || '') + (selectedConv.partner_profile?.last_name?.[0] || '')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold">
+                    {selectedConv.partner_profile 
+                      ? `${selectedConv.partner_profile.first_name || ''} ${selectedConv.partner_profile.last_name || ''}`.trim() || 'Anonymous'
+                      : 'Anonymous'
+                    }
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Active now</p>
                 </div>
               </div>
-            </CardHeader>
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-full">
+                  <Phone className="h-4 w-4 text-primary" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-full">
+                  <Video className="h-4 w-4 text-primary" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-full">
+                  <MoreVertical className="h-4 w-4 text-primary" />
+                </Button>
+              </div>
+            </div>
 
             {/* Messages */}
-            <MessagesList 
-              messages={messages}
-              userId={user?.id}
-              loading={messagesLoading}
-            />
+            <div className="flex-1 overflow-hidden">
+              <MessagesList 
+                messages={messages}
+                userId={user?.id}
+                loading={messagesLoading}
+              />
+            </div>
 
             {/* Message Input */}
             <MessageInput
@@ -323,27 +326,25 @@ export const RealMessaging = () => {
               sending={sendMessage.isPending}
               partnerId={selectedConversation}
             />
-          </Card>
+          </>
         ) : selectedConversation && !selectedConv ? (
           // New conversation selected but no existing conversation data
-          <Card className="h-full flex flex-col">
-            <CardHeader className="pb-3 border-b">
+          <>
+            <div className="p-4 border-b">
               <div className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
                   <AvatarFallback>?</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold">New Conversation</h3>
-                  <p className="text-sm text-gray-500">Send your first message</p>
+                  <p className="text-xs text-muted-foreground">Send your first message</p>
                 </div>
               </div>
-            </CardHeader>
+            </div>
 
-            <CardContent className="flex-1 overflow-hidden p-0">
-              <div className="flex items-center justify-center h-full text-gray-500">
-                <p>Start your conversation by sending a message below!</p>
-              </div>
-            </CardContent>
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <p>Start your conversation by sending a message below!</p>
+            </div>
 
             <MessageInput
               newMessage={newMessage}
@@ -352,14 +353,14 @@ export const RealMessaging = () => {
               sending={sendMessage.isPending}
               partnerId={selectedConversation}
             />
-          </Card>
+          </>
         ) : (
-          <Card className="h-full flex items-center justify-center">
-            <CardContent className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
-              <p className="text-gray-500">Choose from your existing conversations or start a new one</p>
-            </CardContent>
-          </Card>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Select a conversation</h3>
+              <p className="text-muted-foreground">Choose from your existing conversations or start a new one</p>
+            </div>
+          </div>
         )}
       </div>
     </div>

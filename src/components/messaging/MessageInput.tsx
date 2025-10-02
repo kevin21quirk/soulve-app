@@ -87,22 +87,22 @@ const MessageInput = ({
   };
 
   return (
-    <div className="border-t p-4">
+    <div className="p-4 border-t">
       {/* File preview */}
       {selectedFile && (
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-3 p-3 bg-muted rounded-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="w-12 h-12 object-cover rounded" />
+                <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
               ) : (
-                <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                  <Paperclip className="h-6 w-6 text-gray-500" />
+                <div className="w-16 h-16 bg-muted-foreground/10 rounded-lg flex items-center justify-center">
+                  <Paperclip className="h-6 w-6 text-muted-foreground" />
                 </div>
               )}
-              <div>
-                <p className="text-sm font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                <p className="text-xs text-muted-foreground">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
@@ -111,7 +111,7 @@ const MessageInput = ({
               variant="ghost"
               size="sm"
               onClick={clearFile}
-              className="text-gray-500 hover:text-gray-700"
+              className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10 hover:text-destructive"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -119,49 +119,52 @@ const MessageInput = ({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex space-x-2">
-        <div className="flex-1 flex space-x-2">
+      <form onSubmit={handleSubmit} className="flex items-end gap-2">
+        {/* File upload button */}
+        <div className="relative">
+          <input
+            type="file"
+            accept="image/*,.pdf,.doc,.docx,.mp4,.mov,.avi"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="file-upload"
+            disabled={disabled || sending || uploading}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => document.getElementById('file-upload')?.click()}
+            disabled={disabled || sending || uploading}
+            className="h-10 w-10 p-0 rounded-full hover:bg-primary/10 hover:text-primary"
+            title="Attach file"
+          >
+            {uploading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Paperclip className="h-5 w-5" />
+            )}
+          </Button>
+        </div>
+        
+        {/* Message input */}
+        <div className="flex-1 relative">
           <Input
             value={newMessage}
             onChange={handleInputChange}
-            placeholder={disabled ? "Unable to send messages" : "Type a message..."}
-            className="flex-1"
+            placeholder={disabled ? "Unable to send messages" : "Aa"}
+            className="rounded-full bg-muted border-0 pr-12 h-10"
             disabled={disabled || sending || uploading}
             onKeyPress={handleKeyPress}
           />
-          
-          {/* File upload button */}
-          <div className="relative">
-            <input
-              type="file"
-              accept="image/*,*/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="file-upload"
-              disabled={disabled || sending || uploading}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => document.getElementById('file-upload')?.click()}
-              disabled={disabled || sending || uploading}
-              className="px-3"
-            >
-              {uploading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Paperclip className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
         </div>
         
+        {/* Send button */}
         <Button 
           type="submit" 
-          size="sm" 
+          size="sm"
           disabled={(!newMessage.trim() && !selectedFile) || sending || disabled || uploading}
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:from-[#0bd19c] hover:to-[#1690e8] text-white"
+          className="h-10 w-10 p-0 rounded-full bg-primary hover:bg-primary/90"
         >
           {sending || uploading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
