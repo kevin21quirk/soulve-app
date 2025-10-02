@@ -11,6 +11,7 @@ import PostActions from "./PostActions";
 import UserModerationMenu from "@/components/moderation/UserModerationMenu";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -38,7 +39,14 @@ const FeedPostCard = ({
   onPostDeleted
 }: FeedPostCardProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
+
+  const handleProfileClick = () => {
+    if (post.authorId) {
+      navigate(`/profile/${post.authorId}`);
+    }
+  };
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -75,7 +83,10 @@ const FeedPostCard = ({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="h-10 w-10 flex-shrink-0">
+            <Avatar 
+              className="h-10 w-10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" 
+              onClick={handleProfileClick}
+            >
               <AvatarImage src={post.avatar} alt={post.author} />
               <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                 {post.author.charAt(0).toUpperCase()}
@@ -83,7 +94,10 @@ const FeedPostCard = ({
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-semibold text-gray-900 text-sm truncate">
+                <h3 
+                  className="font-semibold text-gray-900 text-sm truncate cursor-pointer hover:underline" 
+                  onClick={handleProfileClick}
+                >
                   {post.author}
                 </h3>
                 <Badge className={`${getCategoryColor(post.category)} text-xs px-2 py-0.5 border flex-shrink-0`}>
