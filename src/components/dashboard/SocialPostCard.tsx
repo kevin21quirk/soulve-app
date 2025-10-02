@@ -25,14 +25,30 @@ interface SocialPostCardProps {
 }
 
 const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
+  console.log('🎨 [SocialPostCard] Rendered with post:', {
+    id: post.id,
+    author: post.author,
+    authorId: post.authorId,
+    hasAuthorId: !!post.authorId
+  });
+  
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const { reactions, toggleReaction } = usePostReactions(post.id);
 
   const handleProfileClick = () => {
+    console.log('👆 [SocialPostCard] Profile click:', {
+      postId: post.id,
+      authorId: post.authorId,
+      willNavigate: !!post.authorId,
+      navigateTo: post.authorId ? `/profile/${post.authorId}` : 'NOWHERE - authorId missing!'
+    });
+    
     if (post.authorId) {
       navigate(`/profile/${post.authorId}`);
+    } else {
+      console.error('❌ [SocialPostCard] Cannot navigate - authorId is missing!');
     }
   };
 

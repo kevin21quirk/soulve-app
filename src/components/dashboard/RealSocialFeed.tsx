@@ -197,17 +197,26 @@ const RealSocialFeed = () => {
         </Card>
       ) : (
         <div className="space-y-6">
-          {posts.map((post) => (
-            <SocialPostCard
-              key={post.id}
-              post={transformSocialPostToFeedPost(post)}
+          {posts.map((post) => {
+            const transformedPost = transformSocialPostToFeedPost(post);
+            console.log('📦 [RealSocialFeed] Rendering post:', {
+              rawPostId: post.id,
+              rawAuthorId: post.author_id,
+              transformedPostId: transformedPost.id,
+              transformedAuthorId: transformedPost.authorId
+            });
+            return (
+              <SocialPostCard
+                key={post.id}
+                post={transformedPost}
               onLike={() => handleLike(post.id)}
               onShare={() => handleShare(post.id)}
               onBookmark={() => handleBookmark(post.id)}
               onComment={(content) => handleAddComment(post.id, content)}
               onReaction={handleReaction}
             />
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

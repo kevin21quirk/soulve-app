@@ -2,7 +2,14 @@
 import { FeedPost } from '@/types/feed';
 
 export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
-  return {
+  console.log('🔍 [Transform] Input socialPost:', {
+    id: socialPost.id,
+    author_id: socialPost.author_id,
+    author_name: socialPost.author_name,
+    fullPost: socialPost
+  });
+  
+  const feedPost = {
     id: socialPost.id,
     author: socialPost.author_name || 'Anonymous',
     authorId: socialPost.author_id,
@@ -26,6 +33,14 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     feeling: socialPost.feeling,
     visibility: socialPost.visibility || 'public'
   };
+  
+  console.log('✅ [Transform] Output feedPost:', {
+    id: feedPost.id,
+    author: feedPost.author,
+    authorId: feedPost.authorId
+  });
+  
+  return feedPost;
 };
 
 const transformMediaUrls = (mediaUrls: string[]) => {
