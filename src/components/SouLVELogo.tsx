@@ -1,5 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
+import soulveLogo from "@/assets/soulve-logo.png";
 
 interface SouLVELogoProps {
   size?: "small" | "medium" | "large" | "header";
@@ -33,7 +34,7 @@ const SouLVELogo = ({ size = "large", clickable = false }: SouLVELogoProps) => {
 
   const logoElement = (
     <img
-      src="/lovable-uploads/605436fd-d9bb-4b60-9785-44f3332c9fd6.png"
+      src={soulveLogo}
       alt="SouLVE Logo - Social Feed to Social Need"
       className={`${config.width} ${config.height} object-contain`}
     />
