@@ -8,6 +8,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { DollarSign, Users, Share2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ConnectToHelpModalProps {
   isOpen: boolean;
@@ -17,6 +20,7 @@ interface ConnectToHelpModalProps {
   postAuthor: {
     name: string;
     avatar: string;
+    id?: string;
   };
   category?: string;
 }
@@ -30,6 +34,8 @@ export const ConnectToHelpModal = ({
   category,
 }: ConnectToHelpModalProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleDonate = () => {
     toast({
@@ -64,12 +70,44 @@ export const ConnectToHelpModal = ({
     onClose();
   };
 
-  const handleMessage = () => {
-    toast({
-      title: "Message Sent",
-      description: `Your message to ${postAuthor.name} has been initiated.`,
-    });
-    onClose();
+  const handleMessage = async () => {
+    if (!user || !postAuthor.id) {
+      toast({
+        title: "Error",
+        description: "Unable to start conversation. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Create or get existing conversation
+      const { data: conversationId, error } = await supabase.rpc(
+        'get_or_create_conversation',
+        {
+          user1_id: user.id,
+          user2_id: postAuthor.id,
+        }
+      );
+
+      if (error) throw error;
+
+      toast({
+        title: "Opening Messages",
+        description: `Starting conversation with ${postAuthor.name}`,
+      });
+
+      // Navigate to messages tab
+      navigate('/?tab=messages');
+      onClose();
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start conversation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

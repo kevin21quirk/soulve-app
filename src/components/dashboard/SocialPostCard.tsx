@@ -293,6 +293,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               postAuthor={{
                 name: post.author,
                 avatar: post.avatar,
+                id: post.authorId,
               }}
               category={post.category}
             />

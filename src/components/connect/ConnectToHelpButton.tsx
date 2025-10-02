@@ -9,6 +9,7 @@ interface ConnectToHelpButtonProps {
   postAuthor: {
     name: string;
     avatar: string;
+    id?: string;
   };
   category?: string;
 }

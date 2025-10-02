@@ -979,6 +979,59 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          id: string
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       corporate_partnerships: {
         Row: {
           benefits_offered: string | null
@@ -4462,12 +4515,28 @@ export type Database = {
           missing_indicators: number
         }[]
       }
+      get_or_create_conversation: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: string
+      }
       get_post_reaction_counts: {
         Args: { target_post_id: string }
         Returns: {
           count: number
           reaction_type: string
           user_reacted: boolean
+        }[]
+      }
+      get_user_conversations: {
+        Args: { target_user_id: string }
+        Returns: {
+          conversation_id: string
+          last_message: string
+          last_message_time: string
+          other_user_avatar: string
+          other_user_id: string
+          other_user_name: string
+          unread_count: number
         }[]
       }
       get_user_organizations: {
