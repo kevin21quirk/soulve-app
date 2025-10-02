@@ -34,7 +34,7 @@ const Dashboard = () => {
           .eq('user_id', user.id)
           .maybeSingle();
         
-        const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
+        const completed = !!data;
         setHasCompletedOnboarding(completed);
 
         if (!completed) {

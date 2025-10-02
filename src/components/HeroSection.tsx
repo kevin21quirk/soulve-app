@@ -25,7 +25,7 @@ const HeroSection = () => {
           .eq('user_id', user.id)
           .maybeSingle();
         
-        const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
+        const completed = !!data;
         setHasCompletedOnboarding(completed);
       } catch (error) {
         console.error('Error checking onboarding status:', error);

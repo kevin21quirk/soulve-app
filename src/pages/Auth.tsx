@@ -20,21 +20,17 @@ const Auth = () => {
     // Check backend connectivity
     const checkBackend = async () => {
       try {
-        console.log('🔍 Checking Supabase backend connectivity...');
         const { error } = await supabase.auth.getSession();
         if (error) {
-          console.error('❌ Backend check failed:', error);
           if (error.message?.includes('upstream') || error.message?.includes('503')) {
             setBackendStatus('offline');
           } else {
             setBackendStatus('online');
           }
         } else {
-          console.log('✅ Backend is online');
           setBackendStatus('online');
         }
       } catch (error) {
-        console.error('❌ Backend connectivity check error:', error);
         setBackendStatus('offline');
       }
     };
@@ -49,7 +45,7 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } catch (error) {
-        console.error('Error checking user session:', error);
+        // Session check failed, user stays on auth page
       }
     };
     checkUser();

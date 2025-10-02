@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
+import * as Sentry from "@sentry/react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ErrorContextType {
@@ -28,6 +29,15 @@ export const ErrorProvider = ({ children }: ErrorProviderProps) => {
 
   const reportError = useCallback((error: Error, context?: string) => {
     setErrors(prev => [...prev, { error, context, timestamp: new Date() }]);
+    
+    // Send to Sentry if available
+    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(error, {
+        tags: {
+          context: context || 'unknown',
+        },
+      });
+    }
     
     toast({
       title: "Something went wrong",

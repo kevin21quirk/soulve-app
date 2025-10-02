@@ -69,8 +69,7 @@ const ProfileRegistration = () => {
         agree_to_terms: completeData.agreeToTerms || true
       });
 
-      // Store registration completion status locally as backup
-      localStorage.setItem('onboardingCompleted', 'true');
+      // Onboarding status is now tracked only in database
       
       toast({
         title: "Welcome to SouLVE! 🎉",

@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           .eq('user_id', user.id)
           .maybeSingle();
         
-        const completed = !!data || localStorage.getItem('onboardingCompleted') === 'true';
+        const completed = !!data;
         
         if (!completed) {
           navigate('/profile-registration', { replace: true });

@@ -64,7 +64,7 @@ const MobileOnboarding = () => {
         agree_to_terms: completeData.agreeToTerms || true
       });
 
-      localStorage.setItem('onboardingCompleted', 'true');
+      // Onboarding status tracked in database only
       
       toast({
         title: "Welcome to SouLVE! 🎉",
@@ -73,14 +73,9 @@ const MobileOnboarding = () => {
 
       // Use replace to prevent going back to onboarding
       navigate('/dashboard', { replace: true });
-    } catch (error) {
-      console.error('Error saving onboarding:', error);
-      toast({
-        title: "Setup Error",
-        description: "We couldn't complete your setup. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
+      } catch (error) {
+        // Error saving onboarding data
+      } finally {
       setIsSubmitting(false);
     }
   };
