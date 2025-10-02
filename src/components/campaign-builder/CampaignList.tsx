@@ -1,77 +1,64 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, Edit3, Share2, BarChart3, Pause, Play, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MoreHorizontal, Search, Edit3, Share2, BarChart3, Pause, Play, Trash2, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface Campaign {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  status: "active" | "paused" | "completed" | "draft";
-  progress: number;
-  raised: number;
-  goal: number;
-  daysLeft: number;
-  supporters: number;
-  createdAt: string;
-}
-
-const mockCampaigns: Campaign[] = [
-  {
-    id: "1",
-    title: "Supporting Dreams: Local Student Scholarship Fund",
-    description: "Help us provide educational opportunities to deserving students who face financial barriers.",
-    type: "fundraising",
-    status: "active",
-    progress: 65,
-    raised: 6500,
-    goal: 10000,
-    daysLeft: 25,
-    supporters: 48,
-    createdAt: "2024-01-15"
-  },
-  {
-    id: "2",
-    title: "Growing Together: Community Garden Project",
-    description: "Join us in creating a green space where neighbors can grow fresh produce and build connections.",
-    type: "community",
-    status: "active",
-    progress: 40,
-    raised: 2000,
-    goal: 5000,
-    daysLeft: 45,
-    supporters: 23,
-    createdAt: "2024-02-01"
-  },
-  {
-    id: "3",
-    title: "Second Chances: Animal Rescue Initiative",
-    description: "Every animal deserves love, care, and a forever home. Help us provide rescue services.",
-    type: "fundraising",
-    status: "paused",
-    progress: 30,
-    raised: 4500,
-    goal: 15000,
-    daysLeft: 120,
-    supporters: 67,
-    createdAt: "2024-01-20"
-  }
-];
+import { useEnhancedCampaigns } from "@/hooks/useEnhancedCampaigns";
+import { useToast } from "@/hooks/use-toast";
+import CampaignEditDialog from "./CampaignEditDialog";
+import { Campaign } from "@/hooks/campaigns/types";
 
 const CampaignList = () => {
-  const [campaigns] = useState<Campaign[]>(mockCampaigns);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { campaigns, loading, deleteCampaign, updateCampaign } = useEnhancedCampaigns();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [deletingCampaignId, setDeletingCampaignId] = useState<string | null>(null);
+
+  const handleToggleStatus = async (campaign: Campaign) => {
+    const newStatus = campaign.status === "active" ? "paused" : "active";
+    await updateCampaign(campaign.id, { status: newStatus });
+  };
+
+  const handleDelete = async () => {
+    if (!deletingCampaignId) return;
+    try {
+      await deleteCampaign(deletingCampaignId);
+      setDeletingCampaignId(null);
+    } catch (error) {
+      console.error("Failed to delete campaign:", error);
+    }
+  };
+
+  const handleShare = (campaign: Campaign) => {
+    const url = `${window.location.origin}/campaigns/${campaign.id}`;
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link copied!",
+      description: "Campaign link copied to clipboard",
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,22 +70,31 @@ const CampaignList = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getTypeIcon = (category: string) => {
+    switch (category) {
       case "fundraising": return "💰";
-      case "volunteer": return "🤝";
-      case "awareness": return "📢";
       case "community": return "🏘️";
+      case "environmental": return "🌱";
+      case "education": return "📚";
+      case "healthcare": return "⚕️";
       default: return "📋";
     }
   };
 
   const filteredCampaigns = campaigns.filter(campaign => {
     const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchQuery.toLowerCase());
+                         (campaign.description && campaign.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === "all" || campaign.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -134,105 +130,121 @@ const CampaignList = () => {
       </div>
 
       <div className="space-y-4">
-        {filteredCampaigns.map(campaign => (
-          <Card key={campaign.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <span className="text-xl">{getTypeIcon(campaign.type)}</span>
-                    <h3 className="font-semibold text-lg">{campaign.title}</h3>
-                    <Badge className={getStatusColor(campaign.status)}>
-                      {campaign.status}
-                    </Badge>
-                  </div>
-                  
-                  <p className="text-gray-600 mb-4 line-clamp-2">{campaign.description}</p>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Progress</p>
-                      <div className="flex items-center space-x-2">
-                        <Progress 
-                          value={campaign.progress} 
-                          className="flex-1" 
-                        />
-                        <span className="text-sm font-medium">{campaign.progress}%</span>
+        {filteredCampaigns.map(campaign => {
+          const progress = campaign.goal_amount 
+            ? Math.round((campaign.current_amount / campaign.goal_amount) * 100)
+            : 0;
+          
+          const daysLeft = campaign.end_date 
+            ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+            : 0;
+
+          return (
+            <Card key={campaign.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <span className="text-xl">{getTypeIcon(campaign.category)}</span>
+                      <h3 className="font-semibold text-lg">{campaign.title}</h3>
+                      <Badge className={getStatusColor(campaign.status)}>
+                        {campaign.status}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-4 line-clamp-2">{campaign.description || "No description"}</p>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-500">Progress</p>
+                        <div className="flex items-center space-x-2">
+                          <Progress 
+                            value={progress} 
+                            className="flex-1" 
+                          />
+                          <span className="text-sm font-medium">{progress}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Raised</p>
+                        <p className="font-semibold">£{campaign.current_amount.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">of £{campaign.goal_amount?.toLocaleString() || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Views</p>
+                        <p className="font-semibold">0</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Days Left</p>
+                        <p className="font-semibold">{daysLeft}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Raised</p>
-                      <p className="font-semibold">£{campaign.raised.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">of £{campaign.goal.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Supporters</p>
-                      <p className="font-semibold">{campaign.supporters}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Days Left</p>
-                      <p className="font-semibold">{campaign.daysLeft}</p>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setEditingCampaign(campaign)}
+                        className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                      >
+                        <Edit3 className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleShare(campaign)}
+                        className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                      >
+                        <Share2 className="h-3 w-3 mr-1" />
+                        Share
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => navigate(`/campaigns/${campaign.id}/analytics`)}
+                        className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
+                      >
+                        <BarChart3 className="h-3 w-3 mr-1" />
+                        Analytics
+                      </Button>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-3">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
-                    >
-                      <Edit3 className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
-                    >
-                      <Share2 className="h-3 w-3 mr-1" />
-                      Share
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="bg-white text-gray-600 border-gray-200 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-200"
-                    >
-                      <BarChart3 className="h-3 w-3 mr-1" />
-                      Analytics
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleToggleStatus(campaign)}>
+                        {campaign.status === "active" ? (
+                          <>
+                            <Pause className="h-4 w-4 mr-2" />
+                            Pause Campaign
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-2" />
+                            Resume Campaign
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => setDeletingCampaignId(campaign.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Campaign
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      {campaign.status === "active" ? (
-                        <>
-                          <Pause className="h-4 w-4 mr-2" />
-                          Pause Campaign
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-2" />
-                          Resume Campaign
-                        </>
-                      )}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Campaign
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {filteredCampaigns.length === 0 && (
@@ -241,9 +253,38 @@ const CampaignList = () => {
             <Search className="h-12 w-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns found</h3>
-          <p className="text-gray-600">Try adjusting your search criteria or create a new campaign.</p>
+          <p className="text-gray-600">
+            {searchQuery || statusFilter !== "all"
+              ? "Try adjusting your search criteria or filters."
+              : "No campaigns yet. Create your first campaign to get started!"}
+          </p>
         </Card>
       )}
+
+      {editingCampaign && (
+        <CampaignEditDialog
+          campaign={editingCampaign}
+          open={!!editingCampaign}
+          onOpenChange={(open) => !open && setEditingCampaign(null)}
+        />
+      )}
+
+      <AlertDialog open={!!deletingCampaignId} onOpenChange={() => setDeletingCampaignId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Campaign</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this campaign? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

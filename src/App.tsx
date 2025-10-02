@@ -12,6 +12,8 @@ import EmailVerificationHandler from "@/components/auth/EmailVerificationHandler
 import PasswordResetHandler from "@/components/auth/PasswordResetHandler";
 import ProfileRegistration from "@/pages/ProfileRegistration";
 import PublicProfile from "@/pages/PublicProfile";
+import CampaignBuilderPage from "@/pages/CampaignBuilder";
+import EnhancedCampaignAnalyticsDashboard from "@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard";
 
 function App() {
   return (
@@ -30,6 +32,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/campaign-builder" 
+              element={
+                <ProtectedRoute>
+                  <CampaignBuilderPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/campaigns/:campaignId/analytics" 
+              element={
+                <ProtectedRoute>
+                  <EnhancedCampaignAnalyticsDashboard />
                 </ProtectedRoute>
               } 
             />
