@@ -1,8 +1,8 @@
 
-import { Search, Zap, Activity } from "lucide-react";
+import { Search, Zap, Activity, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotificationBadge from "@/components/notifications/NotificationBadge";
-import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 interface HeaderActionsProps {
   showSearch: boolean;
@@ -27,7 +27,7 @@ const HeaderActions = ({
   onNotificationClick,
 }: HeaderActionsProps) => {
   // Use real-time notifications hook to get actual unread count
-  const { unreadCount } = useRealTimeNotifications();
+  const { unreadCount } = useRealtimeNotifications();
 
   const handleNotificationClick = () => {
     if (onNotificationClick) {
@@ -46,10 +46,15 @@ const HeaderActions = ({
         <Search className="h-4 w-4" />
       </Button>
 
-      <NotificationBadge 
-        count={unreadCount}
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={handleNotificationClick}
-      />
+        className="p-2 relative"
+      >
+        <Bell className="h-4 w-4" />
+        <NotificationBadge count={unreadCount} />
+      </Button>
 
       <Button
         variant="ghost"
