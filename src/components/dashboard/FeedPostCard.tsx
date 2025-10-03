@@ -43,8 +43,23 @@ const FeedPostCard = ({
   const [showComments, setShowComments] = useState(false);
 
   const handleProfileClick = () => {
+    console.log('👆 [FeedPostCard] Profile click:', {
+      postId: post.id,
+      author: post.author,
+      authorId: post.authorId,
+      hasAuthorId: !!post.authorId,
+      willNavigate: !!post.authorId,
+      navigateTo: post.authorId ? `/profile/${post.authorId}` : 'BLOCKED - authorId missing!'
+    });
+    
     if (post.authorId) {
       navigate(`/profile/${post.authorId}`);
+    } else {
+      console.error('❌ [FeedPostCard] Cannot navigate to profile - authorId is missing for post:', {
+        postId: post.id,
+        author: post.author,
+        post: post
+      });
     }
   };
 
@@ -76,6 +91,13 @@ const FeedPostCard = ({
       onReaction(postId, reactionType);
     }
   };
+
+  console.log('🎨 [FeedPostCard] Rendering post:', {
+    id: post.id,
+    author: post.author,
+    authorId: post.authorId,
+    hasAuthorId: !!post.authorId
+  });
 
   return (
     <Card className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">

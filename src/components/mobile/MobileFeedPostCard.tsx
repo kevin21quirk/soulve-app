@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,30 @@ const MobileFeedPostCard = ({
   onAddComment,
   onLikeComment
 }: MobileFeedPostCardProps) => {
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const { reactions, toggleReaction } = usePostReactions(post.id);
+
+  const handleProfileClick = () => {
+    console.log('👆 [MobileFeedPostCard] Profile click:', {
+      postId: post.id,
+      author: post.author,
+      authorId: post.authorId,
+      hasAuthorId: !!post.authorId,
+      willNavigate: !!post.authorId,
+      navigateTo: post.authorId ? `/profile/${post.authorId}` : 'BLOCKED - authorId missing!'
+    });
+    
+    if (post.authorId) {
+      navigate(`/profile/${post.authorId}`);
+    } else {
+      console.error('❌ [MobileFeedPostCard] Cannot navigate to profile - authorId is missing for post:', {
+        postId: post.id,
+        author: post.author,
+        post: post
+      });
+    }
+  };
 
   const handleReactionSelect = (emoji: string) => {
     console.log('Mobile reaction selected:', emoji, 'for post:', post.id);
@@ -81,7 +104,10 @@ const MobileFeedPostCard = ({
       {/* Post Header */}
       <div className="p-4 pb-3">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-10 w-10 flex-shrink-0">
+          <Avatar 
+            className="h-10 w-10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleProfileClick}
+          >
             <AvatarImage src={post.avatar} alt={post.author} />
             <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-sm">
               {post.author.charAt(0).toUpperCase()}
@@ -90,7 +116,10 @@ const MobileFeedPostCard = ({
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <h3 className="font-semibold text-gray-900 text-sm truncate">
+              <h3 
+                className="font-semibold text-gray-900 text-sm truncate cursor-pointer hover:underline"
+                onClick={handleProfileClick}
+              >
                 {post.author}
               </h3>
               <Badge className={`${getCategoryColor(post.category)} text-xs px-2 py-0.5 border flex-shrink-0`}>
