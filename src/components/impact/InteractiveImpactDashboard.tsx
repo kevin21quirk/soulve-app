@@ -23,6 +23,7 @@ import {
   Share2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ImpactAnalyticsService, UserImpactData, CommunityComparison, ImpactGoal } from '@/services/impactAnalyticsService';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
 import ImpactMetricsCard from './ImpactMetricsCard';
@@ -64,9 +65,19 @@ const InteractiveImpactDashboard = () => {
         ImpactAnalyticsService.getUserGoals(user.id)
       ]);
 
+      // If no goals exist, create default goals
+      if (userGoals.length === 0) {
+        await supabase.rpc('create_default_goals_for_user', {
+          target_user_id: user.id
+        });
+        const newGoals = await ImpactAnalyticsService.getUserGoals(user.id);
+        setGoals(newGoals);
+      } else {
+        setGoals(userGoals);
+      }
+
       setImpactData(userData);
       setCommunityComparisons(comparisons);
-      setGoals(userGoals);
     } catch (error) {
       console.error('Error loading impact data:', error);
     } finally {

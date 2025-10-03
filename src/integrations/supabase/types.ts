@@ -4817,6 +4817,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_default_goals_for_user: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       detect_fraud_patterns: {
         Args: { target_user_id: string }
         Returns: undefined
