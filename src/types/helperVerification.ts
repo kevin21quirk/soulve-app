@@ -60,6 +60,10 @@ export interface TrainingModule {
   category: string;
   created_at: string;
   updated_at: string;
+  max_attempts?: number;
+  retry_delay_days?: number;
+  question_count: number;
+  difficulty_level: 'easy' | 'medium' | 'hard' | 'very_hard';
 }
 
 export interface QuizQuestion {
@@ -67,6 +71,9 @@ export interface QuizQuestion {
   question: string;
   options: string[];
   correct_answer: number;
+  explanation?: string;
+  scenario?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface TrainingProgress {
@@ -81,6 +88,8 @@ export interface TrainingProgress {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  last_attempt_at?: string;
+  can_retry_at?: string;
 }
 
 export interface VerificationDocument {

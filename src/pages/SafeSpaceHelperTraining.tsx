@@ -2,11 +2,13 @@ import { useHelperVerification } from '@/hooks/useHelperVerification';
 import { TrainingModuleList } from '@/components/safe-space/training/TrainingModuleList';
 import { TrainingModuleViewer } from '@/components/safe-space/training/TrainingModuleViewer';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { TrainingModule } from '@/types/helperVerification';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function SafeSpaceHelperTraining() {
+  const navigate = useNavigate();
   const { trainingModules, trainingProgress, loading, completeModule, refetch } = useHelperVerification();
   const [selectedModule, setSelectedModule] = useState<TrainingModule | null>(null);
 
@@ -21,6 +23,16 @@ export default function SafeSpaceHelperTraining() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 max-w-6xl">
+        {!selectedModule && (
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/safe-space/helper')}
+            className="mb-6"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        )}
         {selectedModule ? (
           <div className="space-y-6">
             <Button

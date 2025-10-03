@@ -1,8 +1,11 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Clock, PlayCircle, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { TrainingModule, TrainingProgress } from '@/types/helperVerification';
+import { CheckCircle2, Clock, Lock, AlertCircle, Award, FileText } from 'lucide-react';
+import { getDifficultyColor, getDifficultyLabel, canAttemptQuiz, calculateTimeRemaining } from '@/utils/quizHelpers';
+import { cn } from '@/lib/utils';
 
 interface TrainingModuleListProps {
   modules: TrainingModule[];
@@ -11,110 +14,101 @@ interface TrainingModuleListProps {
 }
 
 export function TrainingModuleList({ modules, progress, onSelectModule }: TrainingModuleListProps) {
-  const getModuleProgress = (moduleId: string) => {
-    return progress.find(p => p.module_id === moduleId);
+  const getModuleProgress = (moduleId: string) => progress.find(p => p.module_id === moduleId);
+
+  const getStatusIcon = (status?: string, canAttempt?: boolean) => {
+    if (!canAttempt) return <Lock className="w-5 h-5 text-muted-foreground" />;
+    if (status === 'completed') return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+    if (status === 'failed') return <AlertCircle className="w-5 h-5 text-red-500" />;
+    return <FileText className="w-5 h-5 text-muted-foreground" />;
   };
 
-  const getStatusIcon = (moduleProgress?: TrainingProgress) => {
-    if (!moduleProgress) return <PlayCircle className="h-5 w-5 text-muted-foreground" />;
-    
-    switch (moduleProgress.status) {
-      case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'in_progress':
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case 'failed':
-        return <AlertCircle className="h-5 w-5 text-destructive" />;
-      default:
-        return <PlayCircle className="h-5 w-5 text-muted-foreground" />;
-    }
-  };
-
-  const getStatusText = (moduleProgress?: TrainingProgress) => {
-    if (!moduleProgress) return 'Not Started';
-    
-    switch (moduleProgress.status) {
-      case 'completed':
-        return `Completed (${moduleProgress.score}%)`;
-      case 'in_progress':
-        return 'In Progress';
-      case 'failed':
-        return `Failed (${moduleProgress.score}%) - Retry`;
-      default:
-        return 'Not Started';
-    }
-  };
-
-  const completedCount = progress.filter(p => p.status === 'completed').length;
-  const requiredCount = modules.filter(m => m.is_required).length;
-  const overallProgress = requiredCount > 0 ? (completedCount / requiredCount) * 100 : 0;
+  const requiredModules = modules.filter(m => m.is_required);
+  const completedRequired = requiredModules.filter(m => getModuleProgress(m.id)?.status === 'completed');
+  const overallProgress = requiredModules.length > 0 ? (completedRequired.length / requiredModules.length) * 100 : 0;
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Overall Progress</span>
-            <span className="text-sm text-muted-foreground">
-              {completedCount} of {requiredCount} required modules
-            </span>
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-6 h-6 text-primary" />
+                Overall Progress
+              </CardTitle>
+              <CardDescription>Complete all required modules</CardDescription>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-primary">{Math.round(overallProgress)}%</div>
+              <div className="text-sm text-muted-foreground">{completedRequired.length}/{requiredModules.length}</div>
+            </div>
           </div>
-          <Progress value={overallProgress} className="h-2" />
-        </div>
+        </CardHeader>
+        <CardContent>
+          <Progress value={overallProgress} className="h-3" />
+        </CardContent>
       </Card>
 
       <div className="grid gap-4">
-        {modules.map((module) => {
+        {[...modules].sort((a, b) => a.order_sequence - b.order_sequence).map((module) => {
           const moduleProgress = getModuleProgress(module.id);
-          
+          const { canAttempt, retryAt } = canAttemptQuiz(module, moduleProgress);
+          const isCompleted = moduleProgress?.status === 'completed';
+          const attempts = moduleProgress?.attempts || 0;
+
           return (
-            <Card
-              key={module.id}
-              className="p-6 hover:border-primary cursor-pointer transition-colors"
-              onClick={() => onSelectModule(module)}
-            >
-              <div className="flex items-start gap-4">
-                <div className="mt-1">
-                  {getStatusIcon(moduleProgress)}
-                </div>
-                
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">{module.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {module.description}
-                      </p>
+            <Card key={module.id} className={cn("cursor-pointer hover:shadow-md", isCompleted && "border-green-500/50")} onClick={() => onSelectModule(module)}>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className={getDifficultyColor(module.difficulty_level)}>
+                        {getDifficultyLabel(module.difficulty_level)}
+                      </Badge>
+                      {module.is_required && <Badge variant="outline">Required</Badge>}
+                      <Badge variant="outline" className="gap-1">
+                        <FileText className="w-3 h-3" />
+                        {module.question_count} questions
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <Clock className="w-3 h-3" />
+                        {module.duration_minutes} min
+                      </Badge>
                     </div>
-                    {module.is_required && (
-                      <Badge variant="secondary">Required</Badge>
-                    )}
+                    <CardTitle className="text-xl">{module.title}</CardTitle>
+                    <CardDescription className="line-clamp-2">{module.description}</CardDescription>
                   </div>
-
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {module.duration_minutes} min
-                    </span>
-                    <span className="capitalize">{module.content_type}</span>
-                    {module.content_type === 'quiz' && (
-                      <span>Pass: {module.passing_score}%</span>
-                    )}
-                    {moduleProgress && moduleProgress.attempts > 0 && (
-                      <span>Attempts: {moduleProgress.attempts}</span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant={moduleProgress?.status === 'completed' ? 'default' : 'outline'}>
-                      {getStatusText(moduleProgress)}
-                    </Badge>
-                    <Badge variant="outline" className="capitalize">
-                      {module.category}
-                    </Badge>
-                  </div>
+                  {getStatusIcon(moduleProgress?.status, canAttempt)}
                 </div>
-              </div>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {moduleProgress && moduleProgress.score !== undefined && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className={isCompleted ? "text-green-600 dark:text-green-400 font-medium" : ""}>
+                        {isCompleted ? `Completed (${moduleProgress.score}%)` : `Failed (${moduleProgress.score}%)`}
+                      </span>
+                      <span className="text-muted-foreground">Pass: {module.passing_score}%</span>
+                    </div>
+                    <Progress value={moduleProgress.score} className="h-2" />
+                  </div>
+                )}
+
+                {!canAttempt && retryAt && (
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 rounded-lg">
+                    <Lock className="w-4 h-4 text-amber-600 mt-0.5" />
+                    <p className="text-sm text-amber-900 dark:text-amber-200">
+                      Retry in {calculateTimeRemaining(retryAt)}
+                    </p>
+                  </div>
+                )}
+
+                <Button variant={isCompleted ? "outline" : "default"} className="w-full" disabled={!canAttempt}>
+                  {isCompleted ? 'Review & Retake' : 'Start Module'}
+                </Button>
+              </CardContent>
             </Card>
           );
         })}

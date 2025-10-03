@@ -170,21 +170,96 @@ export class HelperVerificationService {
     score?: number,
     answers?: Record<string, any>
   ): Promise<TrainingProgress | null> {
-    const module = await supabase
-      .from('safe_space_training_modules')
-      .select('passing_score')
-      .eq('id', moduleId)
-      .single();
+    const [moduleResponse, progressResponse] = await Promise.all([
+      supabase
+        .from('safe_space_training_modules')
+        .select('passing_score, retry_delay_days, max_attempts')
+        .eq('id', moduleId)
+        .single(),
+      this.getModuleProgress(userId, moduleId)
+    ]);
 
-    const passed = score ? score >= (module.data?.passing_score || 80) : true;
+    const module = moduleResponse.data;
+    const existingProgress = progressResponse;
+    const passed = score ? score >= (module?.passing_score || 80) : true;
+    const currentAttempts = existingProgress?.attempts || 0;
+    const newAttempts = currentAttempts + 1;
+
+    // Calculate retry date if failed and retry delay is set
+    let canRetryAt: string | undefined = undefined;
+    if (!passed && module?.retry_delay_days) {
+      const retryDate = new Date();
+      retryDate.setDate(retryDate.getDate() + module.retry_delay_days);
+      canRetryAt = retryDate.toISOString();
+    }
+
+    // Check if max attempts reached
+    if (module?.max_attempts && newAttempts >= module.max_attempts && !passed) {
+      // Mark as failed permanently
+      return this.updateModuleProgress(userId, moduleId, {
+        status: 'failed',
+        score,
+        answers: answers || {},
+        attempts: newAttempts,
+        last_attempt_at: new Date().toISOString(),
+        can_retry_at: canRetryAt
+      });
+    }
     
     return this.updateModuleProgress(userId, moduleId, {
       status: passed ? 'completed' : 'failed',
       score,
       answers: answers || {},
       completed_at: passed ? new Date().toISOString() : undefined,
-      attempts: (await this.getModuleProgress(userId, moduleId))?.attempts || 0 + 1
+      attempts: newAttempts,
+      last_attempt_at: new Date().toISOString(),
+      can_retry_at: canRetryAt
     });
+  }
+
+  /**
+   * Check if user can attempt a module
+   */
+  static async canAttemptModule(
+    userId: string,
+    moduleId: string
+  ): Promise<{ canAttempt: boolean; reason?: string; retryAt?: string }> {
+    const [module, progress] = await Promise.all([
+      supabase
+        .from('safe_space_training_modules')
+        .select('max_attempts, retry_delay_days')
+        .eq('id', moduleId)
+        .single(),
+      this.getModuleProgress(userId, moduleId)
+    ]);
+
+    if (!progress) {
+      return { canAttempt: true };
+    }
+
+    // Check max attempts
+    if (module.data?.max_attempts && progress.attempts >= module.data.max_attempts) {
+      return {
+        canAttempt: false,
+        reason: 'Maximum attempts reached'
+      };
+    }
+
+    // Check retry delay
+    if (progress.can_retry_at) {
+      const retryDate = new Date(progress.can_retry_at);
+      const now = new Date();
+      
+      if (now < retryDate) {
+        return {
+          canAttempt: false,
+          reason: 'Retry cooldown active',
+          retryAt: progress.can_retry_at
+        };
+      }
+    }
+
+    return { canAttempt: true };
   }
 
   /**

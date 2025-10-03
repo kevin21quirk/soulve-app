@@ -3681,9 +3681,11 @@ export type Database = {
         Row: {
           answers: Json | null
           attempts: number
+          can_retry_at: string | null
           completed_at: string | null
           created_at: string
           id: string
+          last_attempt_at: string | null
           module_id: string
           score: number | null
           status: string
@@ -3694,9 +3696,11 @@ export type Database = {
         Insert: {
           answers?: Json | null
           attempts?: number
+          can_retry_at?: string | null
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_attempt_at?: string | null
           module_id: string
           score?: number | null
           status?: string
@@ -3707,9 +3711,11 @@ export type Database = {
         Update: {
           answers?: Json | null
           attempts?: number
+          can_retry_at?: string | null
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_attempt_at?: string | null
           module_id?: string
           score?: number | null
           status?: string
@@ -3952,13 +3958,17 @@ export type Database = {
           content_url: string | null
           created_at: string
           description: string
+          difficulty_level: string
           duration_minutes: number
           id: string
           is_active: boolean
           is_required: boolean
+          max_attempts: number | null
           order_sequence: number
           passing_score: number | null
+          question_count: number
           quiz_questions: Json | null
+          retry_delay_days: number | null
           title: string
           updated_at: string
         }
@@ -3969,13 +3979,17 @@ export type Database = {
           content_url?: string | null
           created_at?: string
           description: string
+          difficulty_level?: string
           duration_minutes: number
           id?: string
           is_active?: boolean
           is_required?: boolean
+          max_attempts?: number | null
           order_sequence: number
           passing_score?: number | null
+          question_count?: number
           quiz_questions?: Json | null
+          retry_delay_days?: number | null
           title: string
           updated_at?: string
         }
@@ -3986,13 +4000,17 @@ export type Database = {
           content_url?: string | null
           created_at?: string
           description?: string
+          difficulty_level?: string
           duration_minutes?: number
           id?: string
           is_active?: boolean
           is_required?: boolean
+          max_attempts?: number | null
           order_sequence?: number
           passing_score?: number | null
+          question_count?: number
           quiz_questions?: Json | null
+          retry_delay_days?: number | null
           title?: string
           updated_at?: string
         }
