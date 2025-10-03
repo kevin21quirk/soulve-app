@@ -3620,6 +3620,113 @@ export type Database = {
           },
         ]
       }
+      safe_space_helper_applications: {
+        Row: {
+          application_status: string
+          availability_commitment: string | null
+          created_at: string
+          experience_description: string | null
+          id: string
+          personal_statement: string | null
+          preferred_specializations: string[] | null
+          qualifications: Json | null
+          reference_contacts: Json | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_status?: string
+          availability_commitment?: string | null
+          created_at?: string
+          experience_description?: string | null
+          id?: string
+          personal_statement?: string | null
+          preferred_specializations?: string[] | null
+          qualifications?: Json | null
+          reference_contacts?: Json | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_status?: string
+          availability_commitment?: string | null
+          created_at?: string
+          experience_description?: string | null
+          id?: string
+          personal_statement?: string | null
+          preferred_specializations?: string[] | null
+          qualifications?: Json | null
+          reference_contacts?: Json | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      safe_space_helper_training_progress: {
+        Row: {
+          answers: Json | null
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          module_id: string
+          score: number | null
+          status: string
+          time_spent_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id: string
+          score?: number | null
+          status?: string
+          time_spent_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id?: string
+          score?: number | null
+          status?: string
+          time_spent_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_helper_training_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       safe_space_helpers: {
         Row: {
           created_at: string
@@ -3736,6 +3843,59 @@ export type Database = {
         }
         Relationships: []
       }
+      safe_space_reference_checks: {
+        Row: {
+          application_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          questionnaire_responses: Json | null
+          reference_email: string
+          reference_name: string
+          reference_phone: string | null
+          relationship: string
+          status: string
+          submitted_at: string | null
+          verification_token: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          questionnaire_responses?: Json | null
+          reference_email: string
+          reference_name: string
+          reference_phone?: string | null
+          relationship: string
+          status?: string
+          submitted_at?: string | null
+          verification_token?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          questionnaire_responses?: Json | null
+          reference_email?: string
+          reference_name?: string
+          reference_phone?: string | null
+          relationship?: string
+          status?: string
+          submitted_at?: string | null
+          verification_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_reference_checks_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_helper_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       safe_space_sessions: {
         Row: {
           created_at: string
@@ -3783,6 +3943,119 @@ export type Database = {
           urgency_level?: string
         }
         Relationships: []
+      }
+      safe_space_training_modules: {
+        Row: {
+          category: string
+          content_html: string | null
+          content_type: string
+          content_url: string | null
+          created_at: string
+          description: string
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          is_required: boolean
+          order_sequence: number
+          passing_score: number | null
+          quiz_questions: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content_html?: string | null
+          content_type: string
+          content_url?: string | null
+          created_at?: string
+          description: string
+          duration_minutes: number
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          order_sequence: number
+          passing_score?: number | null
+          quiz_questions?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content_html?: string | null
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          description?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          order_sequence?: number
+          passing_score?: number | null
+          quiz_questions?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      safe_space_verification_documents: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          metadata: Json | null
+          mime_type: string
+          rejection_reason: string | null
+          user_id: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          rejection_reason?: string | null
+          user_id: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          rejection_reason?: string | null
+          user_id?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_verification_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_helper_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_notifications: {
         Row: {
