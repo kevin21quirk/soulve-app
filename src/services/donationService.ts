@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { ImpactAnalyticsService } from '@/services/impactAnalyticsService';
 
 export interface DonationData {
   campaignId: string;
@@ -55,6 +56,24 @@ export class DonationService {
 
       // Track engagement
       await this.trackDonationEngagement(data.campaignId, user.user?.id);
+
+      // Track impact points for donation
+      if (user.user?.id) {
+        const points = Math.floor(data.amount * 0.1); // 10% of donation amount as points
+        await ImpactAnalyticsService.awardImpactPoints(
+          user.user.id,
+          'donation',
+          points,
+          `Donated ${data.currency} ${data.amount} to campaign`,
+          {
+            campaignId: data.campaignId,
+            amount: data.amount,
+            currency: data.currency,
+            paymentMethod: data.paymentMethod,
+            donationId: donation.id
+          }
+        );
+      }
 
       return {
         success: true,

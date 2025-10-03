@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { ImpactAnalyticsService } from "@/services/impactAnalyticsService";
 
 export interface Group {
   id: string;
@@ -134,13 +135,32 @@ export const useJoinGroup = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (_, groupId) => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
       queryClient.invalidateQueries({ queryKey: ['user-groups'] });
       queryClient.invalidateQueries({ queryKey: ['suggested-groups'] });
+      
+      // Track impact for group join
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: group } = await supabase
+          .from('groups')
+          .select('name')
+          .eq('id', groupId)
+          .single();
+        
+        await ImpactAnalyticsService.awardImpactPoints(
+          user.id,
+          'engagement',
+          5,
+          `Joined community group: ${group?.name || 'Unknown'}`,
+          { groupId, engagementType: 'group_join' }
+        );
+      }
+      
       toast({
         title: "Joined group!",
-        description: "You've successfully joined the community group.",
+        description: "You've successfully joined the community group. +5 impact points earned!",
       });
     },
     onError: (error: any) => {

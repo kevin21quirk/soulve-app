@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, ThumbsUp, ThumbsDown, Flag, Eye } from 'lucide-react';
 import { useHelpCompletion } from '@/hooks/useHelpCompletion';
+import { useImpactTracking } from '@/hooks/useImpactTracking';
 import { HelpCompletionRequest } from '@/types/helpCompletion';
 
 interface HelpCompletionReviewProps {
@@ -29,6 +30,7 @@ const HelpCompletionReview = ({
   const [feedback, setFeedback] = useState('');
   const [showEvidence, setShowEvidence] = useState(false);
   const { reviewCompletionRequest, loading } = useHelpCompletion();
+  const { trackHelpProvided } = useImpactTracking();
 
   const handleApprove = async () => {
     await reviewCompletionRequest(request.id, {
@@ -36,6 +38,19 @@ const HelpCompletionReview = ({
       feedback_rating: rating,
       feedback_message: feedback || undefined
     });
+
+    // Track impact for the helper
+    if (request.helper_id) {
+      await trackHelpProvided(
+        postTitle || 'Help Request',
+        {
+          rating,
+          postId: request.post_id,
+          requestId: request.id,
+          feedback: feedback
+        }
+      );
+    }
   };
 
   const handleReject = async () => {

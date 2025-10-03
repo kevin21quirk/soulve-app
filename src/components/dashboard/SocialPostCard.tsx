@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
+import { useImpactTracking } from '@/hooks/useImpactTracking';
 import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
 import ReactionDisplay from '@/components/ui/reaction-display';
 import PostActions from './PostActions';
@@ -36,6 +37,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const { reactions, toggleReaction } = usePostReactions(post.id);
+  const { trackCommunityEngagement } = useImpactTracking();
 
   const handleProfileClick = () => {
     console.log('👆 [SocialPostCard] Profile click:', {
@@ -56,6 +58,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     if (newComment.trim()) {
       onComment(newComment.trim());
       setNewComment('');
+      trackCommunityEngagement('post_comment', `Commented on ${post.author}'s post`);
     }
   };
 
@@ -64,6 +67,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     if (onReaction) {
       onReaction(post.id, emoji);
     }
+    trackCommunityEngagement('post_like', `Reacted to ${post.author}'s post with ${emoji}`);
   };
 
   const handleShare = () => {
@@ -90,6 +94,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
       
       window.dispatchEvent(shareEvent);
       onShare();
+      trackCommunityEngagement('post_share', `Shared ${post.author}'s post`);
     } catch (error) {
       // Error handling for share event
     }
