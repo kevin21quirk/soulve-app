@@ -112,16 +112,22 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2">
             <Button
-              variant={selectedBusinessTool === 'esg' ? 'gradient' : 'outline'}
+              variant={selectedBusinessTool === 'esg' ? undefined : 'outline'}
               onClick={() => setSelectedBusinessTool('esg')}
-              className={selectedBusinessTool !== 'esg' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedBusinessTool === 'esg' 
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               ESG Dashboard
             </Button>
             <Button
-              variant={selectedBusinessTool === 'csr' ? 'gradient' : 'outline'}
+              variant={selectedBusinessTool === 'csr' ? undefined : 'outline'}
               onClick={() => setSelectedBusinessTool('csr')}
-              className={selectedBusinessTool !== 'csr' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedBusinessTool === 'csr' 
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               CSR Management
             </Button>
@@ -171,30 +177,42 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCharityTool === 'team' ? 'gradient' : 'outline'}
+              variant={selectedCharityTool === 'team' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('team')}
-              className={selectedCharityTool !== 'team' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCharityTool === 'team'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Team Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'donors' ? 'gradient' : 'outline'}
+              variant={selectedCharityTool === 'donors' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('donors')}
-              className={selectedCharityTool !== 'donors' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCharityTool === 'donors'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Donor Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'volunteers' ? 'gradient' : 'outline'}
+              variant={selectedCharityTool === 'volunteers' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('volunteers')}
-              className={selectedCharityTool !== 'volunteers' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCharityTool === 'volunteers'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Volunteer Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'grants' ? 'gradient' : 'outline'}
+              variant={selectedCharityTool === 'grants' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('grants')}
-              className={selectedCharityTool !== 'grants' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCharityTool === 'grants'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Grant Management
             </Button>
@@ -254,30 +272,42 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCivicTool === 'engagement' ? 'gradient' : 'outline'}
+              variant={selectedCivicTool === 'engagement' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('engagement')}
-              className={selectedCivicTool !== 'engagement' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCivicTool === 'engagement'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Public Engagement
             </Button>
             <Button
-              variant={selectedCivicTool === 'policy' ? 'gradient' : 'outline'}
+              variant={selectedCivicTool === 'policy' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('policy')}
-              className={selectedCivicTool !== 'policy' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCivicTool === 'policy'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Policy Tracking
             </Button>
             <Button
-              variant={selectedCivicTool === 'services' ? 'gradient' : 'outline'}
+              variant={selectedCivicTool === 'services' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('services')}
-              className={selectedCivicTool !== 'services' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCivicTool === 'services'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Citizen Services
             </Button>
             <Button
-              variant={selectedCivicTool === 'community' ? 'gradient' : 'outline'}
+              variant={selectedCivicTool === 'community' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('community')}
-              className={selectedCivicTool !== 'community' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
+              className={selectedCivicTool === 'community'
+                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
+                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
+              }
             >
               Community Management
             </Button>
