@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserProfileData } from "./UserProfileTypes";
@@ -10,12 +10,32 @@ import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import UserPostsTimeline from "./profile/UserPostsTimeline";
 import RealImpactJourney from "./profile/RealImpactJourney";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Settings, MessageSquare, TrendingUp } from "lucide-react";
+import { User, Settings, MessageSquare, TrendingUp, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { profileData, loading, updating, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user?.id) return;
+      const { data } = await supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user?.id]);
 
   const handleViewPointsDetails = () => {
     setShowPointsDetails(true);
@@ -76,7 +96,7 @@ const UserProfile = () => {
       )}
       
       <Tabs defaultValue="view" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+        <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-100`}>
           <TabsTrigger 
             value="view" 
             className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -91,6 +111,16 @@ const UserProfile = () => {
             <Settings className="h-4 w-4" />
             Manage Profile
           </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger 
+              value="admin"
+              onClick={() => navigate('/admin')}
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-200"
+            >
+              <Shield className="h-4 w-4" />
+              Admin Dashboard
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="view" className="space-y-6">
