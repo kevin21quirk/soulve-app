@@ -39,14 +39,17 @@ const adminNavItems = [
 
 const AdminSidebar = () => {
   return (
-    <Sidebar className="border-r border-border">
-      <SidebarContent>
+    <Sidebar className="border-r-2 border-border bg-card shadow-lg">
+      <SidebarContent className="bg-card">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-semibold px-4 py-3">
-            Admin Panel
+          <SidebarGroupLabel className="text-lg font-semibold px-4 py-4 bg-muted/50 border-b border-border">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="text-foreground">Admin Panel</span>
+            </div>
           </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+          <SidebarGroupContent className="p-2">
+            <SidebarMenu className="space-y-1">
               {adminNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -54,15 +57,15 @@ const AdminSidebar = () => {
                       to={item.url}
                       end={item.exact}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                           isActive
-                            ? 'bg-primary text-primary-foreground font-medium'
-                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                            ? 'bg-primary text-primary-foreground font-semibold shadow-md'
+                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                         }`
                       }
                     >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="text-sm">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
