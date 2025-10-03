@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRealTimePoints } from "@/hooks/useRealTimePoints";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const EnhancedGamificationPanel = () => {
   const { toast } = useToast();
@@ -23,6 +24,25 @@ const EnhancedGamificationPanel = () => {
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const [isLoading, setIsLoading] = useState(false);
   const [activeAnalytics, setActiveAnalytics] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user?.id) return;
+      
+      const { data } = await supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdminStatus();
+  }, [user?.id]);
 
   // Calculate achievement stats from real data
   const achievementStats = {
@@ -321,13 +341,13 @@ const EnhancedGamificationPanel = () => {
       )}
 
       {/* Enhanced Tabbed Interface */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="social">Social Hub</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="admin">Admin Panel</TabsTrigger>
-        </TabsList>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="social">Social Hub</TabsTrigger>
+              <TabsTrigger value="achievements">Achievements</TabsTrigger>
+              {isAdmin && <TabsTrigger value="admin">Admin Panel</TabsTrigger>}
+            </TabsList>
 
         <TabsContent value="overview" className="mt-6">
           <GamificationPanel />
@@ -359,9 +379,11 @@ const EnhancedGamificationPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="admin" className="mt-6">
-          <AdminCustomizationPanel />
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="admin" className="mt-6">
+            <AdminCustomizationPanel />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
