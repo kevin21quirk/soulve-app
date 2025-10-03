@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
 const SafeSpaceHelperDashboard = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { 
     isHelper, 
@@ -85,15 +87,15 @@ const SafeSpaceHelperDashboard = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Verification Development Notice */}
-          <Card className="border-orange-200 bg-orange-50">
+          <Card className="border-blue-200 bg-blue-50">
             <CardContent className="pt-4">
               <div className="flex items-start space-x-3">
-                <Construction className="h-5 w-5 text-orange-600 mt-0.5" />
-                <div className="text-sm text-orange-800">
-                  <p className="font-medium mb-1">Verification System - In Development</p>
+                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">Application Process Now Live</p>
                   <p>
-                    The full verification process including ID checks, background screening, and training modules 
-                    is currently being built. You can preview the requirements below.
+                    You can now start your helper application! Complete the multi-step form to begin your journey. 
+                    Training modules and advanced verification will be added as you progress.
                   </p>
                 </div>
               </div>
@@ -136,11 +138,11 @@ const SafeSpaceHelperDashboard = () => {
           </div>
 
           <Button 
-            onClick={handleStartVerification}
+            onClick={() => navigate('/safe-space/helper/apply')}
             className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
           >
             <UserCheck className="h-4 w-4 mr-2" />
-            Preview Verification Process (In Development)
+            Start Application
           </Button>
         </CardContent>
       </Card>

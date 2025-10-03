@@ -15,6 +15,7 @@ import PublicProfile from "@/pages/PublicProfile";
 import CampaignBuilderPage from "@/pages/CampaignBuilder";
 import EnhancedCampaignAnalyticsDashboard from "@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard";
 import DonationPage from "@/pages/DonationPage";
+import SafeSpaceHelperApplication from "@/pages/SafeSpaceHelperApplication";
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DonationPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/safe-space/helper/apply" 
+              element={
+                <ProtectedRoute>
+                  <SafeSpaceHelperApplication />
                 </ProtectedRoute>
               } 
             />
