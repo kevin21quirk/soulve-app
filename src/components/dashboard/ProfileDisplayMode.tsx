@@ -13,28 +13,34 @@ interface ProfileDisplayModeProps {
 
 const ProfileDisplayMode = ({ profileData, onViewPointsDetails }: ProfileDisplayModeProps) => {
   return (
-    <CardContent className="space-y-6">
-      <UserProfileBanner
-        banner={profileData.banner}
-        bannerType={profileData.bannerType}
-        bannerFile={null}
-        onBannerUpload={() => {}}
-        onRemoveBanner={() => {}}
-        isEditing={false}
-      />
+    <CardContent className="p-0">
+      {/* Banner + Header with overlap */}
+      <div className="relative">
+        <UserProfileBanner
+          banner={profileData.banner}
+          bannerType={profileData.bannerType}
+          bannerFile={null}
+          onBannerUpload={() => {}}
+          onRemoveBanner={() => {}}
+          isEditing={false}
+        />
+        
+        <UserProfileHeader 
+          profileData={profileData} 
+          isEditing={false} 
+          onViewPointsDetails={onViewPointsDetails}
+        />
+      </div>
       
-      <UserProfileHeader 
-        profileData={profileData} 
-        isEditing={false} 
-        onViewPointsDetails={onViewPointsDetails}
-      />
-      
-      <UserProfileDetails profileData={profileData} />
-      
-      <OrganizationConnections 
-        connections={profileData.organizationConnections}
-        isEditing={false}
-      />
+      {/* Details sections with spacing */}
+      <div className="px-6 space-y-6 pb-6">
+        <UserProfileDetails profileData={profileData} />
+        
+        <OrganizationConnections 
+          connections={profileData.organizationConnections}
+          isEditing={false}
+        />
+      </div>
     </CardContent>
   );
 };
