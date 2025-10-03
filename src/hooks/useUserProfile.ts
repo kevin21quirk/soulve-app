@@ -57,6 +57,41 @@ export const useUserProfile = () => {
         console.warn('Achievements fetch error:', achievementsError);
       }
 
+      // Get real follower count
+      const { count: followerCount } = await supabase
+        .from('connections')
+        .select('*', { count: 'exact', head: true })
+        .eq('addressee_id', user.id)
+        .eq('status', 'accepted');
+
+      // Get real following count
+      const { count: followingCount } = await supabase
+        .from('connections')
+        .select('*', { count: 'exact', head: true })
+        .eq('requester_id', user.id)
+        .eq('status', 'accepted');
+
+      // Get real post count
+      const { count: postCount } = await supabase
+        .from('posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('author_id', user.id);
+
+      // Get organization connections
+      const { data: orgConnections } = await supabase
+        .rpc('get_user_organizations', { target_user_id: user.id });
+
+      // Transform organization connections to match interface
+      const transformedOrgConnections = orgConnections?.map((org: any) => ({
+        id: org.organization_id,
+        organizationId: org.organization_id,
+        organizationName: org.organization_name,
+        role: org.role,
+        title: org.title || '',
+        isCurrent: org.is_current,
+        isPublic: true
+      })) || [];
+
       // Transform data to match UserProfileData interface
       const profileData: UserProfileData = {
         id: profile.id,
@@ -67,7 +102,7 @@ export const useUserProfile = () => {
         bio: profile.bio || '',
         avatar: profile.avatar_url || '',
         banner: profile.banner_url || '',
-        bannerType: (profile.banner_type as "video" | "image") || null, // Fix type casting
+        bannerType: (profile.banner_type as "video" | "image") || null,
         joinDate: profile.created_at || new Date().toISOString(),
         trustScore: metrics?.trust_score || 50,
         helpCount: metrics?.help_provided_count || 0,
@@ -90,12 +125,12 @@ export const useUserProfile = () => {
           role: '',
           website: profile.website || ''
         },
-        organizationConnections: [],
-        followerCount: 0,
-        followingCount: 0,
-        postCount: 0,
-        isVerified: false,
-        verificationBadges: []
+        organizationConnections: transformedOrgConnections,
+        followerCount: followerCount || 0,
+        followingCount: followingCount || 0,
+        postCount: postCount || 0,
+        isVerified: (achievements?.length || 0) > 0,
+        verificationBadges: achievements?.map(a => a.id) || []
       };
 
       setProfileData(profileData);

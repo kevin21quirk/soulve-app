@@ -1,11 +1,13 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Users, Award, TrendingUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { MapPin, Calendar, Shield, TrendingUp, Award } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
-import { getTrustScoreColor } from "@/utils/trustScoreUtils";
-import AvatarUpload from "./AvatarUpload";
+import { format } from "date-fns";
 import VerificationBadges from "./verification/VerificationBadges";
 import { useVerifications } from "@/hooks/useVerifications";
+import AvatarUpload from "./AvatarUpload";
 
 interface UserProfileHeaderProps {
   profileData: UserProfileData;
@@ -20,53 +22,133 @@ const UserProfileHeader = ({
   onViewPointsDetails,
   onAvatarUpdate 
 }: UserProfileHeaderProps) => {
-  const { verifications, trustScore } = useVerifications();
-
+  const { verifications } = useVerifications();
+  
+  // Calculate trust level and progress
+  const getTrustLevel = (score: number) => {
+    if (score >= 90) return { name: "Impact Champion", color: "text-purple-600", next: 100 };
+    if (score >= 75) return { name: "Community Leader", color: "text-blue-600", next: 90 };
+    if (score >= 60) return { name: "Trusted Helper", color: "text-green-600", next: 75 };
+    if (score >= 40) return { name: "Verified Helper", color: "text-yellow-600", next: 60 };
+    return { name: "New Member", color: "text-gray-600", next: 40 };
+  };
+  
+  const trustLevel = getTrustLevel(profileData.trustScore);
+  const progressToNext = trustLevel.next > profileData.trustScore 
+    ? ((profileData.trustScore - (trustLevel.next - 15)) / 15) * 100 
+    : 100;
+  
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-      <AvatarUpload
-        currentAvatar={profileData.avatar}
-        userName={profileData.name}
-        onAvatarUpdate={onAvatarUpdate || (() => {})}
-        isEditing={isEditing}
-      />
-      
-      <div className="flex-1 space-y-3">
+    <div className="space-y-0 -mt-20">
+      {/* Avatar - Positioned to overlap banner */}
+      <div className="relative px-6">
+        <div className="relative inline-block">
+          {isEditing && onAvatarUpdate ? (
+            <AvatarUpload 
+              currentAvatar={profileData.avatar}
+              userName={profileData.name}
+              onAvatarUpdate={onAvatarUpdate}
+              isEditing={true}
+            />
+          ) : (
+            <Avatar className="h-40 w-40 border-[6px] border-white shadow-2xl">
+              <AvatarImage src={profileData.avatar} alt={profileData.name} />
+              <AvatarFallback className="text-4xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                {profileData.name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          )}
+        </div>
+      </div>
+
+      {/* Profile Info */}
+      <div className="px-6 pt-4 pb-6 space-y-4">
+        {/* Name and Basic Info */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{profileData.name}</h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900">{profileData.name}</h1>
+          <div className="flex flex-wrap items-center gap-2 mt-2 text-gray-600">
             <div className="flex items-center space-x-1">
               <MapPin className="h-4 w-4" />
               <span>{profileData.location}</span>
             </div>
+            <span>·</span>
             <div className="flex items-center space-x-1">
               <Calendar className="h-4 w-4" />
-              <span>Joined {profileData.joinDate}</span>
+              <span>Joined {format(new Date(profileData.joinDate), 'MMM yyyy')}</span>
             </div>
           </div>
+
+          {/* Compact Stats Row */}
+          <div className="flex flex-wrap items-center gap-2 mt-3 text-sm text-gray-700">
+            <button className="hover:underline font-medium">
+              <span className="font-semibold text-gray-900">{profileData.followerCount}</span> followers
+            </button>
+            <span>·</span>
+            <button className="hover:underline font-medium">
+              <span className="font-semibold text-gray-900">{profileData.followingCount}</span> following
+            </button>
+            <span>·</span>
+            <button className="hover:underline font-medium">
+              <span className="font-semibold text-gray-900">{profileData.postCount}</span> posts
+            </button>
+            <span>·</span>
+            <button className="hover:underline font-medium">
+              <span className="font-semibold text-gray-900">{profileData.helpCount}</span> helped
+            </button>
+          </div>
         </div>
-        
+
+        {/* Trust Score Hero Section */}
+        <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-blue-100 shadow-sm">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="bg-white p-3 rounded-xl shadow-sm">
+                <Shield className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 font-medium">Trust Score</div>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-4xl font-bold text-gray-900">{profileData.trustScore}</span>
+                  <span className="text-lg text-gray-500">/100</span>
+                </div>
+              </div>
+            </div>
+            {onViewPointsDetails && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onViewPointsDetails}
+                className="text-blue-600 hover:bg-blue-100"
+              >
+                View Details
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className={`font-semibold ${trustLevel.color}`}>{trustLevel.name}</span>
+              <span className="text-gray-600">{trustLevel.next - profileData.trustScore} points to next level</span>
+            </div>
+            <Progress value={progressToNext} className="h-2 bg-white" />
+          </div>
+
+          <div className="flex items-center space-x-1 mt-3 text-xs text-gray-600">
+            <TrendingUp className="h-3 w-3 text-green-600" />
+            <span>Keep helping to increase your score</span>
+          </div>
+        </div>
+
         {/* Verification Badges */}
-        <VerificationBadges verifications={verifications} size="sm" />
-        
-        <div className="flex flex-wrap gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className={`${getTrustScoreColor(trustScore || profileData.trustScore)} cursor-pointer hover:scale-105 transition-transform`}
-            onClick={onViewPointsDetails}
-            disabled={isEditing}
-          >
-            <Award className="h-4 w-4 mr-1" />
-            {trustScore || profileData.trustScore}% Trust Score
-            {!isEditing && <TrendingUp className="h-3 w-3 ml-1" />}
-          </Button>
-          
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-            <Users className="h-3 w-3 mr-1" />
-            {profileData.helpCount} people helped
-          </Badge>
-        </div>
+        {verifications.filter(v => v.status === 'approved').length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Award className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-semibold text-gray-700">Achievements & Badges</span>
+            </div>
+            <VerificationBadges verifications={verifications} size="md" />
+          </div>
+        )}
       </div>
     </div>
   );

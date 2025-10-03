@@ -28,7 +28,7 @@ const UserProfileBanner = ({
     return (
       <div className="space-y-4">
         <Label>Profile Banner</Label>
-        <div className="relative h-48 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
+        <div className="relative h-64 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
           {displayBanner ? (
             <div className="relative w-full h-full">
               {displayBannerType === 'video' ? (
@@ -112,7 +112,7 @@ const UserProfileBanner = ({
   }
 
   return (
-    <div className="relative h-48 rounded-lg overflow-hidden">
+    <div className="relative h-64 rounded-t-lg overflow-hidden">
       {bannerType === 'video' ? (
         <video
           src={banner}
