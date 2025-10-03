@@ -268,6 +268,237 @@ export const campaignTemplates: CampaignTemplate[] = [
         reward: "Community recognition ceremony"
       }
     ]
+  },
+  {
+    id: "climate-awareness",
+    name: "Climate Action Awareness Campaign",
+    category: "awareness",
+    organization_type: "social_group",
+    description: "Educate the community about climate change and sustainable living practices through workshops, events, and educational materials.",
+    featured_image: "/placeholder.svg",
+    template_data: {
+      title: "Act Now: [Location] Climate Action Awareness",
+      description: "Join us in spreading awareness about climate change and empowering our community with sustainable living practices.",
+      story: "Climate change is the defining challenge of our time. By educating our community and promoting sustainable practices, we can create lasting change. This campaign focuses on workshops, educational materials, and community events to build a more environmentally conscious society.",
+      goal_type: "participants",
+      duration_days: 90,
+      urgency: "high",
+      tags: ["climate", "awareness", "education", "sustainability", "environment"]
+    },
+    success_rate: 88,
+    usage_count: 124,
+    isPopular: true,
+    createdBy: "Environmental Action Network",
+    createdAt: "2024-01-25",
+    estimatedDuration: "3 months",
+    targetAmount: 0,
+    difficulty: "intermediate",
+    content: {
+      title: "Act Now: [Location] Climate Action Awareness",
+      description: "Join us in spreading awareness about climate change and empowering our community with sustainable practices.",
+      story: "Climate change is the defining challenge of our time. Through education and community action, we can make a difference.",
+      goals: ["Educate 1000+ community members", "Host monthly sustainability workshops", "Distribute educational materials", "Create local climate action groups"],
+      impacts: ["Increased environmental awareness", "Adoption of sustainable practices", "Community climate action network", "Reduced carbon footprint"]
+    },
+    socialStrategies: [
+      {
+        platform: "Instagram",
+        content: "🌍 Climate change starts with awareness! Join our campaign to learn sustainable living practices. #ClimateAction",
+        hashtags: ["#ClimateAction", "#Sustainability", "#GoGreen"]
+      },
+      {
+        platform: "Twitter",
+        content: "Knowledge is power in the fight against climate change. Join our awareness campaign today! 🌱",
+        hashtags: ["#ClimateAwareness", "#ActOnClimate", "#Sustainability"]
+      },
+      {
+        platform: "Facebook",
+        content: "🌿 Want to make a difference? Our climate awareness campaign provides tools, knowledge, and community support for sustainable living.",
+        hashtags: ["#ClimateChange", "#CommunityAction", "#Sustainability"]
+      }
+    ],
+    milestones: [
+      {
+        title: "First Workshop Complete",
+        percentage: 25,
+        description: "Successfully hosted first community workshop",
+        reward: "Workshop highlights video"
+      },
+      {
+        title: "500 Participants Reached",
+        percentage: 50,
+        description: "Halfway to our awareness goal",
+        reward: "Sustainability toolkit for all participants"
+      },
+      {
+        title: "Climate Action Groups Formed",
+        percentage: 75,
+        description: "Local action groups established",
+        reward: "Group leader training session"
+      },
+      {
+        title: "Goal Achieved",
+        percentage: 100,
+        description: "1000+ community members educated",
+        reward: "Impact report and celebration event"
+      }
+    ]
+  },
+  {
+    id: "policy-change-petition",
+    name: "Community Policy Change Petition",
+    category: "petition",
+    organization_type: "community_group",
+    description: "Rally community support for local policy changes through organized petition campaigns and stakeholder engagement.",
+    featured_image: "/placeholder.svg",
+    template_data: {
+      title: "Change [Location] Policy: [Policy Name] Petition",
+      description: "Stand with us to bring about meaningful policy change in our community. Every signature counts!",
+      story: "Change starts with community action. This petition aims to bring about essential policy reforms that will benefit our entire community. By gathering signatures and demonstrating unified support, we can make our voices heard by decision-makers.",
+      goal_type: "signatures",
+      duration_days: 60,
+      urgency: "high",
+      tags: ["petition", "policy", "advocacy", "community", "change"]
+    },
+    success_rate: 81,
+    usage_count: 203,
+    isPopular: true,
+    createdBy: "Civic Engagement Alliance",
+    createdAt: "2024-02-05",
+    estimatedDuration: "2 months",
+    targetAmount: 0,
+    difficulty: "beginner",
+    content: {
+      title: "Change [Location] Policy: [Policy Name] Petition",
+      description: "Stand with us to bring about meaningful policy change in our community.",
+      story: "Change starts with community action. Together, our voices can shape better policies for everyone.",
+      goals: ["Collect 5000+ signatures", "Present to local government", "Engage community stakeholders", "Media coverage for awareness"],
+      impacts: ["Policy reform achieved", "Community empowerment", "Democratic participation", "Lasting legislative change"]
+    },
+    socialStrategies: [
+      {
+        platform: "Facebook",
+        content: "✍️ Your signature matters! Join thousands supporting [Policy Name] change. Sign and share today!",
+        hashtags: ["#PolicyChange", "#CommunityAction", "#MakeADifference"]
+      },
+      {
+        platform: "Twitter",
+        content: "Real change happens when communities unite. Sign our petition for [Policy Name] reform. Every voice counts! ✊",
+        hashtags: ["#Petition", "#PolicyReform", "#CivicEngagement"]
+      },
+      {
+        platform: "Instagram",
+        content: "📝 Be part of the change! Our petition is gaining momentum - add your voice to the movement.",
+        hashtags: ["#SignThePetition", "#CommunityPower", "#LocalChange"]
+      }
+    ],
+    milestones: [
+      {
+        title: "1000 Signatures",
+        percentage: 20,
+        description: "Strong initial support demonstrated",
+        reward: "Thank you social media feature"
+      },
+      {
+        title: "2500 Signatures",
+        percentage: 50,
+        description: "Halfway to our goal!",
+        reward: "Progress update to all signers"
+      },
+      {
+        title: "4000 Signatures",
+        percentage: 80,
+        description: "Meeting scheduled with officials",
+        reward: "Invitation to community town hall"
+      },
+      {
+        title: "Goal Achieved",
+        percentage: 100,
+        description: "Petition submitted to authorities",
+        reward: "Live-streamed submission event"
+      }
+    ]
+  },
+  {
+    id: "mental-health-support",
+    name: "Mental Health Support Initiative",
+    category: "social_cause",
+    organization_type: "charity",
+    description: "Create support networks and resources for mental health awareness and assistance, breaking down stigma and providing help.",
+    featured_image: "/placeholder.svg",
+    template_data: {
+      title: "Breaking Silence: [Location] Mental Health Support",
+      description: "Building a compassionate community where mental health support is accessible, stigma-free, and empowering for everyone.",
+      story: "Mental health challenges affect millions, yet stigma prevents many from seeking help. This initiative creates safe spaces, support groups, and resources to ensure no one faces these challenges alone. Through community events, professional partnerships, and peer support, we're building a network of care.",
+      goal_type: "participants",
+      duration_days: 180,
+      urgency: "medium",
+      tags: ["mental-health", "support", "wellness", "community", "awareness"]
+    },
+    success_rate: 76,
+    usage_count: 87,
+    isPopular: false,
+    createdBy: "Mental Wellness Foundation",
+    createdAt: "2024-01-30",
+    estimatedDuration: "6 months",
+    targetAmount: 0,
+    difficulty: "advanced",
+    content: {
+      title: "Breaking Silence: [Location] Mental Health Support",
+      description: "Building a compassionate community where mental health support is accessible and stigma-free.",
+      story: "Mental health challenges affect us all. Together, we can create a community of understanding and support.",
+      goals: ["Establish 10 support groups", "Partner with mental health professionals", "Host monthly awareness events", "Provide free counseling resources", "Create peer mentorship program"],
+      impacts: ["Reduced mental health stigma", "Accessible support services", "Stronger community bonds", "Improved well-being outcomes", "Professional network established"]
+    },
+    socialStrategies: [
+      {
+        platform: "Instagram",
+        content: "💚 You are not alone. Our mental health support initiative provides safe spaces, resources, and community. Join us.",
+        hashtags: ["#MentalHealthMatters", "#BreakTheStigma", "#SupportCommunity"]
+      },
+      {
+        platform: "Facebook",
+        content: "🧠 Mental health is just as important as physical health. Our initiative offers support groups, resources, and a judgment-free community.",
+        hashtags: ["#MentalWellness", "#CommunitySupport", "#EndTheStigma"]
+      },
+      {
+        platform: "Twitter",
+        content: "Breaking the stigma, one conversation at a time. Join our mental health support community. 💙",
+        hashtags: ["#MentalHealthAwareness", "#YouAreNotAlone", "#Support"]
+      }
+    ],
+    milestones: [
+      {
+        title: "First Support Group",
+        percentage: 20,
+        description: "Inaugural support group successfully launched",
+        reward: "Welcome kit for all participants"
+      },
+      {
+        title: "Professional Partnerships",
+        percentage: 40,
+        description: "Partnerships with mental health professionals established",
+        reward: "Free counseling sessions available"
+      },
+      {
+        title: "Community Network",
+        percentage: 60,
+        description: "All support groups operational",
+        reward: "Peer mentor training program"
+      },
+      {
+        title: "Awareness Event",
+        percentage: 80,
+        description: "Major community awareness event held",
+        reward: "Mental health resource booklet"
+      },
+      {
+        title: "Full Initiative Launch",
+        percentage: 100,
+        description: "Complete support network established",
+        reward: "Annual impact report and community celebration"
+      }
+    ]
   }
 ];
 
