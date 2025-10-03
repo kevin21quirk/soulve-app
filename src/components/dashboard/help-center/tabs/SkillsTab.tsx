@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -79,11 +79,15 @@ const SkillsTab = () => {
                 Log Volunteer Work
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
+            <DialogContent className="max-h-[85vh] sm:max-h-[90vh] flex flex-col p-0">
+              <DialogHeader className="px-6 pt-6 pb-2 flex-shrink-0">
                 <DialogTitle>Log Skill-Based Volunteer Work</DialogTitle>
+                <DialogDescription>
+                  Track your professional volunteer contributions and earn points based on market rates
+                </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                 <div className="space-y-2">
                   <Label>Skill Used</Label>
                   <SkillCategorySelector
@@ -142,7 +146,9 @@ const SkillsTab = () => {
                     </div>
                   </div>
                 )}
+              </div>
 
+              <div className="px-6 pb-6 pt-4 flex-shrink-0 border-t">
                 <Button 
                   onClick={handleLogVolunteerWork} 
                   className="w-full"

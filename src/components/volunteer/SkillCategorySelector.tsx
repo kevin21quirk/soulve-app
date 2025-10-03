@@ -104,7 +104,7 @@ export const SkillCategorySelector = ({
           <Command>
             <CommandInput placeholder="Search skills..." />
             <CommandEmpty>No skill found.</CommandEmpty>
-            <div className="max-h-[300px] overflow-y-auto">
+            <div className="max-h-[200px] sm:max-h-[300px] overflow-y-auto">
               {Object.entries(groupedSkills).map(([category, categorySkills]) => (
                 <CommandGroup 
                   key={category} 
