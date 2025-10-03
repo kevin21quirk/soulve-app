@@ -14,6 +14,7 @@ import ProfileRegistration from "@/pages/ProfileRegistration";
 import PublicProfile from "@/pages/PublicProfile";
 import CampaignBuilderPage from "@/pages/CampaignBuilder";
 import EnhancedCampaignAnalyticsDashboard from "@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard";
+import DonationPage from "@/pages/DonationPage";
 
 function App() {
   return (
@@ -48,6 +49,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EnhancedCampaignAnalyticsDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/donate" 
+              element={
+                <ProtectedRoute>
+                  <DonationPage />
                 </ProtectedRoute>
               } 
             />
