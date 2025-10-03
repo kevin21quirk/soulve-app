@@ -115,7 +115,7 @@ const SafeSpaceHelperDashboard = () => {
               </li>
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>Complete online training modules - Coming Soon</span>
+                <span>Complete online training modules</span>
               </li>
               <li className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4" />
@@ -137,13 +137,22 @@ const SafeSpaceHelperDashboard = () => {
             </div>
           </div>
 
-          <Button 
-            onClick={() => navigate('/safe-space/helper/apply')}
-            className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
-          >
-            <UserCheck className="h-4 w-4 mr-2" />
-            Start Application
-          </Button>
+          <div className="flex gap-4">
+            <Button 
+              onClick={() => navigate('/safe-space/helper/training')}
+              variant="outline"
+              className="flex-1"
+            >
+              View Training Modules
+            </Button>
+            <Button 
+              onClick={() => navigate('/safe-space/helper/apply')}
+              className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+            >
+              <UserCheck className="h-4 w-4 mr-2" />
+              Start Application
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
