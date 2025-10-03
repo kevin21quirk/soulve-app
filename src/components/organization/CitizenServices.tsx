@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardList, Clock, CheckCircle, AlertTriangle, TrendingUp, MapPin } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface CitizenServicesProps {
   organizationId: string;
 }
 
 const CitizenServices = ({ organizationId }: CitizenServicesProps) => {
+  const [expandedRequest, setExpandedRequest] = useState<number | null>(null);
+
   // Mock data - replace with real data from Supabase
   const serviceMetrics = [
     { label: "Open Requests", value: 42, trend: "+8" },
@@ -97,7 +101,12 @@ const CitizenServices = ({ organizationId }: CitizenServicesProps) => {
             Manage citizen requests and service delivery
           </p>
         </div>
-        <Button>
+        <Button onClick={() => {
+          toast({
+            title: "View All Requests",
+            description: "Loading all service requests...",
+          });
+        }}>
           View All Requests
         </Button>
       </div>
@@ -159,11 +168,33 @@ const CitizenServices = ({ organizationId }: CitizenServicesProps) => {
                     </div>
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <Button variant="outline" size="sm">
-                      View Details
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        if (expandedRequest === request.id) {
+                          setExpandedRequest(null);
+                        } else {
+                          setExpandedRequest(request.id);
+                          toast({
+                            title: "Request Details",
+                            description: `Viewing details for "${request.title}"`,
+                          });
+                        }
+                      }}
+                    >
+                      {expandedRequest === request.id ? "Hide Details" : "View Details"}
                     </Button>
                     {request.assignedTo === "Unassigned" && (
-                      <Button size="sm">
+                      <Button 
+                        size="sm"
+                        onClick={() => {
+                          toast({
+                            title: "Assign Request",
+                            description: `Assigning "${request.title}" to a team member...`,
+                          });
+                        }}
+                      >
                         Assign
                       </Button>
                     )}

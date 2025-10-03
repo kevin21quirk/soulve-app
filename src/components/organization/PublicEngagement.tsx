@@ -1,13 +1,21 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ThumbsUp, Share2, Calendar, TrendingUp } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface PublicEngagementProps {
   organizationId: string;
 }
 
 const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
+  const [expandedConsultation, setExpandedConsultation] = useState<number | null>(null);
+  const [feedbackLikes, setFeedbackLikes] = useState<Record<number, number>>({
+    1: 24,
+    2: 18
+  });
+
   // Mock data - replace with real data from Supabase
   const engagementMetrics = [
     { label: "Active Consultations", value: 8, trend: "+2" },
@@ -88,7 +96,12 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
             Manage consultations, surveys, and citizen feedback
           </p>
         </div>
-        <Button>
+        <Button onClick={() => {
+          toast({
+            title: "Start New Consultation",
+            description: "Opening consultation creation form...",
+          });
+        }}>
           Start New Consultation
         </Button>
       </div>
@@ -144,8 +157,22 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
                     </span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  View Details
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    if (expandedConsultation === consultation.id) {
+                      setExpandedConsultation(null);
+                    } else {
+                      setExpandedConsultation(consultation.id);
+                      toast({
+                        title: "Consultation Details",
+                        description: `Viewing details for "${consultation.title}"`,
+                      });
+                    }
+                  }}
+                >
+                  {expandedConsultation === consultation.id ? "Hide Details" : "View Details"}
                 </Button>
               </div>
             ))}
@@ -173,15 +200,45 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
                 </div>
                 <p className="text-sm mb-3">{feedback.comment}</p>
                 <div className="flex items-center space-x-4">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setFeedbackLikes(prev => ({
+                        ...prev,
+                        [feedback.id]: (prev[feedback.id] || feedback.likes) + 1
+                      }));
+                      toast({
+                        description: "Feedback liked!",
+                      });
+                    }}
+                  >
                     <ThumbsUp className="h-4 w-4 mr-1" />
-                    {feedback.likes}
+                    {feedbackLikes[feedback.id] || feedback.likes}
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "Reply to Comment",
+                        description: `Replying to ${feedback.author}...`,
+                      });
+                    }}
+                  >
                     <MessageSquare className="h-4 w-4 mr-1" />
                     Reply
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`Comment by ${feedback.author}: ${feedback.comment}`);
+                      toast({
+                        description: "Comment copied to clipboard!",
+                      });
+                    }}
+                  >
                     <Share2 className="h-4 w-4 mr-1" />
                     Share
                   </Button>

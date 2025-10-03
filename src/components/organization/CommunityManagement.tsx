@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Calendar, MessageSquare, MapPin, TrendingUp, Bell } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface CommunityManagementProps {
   organizationId: string;
 }
 
 const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
+  const [expandedGroup, setExpandedGroup] = useState<number | null>(null);
+
   // Mock data - replace with real data from Supabase
   const communityMetrics = [
     { label: "Active Groups", value: 24, trend: "+4" },
@@ -113,7 +117,12 @@ const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
             Manage community groups, events, and engagement
           </p>
         </div>
-        <Button>
+        <Button onClick={() => {
+          toast({
+            title: "Create Event",
+            description: "Opening event creation form...",
+          });
+        }}>
           Create Event
         </Button>
       </div>
@@ -172,8 +181,22 @@ const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
                     </div>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  View Group
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    if (expandedGroup === group.id) {
+                      setExpandedGroup(null);
+                    } else {
+                      setExpandedGroup(group.id);
+                      toast({
+                        title: "Group Details",
+                        description: `Viewing details for "${group.name}"`,
+                      });
+                    }
+                  }}
+                >
+                  {expandedGroup === group.id ? "Hide Group" : "View Group"}
                 </Button>
               </div>
             ))}
@@ -254,7 +277,16 @@ const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
                 </div>
               ))}
               
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  toast({
+                    title: "View All Discussions",
+                    description: "Loading community discussions...",
+                  });
+                }}
+              >
                 <Bell className="h-4 w-4 mr-2" />
                 View All Discussions
               </Button>

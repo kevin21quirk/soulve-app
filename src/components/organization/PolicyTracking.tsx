@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Clock, CheckCircle, AlertCircle, TrendingUp } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface PolicyTrackingProps {
   organizationId: string;
 }
 
 const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
+  const [expandedPolicy, setExpandedPolicy] = useState<number | null>(null);
+
   // Mock data - replace with real data from Supabase
   const policyMetrics = [
     { label: "Active Policies", value: 15, trend: "+3" },
@@ -103,7 +107,12 @@ const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
             Monitor and manage policy initiatives and implementation
           </p>
         </div>
-        <Button>
+        <Button onClick={() => {
+          toast({
+            title: "Create New Policy",
+            description: "Opening policy creation form...",
+          });
+        }}>
           Create New Policy
         </Button>
       </div>
@@ -157,8 +166,22 @@ const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
                       Assigned to: {policy.assignee}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View Details
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      if (expandedPolicy === policy.id) {
+                        setExpandedPolicy(null);
+                      } else {
+                        setExpandedPolicy(policy.id);
+                        toast({
+                          title: "Policy Details",
+                          description: `Viewing details for "${policy.title}"`,
+                        });
+                      }
+                    }}
+                  >
+                    {expandedPolicy === policy.id ? "Hide Details" : "View Details"}
                   </Button>
                 </div>
                 
