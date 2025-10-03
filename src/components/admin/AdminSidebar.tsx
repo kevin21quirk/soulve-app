@@ -39,13 +39,13 @@ const adminNavItems = [
 
 const AdminSidebar = () => {
   return (
-    <Sidebar className="border-r-2 border-border bg-card shadow-lg">
-      <SidebarContent className="bg-card">
+    <Sidebar className="border-r-2 border-slate-700 bg-slate-900 shadow-lg">
+      <SidebarContent className="bg-slate-900">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-semibold px-4 py-4 bg-muted/50 border-b border-border">
+          <SidebarGroupLabel className="text-lg font-semibold px-4 py-4 bg-slate-800 border-b border-slate-700">
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="text-foreground">Admin Panel</span>
+              <Shield className="h-5 w-5 text-blue-400" />
+              <span className="text-white">Admin Panel</span>
             </div>
           </SidebarGroupLabel>
           <SidebarGroupContent className="p-2">
@@ -59,8 +59,8 @@ const AdminSidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                           isActive
-                            ? 'bg-primary text-primary-foreground font-semibold shadow-md'
-                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                            ? 'bg-blue-600 text-white font-semibold shadow-md'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                         }`
                       }
                     >
