@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, Clock, CheckCircle, AlertTriangle, TrendingUp, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ClipboardList, Clock, CheckCircle, AlertTriangle, TrendingUp, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface CitizenServicesProps {
@@ -101,14 +103,37 @@ const CitizenServices = ({ organizationId }: CitizenServicesProps) => {
             Manage citizen requests and service delivery
           </p>
         </div>
-        <Button onClick={() => {
-          toast({
-            title: "View All Requests",
-            description: "Loading all service requests...",
-          });
-        }}>
-          View All Requests
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>View All Requests</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>All Service Requests</DialogTitle>
+              <DialogDescription>
+                Complete list of citizen service requests with filtering options.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-4">
+              {serviceRequests.map((request) => (
+                <div key={request.id} className="p-3 border rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold">{request.title}</h4>
+                      <p className="text-sm text-muted-foreground">{request.location}</p>
+                    </div>
+                    <Badge className={getStatusColor(request.status)}>
+                      {request.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button variant="outline">Export to CSV</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Service Metrics */}
@@ -137,70 +162,147 @@ const CitizenServices = ({ organizationId }: CitizenServicesProps) => {
         <CardContent>
           <div className="space-y-4">
             {serviceRequests.map((request) => (
-              <div
+              <Collapsible
                 key={request.id}
-                className="p-4 border rounded-lg hover:bg-accent transition-colors"
+                open={expandedRequest === request.id}
+                onOpenChange={(open) => setExpandedRequest(open ? request.id : null)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="font-semibold">{request.title}</h3>
-                      <Badge className={getStatusColor(request.status)}>
-                        {getStatusIcon(request.status)}
-                        <span className="ml-1">{request.status}</span>
-                      </Badge>
-                      <Badge className={getPriorityColor(request.priority)}>
-                        {request.priority}
-                      </Badge>
+                <div className="p-4 border rounded-lg hover:bg-accent transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="font-semibold">{request.title}</h3>
+                        <Badge className={getStatusColor(request.status)}>
+                          {getStatusIcon(request.status)}
+                          <span className="ml-1">{request.status}</span>
+                        </Badge>
+                        <Badge className={getPriorityColor(request.priority)}>
+                          {request.priority}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
+                        <span className="flex items-center space-x-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>{request.location}</span>
+                        </span>
+                        <span>{request.category}</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Submitted by {request.submittedBy} • {request.submittedAt}
+                      </div>
+                      <div className="text-sm font-medium mt-1">
+                        Assigned to: {request.assignedTo}
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
-                      <span className="flex items-center space-x-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{request.location}</span>
-                      </span>
-                      <span>{request.category}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Submitted by {request.submittedBy} • {request.submittedAt}
-                    </div>
-                    <div className="text-sm font-medium mt-1">
-                      Assigned to: {request.assignedTo}
+                    <div className="flex flex-col space-y-2">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          {expandedRequest === request.id ? (
+                            <>
+                              <ChevronUp className="h-4 w-4 mr-1" />
+                              Hide Details
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-4 w-4 mr-1" />
+                              View Details
+                            </>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      {request.assignedTo === "Unassigned" && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm">Assign</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Assign Request</DialogTitle>
+                              <DialogDescription>
+                                Assign "{request.title}" to a team member.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4">
+                              <p className="text-sm text-muted-foreground mb-2">Select team:</p>
+                              <div className="space-y-2">
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Request Assigned",
+                                      description: "Assigned to Maintenance Team A",
+                                    });
+                                  }}
+                                >
+                                  Maintenance Team A
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Request Assigned",
+                                      description: "Assigned to Road Repair Team",
+                                    });
+                                  }}
+                                >
+                                  Road Repair Team
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Request Assigned",
+                                      description: "Assigned to Sanitation Department",
+                                    });
+                                  }}
+                                >
+                                  Sanitation Department
+                                </Button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
                     </div>
                   </div>
-                  <div className="flex flex-col space-y-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        if (expandedRequest === request.id) {
-                          setExpandedRequest(null);
-                        } else {
-                          setExpandedRequest(request.id);
-                          toast({
-                            title: "Request Details",
-                            description: `Viewing details for "${request.title}"`,
-                          });
-                        }
-                      }}
-                    >
-                      {expandedRequest === request.id ? "Hide Details" : "View Details"}
-                    </Button>
-                    {request.assignedTo === "Unassigned" && (
-                      <Button 
-                        size="sm"
-                        onClick={() => {
-                          toast({
-                            title: "Assign Request",
-                            description: `Assigning "${request.title}" to a team member...`,
-                          });
-                        }}
-                      >
-                        Assign
-                      </Button>
-                    )}
-                  </div>
+                  
+                  <CollapsibleContent className="space-y-4 mt-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <h4 className="font-semibold mb-2">Full Description</h4>
+                      <p className="text-sm text-muted-foreground">
+                        The reported issue requires immediate attention to ensure public safety 
+                        and maintain service standards. This request has been escalated based on 
+                        priority level and location factors.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Status History</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium">Request Submitted</p>
+                          <p className="text-muted-foreground text-xs">{request.submittedAt}</p>
+                        </div>
+                        {request.status !== 'open' && (
+                          <div className="p-3 bg-muted rounded text-sm">
+                            <p className="font-medium">Assigned to Team</p>
+                            <p className="text-muted-foreground text-xs">1 hour ago</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button size="sm">Update Status</Button>
+                      <Button size="sm" variant="outline">Add Comment</Button>
+                      <Button size="sm" variant="outline">View Photos</Button>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             ))}
           </div>
         </CardContent>

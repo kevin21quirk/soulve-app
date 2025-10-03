@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Calendar, MessageSquare, MapPin, TrendingUp, Bell } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Users, Calendar, MessageSquare, MapPin, TrendingUp, Bell, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface CommunityManagementProps {
@@ -11,6 +16,8 @@ interface CommunityManagementProps {
 
 const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
   const [expandedGroup, setExpandedGroup] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock data - replace with real data from Supabase
   const communityMetrics = [
@@ -117,14 +124,68 @@ const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
             Manage community groups, events, and engagement
           </p>
         </div>
-        <Button onClick={() => {
-          toast({
-            title: "Create Event",
-            description: "Opening event creation form...",
-          });
-        }}>
-          Create Event
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>Create Event</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Create Community Event</DialogTitle>
+              <DialogDescription>
+                Schedule a new community event and invite members to participate.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="event-title">Event Title</Label>
+                <Input id="event-title" placeholder="e.g., Town Hall Meeting" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="event-description">Description</Label>
+                <Textarea id="event-description" placeholder="Describe the event..." rows={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="event-date">Date</Label>
+                  <Input id="event-date" type="date" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="event-time">Time</Label>
+                  <Input id="event-time" type="time" />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="event-location">Location</Label>
+                <Input id="event-location" placeholder="e.g., Community Centre" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="event-capacity">Capacity</Label>
+                <Input id="event-capacity" type="number" placeholder="Maximum attendees" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  setIsSubmitting(true);
+                  setTimeout(() => {
+                    setIsSubmitting(false);
+                    setIsDialogOpen(false);
+                    toast({
+                      title: "Event Created",
+                      description: "Your community event has been scheduled successfully.",
+                    });
+                  }, 1000);
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating..." : "Create Event"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Community Metrics */}
@@ -153,52 +214,86 @@ const CommunityManagement = ({ organizationId }: CommunityManagementProps) => {
         <CardContent>
           <div className="space-y-4">
             {communityGroups.map((group) => (
-              <div
+              <Collapsible
                 key={group.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                open={expandedGroup === group.id}
+                onOpenChange={(open) => setExpandedGroup(open ? group.id : null)}
               >
-                <div className="flex items-start space-x-4 flex-1">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Users className="h-6 w-6 text-primary" />
+                <div className="p-4 border rounded-lg hover:bg-accent transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Users className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h3 className="font-semibold">{group.name}</h3>
+                          <Badge className={getActivityColor(group.activity)}>
+                            {group.activity} activity
+                          </Badge>
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span className="flex items-center space-x-1">
+                            <Users className="h-4 w-4" />
+                            <span>{group.members} members</span>
+                          </span>
+                          <span>{group.category}</span>
+                          <span>Coordinator: {group.coordinator}</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Last active {group.lastActive}
+                        </div>
+                      </div>
+                    </div>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        {expandedGroup === group.id ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-1" />
+                            Hide Details
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            View Details
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="font-semibold">{group.name}</h3>
-                      <Badge className={getActivityColor(group.activity)}>
-                        {group.activity} activity
-                      </Badge>
+
+                  <CollapsibleContent className="space-y-4 mt-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <h4 className="font-semibold mb-2">About This Group</h4>
+                      <p className="text-sm text-muted-foreground">
+                        This community group brings together residents who share common interests 
+                        and work collaboratively on local initiatives. Members participate in 
+                        discussions, organize events, and contribute to community improvement projects.
+                      </p>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <span className="flex items-center space-x-1">
-                        <Users className="h-4 w-4" />
-                        <span>{group.members} members</span>
-                      </span>
-                      <span>{group.category}</span>
-                      <span>Coordinator: {group.coordinator}</span>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Recent Activity</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium">Weekly Meeting Scheduled</p>
+                          <p className="text-muted-foreground text-xs">Posted {group.lastActive}</p>
+                        </div>
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium">12 new members joined this month</p>
+                          <p className="text-muted-foreground text-xs">Growth update</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Last active {group.lastActive}
+                    
+                    <div className="flex gap-2">
+                      <Button size="sm">View All Posts</Button>
+                      <Button size="sm" variant="outline">Message Members</Button>
+                      <Button size="sm" variant="outline">Manage Group</Button>
                     </div>
-                  </div>
+                  </CollapsibleContent>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    if (expandedGroup === group.id) {
-                      setExpandedGroup(null);
-                    } else {
-                      setExpandedGroup(group.id);
-                      toast({
-                        title: "Group Details",
-                        description: `Viewing details for "${group.name}"`,
-                      });
-                    }
-                  }}
-                >
-                  {expandedGroup === group.id ? "Hide Group" : "View Group"}
-                </Button>
-              </div>
+              </Collapsible>
             ))}
           </div>
         </CardContent>

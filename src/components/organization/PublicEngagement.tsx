@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, ThumbsUp, Share2, Calendar, TrendingUp } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { MessageSquare, ThumbsUp, Share2, Calendar, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface PublicEngagementProps {
@@ -15,6 +20,8 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
     1: 24,
     2: 18
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock data - replace with real data from Supabase
   const engagementMetrics = [
@@ -96,14 +103,58 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
             Manage consultations, surveys, and citizen feedback
           </p>
         </div>
-        <Button onClick={() => {
-          toast({
-            title: "Start New Consultation",
-            description: "Opening consultation creation form...",
-          });
-        }}>
-          Start New Consultation
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>Start New Consultation</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Start New Consultation</DialogTitle>
+              <DialogDescription>
+                Create a new public consultation to gather citizen feedback.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Consultation Title</Label>
+                <Input id="title" placeholder="e.g., Local Park Renovation Plan" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea id="description" placeholder="Describe what feedback you're seeking..." rows={4} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="deadline">Deadline</Label>
+                <Input id="deadline" type="date" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" placeholder="e.g., Environment, Transport, Housing" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  setIsSubmitting(true);
+                  setTimeout(() => {
+                    setIsSubmitting(false);
+                    setIsDialogOpen(false);
+                    toast({
+                      title: "Consultation Created",
+                      description: "Your public consultation has been published successfully.",
+                    });
+                  }, 1000);
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating..." : "Create Consultation"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Engagement Metrics */}
@@ -132,49 +183,82 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
         <CardContent>
           <div className="space-y-4">
             {activeConsultations.map((consultation) => (
-              <div
+              <Collapsible
                 key={consultation.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                open={expandedConsultation === consultation.id}
+                onOpenChange={(open) => setExpandedConsultation(open ? consultation.id : null)}
               >
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="font-semibold">{consultation.title}</h3>
-                    <Badge className={getStatusColor(consultation.status)}>
-                      {consultation.status.replace('-', ' ')}
-                    </Badge>
-                    <Badge className={getEngagementColor(consultation.engagement)}>
-                      {consultation.engagement} engagement
-                    </Badge>
+                <div className="p-4 border rounded-lg hover:bg-accent transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="font-semibold">{consultation.title}</h3>
+                        <Badge className={getStatusColor(consultation.status)}>
+                          {consultation.status.replace('-', ' ')}
+                        </Badge>
+                        <Badge className={getEngagementColor(consultation.engagement)}>
+                          {consultation.engagement} engagement
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <span className="flex items-center space-x-1">
+                          <MessageSquare className="h-4 w-4" />
+                          <span>{consultation.responses} responses</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>Closes {consultation.deadline}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        {expandedConsultation === consultation.id ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-1" />
+                            Hide Details
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            View Details
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span className="flex items-center space-x-1">
-                      <MessageSquare className="h-4 w-4" />
-                      <span>{consultation.responses} responses</span>
-                    </span>
-                    <span className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>Closes {consultation.deadline}</span>
-                    </span>
-                  </div>
+                  
+                  <CollapsibleContent className="mt-4 space-y-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <h4 className="font-semibold mb-2">Full Description</h4>
+                      <p className="text-sm text-muted-foreground">
+                        This consultation seeks public input on proposed changes and improvements. 
+                        Your feedback will help shape the final implementation plan and ensure 
+                        community needs are met effectively.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Recent Responses</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium">Community Member A</p>
+                          <p className="text-muted-foreground">Great initiative! Looking forward to seeing this implemented.</p>
+                        </div>
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium">Community Member B</p>
+                          <p className="text-muted-foreground">Have you considered accessibility requirements?</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button size="sm">View All Responses</Button>
+                      <Button size="sm" variant="outline">Download Report</Button>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    if (expandedConsultation === consultation.id) {
-                      setExpandedConsultation(null);
-                    } else {
-                      setExpandedConsultation(consultation.id);
-                      toast({
-                        title: "Consultation Details",
-                        description: `Viewing details for "${consultation.title}"`,
-                      });
-                    }
-                  }}
-                >
-                  {expandedConsultation === consultation.id ? "Hide Details" : "View Details"}
-                </Button>
-              </div>
+              </Collapsible>
             ))}
           </div>
         </CardContent>

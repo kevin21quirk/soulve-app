@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Clock, CheckCircle, AlertCircle, TrendingUp } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { FileText, Clock, CheckCircle, AlertCircle, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface PolicyTrackingProps {
@@ -11,6 +16,8 @@ interface PolicyTrackingProps {
 
 const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
   const [expandedPolicy, setExpandedPolicy] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock data - replace with real data from Supabase
   const policyMetrics = [
@@ -107,14 +114,68 @@ const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
             Monitor and manage policy initiatives and implementation
           </p>
         </div>
-        <Button onClick={() => {
-          toast({
-            title: "Create New Policy",
-            description: "Opening policy creation form...",
-          });
-        }}>
-          Create New Policy
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>Create New Policy</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Create New Policy</DialogTitle>
+              <DialogDescription>
+                Add a new policy initiative to track and manage implementation.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="policy-title">Policy Title</Label>
+                <Input id="policy-title" placeholder="e.g., Green Energy Transition Plan" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="policy-category">Category</Label>
+                <Input id="policy-category" placeholder="e.g., Environment, Housing, Technology" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="policy-description">Description</Label>
+                <Textarea id="policy-description" placeholder="Describe the policy objectives..." rows={4} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="policy-priority">Priority</Label>
+                  <Input id="policy-priority" placeholder="High / Medium / Low" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="policy-deadline">Deadline</Label>
+                  <Input id="policy-deadline" type="date" />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="policy-assignee">Assignee</Label>
+                <Input id="policy-assignee" placeholder="Team or department name" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  setIsSubmitting(true);
+                  setTimeout(() => {
+                    setIsSubmitting(false);
+                    setIsDialogOpen(false);
+                    toast({
+                      title: "Policy Created",
+                      description: "Your policy has been added to tracking successfully.",
+                    });
+                  }, 1000);
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating..." : "Create Policy"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Policy Metrics */}
@@ -143,62 +204,94 @@ const PolicyTracking = ({ organizationId }: PolicyTrackingProps) => {
         <CardContent>
           <div className="space-y-4">
             {activePolicies.map((policy) => (
-              <div
+              <Collapsible
                 key={policy.id}
-                className="p-4 border rounded-lg hover:bg-accent transition-colors"
+                open={expandedPolicy === policy.id}
+                onOpenChange={(open) => setExpandedPolicy(open ? policy.id : null)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="font-semibold">{policy.title}</h3>
-                      <Badge className={getStatusColor(policy.status)}>
-                        {getStatusIcon(policy.status)}
-                        <span className="ml-1">{policy.status.replace('-', ' ')}</span>
-                      </Badge>
-                      <Badge className={getPriorityColor(policy.priority)}>
-                        {policy.priority}
-                      </Badge>
+                <div className="p-4 border rounded-lg hover:bg-accent transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="font-semibold">{policy.title}</h3>
+                        <Badge className={getStatusColor(policy.status)}>
+                          {getStatusIcon(policy.status)}
+                          <span className="ml-1">{policy.status.replace('-', ' ')}</span>
+                        </Badge>
+                        <Badge className={getPriorityColor(policy.priority)}>
+                          {policy.priority}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        {policy.category} • Deadline: {policy.deadline}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Assigned to: {policy.assignee}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
-                      {policy.category} • Deadline: {policy.deadline}
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        {expandedPolicy === policy.id ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-1" />
+                            Hide Details
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            View Details
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-semibold">{policy.progress}%</span>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Assigned to: {policy.assignee}
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary rounded-full h-2 transition-all"
+                        style={{ width: `${policy.progress}%` }}
+                      />
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      if (expandedPolicy === policy.id) {
-                        setExpandedPolicy(null);
-                      } else {
-                        setExpandedPolicy(policy.id);
-                        toast({
-                          title: "Policy Details",
-                          description: `Viewing details for "${policy.title}"`,
-                        });
-                      }
-                    }}
-                  >
-                    {expandedPolicy === policy.id ? "Hide Details" : "View Details"}
-                  </Button>
+
+                  <CollapsibleContent className="space-y-4 mt-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <h4 className="font-semibold mb-2">Policy Description</h4>
+                      <p className="text-sm text-muted-foreground">
+                        This policy initiative focuses on implementing comprehensive measures 
+                        to achieve strategic objectives. The implementation involves multiple 
+                        phases with specific milestones and deliverables tracked over time.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Recent Updates</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium text-green-600">✓ Phase 1 Completed</p>
+                          <p className="text-muted-foreground text-xs">Completed 2 weeks ago</p>
+                        </div>
+                        <div className="p-3 bg-muted rounded text-sm">
+                          <p className="font-medium text-blue-600">→ Phase 2 In Progress</p>
+                          <p className="text-muted-foreground text-xs">Started 1 week ago</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button size="sm">View Timeline</Button>
+                      <Button size="sm" variant="outline">Edit Policy</Button>
+                      <Button size="sm" variant="outline">Download Report</Button>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-                
-                {/* Progress Bar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-semibold">{policy.progress}%</span>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${policy.progress}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
+              </Collapsible>
             ))}
           </div>
         </CardContent>
