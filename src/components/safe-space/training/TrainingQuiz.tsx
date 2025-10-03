@@ -107,7 +107,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             {isPassed ? (
-              <CheckCircle2 className="w-20 h-20 text-green-500" />
+              <CheckCircle2 className="w-20 h-20 text-[#0ce4af]" />
             ) : (
               <XCircle className="w-20 h-20 text-red-500" />
             )}
@@ -117,7 +117,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
               {isPassed ? 'Congratulations!' : 'Not Quite There'}
             </CardTitle>
             <CardDescription className="text-lg mt-2">
-              You scored {score}% ({correctCount}/{questions.length} correct)
+              You scored <span className="font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-transparent bg-clip-text">{score}%</span> ({correctCount}/{questions.length} correct)
             </CardDescription>
           </div>
         </CardHeader>
@@ -170,12 +170,12 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
           <div className={cn(
             "p-4 rounded-lg border-2",
             isPassed 
-              ? "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800"
+              ? "bg-gradient-to-br from-teal-50 to-blue-50 border-[#0ce4af] dark:from-teal-950/20 dark:to-blue-950/20 dark:border-[#0ce4af]"
               : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"
           )}>
             <p className={cn(
               "text-sm font-medium",
-              isPassed ? "text-green-800 dark:text-green-400" : "text-red-800 dark:text-red-400"
+              isPassed ? "text-teal-800 dark:text-teal-400" : "text-red-800 dark:text-red-400"
             )}>
               {isPassed 
                 ? 'You have successfully passed this module!'
@@ -188,14 +188,14 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
             <Button 
               variant="outline" 
               onClick={handleReviewAnswers}
-              className="flex-1"
+              className="flex-1 border-2 border-[#18a5fe] text-[#18a5fe] hover:bg-[#18a5fe]/10"
             >
               Review Answers
             </Button>
             <Button 
               onClick={handleFinish}
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
             >
               {isPassed ? 'Continue' : 'Back to Training'}
             </Button>
@@ -222,7 +222,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <Card>
+      <Card className="border-l-4 border-l-[#0ce4af]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="text-xl">{module.title}</CardTitle>
@@ -261,10 +261,10 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
                     disabled={reviewMode && !answered}
                     className={cn(
                       "aspect-square rounded-md text-sm font-medium transition-colors",
-                      isCurrent && "ring-2 ring-primary ring-offset-2",
+                      isCurrent && "ring-2 ring-[#0ce4af] ring-offset-2",
                       !answered && !reviewMode && "bg-muted text-muted-foreground hover:bg-muted/80",
-                      answered && !reviewMode && "bg-primary text-primary-foreground",
-                      isCorrectAnswer && "bg-green-500 text-white",
+                      answered && !reviewMode && "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white",
+                      isCorrectAnswer && "bg-[#0ce4af] text-white",
                       isIncorrectAnswer && "bg-red-500 text-white",
                       "disabled:opacity-50 disabled:cursor-not-allowed"
                     )}
@@ -278,7 +278,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
             {!reviewMode && (
               <div className="pt-3 space-y-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-primary" />
+                  <div className="w-3 h-3 rounded bg-gradient-to-r from-[#0ce4af] to-[#18a5fe]" />
                   <span>Answered</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
             {reviewMode && (
               <div className="pt-3 space-y-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-green-500" />
+                  <div className="w-3 h-3 rounded bg-[#0ce4af]" />
                   <span>Correct</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -350,9 +350,9 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
                     disabled={reviewMode}
                     className={cn(
                       "w-full p-4 text-left rounded-lg border-2 transition-all",
-                      "hover:border-primary hover:bg-muted/50",
-                      isSelected && !reviewMode && "border-primary bg-primary/5",
-                      showCorrect && "border-green-500 bg-green-50 dark:bg-green-950/20",
+                      "hover:border-[#0ce4af] hover:bg-teal-50/30 dark:hover:bg-teal-950/10",
+                      isSelected && !reviewMode && "border-[#18a5fe] bg-blue-50 dark:bg-blue-900/20",
+                      showCorrect && "border-[#0ce4af] bg-teal-50 dark:bg-teal-950/20",
                       showIncorrect && "border-red-500 bg-red-50 dark:bg-red-950/20",
                       !isSelected && !showCorrect && !showIncorrect && "border-muted",
                       reviewMode && "cursor-default"
@@ -361,8 +361,8 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
                     <div className="flex items-start gap-3">
                       <div className={cn(
                         "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium mt-0.5",
-                        isSelected && !reviewMode && "border-primary bg-primary text-primary-foreground",
-                        showCorrect && "border-green-500 bg-green-500 text-white",
+                        isSelected && !reviewMode && "border-[#18a5fe] bg-[#18a5fe] text-white",
+                        showCorrect && "border-[#0ce4af] bg-[#0ce4af] text-white",
                         showIncorrect && "border-red-500 bg-red-500 text-white",
                         !isSelected && !showCorrect && !showIncorrect && "border-muted-foreground/30"
                       )}>
@@ -370,12 +370,12 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
                       </div>
                       <span className={cn(
                         "flex-1",
-                        showCorrect && "text-green-800 dark:text-green-400 font-medium",
+                        showCorrect && "text-teal-800 dark:text-teal-400 font-medium",
                         showIncorrect && "text-red-800 dark:text-red-400"
                       )}>
                         {option}
                       </span>
-                      {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
+                      {showCorrect && <CheckCircle2 className="w-5 h-5 text-[#0ce4af] flex-shrink-0" />}
                       {showIncorrect && <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
                     </div>
                   </button>
@@ -385,7 +385,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
           </Card>
 
           {reviewMode && question.explanation && (
-            <Card className="border-2 border-primary/20 bg-primary/5">
+            <Card className="border-2 border-[#0ce4af]/30 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-950/20 dark:to-blue-950/20">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <AlertCircle className="w-5 h-5" />
@@ -421,7 +421,7 @@ export function TrainingQuiz({ module, onComplete, onCancel, isSubmitting }: Tra
                         <Button
                           onClick={handleSubmit}
                           disabled={!allAnswered}
-                          className="gap-2"
+                          className="gap-2 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
                         >
                           Submit Quiz
                           <CheckCircle2 className="w-4 h-4" />

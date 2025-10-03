@@ -17,8 +17,8 @@ export function TrainingModuleList({ modules, progress, onSelectModule }: Traini
   const getModuleProgress = (moduleId: string) => progress.find(p => p.module_id === moduleId);
 
   const getStatusIcon = (status?: string, canAttempt?: boolean) => {
-    if (!canAttempt) return <Lock className="w-5 h-5 text-muted-foreground" />;
-    if (status === 'completed') return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+    if (!canAttempt) return <Lock className="w-5 h-5 text-[#18a5fe]" />;
+    if (status === 'completed') return <CheckCircle2 className="w-5 h-5 text-[#0ce4af]" />;
     if (status === 'failed') return <AlertCircle className="w-5 h-5 text-red-500" />;
     return <FileText className="w-5 h-5 text-muted-foreground" />;
   };
@@ -29,18 +29,18 @@ export function TrainingModuleList({ modules, progress, onSelectModule }: Traini
 
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-primary/20">
+      <Card className="border-2 border-[#0ce4af]/30">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Award className="w-6 h-6 text-primary" />
+                <Award className="w-6 h-6 text-[#0ce4af]" />
                 Overall Progress
               </CardTitle>
               <CardDescription>Complete all required modules</CardDescription>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-primary">{Math.round(overallProgress)}%</div>
+              <div className="text-3xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-transparent bg-clip-text">{Math.round(overallProgress)}%</div>
               <div className="text-sm text-muted-foreground">{completedRequired.length}/{requiredModules.length}</div>
             </div>
           </div>
@@ -58,7 +58,7 @@ export function TrainingModuleList({ modules, progress, onSelectModule }: Traini
           const attempts = moduleProgress?.attempts || 0;
 
           return (
-            <Card key={module.id} className={cn("cursor-pointer hover:shadow-md", isCompleted && "border-green-500/50")} onClick={() => onSelectModule(module)}>
+            <Card key={module.id} className={cn("cursor-pointer hover:shadow-md", isCompleted && "border-l-4 border-l-[#0ce4af]")} onClick={() => onSelectModule(module)}>
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -87,7 +87,7 @@ export function TrainingModuleList({ modules, progress, onSelectModule }: Traini
                 {moduleProgress && moduleProgress.score !== undefined && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className={isCompleted ? "text-green-600 dark:text-green-400 font-medium" : ""}>
+                      <span className={isCompleted ? "font-medium bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-transparent bg-clip-text" : ""}>
                         {isCompleted ? `Completed (${moduleProgress.score}%)` : `Failed (${moduleProgress.score}%)`}
                       </span>
                       <span className="text-muted-foreground">Pass: {module.passing_score}%</span>
@@ -105,7 +105,16 @@ export function TrainingModuleList({ modules, progress, onSelectModule }: Traini
                   </div>
                 )}
 
-                <Button variant={isCompleted ? "outline" : "default"} className="w-full" disabled={!canAttempt}>
+                <Button 
+                  variant={isCompleted ? "outline" : "default"} 
+                  className={cn(
+                    "w-full",
+                    isCompleted 
+                      ? "border-2 border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10"
+                      : "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+                  )}
+                  disabled={!canAttempt}
+                >
                   {isCompleted ? 'Review & Retake' : 'Start Module'}
                 </Button>
               </CardContent>

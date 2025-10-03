@@ -46,13 +46,13 @@ export const formatRetryDate = (date: Date): string => {
 export const getDifficultyColor = (difficulty: string): string => {
   switch (difficulty) {
     case 'easy':
-      return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      return 'bg-teal-100 text-teal-700 border-teal-300 dark:bg-teal-900/30 dark:text-teal-300';
     case 'medium':
-      return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+      return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300';
     case 'hard':
-      return 'bg-orange-500/10 text-orange-700 dark:text-orange-400';
+      return 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300';
     case 'very_hard':
-      return 'bg-red-500/10 text-red-700 dark:text-red-400';
+      return 'bg-gradient-to-r from-[#4c3dfb] to-[#18a5fe] text-white border-transparent';
     default:
       return 'bg-muted text-muted-foreground';
   }

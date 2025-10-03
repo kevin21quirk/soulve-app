@@ -21,13 +21,13 @@ export default function SafeSpaceHelperTraining() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <div className="container mx-auto py-8 px-4 max-w-6xl">
         {!selectedModule && (
           <Button
             variant="ghost"
             onClick={() => navigate('/safe-space/helper')}
-            className="mb-6"
+            className="mb-6 hover:text-[#0ce4af]"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard

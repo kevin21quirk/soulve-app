@@ -68,7 +68,7 @@ export function TrainingModuleViewer({ module, progress, onComplete, onBack }: T
                   {module.duration_minutes} min
                 </Badge>
                 {isCompleted && (
-                  <Badge variant="default" className="gap-1 bg-green-500">
+                  <Badge variant="default" className="gap-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-0">
                     <Award className="w-3 h-3" />
                     Completed
                   </Badge>
@@ -82,11 +82,11 @@ export function TrainingModuleViewer({ module, progress, onComplete, onBack }: T
 
         <CardContent className="space-y-6">
           {progress && (
-            <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+            <div className="space-y-3 p-4 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-950/20 dark:to-blue-950/20 rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Your Progress</span>
                 {isCompleted && (
-                  <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  <span className="text-sm font-medium bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-transparent bg-clip-text">
                     Score: {lastScore}%
                   </span>
                 )}
@@ -112,11 +112,11 @@ export function TrainingModuleViewer({ module, progress, onComplete, onBack }: T
           )}
 
           {!canAttempt && retryAt && (
-            <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <Lock className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-950/20 border border-[#18a5fe] dark:border-[#18a5fe] rounded-lg">
+              <Lock className="w-5 h-5 text-[#18a5fe]" />
               <div>
-                <p className="text-sm font-medium text-red-900 dark:text-red-200">Retry Cooldown</p>
-                <p className="text-sm text-red-700 dark:text-red-300">{retryMessage}</p>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-200">Retry Cooldown</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300">{retryMessage}</p>
               </div>
             </div>
           )}
@@ -125,7 +125,11 @@ export function TrainingModuleViewer({ module, progress, onComplete, onBack }: T
             <Button variant="outline" onClick={onBack} className="flex-1">
               Back to Modules
             </Button>
-            <Button onClick={() => setShowQuiz(true)} disabled={!canAttempt} className="flex-1">
+            <Button 
+              onClick={() => setShowQuiz(true)} 
+              disabled={!canAttempt} 
+              className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+            >
               {isCompleted ? 'Retake Quiz' : 'Start Quiz'}
             </Button>
           </div>
