@@ -358,6 +358,54 @@ export class ImpactAnalyticsService {
     }
   }
 
+  /**
+   * Award points for skill-based volunteer work using market rates
+   */
+  static async awardVolunteerPoints(
+    userId: string,
+    skillCategoryId: string,
+    hours: number,
+    marketRate: number,
+    description: string,
+    organization?: string,
+    evidenceUrl?: string
+  ): Promise<void> {
+    try {
+      const marketValue = marketRate * hours;
+      const points = Math.round(marketValue * 0.5); // £1 = 0.5 points
+
+      const { error } = await supabase
+        .from('impact_activities')
+        .insert({
+          user_id: userId,
+          activity_type: 'volunteer',
+          skill_category_id: skillCategoryId,
+          hours_contributed: hours,
+          market_rate_used: marketRate,
+          market_value_gbp: marketValue,
+          points_conversion_rate: 0.5,
+          points_earned: points,
+          description,
+          metadata: {
+            hours,
+            organization,
+            evidenceUrl,
+            marketRate,
+            marketValue
+          },
+          verified: true
+        });
+
+      if (error) throw error;
+
+      // Recalculate user metrics to update total market value
+      await this.calculateUserMetrics(userId);
+    } catch (error) {
+      console.error('Error awarding volunteer points:', error);
+      throw error;
+    }
+  }
+
   static async getRecentActivities(userId: string, limit: number = 10): Promise<ImpactActivity[]> {
     try {
       const { data: activities } = await supabase

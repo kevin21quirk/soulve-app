@@ -2195,11 +2195,16 @@ export type Database = {
           description: string
           effort_level: number | null
           evidence_submitted: boolean | null
+          hours_contributed: number | null
           id: string
+          market_rate_used: number | null
+          market_value_gbp: number | null
           metadata: Json | null
+          points_conversion_rate: number | null
           points_earned: number
           requires_evidence: boolean | null
           risk_score: number | null
+          skill_category_id: string | null
           updated_at: string
           user_id: string
           verified: boolean | null
@@ -2211,11 +2216,16 @@ export type Database = {
           description: string
           effort_level?: number | null
           evidence_submitted?: boolean | null
+          hours_contributed?: number | null
           id?: string
+          market_rate_used?: number | null
+          market_value_gbp?: number | null
           metadata?: Json | null
+          points_conversion_rate?: number | null
           points_earned?: number
           requires_evidence?: boolean | null
           risk_score?: number | null
+          skill_category_id?: string | null
           updated_at?: string
           user_id: string
           verified?: boolean | null
@@ -2227,16 +2237,29 @@ export type Database = {
           description?: string
           effort_level?: number | null
           evidence_submitted?: boolean | null
+          hours_contributed?: number | null
           id?: string
+          market_rate_used?: number | null
+          market_value_gbp?: number | null
           metadata?: Json | null
+          points_conversion_rate?: number | null
           points_earned?: number
           requires_evidence?: boolean | null
           risk_score?: number | null
+          skill_category_id?: string | null
           updated_at?: string
           user_id?: string
           verified?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "impact_activities_skill_category_id_fkey"
+            columns: ["skill_category_id"]
+            isOneToOne: false
+            referencedRelation: "skill_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       impact_goals: {
         Row: {
@@ -2294,6 +2317,7 @@ export type Database = {
           last_activity_date: string | null
           red_flag_count: number | null
           response_time_hours: number | null
+          total_market_value_contributed: number | null
           trust_score: number
           user_id: string
           volunteer_hours: number | null
@@ -2312,6 +2336,7 @@ export type Database = {
           last_activity_date?: string | null
           red_flag_count?: number | null
           response_time_hours?: number | null
+          total_market_value_contributed?: number | null
           trust_score?: number
           user_id: string
           volunteer_hours?: number | null
@@ -2330,6 +2355,7 @@ export type Database = {
           last_activity_date?: string | null
           red_flag_count?: number | null
           response_time_hours?: number | null
+          total_market_value_contributed?: number | null
           trust_score?: number
           user_id?: string
           volunteer_hours?: number | null
@@ -3907,6 +3933,42 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_categories: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          evidence_required: boolean | null
+          id: string
+          market_rate_gbp: number
+          name: string
+          requires_verification: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          evidence_required?: boolean | null
+          id?: string
+          market_rate_gbp: number
+          name: string
+          requires_verification?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          evidence_required?: boolean | null
+          id?: string
+          market_rate_gbp?: number
+          name?: string
+          requires_verification?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stakeholder_engagement_metrics: {
         Row: {
           created_at: string
@@ -4766,6 +4828,10 @@ export type Database = {
       }
       calculate_esg_score: {
         Args: { assessment_year: number; org_id: string }
+        Returns: number
+      }
+      calculate_total_market_value: {
+        Args: { target_user_id: string }
         Returns: number
       }
       calculate_trust_score: {

@@ -28,22 +28,51 @@ export const useImpactTracking = () => {
     }
   };
 
-  const trackVolunteerWork = async (hours: number, description: string, organization?: string) => {
+  const trackVolunteerWork = async (
+    hours: number, 
+    description: string, 
+    organization?: string,
+    skillCategoryId?: string,
+    marketRate?: number,
+    evidenceUrl?: string
+  ) => {
     if (!user?.id) return;
 
     try {
-      await ImpactAnalyticsService.awardImpactPoints(
-        user.id,
-        'volunteer',
-        hours * 3,
-        description,
-        { hours, organization }
-      );
+      // If skill-based volunteer work with market rate
+      if (skillCategoryId && marketRate) {
+        await ImpactAnalyticsService.awardVolunteerPoints(
+          user.id,
+          skillCategoryId,
+          hours,
+          marketRate,
+          description,
+          organization,
+          evidenceUrl
+        );
 
-      toast({
-        title: "Volunteer Impact Recorded! 🙌",
-        description: `+${hours * 3} points for ${hours} hours of volunteer work`,
-      });
+        const marketValue = marketRate * hours;
+        const points = Math.round(marketValue * 0.5);
+
+        toast({
+          title: "Skill-Based Volunteer Impact! 🌟",
+          description: `+${points} points for ${hours} hours at £${marketRate}/hr (£${marketValue} market value)`,
+        });
+      } else {
+        // Legacy volunteer tracking (simple hours * 3)
+        await ImpactAnalyticsService.awardImpactPoints(
+          user.id,
+          'volunteer',
+          hours * 3,
+          description,
+          { hours, organization }
+        );
+
+        toast({
+          title: "Volunteer Impact Recorded! 🙌",
+          description: `+${hours * 3} points for ${hours} hours of volunteer work`,
+        });
+      }
     } catch (error) {
       console.error('Error tracking volunteer work:', error);
     }
