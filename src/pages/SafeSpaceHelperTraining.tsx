@@ -46,7 +46,9 @@ export default function SafeSpaceHelperTraining() {
             <TrainingModuleViewer
               module={selectedModule}
               progress={trainingProgress.find(p => p.module_id === selectedModule.id)}
-              onComplete={completeModule}
+              onComplete={async (moduleId, score, answers) => {
+                await completeModule(moduleId, score, answers);
+              }}
               onBack={() => {
                 setSelectedModule(null);
                 refetch();
