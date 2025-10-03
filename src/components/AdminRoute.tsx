@@ -32,6 +32,8 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
           .eq('role', 'admin')
           .maybeSingle();
 
+        console.log('Admin check result:', { data, error, userId: user.id });
+
         if (error) {
           console.error('Error checking admin status:', error);
           navigate('/dashboard', { replace: true });
@@ -39,11 +41,12 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
         }
 
         if (!data) {
-          // Not an admin, redirect to dashboard
+          console.log('User is not an admin, redirecting to dashboard');
           navigate('/dashboard', { replace: true });
           return;
         }
 
+        console.log('User is admin, granting access');
         setIsAdmin(true);
         setChecking(false);
       } catch (error) {
