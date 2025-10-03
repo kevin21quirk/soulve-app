@@ -34,7 +34,9 @@ const adminNavItems = [
   { title: 'Content Moderation', url: '/admin/moderation', icon: Shield },
   { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle },
   { title: 'Badge Management', url: '/admin/badges', icon: Award },
-  { title: 'Points & System', url: '/admin/customization', icon: Sliders },
+  { title: 'Points Config', url: '/admin/points-config', icon: Sliders },
+  { title: 'Campaigns', url: '/admin/campaigns', icon: Award },
+  { title: 'Organizations', url: '/admin/organizations', icon: Users },
   { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 

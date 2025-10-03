@@ -11,6 +11,9 @@ import SafeSpaceHelperVerification from '@/components/admin/SafeSpaceHelperVerif
 import BadgeManagementPanel from '@/components/admin/BadgeManagementPanel';
 import RedFlagsPanel from '@/components/admin/RedFlagsPanel';
 import AdminCustomizationPanel from '@/components/dashboard/AdminCustomizationPanel';
+import PointsConfigPanel from '@/components/admin/PointsConfigPanel';
+import CampaignModerationPanel from '@/components/admin/CampaignModerationPanel';
+import OrganizationVerificationPanel from '@/components/admin/OrganizationVerificationPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -245,6 +248,9 @@ const AdminHub = () => {
             <Route path="red-flags" element={<RedFlagsPanel />} />
             <Route path="badges" element={<BadgeManagementPanel />} />
             <Route path="customization" element={<AdminCustomizationPanel />} />
+            <Route path="points-config" element={<PointsConfigPanel />} />
+            <Route path="campaigns" element={<CampaignModerationPanel />} />
+            <Route path="organizations" element={<OrganizationVerificationPanel />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>

@@ -68,6 +68,48 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          color: string
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          is_active: boolean | null
+          name: string
+          rarity: string
+          requirement_type: string
+          requirement_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          rarity: string
+          requirement_type: string
+          requirement_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          rarity?: string
+          requirement_type?: string
+          requirement_value?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       business_partnerships: {
         Row: {
           contact_email: string | null
@@ -3200,6 +3242,39 @@ export type Database = {
         }
         Relationships: []
       }
+      points_configuration: {
+        Row: {
+          category: string
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          category: string
+          config_key: string
+          config_value: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       post_interactions: {
         Row: {
           content: string | null
@@ -4708,6 +4783,41 @@ export type Database = {
           visibility?: string
         }
         Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          progress: number | null
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          progress?: number | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          progress?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_blocks: {
         Row: {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BadgeConfig {
   id: string;
@@ -22,46 +23,15 @@ interface BadgeConfig {
   description: string;
   icon: string;
   color: string;
-  requirementType: 'points' | 'activities' | 'special';
-  requirementValue: number;
+  requirement_type: string;
+  requirement_value: number;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
 }
 
 const BadgeManagementPanel = () => {
   const { toast } = useToast();
-  const [badges, setBadges] = useState<BadgeConfig[]>([
-    {
-      id: '1',
-      name: 'First Helper',
-      description: 'Complete your first help request',
-      icon: '🌟',
-      color: 'blue',
-      requirementType: 'activities',
-      requirementValue: 1,
-      rarity: 'common',
-    },
-    {
-      id: '2',
-      name: 'Community Champion',
-      description: 'Earn 1000 points',
-      icon: '🏆',
-      color: 'gold',
-      requirementType: 'points',
-      requirementValue: 1000,
-      rarity: 'rare',
-    },
-    {
-      id: '3',
-      name: 'Safe Space Guardian',
-      description: 'Complete 50 Safe Space sessions',
-      icon: '🛡️',
-      color: 'purple',
-      requirementType: 'activities',
-      requirementValue: 50,
-      rarity: 'epic',
-    },
-  ]);
-
+  const [badges, setBadges] = useState<BadgeConfig[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editingBadge, setEditingBadge] = useState<BadgeConfig | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -70,10 +40,47 @@ const BadgeManagementPanel = () => {
     description: '',
     icon: '',
     color: 'blue',
-    requirementType: 'points',
-    requirementValue: 0,
+    requirement_type: 'points',
+    requirement_value: 0,
     rarity: 'common',
   });
+
+  useEffect(() => {
+    loadBadges();
+    
+    // Real-time subscription
+    const channel = supabase
+      .channel('badges-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'badges' }, () => {
+        loadBadges();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const loadBadges = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('badges')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBadges((data || []) as BadgeConfig[]);
+    } catch (error) {
+      console.error('Error loading badges:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load badges',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreateBadge = () => {
     setIsCreating(true);
@@ -82,8 +89,8 @@ const BadgeManagementPanel = () => {
       description: '',
       icon: '',
       color: 'blue',
-      requirementType: 'points',
-      requirementValue: 0,
+      requirement_type: 'points',
+      requirement_value: 0,
       rarity: 'common',
     });
   };
@@ -93,7 +100,7 @@ const BadgeManagementPanel = () => {
     setFormData(badge);
   };
 
-  const handleSaveBadge = () => {
+  const handleSaveBadge = async () => {
     if (!formData.name || !formData.description || !formData.icon) {
       toast({
         title: 'Error',
@@ -103,35 +110,79 @@ const BadgeManagementPanel = () => {
       return;
     }
 
-    if (isCreating) {
-      const newBadge: BadgeConfig = {
-        id: Date.now().toString(),
-        ...formData as BadgeConfig,
-      };
-      setBadges([...badges, newBadge]);
+    try {
+      if (isCreating) {
+        const { error } = await supabase
+          .from('badges')
+          .insert({
+            name: formData.name,
+            description: formData.description,
+            icon: formData.icon,
+            color: formData.color || 'blue',
+            requirement_type: formData.requirement_type || 'points',
+            requirement_value: formData.requirement_value || 0,
+            rarity: formData.rarity || 'common'
+          });
+
+        if (error) throw error;
+        toast({
+          title: 'Badge Created',
+          description: 'New badge has been created successfully',
+        });
+      } else if (editingBadge) {
+        const { error } = await supabase
+          .from('badges')
+          .update({
+            name: formData.name,
+            description: formData.description,
+            icon: formData.icon,
+            color: formData.color,
+            requirement_type: formData.requirement_type,
+            requirement_value: formData.requirement_value,
+            rarity: formData.rarity
+          })
+          .eq('id', editingBadge.id);
+
+        if (error) throw error;
+        toast({
+          title: 'Badge Updated',
+          description: 'Badge has been updated successfully',
+        });
+      }
+
+      setIsCreating(false);
+      setEditingBadge(null);
+      setFormData({});
+    } catch (error) {
+      console.error('Error saving badge:', error);
       toast({
-        title: 'Badge Created',
-        description: 'New badge has been created successfully',
-      });
-    } else if (editingBadge) {
-      setBadges(badges.map(b => b.id === editingBadge.id ? { ...editingBadge, ...formData } : b));
-      toast({
-        title: 'Badge Updated',
-        description: 'Badge has been updated successfully',
+        title: 'Error',
+        description: 'Failed to save badge',
+        variant: 'destructive',
       });
     }
-
-    setIsCreating(false);
-    setEditingBadge(null);
-    setFormData({});
   };
 
-  const handleDeleteBadge = (id: string) => {
-    setBadges(badges.filter(b => b.id !== id));
-    toast({
-      title: 'Badge Deleted',
-      description: 'Badge has been removed',
-    });
+  const handleDeleteBadge = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('badges')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast({
+        title: 'Badge Deleted',
+        description: 'Badge has been removed',
+      });
+    } catch (error) {
+      console.error('Error deleting badge:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete badge',
+        variant: 'destructive',
+      });
+    }
   };
 
   const getRarityColor = (rarity: string) => {
@@ -143,6 +194,10 @@ const BadgeManagementPanel = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Loading badges...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -182,7 +237,7 @@ const BadgeManagementPanel = () => {
                       {badge.rarity}
                     </Badge>
                     <p className="text-xs text-muted-foreground">
-                      Requirement: {badge.requirementType === 'points' ? `${badge.requirementValue} points` : `${badge.requirementValue} activities`}
+                      Requirement: {badge.requirement_type === 'points' ? `${badge.requirement_value} points` : `${badge.requirement_value} activities`}
                     </p>
                   </div>
 
@@ -260,8 +315,8 @@ const BadgeManagementPanel = () => {
               <div>
                 <Label>Requirement Type</Label>
                 <select
-                  value={formData.requirementType || 'points'}
-                  onChange={(e) => setFormData({ ...formData, requirementType: e.target.value as any })}
+                  value={formData.requirement_type || 'points'}
+                  onChange={(e) => setFormData({ ...formData, requirement_type: e.target.value })}
                   className="w-full border rounded-md px-3 py-2"
                 >
                   <option value="points">Points</option>
@@ -273,8 +328,8 @@ const BadgeManagementPanel = () => {
                 <Label>Requirement Value</Label>
                 <Input
                   type="number"
-                  value={formData.requirementValue || 0}
-                  onChange={(e) => setFormData({ ...formData, requirementValue: parseInt(e.target.value) })}
+                  value={formData.requirement_value || 0}
+                  onChange={(e) => setFormData({ ...formData, requirement_value: parseInt(e.target.value) })}
                   placeholder="100"
                 />
               </div>
