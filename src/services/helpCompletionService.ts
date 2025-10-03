@@ -80,4 +80,25 @@ export class HelpCompletionService {
     if (error) throw error;
     return data as HelpCompletionRequest | null;
   }
+
+  static async quickApproveHelpCompletion(
+    requestId: string,
+    requesterId: string
+  ): Promise<HelpCompletionRequest> {
+    const { data, error } = await supabase
+      .from('help_completion_requests')
+      .update({
+        status: 'approved',
+        feedback_rating: 5,
+        feedback_message: 'Quick approved with 5 stars',
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', requestId)
+      .eq('requester_id', requesterId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as HelpCompletionRequest;
+  }
 }

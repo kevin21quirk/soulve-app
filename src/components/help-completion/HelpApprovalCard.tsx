@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { HelpCompletionRequest } from '@/types/helpCompletion';
-import { Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import HelpCompletionReview from './HelpCompletionReview';
 import DisputeResolutionDialog from './DisputeResolutionDialog';
 import AutomatedPointsDisplay from './AutomatedPointsDisplay';
+import QuickConfirmDialog from './QuickConfirmDialog';
+import { useHelpCompletion } from '@/hooks/useHelpCompletion';
 
 interface HelpApprovalCardProps {
   request: HelpCompletionRequest;
@@ -20,6 +22,16 @@ interface HelpApprovalCardProps {
 const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: HelpApprovalCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [showDispute, setShowDispute] = useState(false);
+  const [showQuickConfirm, setShowQuickConfirm] = useState(false);
+  const { reviewCompletionRequest } = useHelpCompletion();
+
+  const handleQuickConfirm = async () => {
+    await reviewCompletionRequest(request.id, {
+      status: 'approved',
+      feedback_rating: 5,
+      feedback_message: 'Quick approved with 5 stars'
+    });
+  };
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -87,8 +99,16 @@ const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: Help
         {!expanded ? (
           <div className="flex gap-2">
             <Button
+              onClick={() => setShowQuickConfirm(true)}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Quick Confirm
+            </Button>
+            <Button
               onClick={() => setExpanded(true)}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              variant="outline"
+              className="flex-1"
             >
               Review & Approve
             </Button>
@@ -113,6 +133,16 @@ const HelpApprovalCard = ({ request, helperName, helperAvatar, postTitle }: Help
             )}
           </div>
         )}
+
+        {/* Quick Confirm Dialog */}
+        <QuickConfirmDialog
+          open={showQuickConfirm}
+          onOpenChange={setShowQuickConfirm}
+          helperName={helperName || 'Helper'}
+          helperAvatar={helperAvatar}
+          postTitle={postTitle || 'Help Request'}
+          onConfirm={handleQuickConfirm}
+        />
       </CardContent>
     </Card>
   );

@@ -9,7 +9,6 @@ import AchievementsList from "./AchievementsList";
 import LeaderboardCard from "./LeaderboardCard";
 import SeasonalChallengesCard from "./SeasonalChallengesCard";
 import PointsTransactionHistory from "./PointsTransactionHistory";
-import EvidenceReviewPanel from "../admin/EvidenceReviewPanel";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useSeasonalChallenges } from "@/hooks/useSeasonalChallenges";
 import { mockPointBreakdown, mockLeaderboard } from "@/data/mockPointsData";
@@ -137,7 +136,7 @@ const GamificationPanel = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger 
             value="overview"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -149,12 +148,6 @@ const GamificationPanel = () => {
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
           >
             Achievements
-          </TabsTrigger>
-          <TabsTrigger 
-            value="admin-panel"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            Admin Panel
           </TabsTrigger>
           <TabsTrigger 
             value="real-time"
@@ -178,10 +171,6 @@ const GamificationPanel = () => {
 
         <TabsContent value="achievements" className="space-y-6">
           <AchievementsList achievements={achievements} onClaimReward={claimReward} />
-        </TabsContent>
-
-        <TabsContent value="admin-panel" className="space-y-6">
-          <EvidenceReviewPanel />
         </TabsContent>
 
         <TabsContent value="real-time" className="space-y-6">

@@ -1,13 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Users, MessageCircle, Target, Heart, Share2, Bell, Check, Trash2 } from "lucide-react";
+import { DollarSign, Users, MessageCircle, Target, Heart, Share2, Bell, Check, Trash2, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useHelpCompletion } from "@/hooks/useHelpCompletion";
+import QuickConfirmDialog from "@/components/help-completion/QuickConfirmDialog";
 
 interface Notification {
   id: string;
-  type: "donation" | "campaign" | "message" | "social" | "system" | string;
+  type: "donation" | "campaign" | "message" | "social" | "system" | "help_completion_request" | string;
   title: string;
   message: string;
   timestamp?: string;
@@ -21,6 +23,10 @@ interface Notification {
     campaignTitle?: string;
     senderName?: string;
     actionType?: string;
+    request_id?: string;
+    helperName?: string;
+    helperAvatar?: string;
+    postTitle?: string;
   };
 }
 
@@ -31,6 +37,20 @@ interface NotificationItemProps {
 }
 
 const NotificationItem = ({ notification, onMarkAsRead, onDelete }: NotificationItemProps) => {
+  const [showQuickConfirm, setShowQuickConfirm] = useState(false);
+  const { reviewCompletionRequest } = useHelpCompletion();
+
+  const handleQuickConfirm = async () => {
+    if (notification.type === 'help_completion_request' && notification.metadata?.request_id) {
+      await reviewCompletionRequest(notification.metadata.request_id, {
+        status: 'approved',
+        feedback_rating: 5,
+        feedback_message: 'Quick approved with 5 stars'
+      });
+      onMarkAsRead(notification.id);
+    }
+  };
+
   const getIcon = () => {
     switch (notification.type) {
       case "donation":
@@ -133,7 +153,30 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
             </div>
           </div>
           
-          {notification.actionUrl && (
+          {/* Quick Actions for Help Completion Requests */}
+          {notification.type === 'help_completion_request' && notification.metadata?.request_id && (
+            <div className="mt-2 flex gap-2">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setShowQuickConfirm(true)}
+                className="text-xs bg-green-600 hover:bg-green-700 text-white"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Confirm ✓
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = notification.actionUrl || '/dashboard?tab=help-approvals'}
+                className="text-xs"
+              >
+                Review
+              </Button>
+            </div>
+          )}
+
+          {notification.actionUrl && notification.type !== 'help_completion_request' && (
             <div className="mt-2">
               <Button variant="outline" size="sm" className="text-xs">
                 View Details
@@ -142,6 +185,18 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
           )}
         </div>
       </div>
+
+      {/* Quick Confirm Dialog */}
+      {notification.type === 'help_completion_request' && (
+        <QuickConfirmDialog
+          open={showQuickConfirm}
+          onOpenChange={setShowQuickConfirm}
+          helperName={notification.metadata?.helperName || 'Helper'}
+          helperAvatar={notification.metadata?.helperAvatar}
+          postTitle={notification.metadata?.postTitle || 'Help Request'}
+          onConfirm={handleQuickConfirm}
+        />
+      )}
     </div>
   );
 };

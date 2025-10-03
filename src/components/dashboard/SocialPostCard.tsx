@@ -6,14 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from 'lucide-react';
+import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus, CheckCircle } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
+import { useAuth } from '@/contexts/AuthContext';
 import ModernReactionPicker from '@/components/ui/modern-reaction-picker';
 import ReactionDisplay from '@/components/ui/reaction-display';
 import PostActions from './PostActions';
 import { ConnectToHelpButton } from '@/components/connect';
+import SelectHelperDialog from '@/components/help-completion/SelectHelperDialog';
+import { HelpCompletionService } from '@/services/helpCompletionService';
+import { useToast } from '@/hooks/use-toast';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -34,10 +38,59 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   });
   
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [showSelectHelper, setShowSelectHelper] = useState(false);
   const { reactions, toggleReaction } = usePostReactions(post.id);
-  const { trackCommunityEngagement } = useImpactTracking();
+  const { trackCommunityEngagement, trackHelpProvided } = useImpactTracking();
+
+  const handleHelperSelected = async (helperId: string, helperName: string) => {
+    try {
+      if (!user?.id) return;
+      
+      // Create completion request
+      await HelpCompletionService.createCompletionRequest(
+        post.id,
+        helperId,
+        user.id,
+        {
+          post_id: post.id,
+          helper_message: 'Marked as complete by requester'
+        }
+      );
+
+      // Quick approve it immediately
+      const completionRequest = await HelpCompletionService.getCompletionRequestForPost(post.id);
+      if (completionRequest) {
+        await HelpCompletionService.reviewCompletionRequest(completionRequest.id, {
+          status: 'approved',
+          feedback_rating: 5,
+          feedback_message: 'Quick confirmed by requester'
+        });
+      }
+
+      // Track the help provided
+      await trackHelpProvided(post.title, {
+        post_id: post.id,
+        helper_id: helperId,
+        requester_id: user.id
+      });
+
+      toast({
+        title: "Help Confirmed! 🎉",
+        description: `${helperName} has been awarded points for helping you.`,
+      });
+    } catch (error) {
+      console.error('Error confirming help:', error);
+      toast({
+        title: "Error",
+        description: "Failed to confirm help completion.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleProfileClick = () => {
     console.log('👆 [SocialPostCard] Profile click:', {
@@ -321,8 +374,20 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
           </Button>
         </div>
 
-        {/* Connect to Help Button */}
-        {(post.category === 'help-needed' || post.category === 'campaign') && (
+        {/* Connect to Help Button or Mark Complete Button */}
+        {post.category === 'help-needed' && user?.id === post.authorId && (
+          <div className="mt-4 pt-4 border-t">
+            <Button
+              onClick={() => setShowSelectHelper(true)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Mark as Complete ✓
+            </Button>
+          </div>
+        )}
+
+        {(post.category === 'help-needed' || post.category === 'campaign') && user?.id !== post.authorId && (
           <div className="mt-4 pt-4 border-t">
             <ConnectToHelpButton
               postId={post.id}
@@ -384,6 +449,15 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             )}
           </div>
         )}
+
+        {/* Select Helper Dialog */}
+        <SelectHelperDialog
+          open={showSelectHelper}
+          onOpenChange={setShowSelectHelper}
+          postId={post.id}
+          postTitle={post.title}
+          onHelperSelected={handleHelperSelected}
+        />
       </CardContent>
     </Card>
   );
