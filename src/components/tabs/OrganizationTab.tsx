@@ -105,20 +105,23 @@ const OrganizationTab = () => {
             variant="outline"
             onClick={() => setSelectedToolCategory(null)}
             size="sm"
+            className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10"
           >
             ← Back to Organisation Tools
           </Button>
           
           <div className="flex gap-2">
             <Button
-              variant={selectedBusinessTool === 'esg' ? 'default' : 'outline'}
+              variant={selectedBusinessTool === 'esg' ? 'gradient' : 'outline'}
               onClick={() => setSelectedBusinessTool('esg')}
+              className={selectedBusinessTool !== 'esg' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               ESG Dashboard
             </Button>
             <Button
-              variant={selectedBusinessTool === 'csr' ? 'default' : 'outline'}
+              variant={selectedBusinessTool === 'csr' ? 'gradient' : 'outline'}
               onClick={() => setSelectedBusinessTool('csr')}
+              className={selectedBusinessTool !== 'csr' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               CSR Management
             </Button>
@@ -161,32 +164,37 @@ const OrganizationTab = () => {
             variant="outline"
             onClick={() => setSelectedToolCategory(null)}
             size="sm"
+            className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10"
           >
             ← Back to Organisation Tools
           </Button>
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCharityTool === 'team' ? 'default' : 'outline'}
+              variant={selectedCharityTool === 'team' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCharityTool('team')}
+              className={selectedCharityTool !== 'team' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Team Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'donors' ? 'default' : 'outline'}
+              variant={selectedCharityTool === 'donors' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCharityTool('donors')}
+              className={selectedCharityTool !== 'donors' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Donor Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'volunteers' ? 'default' : 'outline'}
+              variant={selectedCharityTool === 'volunteers' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCharityTool('volunteers')}
+              className={selectedCharityTool !== 'volunteers' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Volunteer Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'grants' ? 'default' : 'outline'}
+              variant={selectedCharityTool === 'grants' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCharityTool('grants')}
+              className={selectedCharityTool !== 'grants' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Grant Management
             </Button>
@@ -239,32 +247,37 @@ const OrganizationTab = () => {
             variant="outline"
             onClick={() => setSelectedToolCategory(null)}
             size="sm"
+            className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10"
           >
             ← Back to Organisation Tools
           </Button>
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCivicTool === 'engagement' ? 'default' : 'outline'}
+              variant={selectedCivicTool === 'engagement' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCivicTool('engagement')}
+              className={selectedCivicTool !== 'engagement' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Public Engagement
             </Button>
             <Button
-              variant={selectedCivicTool === 'policy' ? 'default' : 'outline'}
+              variant={selectedCivicTool === 'policy' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCivicTool('policy')}
+              className={selectedCivicTool !== 'policy' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Policy Tracking
             </Button>
             <Button
-              variant={selectedCivicTool === 'services' ? 'default' : 'outline'}
+              variant={selectedCivicTool === 'services' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCivicTool('services')}
+              className={selectedCivicTool !== 'services' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Citizen Services
             </Button>
             <Button
-              variant={selectedCivicTool === 'community' ? 'default' : 'outline'}
+              variant={selectedCivicTool === 'community' ? 'gradient' : 'outline'}
               onClick={() => setSelectedCivicTool('community')}
+              className={selectedCivicTool !== 'community' ? 'border-soulve-teal/50 text-soulve-teal hover:bg-soulve-teal/10' : ''}
             >
               Community Management
             </Button>
@@ -316,6 +329,7 @@ const OrganizationTab = () => {
           variant="outline"
           onClick={() => setSelectedToolCategory(null)}
           size="sm"
+          className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10"
         >
           ← Back to Organisation Tools
         </Button>
@@ -407,6 +421,7 @@ const OrganizationTab = () => {
                 setSelectedToolCategory(null);
               }}
               size="sm"
+              className="border-soulve-teal text-soulve-teal hover:bg-soulve-teal/10"
             >
               ← Back to {selectedToolCategory ? `${selectedToolCategory.charAt(0).toUpperCase() + selectedToolCategory.slice(1)} Tools` : 'Organisation Tools'}
             </Button>
