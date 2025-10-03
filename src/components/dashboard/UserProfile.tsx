@@ -26,13 +26,10 @@ const UserProfile = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user?.id) return;
-      const { data } = await supabase
-        .from('admin_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      setIsAdmin(!!data);
+      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      if (!error && data === true) {
+        setIsAdmin(true);
+      }
     };
     checkAdmin();
   }, [user?.id]);
