@@ -1,12 +1,15 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Users, Award, TrendingUp } from "lucide-react";
+import { MapPin, Calendar, Users, Award, TrendingUp, Shield } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 import AvatarUpload from "./AvatarUpload";
 import VerificationBadges from "./verification/VerificationBadges";
 import { useVerifications } from "@/hooks/useVerifications";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface UserProfileHeaderProps {
   profileData: UserProfileData;
@@ -22,6 +25,27 @@ const UserProfileHeader = ({
   onAvatarUpdate 
 }: UserProfileHeaderProps) => {
   const { verifications, trustScore } = useVerifications();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if current user is viewing their own profile and is an admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user?.id) return;
+      
+      const { data } = await supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdminStatus();
+  }, [user?.id]);
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
@@ -67,6 +91,18 @@ const UserProfileHeader = ({
             <Users className="h-3 w-3 mr-1" />
             {profileData.helpCount} people helped
           </Badge>
+
+          {isAdmin && !isEditing && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none hover:opacity-90 transition-opacity"
+              onClick={() => navigate('/admin')}
+            >
+              <Shield className="h-4 w-4 mr-1" />
+              Admin Dashboard
+            </Button>
+          )}
         </div>
       </div>
     </div>
