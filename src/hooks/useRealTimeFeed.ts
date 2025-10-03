@@ -19,6 +19,7 @@ export const useRealTimeFeed = (initialPosts: FeedPost[]) => {
         const newPost: FeedPost = {
           id: Date.now().toString(),
           author: `User ${Math.floor(Math.random() * 100)}`,
+          authorId: `mock-user-${Date.now()}`,
           avatar: "",
           title: "Real-time update: New help request",
           description: "This is a live update that just came in!",

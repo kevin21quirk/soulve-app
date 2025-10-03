@@ -87,6 +87,7 @@ const MobileFeedEnhanced = () => {
       return {
         id: post.id,
         author: post.author_name,
+        authorId: post.author_id,
         avatar: post.author_avatar,
         title: post.title,
         description: post.content,

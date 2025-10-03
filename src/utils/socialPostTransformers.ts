@@ -9,6 +9,12 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     fullPost: socialPost
   });
   
+  // Validate that we have an author_id
+  if (!socialPost.author_id) {
+    console.error('❌ [Transform] Missing author_id in socialPost:', socialPost);
+    throw new Error('Cannot transform post without author_id');
+  }
+  
   const feedPost = {
     id: socialPost.id,
     author: socialPost.author_name || 'Anonymous',

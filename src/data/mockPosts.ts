@@ -5,6 +5,7 @@ export const mockPosts: FeedPost[] = [
   {
     id: "1",
     author: "Sarah Chen",
+    authorId: "mock-user-1",
     avatar: "",
     title: "Need help moving this weekend",
     description: "Looking for 2-3 people to help me move from downtown to the suburbs. Can provide lunch and petrol money! This is quite urgent as my lease expires Monday.",
@@ -50,6 +51,7 @@ export const mockPosts: FeedPost[] = [
   {
     id: "2",
     author: "Mike Johnson",
+    authorId: "mock-user-2",
     avatar: "",
     title: "Offering tutoring for secondary school maths",
     description: "Certified maths teacher available for free tutoring sessions on weekends. Specialising in algebra and geometry. I love helping students succeed!",
@@ -86,6 +88,7 @@ export const mockPosts: FeedPost[] = [
   {
     id: "3",
     author: "Community Gardens",
+    authorId: "mock-user-3",
     avatar: "",
     title: "Success: Garden project completed!",
     description: "Thanks to 15 amazing volunteers, we planted 200 vegetables and created a beautiful community space! The transformation is incredible and everyone worked so hard.",
@@ -131,6 +134,7 @@ export const mockPosts: FeedPost[] = [
   {
     id: "4",
     author: "Alex Rodriguez",
+    authorId: "mock-user-4",
     avatar: "",
     title: "Looking for someone to walk my dog",
     description: "My elderly dog needs daily walks whilst I recover from surgery. Willing to pay £20 per walk. She's very gentle and loves meeting new people!",
@@ -166,6 +170,7 @@ export const mockPosts: FeedPost[] = [
   {
     id: "5",
     author: "Lisa Park",
+    authorId: "mock-user-5",
     avatar: "",
     title: "Free coding workshops for beginners",
     description: "Teaching basic HTML, CSS, and JavaScript every Saturday at the library. All skill levels welcome! I'm excited to share my knowledge with the community.",

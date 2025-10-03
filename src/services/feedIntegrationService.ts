@@ -28,6 +28,7 @@ export const convertHelpCenterToFeedPost = (helpPost: HelpCenterPost): FeedPost 
   return {
     id: `help-${helpPost.id}`,
     author: helpPost.author,
+    authorId: `help-author-${helpPost.id}`,
     avatar: "",
     title: helpPost.title,
     description: helpPost.description,
@@ -50,6 +51,7 @@ export const convertCampaignToFeedPost = (campaign: CampaignUpdate): FeedPost =>
   return {
     id: `campaign-${campaign.id}`,
     author: campaign.author,
+    authorId: `campaign-author-${campaign.id}`,
     avatar: "",
     title: campaign.title,
     description: campaign.description,
