@@ -5,9 +5,11 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import WaitlistDashboard from "@/pages/WaitlistDashboard";
+import AdminHub from "@/pages/AdminHub";
 import EmailVerificationHandler from "@/components/auth/EmailVerificationHandler";
 import PasswordResetHandler from "@/components/auth/PasswordResetHandler";
 import ProfileRegistration from "@/pages/ProfileRegistration";
@@ -76,6 +78,14 @@ function App() {
                 <ProtectedRoute>
                   <SafeSpaceHelperTraining />
                 </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/*" 
+              element={
+                <AdminRoute>
+                  <AdminHub />
+                </AdminRoute>
               } 
             />
             <Route 
