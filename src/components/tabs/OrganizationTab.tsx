@@ -112,22 +112,18 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2">
             <Button
-              variant={selectedBusinessTool === 'esg' ? undefined : 'outline'}
               onClick={() => setSelectedBusinessTool('esg')}
-              className={selectedBusinessTool === 'esg' 
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedBusinessTool === 'esg' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               ESG Dashboard
             </Button>
             <Button
-              variant={selectedBusinessTool === 'csr' ? undefined : 'outline'}
               onClick={() => setSelectedBusinessTool('csr')}
-              className={selectedBusinessTool === 'csr' 
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedBusinessTool === 'csr' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               CSR Management
             </Button>
@@ -177,42 +173,34 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCharityTool === 'team' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('team')}
-              className={selectedCharityTool === 'team'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCharityTool === 'team' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Team Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'donors' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('donors')}
-              className={selectedCharityTool === 'donors'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCharityTool === 'donors' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Donor Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'volunteers' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('volunteers')}
-              className={selectedCharityTool === 'volunteers'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCharityTool === 'volunteers' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Volunteer Management
             </Button>
             <Button
-              variant={selectedCharityTool === 'grants' ? undefined : 'outline'}
               onClick={() => setSelectedCharityTool('grants')}
-              className={selectedCharityTool === 'grants'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCharityTool === 'grants' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Grant Management
             </Button>
@@ -272,42 +260,34 @@ const OrganizationTab = () => {
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCivicTool === 'engagement' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('engagement')}
-              className={selectedCivicTool === 'engagement'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCivicTool === 'engagement' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Public Engagement
             </Button>
             <Button
-              variant={selectedCivicTool === 'policy' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('policy')}
-              className={selectedCivicTool === 'policy'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCivicTool === 'policy' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Policy Tracking
             </Button>
             <Button
-              variant={selectedCivicTool === 'services' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('services')}
-              className={selectedCivicTool === 'services'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCivicTool === 'services' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Citizen Services
             </Button>
             <Button
-              variant={selectedCivicTool === 'community' ? undefined : 'outline'}
               onClick={() => setSelectedCivicTool('community')}
-              className={selectedCivicTool === 'community'
-                ? 'bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none'
-                : 'border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10'
-              }
+              className={`bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all ${
+                selectedCivicTool === 'community' ? 'scale-105 shadow-lg' : ''
+              }`}
             >
               Community Management
             </Button>
