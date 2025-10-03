@@ -10,7 +10,8 @@ import {
   Award,
   AlertTriangle,
   HeartHandshake,
-  Sliders
+  Sliders,
+  ArrowLeft
 } from 'lucide-react';
 import {
   Sidebar,
@@ -50,6 +51,21 @@ const AdminSidebar = () => {
           </SidebarGroupLabel>
           <SidebarGroupContent className="p-2">
             <SidebarMenu className="space-y-1">
+              {/* Back to Profile Button */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to="/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600"
+                  >
+                    <ArrowLeft className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Back to Profile</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              {/* Divider */}
+              <div className="h-px bg-slate-700 my-2" />
               {adminNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
