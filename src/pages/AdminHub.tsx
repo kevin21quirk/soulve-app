@@ -7,6 +7,10 @@ import TrainingManagementPanel from '@/components/admin/TrainingManagementPanel'
 import AdminModerationDashboard from '@/components/moderation/AdminModerationDashboard';
 import AdminWaitlistDashboard from '@/components/waitlist/AdminWaitlistDashboard';
 import EvidenceReviewPanel from '@/components/admin/EvidenceReviewPanel';
+import SafeSpaceHelperVerification from '@/components/admin/SafeSpaceHelperVerification';
+import BadgeManagementPanel from '@/components/admin/BadgeManagementPanel';
+import RedFlagsPanel from '@/components/admin/RedFlagsPanel';
+import AdminCustomizationPanel from '@/components/dashboard/AdminCustomizationPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -233,10 +237,14 @@ const AdminHub = () => {
           <Routes>
             <Route index element={<AdminOverview />} />
             <Route path="users" element={<EnhancedUserAccessPanel />} />
-            <Route path="training" element={<TrainingManagementPanel />} />
-            <Route path="moderation" element={<AdminModerationDashboard />} />
             <Route path="waitlist" element={<AdminWaitlistDashboard />} />
+            <Route path="helpers" element={<SafeSpaceHelperVerification />} />
+            <Route path="training" element={<TrainingManagementPanel />} />
             <Route path="evidence" element={<EvidenceReviewPanel />} />
+            <Route path="moderation" element={<AdminModerationDashboard />} />
+            <Route path="red-flags" element={<RedFlagsPanel />} />
+            <Route path="badges" element={<BadgeManagementPanel />} />
+            <Route path="customization" element={<AdminCustomizationPanel />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>

@@ -6,7 +6,11 @@ import {
   Shield, 
   ClipboardList, 
   FileCheck, 
-  Settings 
+  Settings,
+  Award,
+  AlertTriangle,
+  HeartHandshake,
+  Sliders
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,10 +26,14 @@ import {
 const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard, exact: true },
   { title: 'User Management', url: '/admin/users', icon: Users },
-  { title: 'Training Management', url: '/admin/training', icon: GraduationCap },
-  { title: 'Content Moderation', url: '/admin/moderation', icon: Shield },
   { title: 'Waitlist', url: '/admin/waitlist', icon: ClipboardList },
+  { title: 'Helper Verification', url: '/admin/helpers', icon: HeartHandshake },
+  { title: 'Training Management', url: '/admin/training', icon: GraduationCap },
   { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck },
+  { title: 'Content Moderation', url: '/admin/moderation', icon: Shield },
+  { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle },
+  { title: 'Badge Management', url: '/admin/badges', icon: Award },
+  { title: 'Points & System', url: '/admin/customization', icon: Sliders },
   { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
