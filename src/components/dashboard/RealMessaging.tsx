@@ -13,9 +13,11 @@ import { supabase } from "@/integrations/supabase/client";
 import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
 import MessageInput from "@/components/messaging/MessageInput";
 import MessagesList from "@/components/messaging/MessagesList";
+import { useNavigate } from "react-router-dom";
 
 export const RealMessaging = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -185,18 +187,28 @@ export const RealMessaging = () => {
                       return (
                         <div
                           key={user.id}
-                          onClick={() => handleStartNewConversation(user.id)}
-                          className="px-3 py-2 hover:bg-muted/50 cursor-pointer rounded-lg transition-colors"
+                          className="px-3 py-2 hover:bg-muted/50 rounded-lg transition-colors"
                         >
                           <div className="flex items-center space-x-3">
-                            <Avatar className="h-12 w-12">
+                            <Avatar 
+                              className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => navigate(`/profile/${user.id}`)}
+                            >
                               <AvatarImage src={user.avatar_url || ''} alt={userName} />
                               <AvatarFallback>
                                 {userName.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <h4 className="font-medium">{userName}</h4>
+                            <div className="flex-1 cursor-pointer" onClick={() => handleStartNewConversation(user.id)}>
+                              <h4 
+                                className="font-medium hover:underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/profile/${user.id}`);
+                                }}
+                              >
+                                {userName}
+                              </h4>
                             </div>
                           </div>
                         </div>
@@ -232,7 +244,13 @@ export const RealMessaging = () => {
                         >
                           <div className="flex items-center space-x-3">
                             <div className="relative">
-                              <Avatar className="h-14 w-14">
+                              <Avatar 
+                                className="h-14 w-14 cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/profile/${conversation.partner_id}`);
+                                }}
+                              >
                                 <AvatarImage src={conversation.partner_profile?.avatar_url || ''} alt={partnerName} />
                                 <AvatarFallback className="text-lg">
                                   {partnerName.split(' ').map(n => n[0]).join('').toUpperCase()}
@@ -244,7 +262,15 @@ export const RealMessaging = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="font-semibold truncate">{partnerName}</h4>
+                                <h4 
+                                  className="font-semibold truncate hover:underline cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/profile/${conversation.partner_id}`);
+                                  }}
+                                >
+                                  {partnerName}
+                                </h4>
                                 <span className="text-xs text-muted-foreground">
                                   {format(new Date(conversation.last_message_time), 'MMM d')}
                                 </span>
@@ -280,14 +306,20 @@ export const RealMessaging = () => {
             {/* Header */}
             <div className="p-4 border-b flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
+                <Avatar 
+                  className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate(`/profile/${selectedConv.partner_id}`)}
+                >
                   <AvatarImage src={selectedConv.partner_profile?.avatar_url || ''} />
                   <AvatarFallback>
                     {(selectedConv.partner_profile?.first_name?.[0] || '') + (selectedConv.partner_profile?.last_name?.[0] || '')}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold">
+                  <h3 
+                    className="font-semibold cursor-pointer hover:underline"
+                    onClick={() => navigate(`/profile/${selectedConv.partner_id}`)}
+                  >
                     {selectedConv.partner_profile 
                       ? `${selectedConv.partner_profile.first_name || ''} ${selectedConv.partner_profile.last_name || ''}`.trim() || 'Anonymous'
                       : 'Anonymous'

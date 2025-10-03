@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 import TrustScoreDisplay from "./TrustScoreDisplay";
+import { useNavigate } from "react-router-dom";
 
 interface SuggestedConnection {
   id: string;
@@ -29,6 +30,7 @@ const SuggestedConnections = ({ getTrustScoreColor }: SuggestedConnectionsProps)
   const { sendConnectionRequest, mutualConnectionsCount } = useConnectionRequests();
   const [suggestedConnections, setSuggestedConnections] = useState<SuggestedConnection[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSuggestedConnections = async () => {
@@ -133,14 +135,22 @@ const SuggestedConnections = ({ getTrustScoreColor }: SuggestedConnectionsProps)
             return (
               <div key={suggestion.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3 flex-1">
-                  <Avatar className="h-12 w-12">
+                  <Avatar 
+                    className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/profile/${suggestion.id}`)}
+                  >
                     <AvatarImage src={suggestion.avatar_url} alt={name} />
                     <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                       {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    <h3 
+                      className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/profile/${suggestion.id}`)}
+                    >
+                      {name}
+                    </h3>
                     {suggestion.location && (
                       <div className="flex items-center text-sm text-gray-500 mt-1">
                         <MapPin className="h-3 w-3 mr-1" />

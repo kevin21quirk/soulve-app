@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, MapPin, Users } from "lucide-react";
 import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 import TrustScoreDisplay from "./TrustScoreDisplay";
+import { useNavigate } from "react-router-dom";
 
 interface ConnectedPeopleProps {
   getTrustScoreColor: (score: number) => string;
@@ -13,6 +14,7 @@ interface ConnectedPeopleProps {
 
 const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
   const { acceptedConnections, loading } = useConnectionRequests();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -64,14 +66,22 @@ const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
             return (
               <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <Avatar className="h-12 w-12">
+                  <Avatar 
+                    className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/profile/${profile?.id}`)}
+                  >
                     <AvatarImage src={profile?.avatar_url} alt={name} />
                     <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                       {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    <h3 
+                      className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/profile/${profile?.id}`)}
+                    >
+                      {name}
+                    </h3>
                     {profile?.location && (
                       <div className="flex items-center text-sm text-gray-500 mt-1">
                         <MapPin className="h-3 w-3 mr-1" />

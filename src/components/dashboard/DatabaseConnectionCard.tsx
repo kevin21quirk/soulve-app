@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DatabaseProfile } from "@/services/realConnectionsService";
 import { MapPin, Users, Clock, UserPlus, UserCheck, UserX, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DatabaseConnectionCardProps {
   profile: DatabaseProfile;
@@ -28,20 +29,29 @@ const DatabaseConnectionCard = ({
   lastActive = "recently"
 }: DatabaseConnectionCardProps) => {
   const displayName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
+  const navigate = useNavigate();
   
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-12 w-12">
+            <Avatar 
+              className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate(`/profile/${profile.id}`)}
+            >
               <AvatarImage src={profile.avatar_url || ''} />
               <AvatarFallback>
                 {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 truncate">{displayName}</h4>
+              <h4 
+                className="font-medium text-gray-900 truncate cursor-pointer hover:underline"
+                onClick={() => navigate(`/profile/${profile.id}`)}
+              >
+                {displayName}
+              </h4>
               <div className="flex items-center space-x-1 text-sm text-gray-500">
                 <MapPin className="h-3 w-3" />
                 <span>{profile.location || 'Location not specified'}</span>

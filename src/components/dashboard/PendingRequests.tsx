@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, MapPin, Clock, Users } from "lucide-react";
 import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 import TrustScoreDisplay from "./TrustScoreDisplay";
+import { useNavigate } from "react-router-dom";
 
 interface PendingRequestsProps {
   getTrustScoreColor: (score: number) => string;
@@ -13,6 +14,7 @@ interface PendingRequestsProps {
 
 const PendingRequests = ({ getTrustScoreColor }: PendingRequestsProps) => {
   const { pendingRequests, respondToConnectionRequest, loading } = useConnectionRequests();
+  const navigate = useNavigate();
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -69,14 +71,22 @@ const PendingRequests = ({ getTrustScoreColor }: PendingRequestsProps) => {
             return (
               <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg bg-blue-50/50">
                 <div className="flex items-center space-x-3">
-                  <Avatar className="h-12 w-12">
+                  <Avatar 
+                    className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/profile/${request.requester_id}`)}
+                  >
                     <AvatarImage src={profile.avatar_url || ''} alt={name} />
                     <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                       {name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{name}</h3>
+                    <h3 
+                      className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/profile/${request.requester_id}`)}
+                    >
+                      {name}
+                    </h3>
                     {profile.location && (
                       <div className="flex items-center text-sm text-gray-500 mt-1">
                         <MapPin className="h-3 w-3 mr-1" />
