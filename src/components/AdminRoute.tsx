@@ -24,13 +24,10 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
       }
 
       try {
-        // Server-side admin verification using RLS
-        const { data, error } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
+        // Server-side admin verification using security definer function
+        const { data, error } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
 
         console.log('Admin check result:', { data, error, userId: user.id });
 
@@ -40,7 +37,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
           return;
         }
 
-        if (!data) {
+        if (!data || data !== true) {
           console.log('User is not an admin, redirecting to dashboard');
           navigate('/dashboard', { replace: true });
           return;
