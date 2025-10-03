@@ -130,10 +130,8 @@ const UserProfilePointsDetails = ({
 
   const totalPoints = activities.reduce((sum, activity) => sum + activity.points_earned, 0);
 
-  if (!showPointsDetails) return null;
-
   return (
-    <Dialog open={showPointsDetails} onOpenChange={onClose}>
+    <Dialog open={showPointsDetails} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
