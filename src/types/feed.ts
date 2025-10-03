@@ -34,6 +34,7 @@ export interface MediaItem {
 export interface Comment {
   id: string;
   author: string;
+  authorId?: string;
   avatar: string;
   content: string;
   timestamp: string;

@@ -54,8 +54,8 @@ const PublicProfile = () => {
 
   // If viewing own profile, redirect to dashboard with profile tab
   useEffect(() => {
-    if (user?.id === userId) {
-      navigate('/?tab=profile');
+    if (user?.id && userId && user.id === userId) {
+      navigate('/dashboard?tab=profile', { replace: true });
     }
   }, [user?.id, userId, navigate]);
 
