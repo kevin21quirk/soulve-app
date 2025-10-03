@@ -10,6 +10,7 @@ import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import UserPostsTimeline from "./profile/UserPostsTimeline";
 import RealImpactJourney from "./profile/RealImpactJourney";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { User, Settings, MessageSquare, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,32 +94,33 @@ const UserProfile = () => {
       )}
       
       <Tabs defaultValue="view" className="w-full">
-        <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-100`}>
-          <TabsTrigger 
-            value="view" 
-            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            <User className="h-4 w-4" />
-            View Profile
-          </TabsTrigger>
-          <TabsTrigger 
-            value="manage" 
-            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-          >
-            <Settings className="h-4 w-4" />
-            Manage Profile
-          </TabsTrigger>
-          {isAdmin && (
+        <div className="flex items-center gap-2">
+          <TabsList className="grid flex-1 grid-cols-2 bg-gray-100">
             <TabsTrigger 
-              value="admin"
-              onClick={() => navigate('/admin')}
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-200"
+              value="view" 
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
             >
-              <Shield className="h-4 w-4" />
-              Admin Dashboard
+              <User className="h-4 w-4" />
+              View Profile
             </TabsTrigger>
+            <TabsTrigger 
+              value="manage" 
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+            >
+              <Settings className="h-4 w-4" />
+              Manage Profile
+            </TabsTrigger>
+          </TabsList>
+          {isAdmin && (
+            <Button
+              onClick={() => navigate('/admin')}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none hover:opacity-90 transition-opacity"
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Admin Dashboard
+            </Button>
           )}
-        </TabsList>
+        </div>
 
         <TabsContent value="view" className="space-y-6">
           <div className="grid lg:grid-cols-3 gap-6">
