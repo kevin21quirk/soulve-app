@@ -7,6 +7,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from '@/components/ui/command';
 import {
   Popover,
@@ -104,7 +105,7 @@ export const SkillCategorySelector = ({
           <Command>
             <CommandInput placeholder="Search skills..." />
             <CommandEmpty>No skill found.</CommandEmpty>
-            <div className="max-h-[200px] sm:max-h-[300px] overflow-y-auto">
+            <CommandList className="max-h-[200px] sm:max-h-[300px]">
               {Object.entries(groupedSkills).map(([category, categorySkills]) => (
                 <CommandGroup 
                   key={category} 
@@ -143,7 +144,7 @@ export const SkillCategorySelector = ({
                   ))}
                 </CommandGroup>
               ))}
-            </div>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
