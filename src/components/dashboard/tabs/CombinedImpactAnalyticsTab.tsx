@@ -11,7 +11,7 @@ const CombinedImpactAnalyticsTab = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">Impact & Analytics</h2>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Impact & Analytics</h2>
         <p className="text-gray-600">
           Track your personal impact and engagement metrics
         </p>

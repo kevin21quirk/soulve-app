@@ -17,7 +17,7 @@ const FeedHeader = ({ onSearch, onFilter, totalPosts, urgentPosts }: FeedHeaderP
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="text-center flex-1">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">Community Feed</h2>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent mb-2">Community Feed</h2>
             <p className="text-gray-600">Discover opportunities to help and make a difference</p>
           </div>
           

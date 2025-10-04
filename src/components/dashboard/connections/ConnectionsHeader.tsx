@@ -18,7 +18,7 @@ const ConnectionsHeader = ({
   return (
     <div className="flex items-center justify-between">
       <div className="text-center flex-1">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">Your Network</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent mb-2">Your Network</h2>
         <p className="text-gray-600">Build trust and connections within your community</p>
       </div>
       <div className="flex items-center space-x-2">
