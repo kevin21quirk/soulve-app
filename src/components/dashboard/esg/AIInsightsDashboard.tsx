@@ -61,7 +61,7 @@ const AIInsightsDashboard = () => {
     {
       id: '2',
       type: 'recommendation',
-      title: 'Optimize Supply Chain Sustainability',
+      title: 'Optimise Supply Chain Sustainability',
       description: 'Analysis suggests switching to 3 alternative suppliers could reduce carbon footprint by 15% while maintaining cost efficiency.',
       confidence: 92,
       impact: 'high',
@@ -191,7 +191,7 @@ const AIInsightsDashboard = () => {
             AI-Powered ESG Insights
           </h2>
           <p className="text-muted-foreground mt-1">
-            Intelligent analysis and recommendations for ESG performance optimization
+            Intelligent analysis and recommendations for ESG performance optimisation
           </p>
         </div>
         <div className="flex items-center space-x-3">

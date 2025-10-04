@@ -63,11 +63,11 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Campaign Management Tools</h2>
-          <p className="text-gray-600 mt-1">Advanced tools to optimize and manage your campaigns</p>
+          <p className="text-gray-600 mt-1">Advanced tools to optimise and manage your campaigns</p>
         </div>
         <Button onClick={onCampaignsUpdate}>
           <TrendingUp className="h-4 w-4 mr-2" />
-          Optimize All
+          Optimise All
         </Button>
       </div>
 
@@ -76,7 +76,7 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="automation">Automation</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="optimization">Optimization</TabsTrigger>
+          <TabsTrigger value="optimization">Optimisation</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -195,7 +195,7 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
               <div className="text-center py-8">
                 <BarChart3 className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Analytics</h3>
-                <p className="text-gray-600">Deep insights into campaign performance, donor behavior, and optimization opportunities.</p>
+                <p className="text-gray-600">Deep insights into campaign performance, donor behaviour, and optimisation opportunities.</p>
                 <Button className="mt-4">
                   View Full Analytics
                 </Button>
@@ -207,15 +207,15 @@ const CampaignManagementTools = ({ campaigns, onCampaignsUpdate }: CampaignManag
         <TabsContent value="optimization" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>AI-Powered Optimization</CardTitle>
+              <CardTitle>AI-Powered Optimisation</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <TrendingUp className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Campaign Optimization</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Campaign Optimisation</h3>
                 <p className="text-gray-600">Get AI-powered recommendations to improve your campaign performance.</p>
                 <Button className="mt-4">
-                  Start Optimization
+                  Start Optimisation
                 </Button>
               </div>
             </CardContent>
