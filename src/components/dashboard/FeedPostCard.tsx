@@ -242,8 +242,6 @@ const FeedPostCard = ({
             <PostComments
               post={post}
               onAddComment={onAddComment}
-              onLikeComment={onLikeComment}
-              onCommentReaction={onCommentReaction}
               isExpanded={showComments}
             />
           )}

@@ -34,12 +34,16 @@ export interface MediaItem {
 export interface Comment {
   id: string;
   author: string;
-  authorId?: string;
+  authorId: string;
   avatar: string;
   content: string;
   timestamp: string;
   likes: number;
   isLiked: boolean;
+  parentCommentId?: string;
+  editedAt?: string;
+  isDeleted: boolean;
+  replies?: Comment[];
 }
 
 export interface Reaction {

@@ -168,8 +168,6 @@ const MobilePostCard = ({
         <MobilePostComments
           post={post}
           onAddComment={onAddComment}
-          onLikeComment={onLikeComment}
-          onCommentReaction={onCommentReaction}
           isExpanded={showComments}
         />
       )}

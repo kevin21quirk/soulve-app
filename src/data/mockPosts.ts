@@ -31,20 +31,24 @@ export const mockPosts: FeedPost[] = [
       {
         id: "c1",
         author: "Mike Johnson",
+        authorId: "mock-user-2",
         avatar: "",
         content: "I can help! I have a truck and am free Saturday morning.",
         timestamp: "1 hour ago",
         likes: 2,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       },
       {
         id: "c2", 
         author: "Lisa Park",
+        authorId: "mock-user-5",
         avatar: "",
         content: "Same here! What time works best?",
         timestamp: "45 minutes ago",
         likes: 1,
-        isLiked: true
+        isLiked: true,
+        isDeleted: false
       }
     ]
   },
@@ -77,11 +81,13 @@ export const mockPosts: FeedPost[] = [
       {
         id: "c3",
         author: "Parent Association",
+        authorId: "mock-user-6",
         avatar: "",
         content: "This is amazing! We'll share this with our community.",
         timestamp: "3 hours ago",
         likes: 5,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       }
     ]
   },
@@ -114,20 +120,24 @@ export const mockPosts: FeedPost[] = [
       {
         id: "c4",
         author: "Alex Rodriguez",
+        authorId: "mock-user-4",
         avatar: "",
         content: "So proud to have been part of this! The community spirit was amazing.",
         timestamp: "22 hours ago",
         likes: 8,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       },
       {
         id: "c5",
         author: "Emma Thompson",
+        authorId: "mock-user-7",
         avatar: "",
         content: "Can't wait to see the vegetables grow!",
         timestamp: "20 hours ago",
         likes: 3,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       }
     ]
   },
@@ -159,11 +169,13 @@ export const mockPosts: FeedPost[] = [
       {
         id: "c6",
         author: "Pet Lovers Group",
+        authorId: "mock-user-8",
         avatar: "",
         content: "Hope you recover quickly! I'm sure someone will help.",
         timestamp: "5 hours ago",
         likes: 2,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       }
     ]
   },
@@ -196,20 +208,24 @@ export const mockPosts: FeedPost[] = [
       {
         id: "c7",
         author: "Tech Community",
+        authorId: "mock-user-9",
         avatar: "",
         content: "This is fantastic! We need more people like you.",
         timestamp: "7 hours ago",
         likes: 6,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       },
       {
         id: "c8",
         author: "Sarah Chen", 
+        authorId: "mock-user-1",
         avatar: "",
         content: "I'd love to attend! What time do they start?",
         timestamp: "6 hours ago",
         likes: 3,
-        isLiked: false
+        isLiked: false,
+        isDeleted: false
       }
     ]
   }

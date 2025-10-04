@@ -980,6 +980,35 @@ export type Database = {
           },
         ]
       }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_interactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           addressee_id: string
@@ -3279,28 +3308,44 @@ export type Database = {
         Row: {
           content: string | null
           created_at: string
+          edited_at: string | null
           id: string
           interaction_type: string
+          is_deleted: boolean | null
+          parent_comment_id: string | null
           post_id: string
           user_id: string
         }
         Insert: {
           content?: string | null
           created_at?: string
+          edited_at?: string | null
           id?: string
           interaction_type: string
+          is_deleted?: boolean | null
+          parent_comment_id?: string | null
           post_id: string
           user_id: string
         }
         Update: {
           content?: string | null
           created_at?: string
+          edited_at?: string | null
           id?: string
           interaction_type?: string
+          is_deleted?: boolean | null
+          parent_comment_id?: string | null
           post_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_interactions_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_interactions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_interactions_post_id_fkey"
             columns: ["post_id"]
@@ -5386,6 +5431,23 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: string
       }
+      get_post_comments: {
+        Args: { target_post_id: string }
+        Returns: {
+          author_avatar: string
+          author_name: string
+          content: string
+          created_at: string
+          edited_at: string
+          id: string
+          is_deleted: boolean
+          likes_count: number
+          parent_comment_id: string
+          post_id: string
+          user_has_liked: boolean
+          user_id: string
+        }[]
+      }
       get_post_reaction_counts: {
         Args: { target_post_id: string }
         Returns: {
@@ -5469,6 +5531,10 @@ export type Database = {
           title: string
           type: string
         }[]
+      }
+      toggle_comment_like: {
+        Args: { target_comment_id: string }
+        Returns: boolean
       }
       toggle_post_reaction: {
         Args: { target_post_id: string; target_reaction_type: string }
