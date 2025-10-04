@@ -21,7 +21,9 @@ const EnhancedHelpCenterTab = () => {
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-3">
-          <HelpCircle className="h-8 w-8 text-blue-600" />
+          <div className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full p-2">
+            <HelpCircle className="h-8 w-8 text-white" />
+          </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Help Center</h1>
         </div>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
