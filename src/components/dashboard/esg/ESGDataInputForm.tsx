@@ -52,7 +52,9 @@ const ESGDataInputForm = ({ organizationId }: ESGDataInputFormProps) => {
           file, 
           organizationId 
         });
-        documentUrls.push(result.publicUrl);
+        if (result.publicUrl) {
+          documentUrls.push(result.publicUrl);
+        }
       }
 
       // Create ESG data entry

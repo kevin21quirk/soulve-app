@@ -37,6 +37,21 @@ export interface OrganizationESGData {
   indicator: ESGIndicator;
 }
 
+export interface ESGComplianceStatus {
+  framework_name: string;
+  compliance_percentage: number;
+  missing_indicators: number;
+  last_update: string;
+}
+
+export interface ESGScoreBreakdown {
+  environmental: number;
+  social: number;
+  governance: number;
+  overall: number;
+  trend: 'up' | 'down' | 'stable';
+}
+
 // Custom query keys for ESG data
 export const ESG_QUERY_KEYS = {
   ESG_FRAMEWORKS: ['esg', 'frameworks'] as const,
@@ -165,10 +180,15 @@ export const useCreateESGData = () => {
 
 export const useUploadESGDocument = () => {
   return useMutation({
-    mutationFn: async ({ file, path }: { file: File; path: string }) => {
+    mutationFn: async ({ file, organizationId }: { file: File; organizationId: string }) => {
+      const path = `${organizationId}/${Date.now()}-${file.name}`;
       const { data, error } = await supabase.storage.from('esg-documents').upload(path, file);
       if (error) throw error;
-      return data;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage.from('esg-documents').getPublicUrl(path);
+      
+      return { ...data, publicUrl };
     },
   });
 };
@@ -209,4 +229,71 @@ export const useGenerateESGReport = () => {
   });
 };
 
-export const getMockESGData = () => ({ score: 75, compliance: [], carbonFootprint: {}, stakeholderEngagement: {} });
+export const getMockESGData = () => ({
+  esgScore: {
+    environmental: 72,
+    social: 68,
+    governance: 85,
+    overall: 75,
+    trend: 'up' as const
+  },
+  complianceStatus: [
+    { framework_name: 'GRI Standards', compliance_percentage: 85, missing_indicators: 5, last_update: '2024-03-15' },
+    { framework_name: 'SASB', compliance_percentage: 72, missing_indicators: 12, last_update: '2024-03-10' }
+  ],
+  carbonFootprint: {
+    totalEmissions: 12450,
+    scopeBreakdown: {
+      'Scope 1': { total: 3200, sources: [] },
+      'Scope 2': { total: 5800, sources: [] },
+      'Scope 3': { total: 3450, sources: [] }
+    },
+    monthlyData: []
+  },
+  stakeholderEngagement: {
+    stakeholderBreakdown: {
+      investors: { averageSatisfaction: 4.5, responseRate: 85, totalMetrics: 10, engagementMethods: ['Annual Report', 'Quarterly Calls'] },
+      employees: { averageSatisfaction: 4.2, responseRate: 78, totalMetrics: 15, engagementMethods: ['Surveys', 'Town Halls'] }
+    },
+    overallEngagement: 4.3,
+    totalStakeholders: 2
+  },
+  goals: [
+    { 
+      id: '1', 
+      goal_name: 'Carbon Neutrality by 2030',
+      target_value: 0,
+      target_year: 2030,
+      current_value: 12450,
+      progress_percentage: 45,
+      status: 'active', 
+      category: 'environmental',
+      priority_level: 'critical'
+    }
+  ],
+  recommendations: [
+    { 
+      id: '1', 
+      title: 'Improve Water Management',
+      recommendation_type: 'efficiency',
+      priority_score: 85,
+      description: 'Implement water recycling systems to reduce consumption',
+      implementation_effort: 'medium',
+      potential_impact: 'Reduce water usage by 30%',
+      status: 'new'
+    }
+  ],
+  risks: [
+    { 
+      id: '1', 
+      risk_name: 'Climate Change Impact',
+      risk_category: 'environmental',
+      risk_type: 'physical',
+      probability_score: 8,
+      impact_score: 9,
+      risk_score: 72,
+      risk_level: 'high',
+      description: 'Increased frequency of extreme weather events affecting operations'
+    }
+  ]
+});
