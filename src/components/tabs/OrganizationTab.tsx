@@ -464,7 +464,7 @@ const OrganizationTab = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Organisation Tools</h2>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Organisation Tools</h2>
           <p className="text-gray-600">
             Comprehensive tools for charities, businesses, and civic organisations
           </p>
