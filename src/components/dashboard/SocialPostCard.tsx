@@ -18,6 +18,7 @@ import { ConnectToHelpButton } from '@/components/connect';
 import SelectHelperDialog from '@/components/help-completion/SelectHelperDialog';
 import { HelpCompletionService } from '@/services/helpCompletionService';
 import { useToast } from '@/hooks/use-toast';
+import PostComments from './PostComments';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -403,60 +404,11 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
         )}
 
         {/* Comments Section */}
-        {showComments && (
-          <div className="mt-4 pt-4 border-t space-y-4">
-            {/* Add Comment */}
-            <div className="flex space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 flex space-x-2">
-                <Input
-                  placeholder="Write a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleComment()}
-                />
-                <Button size="sm" onClick={handleComment}>
-                  Post
-                </Button>
-              </div>
-            </div>
-
-            {/* Comments List */}
-            {post.comments && post.comments.length > 0 && (
-              <div className="space-y-3">
-                {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex space-x-3">
-                    <Avatar 
-                      className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-                      onClick={() => comment.authorId && navigate(`/profile/${comment.authorId}`)}
-                    >
-                      <AvatarImage src={comment.avatar} />
-                      <AvatarFallback>
-                        {comment.author.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span 
-                            className="font-medium text-sm cursor-pointer hover:underline"
-                            onClick={() => comment.authorId && navigate(`/profile/${comment.authorId}`)}
-                          >
-                            {comment.author}
-                          </span>
-                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                        </div>
-                        <p className="text-sm text-gray-700">{comment.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        <PostComments
+          post={post}
+          onAddComment={(postId, content) => onComment(content)}
+          isExpanded={showComments}
+        />
 
         {/* Select Helper Dialog */}
         <SelectHelperDialog
