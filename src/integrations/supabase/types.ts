@@ -2292,6 +2292,10 @@ export type Database = {
         Row: {
           activity_type: string
           auto_verified: boolean | null
+          confirmation_requested_at: string | null
+          confirmation_status: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
           description: string
           effort_level: number | null
@@ -2301,8 +2305,11 @@ export type Database = {
           market_rate_used: number | null
           market_value_gbp: number | null
           metadata: Json | null
+          organization_id: string | null
           points_conversion_rate: number | null
           points_earned: number
+          post_id: string | null
+          rejection_reason: string | null
           requires_evidence: boolean | null
           risk_score: number | null
           skill_category_id: string | null
@@ -2313,6 +2320,10 @@ export type Database = {
         Insert: {
           activity_type: string
           auto_verified?: boolean | null
+          confirmation_requested_at?: string | null
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           description: string
           effort_level?: number | null
@@ -2322,8 +2333,11 @@ export type Database = {
           market_rate_used?: number | null
           market_value_gbp?: number | null
           metadata?: Json | null
+          organization_id?: string | null
           points_conversion_rate?: number | null
           points_earned?: number
+          post_id?: string | null
+          rejection_reason?: string | null
           requires_evidence?: boolean | null
           risk_score?: number | null
           skill_category_id?: string | null
@@ -2334,6 +2348,10 @@ export type Database = {
         Update: {
           activity_type?: string
           auto_verified?: boolean | null
+          confirmation_requested_at?: string | null
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           description?: string
           effort_level?: number | null
@@ -2343,8 +2361,11 @@ export type Database = {
           market_rate_used?: number | null
           market_value_gbp?: number | null
           metadata?: Json | null
+          organization_id?: string | null
           points_conversion_rate?: number | null
           points_earned?: number
+          post_id?: string | null
+          rejection_reason?: string | null
           requires_evidence?: boolean | null
           risk_score?: number | null
           skill_category_id?: string | null
@@ -2353,6 +2374,20 @@ export type Database = {
           verified?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "impact_activities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "impact_activities_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "impact_activities_skill_category_id_fkey"
             columns: ["skill_category_id"]
@@ -5249,6 +5284,47 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_work_notifications: {
+        Row: {
+          activity_id: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          metadata: Json | null
+          notification_type: string
+          recipient_id: string
+          volunteer_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          notification_type: string
+          recipient_id: string
+          volunteer_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          notification_type?: string
+          recipient_id?: string
+          volunteer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_work_notifications_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "impact_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -5357,6 +5433,14 @@ export type Database = {
       }
       cleanup_old_message_logs: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      confirm_volunteer_work: {
+        Args: {
+          activity_id: string
+          confirm_status: string
+          rejection_note?: string
+        }
         Returns: undefined
       }
       create_default_goals_for_user: {
@@ -5481,6 +5565,10 @@ export type Database = {
       get_user_total_points: {
         Args: { target_user_id: string }
         Returns: number
+      }
+      get_volunteer_work_recipient: {
+        Args: { activity_id: string }
+        Returns: string
       }
       group_similar_notifications: {
         Args: { p_time_window?: unknown; p_type: string; p_user_id: string }
