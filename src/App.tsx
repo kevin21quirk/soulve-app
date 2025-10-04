@@ -19,6 +19,7 @@ import EnhancedCampaignAnalyticsDashboard from "@/components/campaign-analytics/
 import DonationPage from "@/pages/DonationPage";
 import SafeSpaceHelperApplication from "@/pages/SafeSpaceHelperApplication";
 import SafeSpaceHelperTraining from "@/pages/SafeSpaceHelperTraining";
+import StakeholderRegistration from "@/pages/StakeholderRegistration";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/verify-email" element={<EmailVerificationHandler />} />
             <Route path="/reset-password" element={<PasswordResetHandler />} />
             <Route path="/profile-registration" element={<ProfileRegistration />} />
+            <Route path="/register/esg-contributor/:token" element={<StakeholderRegistration />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/waitlist" element={<WaitlistDashboard />} />
             <Route 

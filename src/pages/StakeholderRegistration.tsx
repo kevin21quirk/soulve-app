@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import { Building2, CheckCircle, Loader2 } from "lucide-react";
 
 const StakeholderRegistration = () => {
-  const [searchParams] = useSearchParams();
+  const { token } = useParams();
   const navigate = useNavigate();
-  const token = searchParams.get('token');
   
   const [loading, setLoading] = useState(true);
   const [invitation, setInvitation] = useState<any>(null);
@@ -150,6 +149,7 @@ const StakeholderRegistration = () => {
         </div>
 
         <Button
+          variant="gradient"
           className="w-full"
           onClick={handleAccept}
           disabled={accepting}

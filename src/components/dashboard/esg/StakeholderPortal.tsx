@@ -20,11 +20,13 @@ import {
   Share2,
   FileText,
   CheckCircle,
-  Clock
+  Clock,
+  UserPlus
 } from "lucide-react";
 import { useESGDataRequests, useStakeholderContributions, useSubmitESGContribution, useESGAnnouncements } from "@/services/esgService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import InviteStakeholderModal from "./InviteStakeholderModal";
 
 interface StakeholderGroup {
   id: string;
@@ -54,6 +56,8 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [announcementText, setAnnouncementText] = useState('');
   const [contributionData, setContributionData] = useState<Record<string, string>>({});
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [isOrgAdmin, setIsOrgAdmin] = useState(false);
   
   // Fetch real data
   const { data: dataRequests, isLoading: loadingRequests } = useESGDataRequests(organizationId);
@@ -61,10 +65,25 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   const { data: orgAnnouncements, isLoading: loadingAnnouncements } = useESGAnnouncements(organizationId);
   const submitContribution = useSubmitESGContribution();
   
-  // Get current user
+  // Get current user and check role
   const [currentUser, setCurrentUser] = useState<any>(null);
-  supabase.auth.getUser().then(({ data }) => {
-    if (data.user && !currentUser) setCurrentUser(data.user);
+  supabase.auth.getUser().then(async ({ data }) => {
+    if (data.user && !currentUser) {
+      setCurrentUser(data.user);
+      
+      // Check if user is org admin
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('role')
+        .eq('organization_id', organizationId)
+        .eq('user_id', data.user.id)
+        .eq('is_active', true)
+        .single();
+      
+      if (membership && ['admin', 'owner'].includes(membership.role)) {
+        setIsOrgAdmin(true);
+      }
+    }
   });
 
   // Mock stakeholder groups data
@@ -196,14 +215,22 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-          <Button variant="gradient" size="sm">
-            <Send className="h-4 w-4 mr-2" />
-            New Announcement
-          </Button>
+          {isOrgAdmin && (
+            <>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+              <Button variant="gradient" size="sm" onClick={() => setInviteModalOpen(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Invite Stakeholder
+              </Button>
+              <Button variant="gradient" size="sm">
+                <Send className="h-4 w-4 mr-2" />
+                New Announcement
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -708,6 +735,13 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Invite Stakeholder Modal */}
+      <InviteStakeholderModal
+        open={inviteModalOpen}
+        onOpenChange={setInviteModalOpen}
+        organizationId={organizationId}
+      />
     </div>
   );
 };
