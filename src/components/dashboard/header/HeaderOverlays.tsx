@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Bell, Zap, Users, BarChart3, X } from "lucide-react";
+import { Search, Bell, Zap, Users, BarChart3, X, Clock, CheckCircle } from "lucide-react";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderOverlaysProps {
   showSearch: boolean;
@@ -31,6 +33,8 @@ const HeaderOverlays = ({
 }: HeaderOverlaysProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useRealtimeNotifications();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (showSearch && searchRef.current) {
@@ -77,31 +81,91 @@ const HeaderOverlays = ({
       {showNotifications && (
         <div className="absolute top-16 right-0 w-80 bg-white border shadow-lg rounded-lg z-40 mr-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="flex flex-row items-center justify-between p-4">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Bell className="h-5 w-5" />
                 Notifications
-                <Badge variant="destructive">3</Badge>
+                {unreadCount > 0 && <Badge variant="destructive">{unreadCount}</Badge>}
               </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setShowNotifications(false)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="max-h-96 overflow-y-auto">
-              <div className="space-y-3">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm font-medium">New connection request</p>
-                  <p className="text-xs text-gray-600">John Doe wants to connect with you</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm font-medium">Help request completed</p>
-                  <p className="text-xs text-gray-600">Your help with community garden was marked as complete</p>
-                </div>
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <p className="text-sm font-medium">New message</p>
-                  <p className="text-xs text-gray-600">Jane Smith sent you a message</p>
-                </div>
+              <div className="flex items-center gap-1">
+                {unreadCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
+                    Mark all read
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => setShowNotifications(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
+            </CardHeader>
+            <CardContent className="max-h-96 overflow-y-auto p-0">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Bell className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">No notifications yet</p>
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {notifications.slice(0, 10).map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`p-3 hover:bg-gray-50 cursor-pointer ${
+                        !notification.isRead ? 'bg-blue-50/50' : ''
+                      }`}
+                      onClick={() => {
+                        markAsRead(notification.id);
+                        if (notification.action_url) {
+                          navigate(notification.action_url);
+                          setShowNotifications(false);
+                        }
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {notification.type === 'volunteer_confirmation' ? (
+                            <Clock className="h-4 w-4 text-yellow-600" />
+                          ) : notification.type === 'volunteer_confirmed' ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Bell className="h-4 w-4 text-blue-600" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">
+                            {notification.title}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(notification.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                        {!notification.isRead && (
+                          <div className="flex-shrink-0">
+                            <div className="h-2 w-2 bg-blue-600 rounded-full" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {notifications.length > 10 && (
+                <div className="p-3 border-t">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => {
+                      navigate('/dashboard?tab=notifications');
+                      setShowNotifications(false);
+                    }}
+                  >
+                    View all notifications
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
