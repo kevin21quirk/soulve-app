@@ -1386,6 +1386,56 @@ export type Database = {
           },
         ]
       }
+      esg_announcements: {
+        Row: {
+          announcement_type: string | null
+          content: string
+          created_at: string | null
+          created_by: string
+          engagement_count: number | null
+          id: string
+          organization_id: string
+          published_at: string | null
+          target_audience: Json | null
+          title: string
+          view_count: number | null
+        }
+        Insert: {
+          announcement_type?: string | null
+          content: string
+          created_at?: string | null
+          created_by: string
+          engagement_count?: number | null
+          id?: string
+          organization_id: string
+          published_at?: string | null
+          target_audience?: Json | null
+          title: string
+          view_count?: number | null
+        }
+        Update: {
+          announcement_type?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          engagement_count?: number | null
+          id?: string
+          organization_id?: string
+          published_at?: string | null
+          target_audience?: Json | null
+          title?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_announcements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       esg_benchmarks: {
         Row: {
           benchmark_type: string
@@ -1558,6 +1608,86 @@ export type Database = {
           verification_status?: string | null
         }
         Relationships: []
+      }
+      esg_data_requests: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          due_date: string | null
+          framework_id: string | null
+          id: string
+          indicator_id: string | null
+          organization_id: string
+          priority: string | null
+          reporting_period: string
+          request_message: string | null
+          requested_from_email: string | null
+          requested_from_org_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          due_date?: string | null
+          framework_id?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id: string
+          priority?: string | null
+          reporting_period: string
+          request_message?: string | null
+          requested_from_email?: string | null
+          requested_from_org_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          due_date?: string | null
+          framework_id?: string | null
+          id?: string
+          indicator_id?: string | null
+          organization_id?: string
+          priority?: string | null
+          reporting_period?: string
+          request_message?: string | null
+          requested_from_email?: string | null
+          requested_from_org_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_data_requests_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "esg_frameworks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_data_requests_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "esg_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_data_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_data_requests_requested_from_org_id_fkey"
+            columns: ["requested_from_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       esg_frameworks: {
         Row: {
@@ -2950,9 +3080,11 @@ export type Database = {
           accepted_at: string | null
           created_at: string | null
           email: string
+          esg_context: Json | null
           expires_at: string | null
           id: string
           invitation_token: string
+          invitation_type: string | null
           invited_by: string
           organization_id: string
           role: string
@@ -2963,9 +3095,11 @@ export type Database = {
           accepted_at?: string | null
           created_at?: string | null
           email: string
+          esg_context?: Json | null
           expires_at?: string | null
           id?: string
           invitation_token?: string
+          invitation_type?: string | null
           invited_by: string
           organization_id: string
           role?: string
@@ -2976,9 +3110,11 @@ export type Database = {
           accepted_at?: string | null
           created_at?: string | null
           email?: string
+          esg_context?: Json | null
           expires_at?: string | null
           id?: string
           invitation_token?: string
+          invitation_type?: string | null
           invited_by?: string
           organization_id?: string
           role?: string
@@ -2992,6 +3128,7 @@ export type Database = {
           created_at: string
           department: string | null
           end_date: string | null
+          esg_role: string | null
           id: string
           is_active: boolean | null
           is_public: boolean | null
@@ -3008,6 +3145,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           end_date?: string | null
+          esg_role?: string | null
           id?: string
           is_active?: boolean | null
           is_public?: boolean | null
@@ -3024,6 +3162,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           end_date?: string | null
+          esg_role?: string | null
           id?: string
           is_active?: boolean | null
           is_public?: boolean | null
@@ -4444,6 +4583,70 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      stakeholder_data_contributions: {
+        Row: {
+          contribution_status: string | null
+          contributor_org_id: string | null
+          contributor_user_id: string | null
+          created_at: string | null
+          data_request_id: string | null
+          esg_data_id: string | null
+          id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          contribution_status?: string | null
+          contributor_org_id?: string | null
+          contributor_user_id?: string | null
+          created_at?: string | null
+          data_request_id?: string | null
+          esg_data_id?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          contribution_status?: string | null
+          contributor_org_id?: string | null
+          contributor_user_id?: string | null
+          created_at?: string | null
+          data_request_id?: string | null
+          esg_data_id?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_data_contributions_contributor_org_id_fkey"
+            columns: ["contributor_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stakeholder_data_contributions_data_request_id_fkey"
+            columns: ["data_request_id"]
+            isOneToOne: false
+            referencedRelation: "esg_data_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stakeholder_data_contributions_esg_data_id_fkey"
+            columns: ["esg_data_id"]
+            isOneToOne: false
+            referencedRelation: "organization_esg_data"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stakeholder_engagement_metrics: {
         Row: {
