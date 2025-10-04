@@ -169,7 +169,7 @@ const MessagingTab = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Messages</h2>
         <Button 
           onClick={() => setShowNewConversation(!showNewConversation)}
           className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
