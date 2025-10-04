@@ -199,7 +199,7 @@ const AIInsightsDashboard = () => {
             <Bot className="h-3 w-3 mr-1" />
             AI Active
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button variant="gradient" size="sm">
             <Zap className="h-4 w-4 mr-2" />
             Refresh Analysis
           </Button>
@@ -235,9 +235,10 @@ const AIInsightsDashboard = () => {
             {['all', 'environmental', 'social', 'governance'].map((category) => (
               <Button
                 key={category}
-                variant={activeCategory === category ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={() => setActiveCategory(category)}
+                className={activeCategory === category ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90" : ""}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </Button>
@@ -289,7 +290,7 @@ const AIInsightsDashboard = () => {
                       </div>
                     </div>
                     {insight.actionable && (
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="gradient">
                         Take Action
                         <ArrowRight className="h-3 w-3 ml-1" />
                       </Button>

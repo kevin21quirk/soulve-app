@@ -200,7 +200,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
-          <Button size="sm">
+          <Button variant="gradient" size="sm">
             <Send className="h-4 w-4 mr-2" />
             New Announcement
           </Button>
@@ -288,7 +288,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full mt-4" size="sm">
+                  <Button variant="gradient" className="w-full mt-4" size="sm">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Engage
                   </Button>
@@ -361,7 +361,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                     />
                   </div>
 
-                  <Button className="w-full">
+                  <Button variant="gradient" className="w-full">
                     <Send className="h-4 w-4 mr-2" />
                     Send Announcement
                   </Button>
@@ -378,9 +378,10 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                     {['all', 'investors', 'employees', 'suppliers', 'community'].map((group) => (
                       <Button
                         key={group}
-                        variant={selectedGroup === group ? "default" : "outline"}
+                        variant="outline"
                         size="sm"
                         onClick={() => setSelectedGroup(group)}
+                        className={selectedGroup === group ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90" : ""}
                       >
                         {group.charAt(0).toUpperCase() + group.slice(1)}
                       </Button>
@@ -468,6 +469,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                         rows={3}
                       />
                       <Button
+                        variant="gradient"
                         size="sm"
                         onClick={() => {
                           if (!contributionData[request.id]) {
@@ -591,7 +593,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                   </p>
                   <div className="flex justify-between items-center">
                     <span className="text-blue-600 text-sm">Response Rate: 67%</span>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent">
                       View Results
                     </Button>
                   </div>
@@ -607,7 +609,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                   </p>
                   <div className="flex justify-between items-center">
                     <span className="text-green-600 text-sm">Average Score: 4.2/5</span>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent">
                       <Download className="h-4 w-4 mr-1" />
                       Report
                     </Button>
