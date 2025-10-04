@@ -18,6 +18,8 @@ import {
   Clock,
   AlertCircle
 } from "lucide-react";
+import { useGenerateESGReport } from "@/services/esgService";
+import { toast } from "@/hooks/use-toast";
 
 interface ReportTemplate {
   id: string;
@@ -29,7 +31,11 @@ interface ReportTemplate {
   status: 'draft' | 'in_progress' | 'completed';
 }
 
-const ESGReportBuilder = () => {
+interface ESGReportBuilderProps {
+  organizationId: string;
+}
+
+const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('gri');
   const [reportData, setReportData] = useState({
     title: '',
@@ -37,6 +43,29 @@ const ESGReportBuilder = () => {
     executiveSummary: '',
     selectedSections: [] as string[]
   });
+  const generateReport = useGenerateESGReport();
+
+  const handleGenerateReport = () => {
+    if (!reportData.title || !reportData.reportingPeriod) {
+      toast({ title: "Please fill in report title and period", variant: "destructive" });
+      return;
+    }
+
+    generateReport.mutate({
+      organizationId,
+      reportName: reportData.title,
+      reportingPeriod: reportData.reportingPeriod,
+      framework: selectedTemplateData?.framework || 'GRI',
+      sections: reportData.selectedSections.length > 0 ? reportData.selectedSections : selectedTemplateData?.sections
+    }, {
+      onSuccess: (data) => {
+        toast({ title: "Report generated successfully!", description: `Report ID: ${data.reportId}` });
+      },
+      onError: () => {
+        toast({ title: "Failed to generate report", variant: "destructive" });
+      }
+    });
+  };
 
   // Mock data - in real app, this would come from the service
   const reportTemplates: ReportTemplate[] = [
@@ -121,9 +150,14 @@ const ESGReportBuilder = () => {
             <Save className="h-4 w-4 mr-2" />
             Save Draft
           </Button>
-          <Button variant="gradient" size="sm">
+          <Button 
+            variant="gradient" 
+            size="sm"
+            onClick={handleGenerateReport}
+            disabled={generateReport.isPending}
+          >
             <Send className="h-4 w-4 mr-2" />
-            Generate Report
+            {generateReport.isPending ? 'Generating...' : 'Generate Report'}
           </Button>
         </div>
       </div>

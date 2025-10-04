@@ -229,6 +229,76 @@ export const useGenerateESGReport = () => {
   });
 };
 
+export const useStakeholderContributions = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.STAKEHOLDER_CONTRIBUTIONS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stakeholder_data_contributions')
+        .select('*, data_request:esg_data_requests(*, indicator:esg_indicators(*))')
+        .eq('data_request.organization_id', organizationId)
+        .order('submitted_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organizationId,
+  });
+};
+
+export const useSubmitESGContribution = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (contributionData: any) => {
+      const { data, error } = await supabase
+        .from('stakeholder_data_contributions')
+        .insert(contributionData)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['esg', 'contributions'] });
+      toast({ title: "Contribution submitted successfully" });
+    },
+  });
+};
+
+export const useESGAnnouncements = (organizationId: string) => {
+  return useQuery({
+    queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_ANNOUNCEMENTS(organizationId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_announcements')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('published_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organizationId,
+  });
+};
+
+export const useCreateESGAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (announcementData: any) => {
+      const { data, error } = await supabase
+        .from('esg_announcements')
+        .insert(announcementData)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['esg', 'announcements'] });
+      toast({ title: "Announcement published" });
+    },
+  });
+};
+
 export const getMockESGData = () => ({
   esgScore: {
     environmental: 72,

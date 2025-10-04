@@ -234,7 +234,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">
-          <ESGReportBuilder />
+          <ESGReportBuilder organizationId={selectedOrganizationId} />
         </TabsContent>
 
         <TabsContent value="ai-insights" className="mt-6">
@@ -242,7 +242,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="stakeholders" className="mt-6">
-          <StakeholderPortal />
+          <StakeholderPortal organizationId={selectedOrganizationId} />
         </TabsContent>
 
         <TabsContent value="compliance" className="mt-6">

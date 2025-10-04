@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Users, 
   Building2, 
@@ -16,8 +17,14 @@ import {
   Bell,
   TrendingUp,
   Globe,
-  Share2
+  Share2,
+  FileText,
+  CheckCircle,
+  Clock
 } from "lucide-react";
+import { useESGDataRequests, useStakeholderContributions, useSubmitESGContribution, useESGAnnouncements } from "@/services/esgService";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface StakeholderGroup {
   id: string;
@@ -39,9 +46,26 @@ interface Announcement {
   engagement: number;
 }
 
-const StakeholderPortal = () => {
+interface StakeholderPortalProps {
+  organizationId: string;
+}
+
+const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [announcementText, setAnnouncementText] = useState('');
+  const [contributionData, setContributionData] = useState<Record<string, string>>({});
+  
+  // Fetch real data
+  const { data: dataRequests, isLoading: loadingRequests } = useESGDataRequests(organizationId);
+  const { data: contributions, isLoading: loadingContributions } = useStakeholderContributions(organizationId);
+  const { data: orgAnnouncements, isLoading: loadingAnnouncements } = useESGAnnouncements(organizationId);
+  const submitContribution = useSubmitESGContribution();
+  
+  // Get current user
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  supabase.auth.getUser().then(({ data }) => {
+    if (data.user && !currentUser) setCurrentUser(data.user);
+  });
 
   // Mock stakeholder groups data
   const stakeholderGroups: StakeholderGroup[] = [
@@ -184,7 +208,7 @@ const StakeholderPortal = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-100">
           <TabsTrigger 
             value="overview"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
@@ -192,16 +216,22 @@ const StakeholderPortal = () => {
             Overview
           </TabsTrigger>
           <TabsTrigger 
+            value="engagement"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+          >
+            Data Requests
+          </TabsTrigger>
+          <TabsTrigger 
+            value="announcements"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+          >
+            Announcements
+          </TabsTrigger>
+          <TabsTrigger 
             value="communication"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
           >
             Communication
-          </TabsTrigger>
-          <TabsTrigger 
-            value="engagement"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
-          >
-            Engagement
           </TabsTrigger>
           <TabsTrigger 
             value="analytics"
@@ -405,34 +435,151 @@ const StakeholderPortal = () => {
 
         <TabsContent value="engagement" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Data Requests */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-primary" />
+                Data Requests
+              </h3>
+              {loadingRequests ? (
+                <p className="text-muted-foreground">Loading requests...</p>
+              ) : dataRequests && dataRequests.length > 0 ? (
+                <div className="space-y-4">
+                  {dataRequests.filter((req: any) => req.status === 'pending').map((request: any) => (
+                    <div key={request.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-medium">{request.indicator?.name || 'Data Request'}</h4>
+                          <p className="text-sm text-muted-foreground mt-1">{request.indicator?.description}</p>
+                        </div>
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Pending
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p>Period: {request.reporting_period}</p>
+                        <p>Category: {request.indicator?.category}</p>
+                      </div>
+                      <Textarea
+                        placeholder="Enter your data contribution..."
+                        value={contributionData[request.id] || ''}
+                        onChange={(e) => setContributionData({ ...contributionData, [request.id]: e.target.value })}
+                        rows={3}
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (!contributionData[request.id]) {
+                            toast({ title: "Please enter data", variant: "destructive" });
+                            return;
+                          }
+                          submitContribution.mutate({
+                            data_request_id: request.id,
+                            contributor_id: currentUser?.id,
+                            data_value: contributionData[request.id],
+                            data_source: 'manual_entry',
+                            verification_status: 'pending'
+                          }, {
+                            onSuccess: () => {
+                              toast({ title: "Contribution submitted successfully" });
+                              setContributionData({ ...contributionData, [request.id]: '' });
+                            }
+                          });
+                        }}
+                        disabled={submitContribution.isPending}
+                      >
+                        {submitContribution.isPending ? 'Submitting...' : 'Submit Data'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No pending data requests</p>
+              )}
+            </Card>
+
+            {/* Your Contributions */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                Your Contributions
+              </h3>
+              {loadingContributions ? (
+                <p className="text-muted-foreground">Loading contributions...</p>
+              ) : contributions && contributions.length > 0 ? (
+                <div className="space-y-3">
+                  {contributions.slice(0, 5).map((contribution: any) => (
+                    <div key={contribution.id} className="border rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{contribution.data_request?.indicator?.name}</span>
+                        <Badge variant="outline" className={
+                          contribution.verification_status === 'approved' 
+                            ? 'bg-green-50 text-green-800 border-green-200'
+                            : contribution.verification_status === 'rejected'
+                            ? 'bg-red-50 text-red-800 border-red-200'
+                            : 'bg-yellow-50 text-yellow-800 border-yellow-200'
+                        }>
+                          {contribution.verification_status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Submitted: {new Date(contribution.submitted_at).toLocaleDateString()}
+                      </p>
+                      {contribution.reviewer_notes && (
+                        <p className="text-xs bg-blue-50 p-2 rounded border border-blue-200">
+                          Notes: {contribution.reviewer_notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No contributions yet</p>
+              )}
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="announcements" className="mt-6">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <Bell className="h-5 w-5 mr-2 text-primary" />
+              Organization Announcements
+            </h3>
+            {loadingAnnouncements ? (
+              <p className="text-muted-foreground">Loading announcements...</p>
+            ) : orgAnnouncements && orgAnnouncements.length > 0 ? (
+              <div className="space-y-4">
+                {orgAnnouncements.map((announcement: any) => (
+                  <div key={announcement.id} className="border rounded-lg p-4 bg-gradient-to-r from-blue-50 to-cyan-50">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold">{announcement.title}</h4>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(announcement.published_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">{announcement.content}</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{announcement.announcement_type}</Badge>
+                      {announcement.target_stakeholder_types?.map((type: string) => (
+                        <Badge key={type} variant="outline" className="text-xs">{type}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No announcements available</p>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="legacy-engagement" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Engagement Metrics */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Engagement Metrics</h3>
-              <div className="space-y-6">
-                {stakeholderGroups.map((group) => {
-                  const engagementScore = group.engagementLevel === 'high' ? 85 : 
-                                        group.engagementLevel === 'medium' ? 60 : 35;
-                  return (
-                    <div key={group.id}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">{group.name}</span>
-                        <span className="text-sm font-medium">{engagementScore}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
-                          className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300"
-                          style={{ width: `${engagementScore}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-
-            {/* Feedback Collection */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Stakeholder Feedback</h3>
               <div className="space-y-4">
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                   <div className="flex items-center justify-between mb-2">
