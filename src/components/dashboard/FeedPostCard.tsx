@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, Bookmark, MapPin, Clock } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import EnhancedPostReactions from "./EnhancedPostReactions";
-import PostComments from "./PostComments";
+import PostDetailModal from "./PostDetailModal";
 import PostActions from "./PostActions";
 import UserModerationMenu from "@/components/moderation/UserModerationMenu";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { usePostComments } from '@/hooks/usePostComments';
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -40,7 +41,8 @@ const FeedPostCard = ({
 }: FeedPostCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showComments, setShowComments] = useState(false);
+  const [showPostDetail, setShowPostDetail] = useState(false);
+  const { comments } = usePostComments(post.id);
 
   const handleProfileClick = () => {
     console.log('👆 [FeedPostCard] Profile click:', {
@@ -232,21 +234,34 @@ const FeedPostCard = ({
             post={post}
             onLike={onLike}
             onShare={onShare}
-            onRespond={() => setShowComments(!showComments)}
+            onRespond={() => setShowPostDetail(true)}
             onBookmark={onBookmark}
             onReaction={handleReactionCallback}
           />
 
-          {/* Comments Section */}
-          {(showComments || (post.comments && post.comments.length > 0)) && (
-            <PostComments
-              post={post}
-              onAddComment={onAddComment}
-              isExpanded={showComments}
-            />
+          {/* View Comments Button */}
+          {comments.length > 0 && (
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPostDetail(true)}
+                className="text-gray-600 hover:text-blue-600 w-full"
+              >
+                View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        post={post}
+        isOpen={showPostDetail}
+        onClose={() => setShowPostDetail(false)}
+        onAddComment={onAddComment}
+      />
     </Card>
   );
 };

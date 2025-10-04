@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, MapPin, Clock, MessageCircle } from "lucide-react";
 import { FeedPost } from "@/types/feed";
+import { usePostComments } from '@/hooks/usePostComments';
 import MobilePostReactions from "./MobilePostReactions";
-import MobilePostComments from "./MobilePostComments";
+import MobilePostDetailModal from "./MobilePostDetailModal";
 
 interface MobilePostCardProps {
   post: FeedPost;
@@ -31,7 +32,8 @@ const MobilePostCard = ({
   onLikeComment,
   onCommentReaction 
 }: MobilePostCardProps) => {
-  const [showComments, setShowComments] = useState(false);
+  const [showPostDetail, setShowPostDetail] = useState(false);
+  const { comments } = usePostComments(post.id);
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -46,10 +48,7 @@ const MobilePostCard = ({
   };
 
   const handleCommentClick = () => {
-    setShowComments(!showComments);
-    if (!showComments) {
-      onRespond(post.id);
-    }
+    setShowPostDetail(true);
   };
 
   return (
@@ -163,14 +162,27 @@ const MobilePostCard = ({
         onReaction={onReaction}
       />
 
-      {/* Comments Section */}
-      {(showComments || (post.comments && post.comments.length > 0)) && (
-        <MobilePostComments
-          post={post}
-          onAddComment={onAddComment}
-          isExpanded={showComments}
-        />
+      {/* View Comments Button */}
+      {comments.length > 0 && (
+        <div className="px-4 py-3 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCommentClick}
+            className="text-gray-600 hover:text-blue-600 w-full text-sm"
+          >
+            View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+          </Button>
+        </div>
       )}
+
+      {/* Post Detail Modal */}
+      <MobilePostDetailModal
+        post={post}
+        isOpen={showPostDetail}
+        onClose={() => setShowPostDetail(false)}
+        onAddComment={onAddComment}
+      />
     </div>
   );
 };

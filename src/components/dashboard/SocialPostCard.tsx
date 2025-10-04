@@ -18,7 +18,8 @@ import { ConnectToHelpButton } from '@/components/connect';
 import SelectHelperDialog from '@/components/help-completion/SelectHelperDialog';
 import { HelpCompletionService } from '@/services/helpCompletionService';
 import { useToast } from '@/hooks/use-toast';
-import PostComments from './PostComments';
+import PostDetailModal from './PostDetailModal';
+import { usePostComments } from '@/hooks/usePostComments';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -41,8 +42,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState('');
+  const [showPostDetail, setShowPostDetail] = useState(false);
   const [showSelectHelper, setShowSelectHelper] = useState(false);
   const { reactions, toggleReaction } = usePostReactions(post.id);
   const { trackCommunityEngagement, trackHelpProvided } = useImpactTracking();
@@ -93,6 +93,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     }
   };
 
+  const { comments } = usePostComments(post.id);
+
   const handleProfileClick = () => {
     console.log('👆 [SocialPostCard] Profile click:', {
       postId: post.id,
@@ -108,12 +110,9 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
     }
   };
 
-  const handleComment = () => {
-    if (newComment.trim()) {
-      onComment(newComment.trim());
-      setNewComment('');
-      trackCommunityEngagement('post_comment', `Commented on ${post.author}'s post`);
-    }
+  const handleCommentClick = () => {
+    setShowPostDetail(true);
+    trackCommunityEngagement('view_post', `Viewed ${post.author}'s post`);
   };
 
   const handleReactionSelect = (emoji: string) => {
@@ -348,11 +347,11 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowComments(!showComments)}
+              onClick={handleCommentClick}
               className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 px-2"
             >
               <MessageCircle className="h-4 w-4" />
-              <span>{post.responses}</span>
+              <span>{comments.length}</span>
             </Button>
             
             <Button
@@ -406,11 +405,26 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
           </div>
         )}
 
-        {/* Comments Section */}
-        <PostComments
+        {/* View Comments Button */}
+        {comments.length > 0 && (
+          <div className="mt-4 pt-4 border-t">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCommentClick}
+              className="text-gray-600 hover:text-blue-600 w-full"
+            >
+              View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+            </Button>
+          </div>
+        )}
+
+        {/* Post Detail Modal */}
+        <PostDetailModal
           post={post}
+          isOpen={showPostDetail}
+          onClose={() => setShowPostDetail(false)}
           onAddComment={(postId, content) => onComment(content)}
-          isExpanded={showComments}
         />
 
         {/* Select Helper Dialog */}

@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import { usePostReactions } from "@/hooks/usePostReactions";
+import { usePostComments } from '@/hooks/usePostComments';
 import ModernReactionPicker from "@/components/ui/modern-reaction-picker";
 import ReactionDisplay from "@/components/ui/reaction-display";
+import MobilePostDetailModal from "./MobilePostDetailModal";
 
 interface MobileFeedPostCardProps {
   post: FeedPost;
@@ -32,8 +34,9 @@ const MobileFeedPostCard = ({
   onLikeComment
 }: MobileFeedPostCardProps) => {
   const navigate = useNavigate();
-  const [showComments, setShowComments] = useState(false);
+  const [showPostDetail, setShowPostDetail] = useState(false);
   const { reactions, toggleReaction } = usePostReactions(post.id);
+  const { comments } = usePostComments(post.id);
 
   const handleProfileClick = () => {
     console.log('👆 [MobileFeedPostCard] Profile click:', {
@@ -228,11 +231,11 @@ const MobileFeedPostCard = ({
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => setShowComments(!showComments)}
+              onClick={() => setShowPostDetail(true)}
               className="h-8 px-2 text-gray-600"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
-              <span className="text-xs">{post.responses}</span>
+              <span className="text-xs">{comments.length}</span>
             </Button>
             
             <Button 
@@ -259,38 +262,27 @@ const MobileFeedPostCard = ({
         </div>
       </div>
 
-      {/* Comments Section (if expanded) */}
-      {showComments && post.comments && post.comments.length > 0 && (
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
-          <div className="space-y-3">
-            {post.comments.slice(0, 3).map((comment) => (
-              <div key={comment.id} className="flex space-x-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={comment.avatar} />
-                  <AvatarFallback className="text-xs">
-                    {comment.author.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="bg-white rounded-lg p-2">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-xs">{comment.author}</span>
-                      <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                    </div>
-                    <p className="text-xs text-gray-700">{comment.content}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {post.comments.length > 3 && (
-              <button className="text-xs text-blue-600 font-medium">
-                View all {post.comments.length} comments
-              </button>
-            )}
-          </div>
+      {/* View Comments Button */}
+      {comments.length > 0 && (
+        <div className="px-4 py-3 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPostDetail(true)}
+            className="text-gray-600 hover:text-blue-600 w-full text-sm"
+          >
+            View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+          </Button>
         </div>
       )}
+
+      {/* Post Detail Modal */}
+      <MobilePostDetailModal
+        post={post}
+        isOpen={showPostDetail}
+        onClose={() => setShowPostDetail(false)}
+        onAddComment={onAddComment}
+      />
     </div>
   );
 };
