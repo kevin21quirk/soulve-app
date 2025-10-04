@@ -119,15 +119,25 @@ export const usePostReactions = (postId: string) => {
         throw error;
       }
 
+      // Get the user's current reaction before refreshing
+      const existingReaction = reactions.find(r => r.userReacted);
+      
       // Refresh reactions after toggle
       await fetchReactions();
 
-      // Show feedback based on whether reaction was added or removed
+      // Show feedback based on whether reaction was added, changed, or removed
       if (result) {
-        toast({
-          title: "Reaction added!",
-          description: `You reacted with ${emoji}`,
-        });
+        if (existingReaction && existingReaction.emoji !== emoji) {
+          toast({
+            title: "Reaction changed!",
+            description: `Changed from ${existingReaction.emoji} to ${emoji}`,
+          });
+        } else {
+          toast({
+            title: "Reaction added!",
+            description: `You reacted with ${emoji}`,
+          });
+        }
       } else {
         toast({
           title: "Reaction removed",
