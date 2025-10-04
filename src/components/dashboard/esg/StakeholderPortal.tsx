@@ -27,6 +27,7 @@ import { useESGDataRequests, useStakeholderContributions, useSubmitESGContributi
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import InviteStakeholderModal from "./InviteStakeholderModal";
+import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 
 interface StakeholderGroup {
   id: string;
@@ -64,6 +65,9 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   const { data: contributions, isLoading: loadingContributions } = useStakeholderContributions(organizationId);
   const { data: orgAnnouncements, isLoading: loadingAnnouncements } = useESGAnnouncements(organizationId);
   const submitContribution = useSubmitESGContribution();
+  
+  // Enable real-time updates
+  useESGRealtimeUpdates({ organizationId, enabled: true });
   
   // Get current user and check role
   const [currentUser, setCurrentUser] = useState<any>(null);

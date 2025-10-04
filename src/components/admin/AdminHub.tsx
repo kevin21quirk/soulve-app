@@ -1,13 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, FileText, BarChart3 } from "lucide-react";
+import { Shield, Users, FileText, BarChart3, Download } from "lucide-react";
 import StakeholderDataRequestsPanel from "@/components/dashboard/esg/StakeholderDataRequestsPanel";
+import ESGReportsPanel from "@/components/dashboard/esg/ESGReportsPanel";
+import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 
 interface AdminHubProps {
   organizationId: string;
 }
 
 const AdminHub = ({ organizationId }: AdminHubProps) => {
+  // Enable real-time updates for ESG data
+  useESGRealtimeUpdates({ organizationId, enabled: true });
+  
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -23,10 +28,14 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
       </div>
 
       <Tabs defaultValue="esg" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-secondary/20">
+        <TabsList className="grid w-full grid-cols-5 bg-secondary/20">
           <TabsTrigger value="esg">
             <FileText className="h-4 w-4 mr-2" />
             ESG Management
+          </TabsTrigger>
+          <TabsTrigger value="reports">
+            <Download className="h-4 w-4 mr-2" />
+            Reports
           </TabsTrigger>
           <TabsTrigger value="users">
             <Users className="h-4 w-4 mr-2" />
@@ -44,6 +53,10 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
 
         <TabsContent value="esg" className="mt-6">
           <StakeholderDataRequestsPanel organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="reports" className="mt-6">
+          <ESGReportsPanel organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="users" className="mt-6">
