@@ -116,11 +116,11 @@ const UserProfilePointsDetails = ({
   };
 
   const getTrustLevel = (score: number) => {
-    if (score >= 90) return { name: "Impact Champion", color: "text-purple-600", next: 100 };
-    if (score >= 75) return { name: "Community Leader", color: "text-blue-600", next: 90 };
-    if (score >= 60) return { name: "Trusted Helper", color: "text-green-600", next: 75 };
-    if (score >= 40) return { name: "Verified Helper", color: "text-yellow-600", next: 60 };
-    return { name: "New Member", color: "text-gray-600", next: 40 };
+    if (score >= 90) return { name: "Impact Champion", next: 100 };
+    if (score >= 75) return { name: "Community Leader", next: 90 };
+    if (score >= 60) return { name: "Trusted Helper", next: 75 };
+    if (score >= 40) return { name: "Verified Helper", next: 60 };
+    return { name: "New Member", next: 40 };
   };
 
   const trustLevel = getTrustLevel(profileData.trustScore);
@@ -238,17 +238,17 @@ const UserProfilePointsDetails = ({
                 <CardContent>
                   <div className="space-y-3">
                     {activities.length === 0 ? (
-                      <p className="text-center text-gray-500 py-8">No activities yet</p>
+                      <p className="text-center text-muted-foreground py-8">No activities yet</p>
                     ) : (
                       activities.map((activity) => (
-                        <div key={activity.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={activity.id} className="flex items-start justify-between p-3 bg-gradient-to-r from-[hsl(var(--soulve-teal))]/5 to-[hsl(var(--soulve-blue))]/5 rounded-lg border border-[hsl(var(--soulve-blue))]/10">
                           <div className="flex-1">
                             <div className="font-medium text-sm">{activity.description}</div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-muted-foreground mt-1">
                               {format(new Date(activity.created_at), 'MMM d, yyyy')} • {activity.activity_type.replace('_', ' ')}
                             </div>
                           </div>
-                          <Badge variant="secondary" className="ml-2">
+                          <Badge className="ml-2 bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))] text-white border-none">
                             +{activity.points_earned} pts
                           </Badge>
                         </div>
@@ -267,7 +267,7 @@ const UserProfilePointsDetails = ({
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {badges.length === 0 ? (
-                      <div className="col-span-full text-center text-gray-500 py-8">
+                      <div className="col-span-full text-center text-muted-foreground py-8">
                         No badges earned yet. Keep contributing to earn your first badge!
                       </div>
                     ) : (
