@@ -330,7 +330,10 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             })}
             
             {/* More Reactions Picker */}
-            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+            <ModernReactionPicker 
+              onReactionSelect={handleReactionSelect}
+              userReactedEmojis={reactions.filter(r => r.userReacted).map(r => r.emoji)}
+            >
               <Button
                 variant="ghost"
                 size="sm"

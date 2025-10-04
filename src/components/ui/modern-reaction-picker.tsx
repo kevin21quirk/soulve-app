@@ -9,6 +9,7 @@ interface ModernReactionPickerProps {
   onReactionSelect: (emoji: string) => void;
   children: React.ReactNode;
   disabled?: boolean;
+  userReactedEmojis?: string[]; // List of emojis user has already reacted with
 }
 
 const reactionCategories = {
@@ -39,13 +40,18 @@ const reactionCategories = {
   }
 };
 
-const ModernReactionPicker = ({ onReactionSelect, children, disabled = false }: ModernReactionPickerProps) => {
+const ModernReactionPicker = ({ onReactionSelect, children, disabled = false, userReactedEmojis = [] }: ModernReactionPickerProps) => {
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('frequent');
 
   const handleReactionClick = (emoji: string) => {
     onReactionSelect(emoji);
     setOpen(false);
+  };
+
+  // Filter out reactions user has already made
+  const getFilteredReactions = (reactions: string[]) => {
+    return reactions.filter(emoji => !userReactedEmojis.includes(emoji));
   };
 
   return (
@@ -72,22 +78,31 @@ const ModernReactionPicker = ({ onReactionSelect, children, disabled = false }: 
               })}
             </TabsList>
 
-            {Object.entries(reactionCategories).map(([key, category]) => (
-              <TabsContent key={key} value={key} className="p-3 m-0">
-                <div className="grid grid-cols-8 gap-2">
-                  {category.reactions.map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => handleReactionClick(emoji)}
-                      className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded transition-colors"
-                      title={emoji}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
+            {Object.entries(reactionCategories).map(([key, category]) => {
+              const filteredReactions = getFilteredReactions(category.reactions);
+              return (
+                <TabsContent key={key} value={key} className="p-3 m-0">
+                  {filteredReactions.length === 0 ? (
+                    <div className="text-center text-gray-500 text-sm py-4">
+                      You've already used all reactions in this category
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-8 gap-2">
+                      {filteredReactions.map((emoji) => (
+                        <button
+                          key={emoji}
+                          onClick={() => handleReactionClick(emoji)}
+                          className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded transition-colors"
+                          title={emoji}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              );
+            })}
           </Tabs>
         </div>
       </PopoverContent>

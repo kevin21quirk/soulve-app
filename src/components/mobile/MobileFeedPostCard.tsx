@@ -211,7 +211,10 @@ const MobileFeedPostCard = ({
             })}
             
             {/* More Reactions */}
-            <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+            <ModernReactionPicker 
+              onReactionSelect={handleReactionSelect}
+              userReactedEmojis={reactions.filter(r => r.userReacted).map(r => r.emoji)}
+            >
               <Button
                 variant="ghost"
                 size="sm"
