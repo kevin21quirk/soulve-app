@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { QUERY_KEYS } from "./queryKeys";
+import { toast } from "@/hooks/use-toast";
 
 export interface ESGFramework {
   id: string;
@@ -701,3 +702,235 @@ export const getMockESGData = () => ({
     }
   ]
 });
+
+// ============= MUTATION HOOKS FOR ESG DATA =============
+
+export interface CreateESGDataInput {
+  organization_id: string;
+  indicator_id: string;
+  reporting_period: string;
+  value?: number;
+  text_value?: string;
+  unit?: string;
+  data_source: string;
+  verification_status: 'unverified' | 'internal' | 'third_party';
+  notes?: string;
+  supporting_documents?: string[];
+}
+
+export interface UpdateESGDataInput extends Partial<CreateESGDataInput> {
+  id: string;
+}
+
+// Create ESG Data Entry
+export const useCreateESGData = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (input: CreateESGDataInput) => {
+      const { data, error } = await supabase
+        .from('organization_esg_data')
+        .insert([input])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      // Invalidate and refetch ESG data queries
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_QUERY_KEYS.ORGANIZATION_ESG_DATA(data.organization_id) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_QUERY_KEYS.ESG_SCORE(data.organization_id, new Date().getFullYear()) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_QUERY_KEYS.ESG_COMPLIANCE_STATUS(data.organization_id) 
+      });
+      
+      toast({
+        title: "ESG Data Saved",
+        description: "Your ESG data entry has been successfully saved.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Saving Data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+// Update ESG Data Entry
+export const useUpdateESGData = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: UpdateESGDataInput) => {
+      const { data, error } = await supabase
+        .from('organization_esg_data')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_QUERY_KEYS.ORGANIZATION_ESG_DATA(data.organization_id) 
+      });
+      
+      toast({
+        title: "Data Updated",
+        description: "ESG data entry has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Updating Data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+// Delete ESG Data Entry
+export const useDeleteESGData = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, organizationId }: { id: string; organizationId: string }) => {
+      const { error } = await supabase
+        .from('organization_esg_data')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      return { id, organizationId };
+    },
+    onSuccess: ({ organizationId }) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_QUERY_KEYS.ORGANIZATION_ESG_DATA(organizationId) 
+      });
+      
+      toast({
+        title: "Data Deleted",
+        description: "ESG data entry has been deleted.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Deleting Data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+// Upload file to Supabase Storage
+export const useUploadESGDocument = () => {
+  return useMutation({
+    mutationFn: async ({ file, organizationId }: { file: File; organizationId: string }) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${organizationId}/${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('esg-documents')
+        .upload(fileName, file);
+      
+      if (error) throw error;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('esg-documents')
+        .getPublicUrl(fileName);
+      
+      return { path: data.path, publicUrl };
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+// Create ESG Report
+export const useCreateESGReport = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (input: Omit<ESGReport, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('esg_reports')
+        .insert([input])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_REPORTS(data.organization_id) 
+      });
+      
+      toast({
+        title: "Report Created",
+        description: "ESG report has been created successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Creating Report",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};
+
+// Update ESG Report
+export const useUpdateESGReport = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<ESGReport>) => {
+      const { data, error } = await supabase
+        .from('esg_reports')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_REPORTS(data.organization_id) 
+      });
+      
+      toast({
+        title: "Report Updated",
+        description: "ESG report has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Updating Report",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+};

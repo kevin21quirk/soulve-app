@@ -10,8 +10,15 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Upload, Database, Save, Calendar as CalendarIcon, FileText, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { useCreateESGData, useUploadESGDocument, useESGIndicators, useESGFrameworks } from "@/services/esgService";
+import { useAuth } from "@/contexts/AuthContext";
 
-const ESGDataInputForm = () => {
+interface ESGDataInputFormProps {
+  organizationId: string;
+}
+
+const ESGDataInputForm = ({ organizationId }: ESGDataInputFormProps) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     framework: '',
     indicator: '',
@@ -20,26 +27,64 @@ const ESGDataInputForm = () => {
     unit: '',
     textValue: '',
     dataSource: 'manual_entry',
-    verificationStatus: 'unverified',
+    verificationStatus: 'unverified' as 'unverified' | 'internal' | 'third_party',
     notes: '',
     supportingDocuments: [] as File[]
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const frameworks = [
-    { id: 'gri', name: 'Global Reporting Initiative (GRI)' },
-    { id: 'sasb', name: 'SASB Standards' },
-    { id: 'tcfd', name: 'TCFD Framework' },
-    { id: 'ungc', name: 'UN Global Compact' },
-    { id: 'custom', name: 'Custom Framework' }
-  ];
+  const createESGData = useCreateESGData();
+  const uploadDocument = useUploadESGDocument();
+  const { data: frameworks, isLoading: frameworksLoading } = useESGFrameworks();
+  const { data: indicators, isLoading: indicatorsLoading } = useESGIndicators(formData.framework);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    // Handle form submission
-    setTimeout(() => setIsSubmitting(false), 2000);
+    
+    if (!formData.indicator || !formData.reportingPeriod) {
+      return;
+    }
+
+    try {
+      // Upload supporting documents first
+      const documentUrls: string[] = [];
+      for (const file of formData.supportingDocuments) {
+        const result = await uploadDocument.mutateAsync({ 
+          file, 
+          organizationId 
+        });
+        documentUrls.push(result.publicUrl);
+      }
+
+      // Create ESG data entry
+      await createESGData.mutateAsync({
+        organization_id: organizationId,
+        indicator_id: formData.indicator,
+        reporting_period: format(formData.reportingPeriod, 'yyyy-MM-dd'),
+        value: formData.value ? parseFloat(formData.value) : undefined,
+        text_value: formData.textValue || undefined,
+        unit: formData.unit || undefined,
+        data_source: formData.dataSource,
+        verification_status: formData.verificationStatus,
+        notes: formData.notes || undefined,
+        supporting_documents: documentUrls.length > 0 ? documentUrls : undefined
+      });
+
+      // Reset form
+      setFormData({
+        framework: '',
+        indicator: '',
+        reportingPeriod: undefined,
+        value: '',
+        unit: '',
+        textValue: '',
+        dataSource: 'manual_entry',
+        verificationStatus: 'unverified',
+        notes: '',
+        supportingDocuments: []
+      });
+    } catch (error) {
+      console.error('Error saving ESG data:', error);
+    }
   };
 
   const handleFileUpload = (files: FileList | null) => {
@@ -63,12 +108,16 @@ const ESGDataInputForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="framework">ESG Framework</Label>
-            <Select value={formData.framework} onValueChange={(value) => setFormData({...formData, framework: value})}>
+            <Select 
+              value={formData.framework} 
+              onValueChange={(value) => setFormData({...formData, framework: value, indicator: ''})}
+              disabled={frameworksLoading}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select framework" />
+                <SelectValue placeholder={frameworksLoading ? "Loading..." : "Select framework"} />
               </SelectTrigger>
               <SelectContent>
-                {frameworks.map((framework) => (
+                {frameworks?.map((framework) => (
                   <SelectItem key={framework.id} value={framework.id}>
                     {framework.name}
                   </SelectItem>
@@ -79,16 +128,24 @@ const ESGDataInputForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="indicator">ESG Indicator</Label>
-            <Select value={formData.indicator} onValueChange={(value) => setFormData({...formData, indicator: value})}>
+            <Select 
+              value={formData.indicator} 
+              onValueChange={(value) => setFormData({...formData, indicator: value})}
+              disabled={!formData.framework || indicatorsLoading}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select indicator" />
+                <SelectValue placeholder={
+                  !formData.framework ? "Select framework first" : 
+                  indicatorsLoading ? "Loading..." : 
+                  "Select indicator"
+                } />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ghg-emissions">GHG Emissions (Scope 1)</SelectItem>
-                <SelectItem value="energy-consumption">Energy Consumption</SelectItem>
-                <SelectItem value="water-usage">Water Usage</SelectItem>
-                <SelectItem value="employee-diversity">Employee Diversity</SelectItem>
-                <SelectItem value="board-independence">Board Independence</SelectItem>
+                {indicators?.map((indicator) => (
+                  <SelectItem key={indicator.id} value={indicator.id}>
+                    {indicator.name} ({indicator.category})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -169,7 +226,10 @@ const ESGDataInputForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="verification">Verification Status</Label>
-            <Select value={formData.verificationStatus} onValueChange={(value) => setFormData({...formData, verificationStatus: value})}>
+            <Select 
+              value={formData.verificationStatus} 
+              onValueChange={(value: 'unverified' | 'internal' | 'third_party') => setFormData({...formData, verificationStatus: value})}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -270,9 +330,12 @@ const ESGDataInputForm = () => {
           <Button variant="outline" type="button">
             Save as Draft
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={createESGData.isPending || uploadDocument.isPending || !formData.indicator || !formData.reportingPeriod}
+          >
             <Save className="h-4 w-4 mr-2" />
-            {isSubmitting ? 'Saving...' : 'Save ESG Data'}
+            {createESGData.isPending || uploadDocument.isPending ? 'Saving...' : 'Save ESG Data'}
           </Button>
         </div>
       </form>

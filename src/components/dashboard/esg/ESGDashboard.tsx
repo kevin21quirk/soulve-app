@@ -54,19 +54,33 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   );
   const [refreshing, setRefreshing] = useState(false);
 
-  // Use mock data for now - replace with real queries when organization data is available
+  // Real-time queries for ESG data
+  const { data: esgScore, isLoading: scoreLoading, refetch: refetchScore } = useESGScore(selectedOrganizationId);
+  const { data: complianceData, isLoading: complianceLoading, refetch: refetchCompliance } = useESGComplianceStatus(selectedOrganizationId);
+  const { data: carbonData, isLoading: carbonLoading, refetch: refetchCarbon } = useCarbonFootprint(selectedOrganizationId);
+  const { data: engagementData, isLoading: engagementLoading, refetch: refetchEngagement } = useStakeholderEngagement(selectedOrganizationId);
+
+  // Use mock data as fallback
   const mockData = getMockESGData();
   
-  // Real queries (commented out until organization setup is complete)
-  // const { data: esgScore, isLoading: scoreLoading } = useESGScore(selectedOrganizationId);
-  // const { data: complianceData, isLoading: complianceLoading } = useESGComplianceStatus(selectedOrganizationId);
-  // const { data: carbonData, isLoading: carbonLoading } = useCarbonFootprint(selectedOrganizationId);
-  // const { data: engagementData, isLoading: engagementLoading } = useStakeholderEngagement(selectedOrganizationId);
+  // Use real data if available, otherwise fall back to mock data
+  const displayScore = esgScore || mockData.esgScore;
+  const displayCompliance = complianceData || mockData.complianceStatus;
+  const displayCarbon = carbonData || mockData.carbonFootprint;
+  const displayEngagement = engagementData || mockData.stakeholderEngagement;
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => setRefreshing(false), 1000);
+    try {
+      await Promise.all([
+        refetchScore(),
+        refetchCompliance(),
+        refetchCarbon(),
+        refetchEngagement()
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleExportReport = () => {
@@ -127,8 +141,8 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
 
       {/* ESG Overview */}
       <ESGOverviewCard 
-        esgScore={mockData.esgScore}
-        isLoading={false}
+        esgScore={displayScore}
+        isLoading={scoreLoading}
       />
 
       <Tabs defaultValue="overview" className="w-full">
@@ -186,12 +200,12 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ComplianceStatusCard 
-              complianceData={mockData.complianceStatus}
-              isLoading={false}
+              complianceData={displayCompliance}
+              isLoading={complianceLoading}
             />
             <StakeholderEngagementCard 
-              engagementData={mockData.stakeholderEngagement}
-              isLoading={false}
+              engagementData={displayEngagement}
+              isLoading={engagementLoading}
             />
             <ESGGoalsCard 
               goals={mockData.goals}
@@ -234,15 +248,15 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         <TabsContent value="compliance" className="mt-6">
           <div className="space-y-6">
             <ComplianceStatusCard 
-              complianceData={mockData.complianceStatus}
-              isLoading={false}
+              complianceData={displayCompliance}
+              isLoading={complianceLoading}
             />
             
             {/* Detailed Compliance Breakdown */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Framework Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mockData.complianceStatus.map((framework, index) => (
+                {displayCompliance.map((framework, index) => (
                   <div key={index} className="p-4 border rounded-lg bg-gradient-to-br from-gray-50 to-gray-100">
                     <h4 className="font-medium text-sm mb-2">{framework.framework_name}</h4>
                     <div className="text-2xl font-bold text-primary mb-1">
@@ -263,7 +277,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="data-input" className="mt-6">
-          <ESGDataInputForm />
+          <ESGDataInputForm organizationId={selectedOrganizationId} />
         </TabsContent>
       </Tabs>
     </div>
