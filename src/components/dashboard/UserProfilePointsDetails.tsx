@@ -135,7 +135,7 @@ const UserProfilePointsDetails = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-600" />
+            <Shield className="h-5 w-5 text-soulve-blue" />
             Trust Score & Impact Breakdown
           </DialogTitle>
         </DialogHeader>
@@ -161,29 +161,29 @@ const UserProfilePointsDetails = ({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                     <div>
-                      <div className="text-3xl font-bold text-green-600">{profileData.trustScore}</div>
-                      <div className="text-sm text-gray-600">Trust Score</div>
+                      <div className="text-3xl font-bold text-soulve-teal">{profileData.trustScore}</div>
+                      <div className="text-sm text-muted-foreground">Trust Score</div>
                     </div>
                     <div>
-                      <div className="text-3xl font-bold text-blue-600">{metrics?.help_provided_count || 0}</div>
-                      <div className="text-sm text-gray-600">People Helped</div>
+                      <div className="text-3xl font-bold text-soulve-blue">{metrics?.help_provided_count || 0}</div>
+                      <div className="text-sm text-muted-foreground">People Helped</div>
                     </div>
                     <div>
-                      <div className="text-3xl font-bold text-purple-600">{totalPoints}</div>
-                      <div className="text-sm text-gray-600">Total Points</div>
+                      <div className="text-3xl font-bold text-soulve-purple">{totalPoints}</div>
+                      <div className="text-sm text-muted-foreground">Total Points</div>
                     </div>
                     <div>
-                      <div className="text-3xl font-bold text-orange-600">{metrics?.volunteer_hours || 0}h</div>
-                      <div className="text-sm text-gray-600">Volunteer Time</div>
+                      <div className="text-3xl font-bold bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))] bg-clip-text text-transparent">{metrics?.volunteer_hours || 0}h</div>
+                      <div className="text-sm text-muted-foreground">Volunteer Time</div>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className={`font-semibold ${trustLevel.color}`}>{trustLevel.name}</span>
-                      <span className="text-gray-600">{trustLevel.next - profileData.trustScore} pts to next level</span>
+                      <span className="font-semibold text-soulve-blue">{trustLevel.name}</span>
+                      <span className="text-muted-foreground">{trustLevel.next - profileData.trustScore} pts to next level</span>
                     </div>
-                    <Progress value={progressToNext} className="h-2" />
+                    <Progress value={progressToNext} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-[hsl(var(--soulve-teal))] [&>div]:to-[hsl(var(--soulve-blue))]" />
                   </div>
                 </CardContent>
               </Card>
@@ -197,33 +197,33 @@ const UserProfilePointsDetails = ({
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-green-600" />
+                        <Award className="h-4 w-4 text-soulve-teal" />
                         <span>Verifications</span>
                       </div>
-                      <span className="font-medium">+{profileData.verificationBadges.length * 10} pts</span>
+                      <span className="font-medium text-soulve-teal">+{profileData.verificationBadges.length * 10} pts</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-blue-600" />
+                        <Zap className="h-4 w-4 text-soulve-blue" />
                         <span>Help Completed ({metrics?.help_provided_count || 0} times)</span>
                       </div>
-                      <span className="font-medium">+{(metrics?.help_provided_count || 0) * 25} pts</span>
+                      <span className="font-medium text-soulve-blue">+{(metrics?.help_provided_count || 0) * 25} pts</span>
                     </div>
                     {metrics?.average_rating && metrics.average_rating > 0 && (
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                          <Target className="h-4 w-4 text-purple-600" />
+                          <Target className="h-4 w-4 text-soulve-purple" />
                           <span>Average Rating ({metrics.average_rating.toFixed(1)} ⭐)</span>
                         </div>
-                        <span className="font-medium">+{Math.round(metrics.average_rating * 10)} pts</span>
+                        <span className="font-medium text-soulve-purple">+{Math.round(metrics.average_rating * 10)} pts</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-orange-600" />
+                        <Calendar className="h-4 w-4 text-soulve-blue" />
                         <span>Community Engagement</span>
                       </div>
-                      <span className="font-medium">+{Math.min(100, profileData.postCount * 5)} pts</span>
+                      <span className="font-medium text-soulve-teal">+{Math.min(100, profileData.postCount * 5)} pts</span>
                     </div>
                   </div>
                 </CardContent>
@@ -272,11 +272,11 @@ const UserProfilePointsDetails = ({
                       </div>
                     ) : (
                       badges.map((badge) => (
-                        <div key={badge.id} className="flex flex-col items-center p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <div key={badge.id} className="flex flex-col items-center p-4 bg-gradient-to-br from-[hsl(var(--soulve-teal))]/10 to-[hsl(var(--soulve-blue))]/10 rounded-lg border border-[hsl(var(--soulve-blue))]/20">
                           <div className="text-4xl mb-2">{badge.badge.icon}</div>
                           <div className="font-semibold text-sm text-center">{badge.badge.name}</div>
-                          <div className="text-xs text-gray-600 text-center mt-1">{badge.badge.description}</div>
-                          <div className="text-xs text-gray-500 mt-2">
+                          <div className="text-xs text-muted-foreground text-center mt-1">{badge.badge.description}</div>
+                          <div className="text-xs text-muted-foreground mt-2">
                             Earned {format(new Date(badge.earned_at), 'MMM yyyy')}
                           </div>
                         </div>

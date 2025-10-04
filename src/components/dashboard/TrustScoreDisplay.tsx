@@ -10,9 +10,9 @@ interface TrustScoreDisplayProps {
 
 const TrustScoreDisplay = ({ score, size = "md", showBadge = true }: TrustScoreDisplayProps) => {
   const getTrustColor = (score: number) => {
-    if (score >= 80) return "text-green-600 bg-green-100";
-    if (score >= 60) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
+    if (score >= 80) return "bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))] text-white";
+    if (score >= 60) return "bg-gradient-to-r from-[hsl(var(--soulve-blue))] to-[hsl(var(--soulve-purple))] text-white";
+    return "bg-muted text-muted-foreground";
   };
 
   const getTrustIcon = (score: number) => {
