@@ -34,7 +34,8 @@ export const useImpactTracking = () => {
     organization?: string,
     skillCategoryId?: string,
     marketRate?: number,
-    evidenceUrl?: string
+    evidenceUrl?: string,
+    postId?: string
   ) => {
     if (!user?.id) return;
 
@@ -48,16 +49,24 @@ export const useImpactTracking = () => {
           marketRate,
           description,
           organization,
-          evidenceUrl
+          evidenceUrl,
+          postId
         );
 
         const marketValue = marketRate * hours;
         const points = Math.round(marketValue * 0.5);
 
-        toast({
-          title: "Skill-Based Volunteer Impact! 🌟",
-          description: `+${points} points for ${hours} hours at £${marketRate}/hr (£${marketValue} market value)`,
-        });
+        if (postId) {
+          toast({
+            title: "Volunteer Work Logged! ⏳",
+            description: `Work submitted for confirmation. Points will be awarded once verified by the recipient.`,
+          });
+        } else {
+          toast({
+            title: "Skill-Based Volunteer Impact! 🌟",
+            description: `+${points} points for ${hours} hours at £${marketRate}/hr (£${marketValue} market value)`,
+          });
+        }
       } else {
         // Legacy volunteer tracking (simple hours * 3)
         await ImpactAnalyticsService.awardImpactPoints(

@@ -20,6 +20,8 @@ const SkillsTab = () => {
   const [hours, setHours] = useState<number>(1);
   const [description, setDescription] = useState('');
   const [organization, setOrganization] = useState('');
+  const [recipientType, setRecipientType] = useState<'organization' | 'individual'>('organization');
+  const [postId, setPostId] = useState('');
   const { trackVolunteerWork } = useImpactTracking();
 
   useEffect(() => {
@@ -45,7 +47,9 @@ const SkillsTab = () => {
       description,
       organization || undefined,
       selectedSkill.id,
-      selectedSkill.market_rate_gbp
+      selectedSkill.market_rate_gbp,
+      undefined, // evidenceUrl
+      recipientType === 'individual' ? postId : undefined
     );
 
     // Reset form
@@ -54,6 +58,8 @@ const SkillsTab = () => {
     setHours(1);
     setDescription('');
     setOrganization('');
+    setRecipientType('organization');
+    setPostId('');
   };
 
   const getDemandBadge = (marketRate: number) => {
@@ -121,14 +127,53 @@ const SkillsTab = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="organization">Organization (Optional)</Label>
-                  <Input
-                    id="organization"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    placeholder="Who did you help?"
-                  />
+                  <Label>Who did you help?</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={recipientType === 'organization' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setRecipientType('organization')}
+                      className="flex-1"
+                    >
+                      Organization
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={recipientType === 'individual' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setRecipientType('individual')}
+                      className="flex-1"
+                    >
+                      Individual
+                    </Button>
+                  </div>
                 </div>
+
+                {recipientType === 'organization' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="organization">Organization Name</Label>
+                    <Input
+                      id="organization"
+                      value={organization}
+                      onChange={(e) => setOrganization(e.target.value)}
+                      placeholder="Enter organization name"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="postId">Help Request ID (from their post)</Label>
+                    <Input
+                      id="postId"
+                      value={postId}
+                      onChange={(e) => setPostId(e.target.value)}
+                      placeholder="Enter the help request ID"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      The person you helped will receive a notification to confirm your contribution
+                    </p>
+                  </div>
+                )}
 
                 {selectedSkill && hours > 0 && (
                   <div className="rounded-lg border bg-primary/5 p-4 space-y-2">

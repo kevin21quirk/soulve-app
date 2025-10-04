@@ -368,17 +368,21 @@ export class ImpactAnalyticsService {
     marketRate: number,
     description: string,
     organization?: string,
-    evidenceUrl?: string
+    evidenceUrl?: string,
+    postId?: string
   ): Promise<void> {
     try {
       const marketValue = marketRate * hours;
       const points = Math.round(marketValue * 0.5); // £1 = 0.5 points
 
+      // If postId is provided, work needs confirmation
+      const needsConfirmation = !!postId;
+
       const { error } = await supabase
         .from('impact_activities')
         .insert({
           user_id: userId,
-          activity_type: 'volunteer',
+          activity_type: 'volunteer_work',
           skill_category_id: skillCategoryId,
           hours_contributed: hours,
           market_rate_used: marketRate,
@@ -386,20 +390,27 @@ export class ImpactAnalyticsService {
           points_conversion_rate: 0.5,
           points_earned: points,
           description,
+          post_id: postId || null,
+          organization_id: null, // Will be handled separately if needed
+          confirmation_status: needsConfirmation ? 'pending' : null,
+          confirmation_requested_at: needsConfirmation ? new Date().toISOString() : null,
           metadata: {
             hours,
             organization,
             evidenceUrl,
             marketRate,
-            marketValue
+            marketValue,
+            skill_name: skillCategoryId
           },
-          verified: true
+          verified: !needsConfirmation // Auto-verify if no confirmation needed
         });
 
       if (error) throw error;
 
-      // Recalculate user metrics to update total market value
-      await this.calculateUserMetrics(userId);
+      // Recalculate user metrics only if auto-verified
+      if (!needsConfirmation) {
+        await this.calculateUserMetrics(userId);
+      }
     } catch (error) {
       console.error('Error awarding volunteer points:', error);
       throw error;
