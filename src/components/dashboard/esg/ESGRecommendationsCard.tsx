@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, TrendingUp, Clock, Sparkles, CheckCircle, X } from "lucide-react";
+import { LoadingState } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Lightbulb, TrendingUp, Clock, Sparkles, CheckCircle, X, AlertCircle } from "lucide-react";
 import { useAIESGRecommendations } from "@/hooks/esg/useAIESGRecommendations";
 
 interface Recommendation {
@@ -64,14 +66,35 @@ const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs 
   if (isLoading) {
     return (
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-0 shadow-sm">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((index) => (
-              <div key={index} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <LoadingState message="Generating AI-powered recommendations from your ESG data..." size="md" />
+      </Card>
+    );
+  }
+
+  // Show error state with proper messaging
+  if (error && !recommendations.length) {
+    const errorMessage = (error as Error).message;
+    let errorTitle = "Unable to Load Recommendations";
+    let errorDesc = "We encountered an issue while fetching AI recommendations.";
+    
+    if (errorMessage === 'AI_RATE_LIMIT') {
+      errorTitle = "Rate Limit Reached";
+      errorDesc = "You've reached the hourly limit for AI requests. Please try again later.";
+    } else if (errorMessage === 'AI_CREDITS_DEPLETED') {
+      errorTitle = "AI Credits Depleted";
+      errorDesc = "Please add more AI credits to continue using AI-powered features.";
+    } else if (errorMessage === 'UNAUTHORIZED') {
+      errorTitle = "Access Denied";
+      errorDesc = "You don't have permission to access this organization's AI insights.";
+    }
+
+    return (
+      <Card className="p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-0 shadow-sm">
+        <EmptyState
+          icon={AlertCircle}
+          title={errorTitle}
+          description={errorDesc}
+        />
       </Card>
     );
   }
@@ -164,24 +187,12 @@ const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs 
         </div>
       )}
 
-      {error && (
-        <div className="text-center py-8">
-          <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-2">Unable to generate AI recommendations</p>
-          <p className="text-xs text-muted-foreground">
-            {error.message || 'Please try again later'}
-          </p>
-        </div>
-      )}
-
       {!error && recommendations.length === 0 && !isLoading && (
-        <div className="text-center py-8">
-          <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">No recommendations available yet</p>
-          <p className="text-xs text-muted-foreground">
-            AI recommendations will appear here once you've added ESG data
-          </p>
-        </div>
+        <EmptyState
+          icon={Sparkles}
+          title="No Recommendations Yet"
+          description="AI recommendations will appear here once you've added ESG data to your organization."
+        />
       )}
 
       <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">

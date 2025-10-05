@@ -68,6 +68,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_endpoint_rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint_name: string
+          id: string
+          request_count: number | null
+          user_id: string
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_name: string
+          id?: string
+          request_count?: number | null
+          user_id: string
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_name?: string
+          id?: string
+          request_count?: number | null
+          user_id?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           color: string
@@ -5677,6 +5704,15 @@ export type Database = {
         Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
       }
+      check_ai_rate_limit: {
+        Args: {
+          p_endpoint_name: string
+          p_max_requests?: number
+          p_user_id: string
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           limit_type: string
@@ -5691,6 +5727,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_message_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_rate_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

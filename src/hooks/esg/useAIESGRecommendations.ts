@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 export interface AIESGRecommendation {
   id: string;
@@ -13,7 +15,9 @@ export interface AIESGRecommendation {
 }
 
 export const useAIESGRecommendations = (organizationId: string | undefined) => {
-  return useQuery({
+  const { toast } = useToast();
+  
+  const query = useQuery({
     queryKey: ['esg', 'ai-recommendations', organizationId],
     queryFn: async () => {
       if (!organizationId) throw new Error('Organization ID required');
@@ -25,7 +29,19 @@ export const useAIESGRecommendations = (organizationId: string | undefined) => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific error cases
+        if (error.message?.includes('Rate limit exceeded')) {
+          throw new Error('AI_RATE_LIMIT');
+        }
+        if (error.message?.includes('credits depleted')) {
+          throw new Error('AI_CREDITS_DEPLETED');
+        }
+        if (error.message?.includes('Unauthorized')) {
+          throw new Error('UNAUTHORIZED');
+        }
+        throw error;
+      }
 
       // Parse the AI response - it should return JSON array
       try {
@@ -56,6 +72,41 @@ export const useAIESGRecommendations = (organizationId: string | undefined) => {
     },
     enabled: !!organizationId,
     staleTime: 5 * 60 * 1000, // 5 minutes - recommendations don't change that frequently
-    retry: 1
+    retry: (failureCount, error: any) => {
+      // Don't retry on auth or rate limit errors
+      if (error.message === 'UNAUTHORIZED' || error.message === 'AI_RATE_LIMIT' || error.message === 'AI_CREDITS_DEPLETED') {
+        return false;
+      }
+      return failureCount < 1;
+    }
   });
+
+  // Show user-friendly error toasts
+  useEffect(() => {
+    if (query.error) {
+      const errorMessage = (query.error as Error).message;
+      
+      if (errorMessage === 'AI_RATE_LIMIT') {
+        toast({
+          title: "Rate Limit Reached",
+          description: "You've made too many AI requests. Please wait an hour and try again.",
+          variant: "destructive",
+        });
+      } else if (errorMessage === 'AI_CREDITS_DEPLETED') {
+        toast({
+          title: "AI Credits Depleted",
+          description: "Your AI usage credits have been exhausted. Please add more credits to continue.",
+          variant: "destructive",
+        });
+      } else if (errorMessage === 'UNAUTHORIZED') {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this organization's data.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [query.error, toast]);
+
+  return query;
 };

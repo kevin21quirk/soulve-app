@@ -12,17 +12,87 @@ serve(async (req) => {
   }
 
   try {
-    const { organizationId, analysisType } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Input validation and sanitization
+    const requestBody = await req.json();
+    const { organizationId, analysisType } = requestBody;
+    
+    if (!organizationId || typeof organizationId !== 'string') {
+      return new Response(
+        JSON.stringify({ error: "Invalid organizationId" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const validAnalysisTypes = ['report', 'compliance', 'materiality', 'recommendations'];
+    if (!analysisType || !validAnalysisTypes.includes(analysisType)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid analysisType. Must be one of: report, compliance, materiality, recommendations" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify user has access to organization
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: membership } = await supabase
+      .from("organization_members")
+      .select("id")
+      .eq("organization_id", organizationId)
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .single();
+
+    if (!membership) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized: Not a member of this organization" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check rate limit (50 requests per hour per user)
+    const { data: rateLimitOk } = await supabase.rpc('check_ai_rate_limit', {
+      p_user_id: user.id,
+      p_endpoint_name: 'ai-esg-insights',
+      p_max_requests: 50,
+      p_window_minutes: 60
+    });
+
+    if (!rateLimitOk) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. You can make up to 50 AI requests per hour." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
 
     // Fetch organization ESG data
     const { data: esgData } = await supabase
