@@ -23,6 +23,8 @@ import StakeholderRegistration from "@/pages/StakeholderRegistration";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import CookieConsent from "@/components/legal/CookieConsent";
+import WelcomeWizard from "@/components/onboarding/WelcomeWizard";
+import ProfileSettings from "@/components/profile/ProfileSettings";
 
 function App() {
   return (
@@ -39,6 +41,15 @@ function App() {
             <Route path="/register/esg-contributor/:token" element={<StakeholderRegistration />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/waitlist" element={<WaitlistDashboard />} />
+            <Route path="/welcome" element={<WelcomeWizard />} />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <ProfileSettings />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/dashboard" 
               element={

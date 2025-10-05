@@ -80,7 +80,7 @@ const ProfileSettings = () => {
     if (data) {
       setPrivacy({
         profileVisibility: data.profile_visibility || "public",
-        allowDirectMessages: data.allow_direct_messages !== false,
+        allowDirectMessages: data.allow_direct_messages === "everyone",
         showOnlineStatus: data.show_online_status !== false,
         showLocation: data.show_location !== false,
         showEmail: data.show_email || false,
@@ -161,9 +161,9 @@ const ProfileSettings = () => {
       const { error } = await supabase
         .from("user_privacy_settings")
         .upsert({
-          user_id: user?.id,
+          user_id: user?.id!,
           profile_visibility: privacy.profileVisibility,
-          allow_direct_messages: privacy.allowDirectMessages,
+          allow_direct_messages: privacy.allowDirectMessages ? "everyone" : "connections",
           show_online_status: privacy.showOnlineStatus,
           show_location: privacy.showLocation,
           show_email: privacy.showEmail,

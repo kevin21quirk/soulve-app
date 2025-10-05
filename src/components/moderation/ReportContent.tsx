@@ -52,7 +52,7 @@ const ReportContent = ({ contentId, contentType, contentOwnerId }: ReportContent
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("content_reports").insert({
+      const { error } = await supabase.from("content_reports" as any).insert({
         reported_by: user?.id,
         content_id: contentId,
         content_type: contentType,
