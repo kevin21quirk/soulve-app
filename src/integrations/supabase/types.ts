@@ -2121,6 +2121,47 @@ export type Database = {
           },
         ]
       }
+      esg_verification_audit_log: {
+        Row: {
+          action_type: string
+          contribution_id: string | null
+          created_at: string | null
+          id: string
+          new_status: string | null
+          notes: string | null
+          performed_by: string
+          previous_status: string | null
+        }
+        Insert: {
+          action_type: string
+          contribution_id?: string | null
+          created_at?: string | null
+          id?: string
+          new_status?: string | null
+          notes?: string | null
+          performed_by: string
+          previous_status?: string | null
+        }
+        Update: {
+          action_type?: string
+          contribution_id?: string | null
+          created_at?: string | null
+          id?: string
+          new_status?: string | null
+          notes?: string | null
+          performed_by?: string
+          previous_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_verification_audit_log_contribution_id_fkey"
+            columns: ["contribution_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholder_data_contributions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_submissions: {
         Row: {
           activity_id: string | null
@@ -4596,7 +4637,12 @@ export type Database = {
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          revision_requested_notes: string | null
           submitted_at: string | null
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           contribution_status?: string | null
@@ -4609,7 +4655,12 @@ export type Database = {
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          revision_requested_notes?: string | null
           submitted_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           contribution_status?: string | null
@@ -4622,7 +4673,12 @@ export type Database = {
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          revision_requested_notes?: string | null
           submitted_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
