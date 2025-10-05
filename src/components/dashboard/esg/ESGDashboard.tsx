@@ -212,6 +212,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
               isLoading={false}
             />
             <ESGRecommendationsCard 
+              organizationId={selectedOrganizationId}
               recommendations={mockData.recommendations}
               isLoading={false}
             />

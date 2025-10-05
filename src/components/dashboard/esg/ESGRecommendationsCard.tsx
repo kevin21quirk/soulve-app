@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, TrendingUp, Clock, DollarSign, CheckCircle, X } from "lucide-react";
+import { Lightbulb, TrendingUp, Clock, Sparkles, CheckCircle, X } from "lucide-react";
+import { useAIESGRecommendations } from "@/hooks/esg/useAIESGRecommendations";
 
 interface Recommendation {
   id: string;
@@ -15,11 +16,17 @@ interface Recommendation {
 }
 
 interface ESGRecommendationsCardProps {
-  recommendations: Recommendation[];
+  organizationId?: string;
+  recommendations?: Recommendation[]; // Fallback mock data
   isLoading?: boolean;
 }
 
-const ESGRecommendationsCard = ({ recommendations, isLoading = false }: ESGRecommendationsCardProps) => {
+const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs = [], isLoading: propLoading = false }: ESGRecommendationsCardProps) => {
+  const { data: aiRecommendations, isLoading: aiLoading, error } = useAIESGRecommendations(organizationId);
+  
+  // Use AI recommendations if available, otherwise fallback to mock data
+  const recommendations = aiRecommendations && aiRecommendations.length > 0 ? aiRecommendations : fallbackRecs;
+  const isLoading = propLoading || aiLoading;
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'efficiency':
@@ -72,9 +79,12 @@ const ESGRecommendationsCard = ({ recommendations, isLoading = false }: ESGRecom
   return (
     <Card className="p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-0 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <Lightbulb className="h-6 w-6 text-primary mr-3" />
-          <h3 className="text-lg font-semibold text-foreground">AI Recommendations</h3>
+        <div className="flex items-center gap-3">
+          <Sparkles className="h-6 w-6 text-primary" />
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">AI-Powered Recommendations</h3>
+            <p className="text-xs text-muted-foreground">Generated from your ESG data</p>
+          </div>
         </div>
         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
           {recommendations.filter(r => r.status === 'new').length} New
@@ -154,10 +164,20 @@ const ESGRecommendationsCard = ({ recommendations, isLoading = false }: ESGRecom
         </div>
       )}
 
-      {recommendations.length === 0 && (
+      {error && (
         <div className="text-center py-8">
-          <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">No recommendations available</p>
+          <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground mb-2">Unable to generate AI recommendations</p>
+          <p className="text-xs text-muted-foreground">
+            {error.message || 'Please try again later'}
+          </p>
+        </div>
+      )}
+
+      {!error && recommendations.length === 0 && !isLoading && (
+        <div className="text-center py-8">
+          <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground mb-4">No recommendations available yet</p>
           <p className="text-xs text-muted-foreground">
             AI recommendations will appear here once you've added ESG data
           </p>

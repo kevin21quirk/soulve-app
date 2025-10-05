@@ -82,6 +82,34 @@ Identify:
 3. Business impact assessment
 4. Recommended focus areas
 5. Measurement approach`;
+    } else if (analysisType === "recommendations") {
+      systemPrompt = "You are an ESG strategy consultant providing actionable recommendations to improve sustainability performance.";
+      userPrompt = `Analyze this organisation's ESG data and provide specific, actionable recommendations:
+
+Current ESG Data: ${JSON.stringify(esgData, null, 2)}
+Risk Profile: ${JSON.stringify(risks, null, 2)}
+Existing Recommendations: ${JSON.stringify(recommendations, null, 2)}
+
+For each recommendation provide:
+1. Title (concise action)
+2. Category (efficiency, best_practice, risk_mitigation, compliance)
+3. Priority score (0-100 based on impact and urgency)
+4. Description (specific actionable details)
+5. Implementation effort (low, medium, high)
+6. Potential impact (quantified where possible)
+
+Return as JSON array with format:
+[{
+  "title": "string",
+  "recommendation_type": "efficiency|best_practice|risk_mitigation|compliance",
+  "priority_score": number,
+  "description": "string",
+  "implementation_effort": "low|medium|high",
+  "potential_impact": "string",
+  "status": "new"
+}]
+
+Focus on practical, measurable actions aligned with UK/EU ESG standards.`;
     }
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
