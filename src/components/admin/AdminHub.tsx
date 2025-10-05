@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Users, FileText, BarChart3, Download } from "lucide-react";
 import StakeholderDataRequestsPanel from "@/components/dashboard/esg/StakeholderDataRequestsPanel";
 import ESGReportsPanel from "@/components/dashboard/esg/ESGReportsPanel";
+import DataVerificationPanel from "@/components/dashboard/esg/DataVerificationPanel";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 
 interface AdminHubProps {
@@ -52,7 +53,10 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
         </TabsList>
 
         <TabsContent value="esg" className="mt-6">
-          <StakeholderDataRequestsPanel organizationId={organizationId} />
+          <div className="space-y-6">
+            <DataVerificationPanel organizationId={organizationId} />
+            <StakeholderDataRequestsPanel organizationId={organizationId} />
+          </div>
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">
