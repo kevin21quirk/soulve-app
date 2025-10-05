@@ -20,6 +20,9 @@ import DonationPage from "@/pages/DonationPage";
 import SafeSpaceHelperApplication from "@/pages/SafeSpaceHelperApplication";
 import SafeSpaceHelperTraining from "@/pages/SafeSpaceHelperTraining";
 import StakeholderRegistration from "@/pages/StakeholderRegistration";
+import TermsOfService from "@/pages/TermsOfService";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import CookieConsent from "@/components/legal/CookieConsent";
 
 function App() {
   return (
@@ -31,6 +34,8 @@ function App() {
             <Route path="/verify-email" element={<EmailVerificationHandler />} />
             <Route path="/reset-password" element={<PasswordResetHandler />} />
             <Route path="/profile-registration" element={<ProfileRegistration />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/register/esg-contributor/:token" element={<StakeholderRegistration />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/waitlist" element={<WaitlistDashboard />} />
@@ -99,6 +104,7 @@ function App() {
               } 
             />
           </Routes>
+          <CookieConsent />
           <Toaster />
         </AuthProvider>
       </ErrorProvider>
