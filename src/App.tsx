@@ -1,37 +1,47 @@
 
 import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
-import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import WaitlistDashboard from "@/pages/WaitlistDashboard";
-import AdminHub from "@/pages/AdminHub";
-import EmailVerificationHandler from "@/components/auth/EmailVerificationHandler";
-import PasswordResetHandler from "@/components/auth/PasswordResetHandler";
-import ProfileRegistration from "@/pages/ProfileRegistration";
-import PublicProfile from "@/pages/PublicProfile";
-import CampaignBuilderPage from "@/pages/CampaignBuilder";
-import EnhancedCampaignAnalyticsDashboard from "@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard";
-import DonationPage from "@/pages/DonationPage";
-import SafeSpaceHelperApplication from "@/pages/SafeSpaceHelperApplication";
-import SafeSpaceHelperTraining from "@/pages/SafeSpaceHelperTraining";
-import StakeholderRegistration from "@/pages/StakeholderRegistration";
-import TermsOfService from "@/pages/TermsOfService";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import { LoadingState } from "@/components/ui/loading-state";
+import { addSkipLink } from "@/utils/accessibility";
 import CookieConsent from "@/components/legal/CookieConsent";
-import WelcomeWizard from "@/components/onboarding/WelcomeWizard";
-import ProfileSettings from "@/components/profile/ProfileSettings";
+
+// Lazy load route components for better performance
+const Auth = lazy(() => import("@/pages/Auth"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const WaitlistDashboard = lazy(() => import("@/pages/WaitlistDashboard"));
+const AdminHub = lazy(() => import("@/pages/AdminHub"));
+const EmailVerificationHandler = lazy(() => import("@/components/auth/EmailVerificationHandler"));
+const PasswordResetHandler = lazy(() => import("@/components/auth/PasswordResetHandler"));
+const ProfileRegistration = lazy(() => import("@/pages/ProfileRegistration"));
+const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
+const CampaignBuilderPage = lazy(() => import("@/pages/CampaignBuilder"));
+const EnhancedCampaignAnalyticsDashboard = lazy(() => import("@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard"));
+const DonationPage = lazy(() => import("@/pages/DonationPage"));
+const SafeSpaceHelperApplication = lazy(() => import("@/pages/SafeSpaceHelperApplication"));
+const SafeSpaceHelperTraining = lazy(() => import("@/pages/SafeSpaceHelperTraining"));
+const StakeholderRegistration = lazy(() => import("@/pages/StakeholderRegistration"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const WelcomeWizard = lazy(() => import("@/components/onboarding/WelcomeWizard"));
+const ProfileSettings = lazy(() => import("@/components/profile/ProfileSettings"));
 
 function App() {
+  useEffect(() => {
+    // Add skip link for accessibility
+    addSkipLink();
+  }, []);
   return (
     <ErrorBoundary>
       <ErrorProvider>
         <AuthProvider>
-          <Routes>
+          <Suspense fallback={<LoadingState message="Loading application..." />}>
+            <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-email" element={<EmailVerificationHandler />} />
             <Route path="/reset-password" element={<PasswordResetHandler />} />
@@ -114,7 +124,8 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-          </Routes>
+            </Routes>
+          </Suspense>
           <CookieConsent />
           <Toaster />
         </AuthProvider>
