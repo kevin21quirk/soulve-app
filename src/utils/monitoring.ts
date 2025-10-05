@@ -14,22 +14,6 @@ export const initMonitoring = () => {
 
   Sentry.init({
     dsn: SENTRY_DSN,
-    integrations: [
-      new Sentry.BrowserTracing({
-        tracePropagationTargets: [
-          "localhost",
-          "bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com",
-          /^/,
-        ],
-      }),
-      new Sentry.Replay({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
-    tracesSampleRate: 0.1, // Capture 10% of transactions for performance monitoring
-    replaysSessionSampleRate: 0.1, // Sample 10% of sessions
-    replaysOnErrorSampleRate: 1.0, // Capture all sessions with errors
     environment: window.location.hostname.includes("localhost") ? "development" : "production",
     beforeSend(event, hint) {
       // Filter out certain errors
