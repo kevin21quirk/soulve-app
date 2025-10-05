@@ -1,87 +1,112 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-  errorInfo?: React.ErrorInfo;
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  ErrorBoundaryState
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error,
+      errorInfo: null,
+    };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({ error, errorInfo });
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // Log to external service in production
-    if (process.env.NODE_ENV === 'production') {
-      // Send to error reporting service
+    this.setState({
+      error,
+      errorInfo,
+    });
+
+    // Log to security audit if available
+    if (typeof window !== 'undefined') {
+      // You could send this to your logging service
+      console.error('Component stack:', errorInfo.componentStack);
     }
   }
 
-  handleReload = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-    window.location.reload();
+  private handleReset = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    });
   };
 
-  handleGoHome = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-    window.location.href = '/dashboard';
-  };
-
-  render() {
+  public render() {
     if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle className="h-8 w-8 text-red-600" />
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+          <Card className="max-w-lg w-full p-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="rounded-full bg-destructive/10 p-3">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle className="text-xl text-gray-900">Something went wrong</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 text-center">
-                We're sorry, but something unexpected happened. Please try refreshing the page or return to the dashboard.
-              </p>
               
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold">Something went wrong</h2>
+                <p className="text-muted-foreground">
+                  We encountered an unexpected error. Please try refreshing the page.
+                </p>
+              </div>
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <div className="bg-red-50 border border-red-200 rounded p-3">
-                  <p className="text-sm text-red-800 font-medium mb-2">Error Details:</p>
-                  <p className="text-xs text-red-700">{this.state.error.message}</p>
-                </div>
+                <details className="w-full text-left">
+                  <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Error Details (Development Only)
+                  </summary>
+                  <div className="mt-2 p-4 bg-muted rounded-lg text-xs overflow-auto">
+                    <p className="font-mono text-destructive">
+                      {this.state.error.toString()}
+                    </p>
+                    {this.state.errorInfo && (
+                      <pre className="mt-2 text-muted-foreground">
+                        {this.state.errorInfo.componentStack}
+                      </pre>
+                    )}
+                  </div>
+                </details>
               )}
-              
-              <div className="flex space-x-3">
-                <Button
-                  onClick={this.handleReload}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh Page
-                </Button>
-                <Button
-                  onClick={this.handleGoHome}
+
+              <div className="flex gap-3 w-full">
+                <Button 
+                  onClick={this.handleReset} 
                   variant="outline"
                   className="flex-1"
                 >
-                  Go to Dashboard
+                  Try Again
+                </Button>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="flex-1"
+                >
+                  Refresh Page
                 </Button>
               </div>
-            </CardContent>
+            </div>
           </Card>
         </div>
       );

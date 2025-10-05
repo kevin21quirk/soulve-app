@@ -4,6 +4,7 @@ import { Shield, Users, FileText, BarChart3, Download } from "lucide-react";
 import StakeholderDataRequestsPanel from "@/components/dashboard/esg/StakeholderDataRequestsPanel";
 import ESGReportsPanel from "@/components/dashboard/esg/ESGReportsPanel";
 import DataVerificationPanel from "@/components/dashboard/esg/DataVerificationPanel";
+import { AICreditManagement } from "@/components/dashboard/esg/AICreditManagement";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 
 interface AdminHubProps {
@@ -54,7 +55,14 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
 
         <TabsContent value="esg" className="mt-6">
           <div className="space-y-6">
-            <DataVerificationPanel organizationId={organizationId} />
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <DataVerificationPanel organizationId={organizationId} />
+              </div>
+              <div>
+                <AICreditManagement organizationId={organizationId} />
+              </div>
+            </div>
             <StakeholderDataRequestsPanel organizationId={organizationId} />
           </div>
         </TabsContent>

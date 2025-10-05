@@ -32,10 +32,13 @@ export const useVerifyContribution = (organizationId: string) => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ 
         queryKey: ESG_EXTENDED_QUERY_KEYS.STAKEHOLDER_CONTRIBUTIONS(organizationId) 
       });
+      
+      // Note: Email notifications can be enabled by integrating with the send-esg-notification edge function
+      // This requires proper user email lookup and RESEND_API_KEY configuration
       
       const statusMessages = {
         approved: 'Contribution approved successfully',
