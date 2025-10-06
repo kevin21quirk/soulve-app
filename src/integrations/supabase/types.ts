@@ -2554,11 +2554,13 @@ export type Database = {
           organization_id: string | null
           points_conversion_rate: number | null
           points_earned: number
+          points_state: string | null
           post_id: string | null
           rejection_reason: string | null
           requires_evidence: boolean | null
           risk_score: number | null
           skill_category_id: string | null
+          trust_score_at_award: number | null
           updated_at: string
           user_id: string
           verified: boolean | null
@@ -2582,11 +2584,13 @@ export type Database = {
           organization_id?: string | null
           points_conversion_rate?: number | null
           points_earned?: number
+          points_state?: string | null
           post_id?: string | null
           rejection_reason?: string | null
           requires_evidence?: boolean | null
           risk_score?: number | null
           skill_category_id?: string | null
+          trust_score_at_award?: number | null
           updated_at?: string
           user_id: string
           verified?: boolean | null
@@ -2610,11 +2614,13 @@ export type Database = {
           organization_id?: string | null
           points_conversion_rate?: number | null
           points_earned?: number
+          points_state?: string | null
           post_id?: string | null
           rejection_reason?: string | null
           requires_evidence?: boolean | null
           risk_score?: number | null
           skill_category_id?: string | null
+          trust_score_at_award?: number | null
           updated_at?: string
           user_id?: string
           verified?: boolean | null

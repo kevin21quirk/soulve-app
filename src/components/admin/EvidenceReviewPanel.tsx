@@ -21,10 +21,13 @@ interface EvidenceSubmission {
     description: string;
     points_earned: number;
     activity_type: string;
-  };
-  profile?: {
-    first_name: string;
-    last_name: string;
+    points_state?: string;
+    trust_score_at_award?: number;
+    risk_score?: number;
+    user?: {
+      first_name: string;
+      last_name: string;
+    };
   };
 }
 
@@ -42,8 +45,15 @@ const EvidenceReviewPanel = () => {
         .from('evidence_submissions')
         .select(`
           *,
-          activity:impact_activities(description, points_earned, activity_type),
-          profile:profiles(first_name, last_name)
+          activity:impact_activities(
+            description, 
+            points_earned, 
+            activity_type,
+            points_state,
+            trust_score_at_award,
+            risk_score,
+            user:profiles(first_name, last_name)
+          )
         `)
         .eq('verification_status', 'pending')
         .order('created_at', { ascending: false });
@@ -60,8 +70,7 @@ const EvidenceReviewPanel = () => {
         metadata: typeof item.metadata === 'object' && item.metadata !== null ? item.metadata as Record<string, any> : {},
         verification_status: item.verification_status,
         created_at: item.created_at,
-        activity: Array.isArray(item.activity) ? item.activity[0] : item.activity || undefined,
-        profile: Array.isArray(item.profile) ? item.profile[0] : item.profile || undefined
+        activity: Array.isArray(item.activity) ? item.activity[0] : item.activity || undefined
       }));
       
       setSubmissions(transformedData);
@@ -79,7 +88,11 @@ const EvidenceReviewPanel = () => {
 
   const reviewEvidence = async (submissionId: string, status: 'approved' | 'rejected') => {
     try {
-      const { error } = await supabase
+      const submission = submissions.find(s => s.id === submissionId);
+      if (!submission) return;
+
+      // Update evidence submission status
+      const { error: evidenceError } = await supabase
         .from('evidence_submissions')
         .update({
           verification_status: status,
@@ -88,22 +101,57 @@ const EvidenceReviewPanel = () => {
         })
         .eq('id', submissionId);
 
-      if (error) throw error;
+      if (evidenceError) throw evidenceError;
 
-      // If approved, mark the activity as verified
       if (status === 'approved') {
-        const submission = submissions.find(s => s.id === submissionId);
-        if (submission?.activity_id) {
+        // Approve: mark verified + activate points
+        await supabase
+          .from('impact_activities')
+          .update({ 
+            verified: true,
+            points_state: 'active'
+          })
+          .eq('id', submission.activity_id);
+      } else {
+        // Rejected: handle based on current points_state
+        const pointsState = submission.activity?.points_state;
+        
+        if (pointsState === 'active') {
+          // High trust user had immediate points - reverse them
           await supabase
             .from('impact_activities')
-            .update({ verified: true })
+            .update({ 
+              verified: false,
+              points_state: 'reversed'
+            })
+            .eq('id', submission.activity_id);
+            
+          // Add red flag for high trust user failing verification
+          await supabase
+            .from('red_flags')
+            .insert({
+              user_id: submission.user_id,
+              flag_type: 'evidence_rejected',
+              severity: 'medium',
+              description: `Evidence rejected for verified activity: ${submission.activity?.description}`
+            });
+        } else {
+          // Points were pending/escrow - just mark as reversed
+          await supabase
+            .from('impact_activities')
+            .update({ points_state: 'reversed' })
             .eq('id', submission.activity_id);
         }
       }
 
+      // Recalculate trust score
+      await supabase.rpc('calculate_enhanced_trust_score', {
+        user_uuid: submission.user_id
+      });
+
       toast({
         title: status === 'approved' ? "Evidence Approved! ✅" : "Evidence Rejected",
-        description: `Evidence submission has been ${status}.`,
+        description: `Evidence ${status}. Trust score recalculated.`,
       });
 
       setSelectedSubmission(null);
@@ -119,8 +167,29 @@ const EvidenceReviewPanel = () => {
     }
   };
 
+  // Add real-time subscription for new evidence
   useEffect(() => {
     loadSubmissions();
+
+    const evidenceChannel = supabase
+      .channel('evidence-submissions-admin')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'evidence_submissions',
+        filter: 'verification_status=eq.pending'
+      }, (payload) => {
+        toast({
+          title: "New Evidence Submitted! 📋",
+          description: "A user has submitted new evidence for review.",
+        });
+        loadSubmissions();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(evidenceChannel);
+    };
   }, []);
 
   if (loading) {
@@ -168,16 +237,35 @@ const EvidenceReviewPanel = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h4 className="font-medium">
-                      {submission.profile?.first_name} {submission.profile?.last_name}
+                      {submission.activity?.user?.first_name} {submission.activity?.user?.last_name}
                     </h4>
                     <p className="text-sm text-gray-600">{submission.activity?.description}</p>
-                    <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex items-center flex-wrap gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">
                         {submission.evidence_type.replace('_', ' ')}
                       </Badge>
                       <Badge className="bg-green-100 text-green-800 text-xs">
                         +{submission.activity?.points_earned} points
                       </Badge>
+                      {submission.activity?.points_state && (
+                        <Badge 
+                          variant="outline"
+                          className={`text-xs ${
+                            submission.activity.points_state === 'active' ? 'border-green-500 text-green-700' :
+                            submission.activity.points_state === 'pending' ? 'border-orange-500 text-orange-700' :
+                            'border-yellow-500 text-yellow-700'
+                          }`}
+                        >
+                          {submission.activity.points_state === 'active' ? '✓ Active' :
+                           submission.activity.points_state === 'pending' ? '⏳ Pending' :
+                           '🔒 Escrow'}
+                        </Badge>
+                      )}
+                      {submission.activity?.trust_score_at_award !== undefined && (
+                        <Badge variant="secondary" className="text-xs">
+                          Trust: {submission.activity.trust_score_at_award}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">

@@ -98,6 +98,8 @@ export interface EnhancedImpactActivity {
   evidence_submitted: boolean;
   risk_score: number;
   auto_verified: boolean;
+  points_state?: 'active' | 'pending' | 'escrow' | 'reversed';
+  trust_score_at_award?: number;
   created_at: string;
   updated_at: string;
 }

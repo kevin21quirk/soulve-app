@@ -32,6 +32,26 @@ export class EnhancedPointsService {
     // Calculate risk score
     const riskScore = await this.calculateRiskScore(userId, activityType, finalPoints);
     
+    // Get user's current trust score to determine points state
+    const { data: metrics } = await supabase
+      .from('impact_metrics')
+      .select('trust_score')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    const trustScore = metrics?.trust_score || 50;
+    
+    // Determine points state based on trust score (TRUST-BASED SYSTEM)
+    let pointsState = 'active';
+    if (needsEvidence) {
+      if (trustScore < 50) {
+        pointsState = 'escrow'; // Low trust: points held until verified
+      } else if (trustScore < 80) {
+        pointsState = 'pending'; // Medium trust: points awarded but not counting yet
+      }
+      // High trust (80+): points 'active' immediately, post-verification review
+    }
+    
     const { data, error } = await supabase
       .from('impact_activities')
       .insert({
@@ -42,10 +62,12 @@ export class EnhancedPointsService {
         metadata,
         effort_level: effortLevel,
         requires_evidence: needsEvidence,
-        evidence_submitted: !needsEvidence, // Auto-true if no evidence needed
+        evidence_submitted: !needsEvidence,
         risk_score: riskScore,
-        auto_verified: riskScore < 5.0 && !needsEvidence,
-        verified: riskScore < 5.0 && !needsEvidence
+        auto_verified: riskScore < 5.0 && !needsEvidence && trustScore >= 80,
+        verified: riskScore < 5.0 && !needsEvidence && trustScore >= 80,
+        points_state: pointsState,
+        trust_score_at_award: trustScore
       })
       .select()
       .single();

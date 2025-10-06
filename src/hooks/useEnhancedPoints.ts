@@ -150,10 +150,38 @@ export const useEnhancedPoints = () => {
       )
       .subscribe();
 
+    // Subscribe to evidence submission status changes
+    const evidenceChannel = supabase
+      .channel('user-evidence-changes')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'evidence_submissions',
+        filter: `user_id=eq.${user.id}`
+      }, (payload) => {
+        const updated = payload.new as any;
+        if (updated.verification_status === 'approved') {
+          toast({
+            title: "Evidence Approved! ✅",
+            description: "Your points are now active and counting towards your trust score!",
+          });
+          loadUserData();
+        } else if (updated.verification_status === 'rejected') {
+          toast({
+            title: "Evidence Rejected",
+            description: updated.rejection_reason || "Please review and resubmit with better evidence.",
+            variant: "destructive"
+          });
+          loadUserData();
+        }
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(activitiesChannel);
       supabase.removeChannel(metricsChannel);
       supabase.removeChannel(redFlagsChannel);
+      supabase.removeChannel(evidenceChannel);
     };
   }, [user?.id]);
 
