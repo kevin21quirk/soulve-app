@@ -11,7 +11,8 @@ import {
   AlertTriangle,
   HeartHandshake,
   Sliders,
-  ArrowLeft
+  ArrowLeft,
+  MessageSquare
 } from 'lucide-react';
 import {
   Sidebar,
@@ -32,6 +33,7 @@ const adminNavItems = [
   { title: 'Training Management', url: '/admin/training', icon: GraduationCap },
   { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck },
   { title: 'Content Moderation', url: '/admin/moderation', icon: Shield },
+  { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare },
   { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle },
   { title: 'Badge Management', url: '/admin/badges', icon: Award },
   { title: 'Points Config', url: '/admin/points-config', icon: Sliders },

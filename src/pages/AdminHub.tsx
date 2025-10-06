@@ -14,6 +14,7 @@ import AdminCustomizationPanel from '@/components/dashboard/AdminCustomizationPa
 import PointsConfigPanel from '@/components/admin/PointsConfigPanel';
 import CampaignModerationPanel from '@/components/admin/CampaignModerationPanel';
 import OrganizationVerificationPanel from '@/components/admin/OrganizationVerificationPanel';
+import { FeedbackManagementPanel } from '@/components/admin/FeedbackManagementPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -245,6 +246,7 @@ const AdminHub = () => {
             <Route path="training" element={<TrainingManagementPanel />} />
             <Route path="evidence" element={<EvidenceReviewPanel />} />
             <Route path="moderation" element={<AdminModerationDashboard />} />
+            <Route path="feedback" element={<FeedbackManagementPanel />} />
             <Route path="red-flags" element={<RedFlagsPanel />} />
             <Route path="badges" element={<BadgeManagementPanel />} />
             <Route path="customization" element={<AdminCustomizationPanel />} />
