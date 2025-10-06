@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { MobileAwareTabsList } from "@/components/ui/mobile-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart3, FileText, Settings, Download, RefreshCw, Building } from "lucide-react";
@@ -146,7 +147,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
       />
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-8 bg-secondary/20 text-xs">
+        <MobileAwareTabsList className="grid w-full grid-cols-8 bg-secondary/20 text-xs">
           <TabsTrigger 
             value="overview"
             className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
@@ -195,7 +196,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
           >
             Data Input
           </TabsTrigger>
-        </TabsList>
+        </MobileAwareTabsList>
 
         <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

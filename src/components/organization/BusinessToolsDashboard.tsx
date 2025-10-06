@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { MobileAwareTabsList } from "@/components/ui/mobile-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
@@ -170,7 +171,7 @@ const BusinessToolsDashboard = ({ organizationId, organizationName }: BusinessTo
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-8 bg-secondary/20">
+        <MobileAwareTabsList className="grid w-full grid-cols-8 bg-secondary/20">
           <TabsTrigger 
             value="overview"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
@@ -219,7 +220,7 @@ const BusinessToolsDashboard = ({ organizationId, organizationName }: BusinessTo
           >
             Analytics
           </TabsTrigger>
-        </TabsList>
+        </MobileAwareTabsList>
 
         <TabsContent value="overview" className="mt-4">
           <div className="space-y-6">
