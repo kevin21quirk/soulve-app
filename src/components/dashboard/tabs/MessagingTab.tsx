@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useConversations, useMessages, useSendMessage } from '@/services/realMessagingService';
+import { useConversations, useMessages, useSendMessage, useMarkAsRead } from '@/services/realMessagingService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +10,11 @@ import { Send, ArrowLeft, MessageCircle, Plus, Search, Users } from 'lucide-reac
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationCounts } from '@/hooks/useNotificationCounts';
 
 const MessagingTab = () => {
   const { user } = useAuth();
+  const { refreshCounts } = useNotificationCounts();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [showNewConversation, setShowNewConversation] = useState(false);
@@ -22,6 +24,7 @@ const MessagingTab = () => {
   const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
   const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation || "");
   const sendMessage = useSendMessage();
+  const markAsRead = useMarkAsRead();
 
   // Fetch available users for new conversations
   useEffect(() => {
@@ -42,26 +45,29 @@ const MessagingTab = () => {
     fetchUsers();
   }, [user, showNewConversation]);
 
+  // Mark messages as read when conversation is opened
+  useEffect(() => {
+    if (selectedConversation && messages.length > 0 && user?.id) {
+      const unreadMessageIds = messages
+        .filter((msg: any) => !msg.is_read && msg.recipient_id === user.id)
+        .map((msg: any) => msg.id);
+
+      if (unreadMessageIds.length > 0) {
+        console.log('Marking messages as read:', unreadMessageIds);
+        markAsRead.mutate(unreadMessageIds, {
+          onSuccess: () => {
+            console.log('Messages marked as read successfully');
+            refreshCounts();
+            refetchConversations();
+          }
+        });
+      }
+    }
+  }, [selectedConversation, messages, user?.id]);
+
   const handleConversationSelect = async (partnerId: string) => {
     setSelectedConversation(partnerId);
     setShowNewConversation(false);
-    
-    // Mark messages as read when conversation is opened
-    if (user?.id) {
-      try {
-        await supabase
-          .from('messages')
-          .update({ is_read: true })
-          .eq('recipient_id', user.id)
-          .eq('sender_id', partnerId)
-          .eq('is_read', false);
-        
-        // Refetch conversations to update unread counts
-        refetchConversations();
-      } catch (error) {
-        console.error('Error marking messages as read:', error);
-      }
-    }
   };
 
   const handleStartNewConversation = (userId: string) => {
