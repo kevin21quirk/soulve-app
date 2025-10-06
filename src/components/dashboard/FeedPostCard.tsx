@@ -159,6 +159,8 @@ const FeedPostCard = ({
               authorId={post.authorId || post.id}
               onPostDeleted={onPostDeleted}
               onReportPost={() => {/* Handle report post */}}
+              onBookmark={() => onBookmark(post.id)}
+              isBookmarked={post.isBookmarked}
             />
           </div>
         </div>
@@ -235,7 +237,6 @@ const FeedPostCard = ({
             onLike={onLike}
             onShare={onShare}
             onRespond={() => setShowPostDetail(true)}
-            onBookmark={onBookmark}
             onReaction={handleReactionCallback}
           />
 

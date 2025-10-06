@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Flag, Trash2, Edit } from 'lucide-react';
+import { MoreHorizontal, Flag, Trash2, Edit, Bookmark } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ContentModerationService } from '@/services/contentModerationService';
@@ -19,9 +19,11 @@ interface PostActionsProps {
   authorId: string;
   onPostDeleted?: () => void;
   onReportPost?: () => void;
+  onBookmark?: () => void;
+  isBookmarked?: boolean;
 }
 
-const PostActions = ({ postId, authorId, onPostDeleted, onReportPost }: PostActionsProps) => {
+const PostActions = ({ postId, authorId, onPostDeleted, onReportPost, onBookmark, isBookmarked }: PostActionsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [showReportDialog, setShowReportDialog] = useState(false);
@@ -60,6 +62,15 @@ const PostActions = ({ postId, authorId, onPostDeleted, onReportPost }: PostActi
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {onBookmark && (
+            <>
+              <DropdownMenuItem onClick={onBookmark}>
+                <Bookmark className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current' : ''}`} />
+                {isBookmarked ? 'Remove Bookmark' : 'Bookmark Post'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
           {isOwnPost ? (
             <>
               <DropdownMenuItem>

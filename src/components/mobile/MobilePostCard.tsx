@@ -3,11 +3,12 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, MapPin, Clock, MessageCircle } from "lucide-react";
+import { MapPin, Clock, MessageCircle } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import { usePostComments } from '@/hooks/usePostComments';
 import MobilePostReactions from "./MobilePostReactions";
 import MobilePostDetailModal from "./MobilePostDetailModal";
+import PostActions from "@/components/dashboard/PostActions";
 
 interface MobilePostCardProps {
   post: FeedPost;
@@ -84,9 +85,12 @@ const MobilePostCard = ({
             </div>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="p-1 h-6 w-6 flex-shrink-0 -mt-1">
-          <MoreHorizontal className="h-4 w-4 text-gray-500" />
-        </Button>
+        <PostActions
+          postId={post.id}
+          authorId={post.authorId || post.id}
+          onBookmark={() => onBookmark(post.id)}
+          isBookmarked={post.isBookmarked}
+        />
       </div>
 
       {/* Post Content */}
@@ -158,7 +162,6 @@ const MobilePostCard = ({
         onLike={onLike}
         onShare={onShare}
         onRespond={handleCommentClick}
-        onBookmark={onBookmark}
         onReaction={onReaction}
       />
 

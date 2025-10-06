@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus } from "lucide-react";
+import { MessageCircle, Share2, MapPin, Clock, Plus } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import { usePostReactions } from "@/hooks/usePostReactions";
 import { usePostComments } from '@/hooks/usePostComments';
 import ModernReactionPicker from "@/components/ui/modern-reaction-picker";
 import ReactionDisplay from "@/components/ui/reaction-display";
 import MobilePostDetailModal from "./MobilePostDetailModal";
+import PostActions from "@/components/dashboard/PostActions";
 
 interface MobileFeedPostCardProps {
   post: FeedPost;
@@ -150,6 +151,13 @@ const MobileFeedPostCard = ({
               )}
             </div>
           </div>
+          
+          <PostActions
+            postId={post.id}
+            authorId={post.authorId || post.id}
+            onBookmark={onBookmark}
+            isBookmarked={post.isBookmarked}
+          />
         </div>
       </div>
 
@@ -248,17 +256,6 @@ const MobileFeedPostCard = ({
               <span className="text-xs">{post.shares}</span>
             </Button>
           </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBookmark}
-            className={`h-8 w-8 p-0 flex-shrink-0 ${
-              post.isBookmarked ? 'text-blue-600' : 'text-gray-600'
-            }`}
-          >
-            <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-          </Button>
         </div>
       </div>
 

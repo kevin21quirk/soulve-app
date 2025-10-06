@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, Bookmark, Send, Users, Plus } from "lucide-react";
+import { Heart, MessageCircle, Share2, Send, Users, Plus } from "lucide-react";
 import { FeedPost } from "@/types/feed";
 import ModernReactionPicker from "@/components/ui/modern-reaction-picker";
 import ReactionDisplay from "@/components/ui/reaction-display";
@@ -11,7 +11,6 @@ interface EnhancedPostReactionsProps {
   onLike: (postId: string) => void;
   onShare: (postId: string) => void;
   onRespond: () => void;
-  onBookmark: (postId: string) => void;
   onReaction: (postId: string, reactionType: string) => void;
 }
 
@@ -19,8 +18,7 @@ const EnhancedPostReactions = ({
   post, 
   onLike, 
   onShare, 
-  onRespond, 
-  onBookmark,
+  onRespond,
   onReaction
 }: EnhancedPostReactionsProps) => {
   const { reactions, toggleReaction } = usePostReactions(post.id);
@@ -127,17 +125,6 @@ const EnhancedPostReactions = ({
         </div>
 
         <div className="flex items-center space-x-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onBookmark(post.id)}
-            className={`hover:scale-105 transition-transform ${
-              post.isBookmarked ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
-            }`}
-          >
-            <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-          </Button>
-
           {/* Category-specific actions */}
           {post.category === "help-needed" && (
             <Button 

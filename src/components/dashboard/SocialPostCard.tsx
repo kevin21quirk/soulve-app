@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, Share2, Bookmark, MapPin, Clock, Plus, CheckCircle } from 'lucide-react';
+import { MessageCircle, Share2, MapPin, Clock, Plus, CheckCircle } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
@@ -238,6 +238,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             authorId={post.authorId || post.id}
             onPostDeleted={onPostDeleted}
             onReportPost={() => {}}
+            onBookmark={onBookmark}
+            isBookmarked={post.isBookmarked}
           />
         </div>
 
@@ -364,17 +366,6 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               <span>{post.shares}</span>
             </Button>
           </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBookmark}
-            className={`flex-shrink-0 ${
-              post.isBookmarked ? 'text-blue-600' : 'text-gray-600'
-            }`}
-          >
-            <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-          </Button>
         </div>
 
         {/* Connect to Help Button or Mark Complete Button */}

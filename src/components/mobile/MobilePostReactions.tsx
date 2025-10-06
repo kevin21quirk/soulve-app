@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { FeedPost, Reaction } from "@/types/feed";
 
 interface MobilePostReactionsProps {
@@ -12,7 +12,6 @@ interface MobilePostReactionsProps {
   onLike: (postId: string) => void;
   onShare: (postId: string) => void;
   onRespond: (postId: string) => void;
-  onBookmark: (postId: string) => void;
   onReaction: (postId: string, reactionType: string) => void;
 }
 
@@ -29,8 +28,7 @@ const MobilePostReactions = ({
   post, 
   onLike, 
   onShare, 
-  onRespond, 
-  onBookmark, 
+  onRespond,
   onReaction 
 }: MobilePostReactionsProps) => {
   const [showReactions, setShowReactions] = useState(false);
@@ -197,20 +195,6 @@ const MobilePostReactions = ({
               <Share2 className="h-5 w-5" />
             </Button>
           </div>
-
-          {/* Bookmark Button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onBookmark(post.id)}
-            className={`p-2 rounded-full ${
-              post.isBookmarked 
-                ? 'text-yellow-500 bg-yellow-50' 
-                : 'text-gray-600 hover:text-yellow-500 hover:bg-yellow-50'
-            }`}
-          >
-            <Bookmark className={`h-5 w-5 ${post.isBookmarked ? 'fill-current' : ''}`} />
-          </Button>
         </div>
       </div>
     </div>
