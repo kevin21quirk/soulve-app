@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { MobileAwareTabsList } from "@/components/ui/mobile-tabs";
 import CommunityNeedsDiscovery from "./csr/CommunityNeedsDiscovery";
 import CampaignPartnershipHub from "./csr/CampaignPartnershipHub";
 import CSRMarketplace from "./csr/CSRMarketplace";
@@ -26,12 +27,12 @@ const BusinessCSRManagement = ({ organizationId }: BusinessCSRManagementProps) =
 
       {/* Tabbed Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <MobileAwareTabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="discovery">Community Needs</TabsTrigger>
           <TabsTrigger value="partnerships">Campaign Partners</TabsTrigger>
           <TabsTrigger value="marketplace">Create Campaign</TabsTrigger>
           <TabsTrigger value="analytics">Impact Analytics</TabsTrigger>
-        </TabsList>
+        </MobileAwareTabsList>
 
         <TabsContent value="discovery" className="mt-6">
           <CommunityNeedsDiscovery />
