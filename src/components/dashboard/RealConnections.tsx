@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { useRealConnections, useSendConnectionRequest, useRespondToConnection, u
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const RealConnections = () => {
+  const navigate = useNavigate();
   const { data: connections, isLoading: connectionsLoading } = useRealConnections();
   const { data: suggested, isLoading: suggestedLoading } = useSuggestedConnections();
   const sendRequest = useSendConnectionRequest();
@@ -68,7 +70,10 @@ export const RealConnections = () => {
               const profile = connection.requester;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}
+                  >
                     <Avatar>
                       <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
@@ -122,7 +127,10 @@ export const RealConnections = () => {
               const profile = connection.requester?.id === connection.addressee?.id ? connection.addressee : connection.requester;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}
+                  >
                     <Avatar>
                       <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
@@ -164,7 +172,10 @@ export const RealConnections = () => {
           <CardContent className="space-y-4">
             {suggested.slice(0, 5).map((profile) => (
               <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-3">
+                <div 
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}
+                >
                   <Avatar>
                     <AvatarImage src={profile.avatar_url || ''} />
                     <AvatarFallback>{getInitials(profile)}</AvatarFallback>
@@ -214,7 +225,10 @@ export const RealConnections = () => {
               const profile = connection.addressee;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}
+                  >
                     <Avatar>
                       <AvatarImage src={profile?.avatar_url || ''} />
                       <AvatarFallback>{getInitials(profile)}</AvatarFallback>
