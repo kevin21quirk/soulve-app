@@ -1,5 +1,6 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import { MobileAwareTabsList } from '@/components/ui/mobile-tabs';
 import { Sparkles, BarChart3, Settings } from 'lucide-react';
 import CampaignTemplates from './CampaignTemplates';
 import CampaignManageTab from './CampaignManageTab';
@@ -39,7 +40,7 @@ const EnhancedCampaignBuilderTabs = ({
 }: EnhancedCampaignBuilderTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-8 bg-gray-100">
+      <MobileAwareTabsList className="grid w-full grid-cols-3 mb-8 bg-gray-100">
         <TabsTrigger 
           value="templates" 
           className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
@@ -61,7 +62,7 @@ const EnhancedCampaignBuilderTabs = ({
           <BarChart3 className="h-4 w-4" />
           <span>Analytics</span>
         </TabsTrigger>
-      </TabsList>
+      </MobileAwareTabsList>
 
       <TabsContent value="templates">
         {showForm ? (
