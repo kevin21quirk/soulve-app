@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useVerifications } from "@/hooks/useVerifications";
 import { Shield, Plus, TrendingUp } from "lucide-react";
 import VerificationBadges from "./VerificationBadges";
-import VerificationRequestDialog from "./VerificationRequestDialog";
+import EnhancedVerificationRequestDialog from "./EnhancedVerificationRequestDialog";
 import { useState } from "react";
 
 const VerificationPanel = () => {
@@ -86,7 +86,7 @@ const VerificationPanel = () => {
         </CardContent>
       </Card>
 
-      <VerificationRequestDialog
+      <EnhancedVerificationRequestDialog
         open={showRequestDialog}
         onOpenChange={setShowRequestDialog}
         existingVerifications={verifications}
