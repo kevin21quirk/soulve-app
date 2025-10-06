@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Camera, Shield, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, Camera, Shield, CheckCircle, AlertCircle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface IDVerificationFlowProps {
@@ -53,28 +53,93 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
   };
 
   const handleSubmit = async () => {
+    if (!formData.frontImage || !formData.backImage || !formData.selfieImage) {
+      toast({
+        title: "Missing documents",
+        description: "Please upload all required documents",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setUploading(true);
     try {
-      // Here you would upload images to storage and submit verification data
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate upload
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { user } = (await supabase.auth.getUser()).data;
       
-      onComplete({
-        documentType: formData.documentType,
-        documentNumber: formData.documentNumber,
-        fullName: formData.fullName,
-        dateOfBirth: formData.dateOfBirth,
-        expiryDate: formData.expiryDate,
-        hasImages: !!(formData.frontImage && formData.backImage && formData.selfieImage)
+      if (!user) throw new Error('User not authenticated');
+
+      // First create the verification record
+      const { data: verification, error: verificationError } = await supabase
+        .from('user_verifications')
+        .insert({
+          user_id: user.id,
+          verification_type: 'government_id',
+          verification_data: {
+            documentType: formData.documentType,
+            documentNumber: formData.documentNumber,
+            fullName: formData.fullName,
+            dateOfBirth: formData.dateOfBirth,
+            expiryDate: formData.expiryDate
+          }
+        })
+        .select()
+        .single();
+
+      if (verificationError) throw verificationError;
+
+      // Upload files to storage
+      const uploadPromises = [
+        { file: formData.frontImage, type: 'id_front' },
+        { file: formData.backImage, type: 'id_back' },
+        { file: formData.selfieImage, type: 'selfie' }
+      ].map(async ({ file, type }) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${verification.id}/${type}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('id-verifications')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Record document in database
+        const { error: docError } = await supabase
+          .from('verification_documents')
+          .insert({
+            verification_id: verification.id,
+            user_id: user.id,
+            document_type: type,
+            file_path: fileName,
+            file_name: file.name,
+            file_size: file.size,
+            mime_type: file.type
+          });
+
+        if (docError) throw docError;
       });
+
+      await Promise.all(uploadPromises);
 
       toast({
         title: "Verification submitted",
-        description: "Your ID verification has been submitted for review"
+        description: "Your ID verification has been submitted for review. We'll notify you within 24-48 hours."
       });
-    } catch (error) {
+
+      onComplete({
+        verificationId: verification.id,
+        documentType: formData.documentType,
+        fullName: formData.fullName,
+        submitted: true
+      });
+    } catch (error: any) {
+      console.error('Verification submission error:', error);
       toast({
         title: "Upload failed",
-        description: "There was an error submitting your verification",
+        description: error.message || "There was an error submitting your verification. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -167,6 +232,15 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium mb-1">Document Front</p>
+                {formData.frontImage && (
+                  <div className="mb-2">
+                    <img 
+                      src={URL.createObjectURL(formData.frontImage)} 
+                      alt="ID Front Preview" 
+                      className="max-h-32 mx-auto rounded"
+                    />
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"
@@ -175,16 +249,28 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
                   id="front-upload"
                 />
                 <Label htmlFor="front-upload" className="cursor-pointer text-blue-600 hover:underline">
-                  {formData.frontImage ? formData.frontImage.name : 'Choose file'}
+                  {formData.frontImage ? 'Change file' : 'Choose file'}
                 </Label>
                 {formData.frontImage && (
-                  <CheckCircle className="h-5 w-5 text-green-600 mx-auto mt-2" />
+                  <div className="flex items-center justify-center mt-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span className="text-xs text-green-600 ml-1">Uploaded</span>
+                  </div>
                 )}
               </div>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium mb-1">Document Back</p>
+                {formData.backImage && (
+                  <div className="mb-2">
+                    <img 
+                      src={URL.createObjectURL(formData.backImage)} 
+                      alt="ID Back Preview" 
+                      className="max-h-32 mx-auto rounded"
+                    />
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"
@@ -193,28 +279,44 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
                   id="back-upload"
                 />
                 <Label htmlFor="back-upload" className="cursor-pointer text-blue-600 hover:underline">
-                  {formData.backImage ? formData.backImage.name : 'Choose file'}
+                  {formData.backImage ? 'Change file' : 'Choose file'}
                 </Label>
                 {formData.backImage && (
-                  <CheckCircle className="h-5 w-5 text-green-600 mx-auto mt-2" />
+                  <div className="flex items-center justify-center mt-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span className="text-xs text-green-600 ml-1">Uploaded</span>
+                  </div>
                 )}
               </div>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium mb-1">Selfie Photo</p>
+                {formData.selfieImage && (
+                  <div className="mb-2">
+                    <img 
+                      src={URL.createObjectURL(formData.selfieImage)} 
+                      alt="Selfie Preview" 
+                      className="max-h-32 mx-auto rounded"
+                    />
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"
+                  capture="user"
                   onChange={(e) => e.target.files?.[0] && handleFileUpload('selfieImage', e.target.files[0])}
                   className="hidden"
                   id="selfie-upload"
                 />
                 <Label htmlFor="selfie-upload" className="cursor-pointer text-blue-600 hover:underline">
-                  {formData.selfieImage ? formData.selfieImage.name : 'Choose file'}
+                  {formData.selfieImage ? 'Retake selfie' : 'Take selfie'}
                 </Label>
                 {formData.selfieImage && (
-                  <CheckCircle className="h-5 w-5 text-green-600 mx-auto mt-2" />
+                  <div className="flex items-center justify-center mt-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span className="text-xs text-green-600 ml-1">Uploaded</span>
+                  </div>
                 )}
               </div>
             </div>
