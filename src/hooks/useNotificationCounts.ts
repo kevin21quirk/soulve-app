@@ -72,24 +72,31 @@ export const useNotificationCounts = () => {
     if (!user?.id) return;
 
     try {
-      // Get unread messages count
-      const { count: messagesCount, error: messagesError } = await supabase
+      // Get unread messages count - fetch actual messages to debug
+      const { data: unreadMessages, count: messagesCount, error: messagesError } = await supabase
         .from('messages')
-        .select('*', { count: 'exact', head: true })
+        .select('id, content, sender_id, created_at, is_read', { count: 'exact' })
         .eq('recipient_id', user.id)
         .eq('is_read', false);
 
       if (messagesError) {
         console.error('Error loading message counts:', messagesError);
+      } else {
+        console.log('Unread messages:', unreadMessages);
+        console.log('Unread count:', messagesCount);
       }
 
       // Get unread feedback count (for admins only)
       let feedbackCount = 0;
       
       // Check if user is admin
-      const { data: isAdminData } = await supabase.rpc('is_admin', {
+      const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin', {
         user_uuid: user.id,
       });
+
+      if (adminError) {
+        console.error('Error checking admin status:', adminError);
+      }
 
       if (isAdminData) {
         const { count, error: feedbackError } = await supabase
@@ -101,6 +108,7 @@ export const useNotificationCounts = () => {
           console.error('Error loading feedback counts:', feedbackError);
         } else {
           feedbackCount = count || 0;
+          console.log('Unread feedback count:', feedbackCount);
         }
       }
 
@@ -110,6 +118,7 @@ export const useNotificationCounts = () => {
         total: (messagesCount || 0) + feedbackCount,
       };
 
+      console.log('Setting notification counts:', newCounts);
       setCounts(newCounts);
     } catch (error) {
       console.error('Error loading notification counts:', error);

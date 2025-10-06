@@ -45,6 +45,23 @@ const MessagingTab = () => {
   const handleConversationSelect = async (partnerId: string) => {
     setSelectedConversation(partnerId);
     setShowNewConversation(false);
+    
+    // Mark messages as read when conversation is opened
+    if (user?.id) {
+      try {
+        await supabase
+          .from('messages')
+          .update({ is_read: true })
+          .eq('recipient_id', user.id)
+          .eq('sender_id', partnerId)
+          .eq('is_read', false);
+        
+        // Refetch conversations to update unread counts
+        refetchConversations();
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    }
   };
 
   const handleStartNewConversation = (userId: string) => {
