@@ -23,33 +23,9 @@ export const usePublicProfile = (userId: string) => {
         setLoading(true);
         setError(null);
 
-        // Check if we can view this profile (connection status or public)
-        let hasAccess = false;
-        
-        if (currentUser?.id === userId) {
-          // Own profile
-          hasAccess = true;
-        } else if (currentUser?.id) {
-          // Check if connected
-          const { data: connection } = await supabase
-            .from('connections')
-            .select('status')
-            .or(`and(requester_id.eq.${currentUser.id},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${currentUser.id})`)
-            .eq('status', 'accepted')
-            .maybeSingle();
-          
-          hasAccess = !!connection;
-        } else {
-          // Anonymous access to public profiles
-          hasAccess = true;
-        }
-
-        setCanView(hasAccess);
-
-        if (!hasAccess) {
-          setError('Profile is private or you need to be connected to view it.');
-          return;
-        }
+        // Profiles are public by default - everyone can view them
+        // In the future, we can add privacy settings to make profiles private
+        setCanView(true);
 
         // Fetch profile data
         const { data: profile, error: profileError } = await supabase

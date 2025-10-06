@@ -11,12 +11,14 @@ import { useAdvancedUserSearch } from "@/hooks/useAdvancedUserSearch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 interface DiscoverPeopleProps {
   searchQuery?: string;
 }
 
 const DiscoverPeople = ({ searchQuery = "" }: DiscoverPeopleProps) => {
+  const navigate = useNavigate();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [showFilters, setShowFilters] = useState(false);
   
@@ -251,7 +253,10 @@ const DiscoverPeople = ({ searchQuery = "" }: DiscoverPeopleProps) => {
             return (
               <div key={person.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start space-x-3">
-                  <Avatar className="h-12 w-12">
+                  <Avatar 
+                    className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                    onClick={() => navigate(`/profile/${person.id}`)}
+                  >
                     <AvatarImage src={person.avatar_url || ''} />
                     <AvatarFallback>
                       {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
@@ -260,7 +265,12 @@ const DiscoverPeople = ({ searchQuery = "" }: DiscoverPeopleProps) => {
                   
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-gray-900">{displayName}</h3>
+                      <h3 
+                        className="font-semibold text-gray-900 cursor-pointer hover:text-primary hover:underline transition-colors"
+                        onClick={() => navigate(`/profile/${person.id}`)}
+                      >
+                        {displayName}
+                      </h3>
                       {person.trust_score && (
                         <div className="flex items-center space-x-1">
                           <Star className="h-4 w-4 text-yellow-500" />
@@ -295,7 +305,11 @@ const DiscoverPeople = ({ searchQuery = "" }: DiscoverPeopleProps) => {
                     
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/profile/${person.id}`)}
+                        >
                           View Profile
                         </Button>
                         <Button size="sm">
