@@ -40,6 +40,39 @@ export const IDVerificationReview = () => {
     fetchPendingVerifications();
   }, []);
 
+  // Real-time subscription for admin to see new verification requests
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-verifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_verifications',
+          filter: 'verification_type=eq.government_id'
+        },
+        (payload) => {
+          console.log('Admin: Verification update:', payload);
+          // Refetch verifications when changes occur
+          fetchPendingVerifications();
+          
+          // Show toast notification for new submissions
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "New ID Verification Request",
+              description: "A user has submitted a new ID verification request."
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const fetchPendingVerifications = async () => {
     setLoading(true);
     try {

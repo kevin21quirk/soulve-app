@@ -5,7 +5,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserProfileData } from "./UserProfileTypes";
 import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
-import VerificationPanel from "./verification/VerificationPanel";
+import { CompactVerificationButton } from "./verification/CompactVerificationButton";
 import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import UserPostsTimeline from "./profile/UserPostsTimeline";
 import RealImpactJourney from "./profile/RealImpactJourney";
@@ -123,6 +123,8 @@ const UserProfile = () => {
         </div>
 
         <TabsContent value="view" className="space-y-6">
+          <CompactVerificationButton />
+          
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* Profile Information */}
@@ -162,7 +164,7 @@ const UserProfile = () => {
             </div>
             
             <div className="space-y-6">
-              <VerificationPanel />
+              {/* Sidebar content can go here */}
             </div>
           </div>
         </TabsContent>

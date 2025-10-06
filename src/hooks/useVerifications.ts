@@ -25,6 +25,43 @@ export const useVerifications = () => {
     }
   }, [user]);
 
+  // Real-time subscription for verification updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('user-verifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_verifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Verification update:', payload);
+          // Refetch all data when verifications change
+          fetchVerifications();
+          fetchTrustScore();
+          fetchTrustHistory();
+          
+          // Show toast notification
+          if (payload.eventType === 'UPDATE' && payload.new.status === 'approved') {
+            toast({
+              title: "Verification Approved! 🎉",
+              description: `Your ${payload.new.verification_type} verification has been approved.`
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchVerifications = async () => {
     if (!user) return;
 
