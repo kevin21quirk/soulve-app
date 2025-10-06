@@ -31,6 +31,7 @@ const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard, exact: true, showBadge: false },
   { title: 'User Management', url: '/admin/users', icon: Users, showBadge: false },
   { title: 'Waitlist', url: '/admin/waitlist', icon: ClipboardList, showBadge: false },
+  { title: 'ID Verification', url: '/admin/id-verifications', icon: Shield, showBadge: false },
   { title: 'Helper Verification', url: '/admin/helpers', icon: HeartHandshake, showBadge: false },
   { title: 'Training Management', url: '/admin/training', icon: GraduationCap, showBadge: false },
   { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck, showBadge: false },
