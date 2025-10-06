@@ -189,9 +189,9 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
                 onOpenChange={(open) => setExpandedConsultation(open ? consultation.id : null)}
               >
                 <div className="p-4 border rounded-lg hover:bg-accent transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
+                    <div className="flex-1 min-w-0 w-full sm:w-auto">
+                      <div className="flex items-center flex-wrap gap-2 mb-2">
                         <h3 className="font-semibold">{consultation.title}</h3>
                         <Badge className={getStatusColor(consultation.status)}>
                           {consultation.status.replace('-', ' ')}
@@ -200,7 +200,7 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
                           {consultation.engagement} engagement
                         </Badge>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
                         <span className="flex items-center space-x-1">
                           <MessageSquare className="h-4 w-4" />
                           <span>{consultation.responses} responses</span>
@@ -212,7 +212,7 @@ const PublicEngagement = ({ organizationId }: PublicEngagementProps) => {
                       </div>
                     </div>
                     <CollapsibleTrigger asChild>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto flex-shrink-0">
                         {expandedConsultation === consultation.id ? (
                           <>
                             <ChevronUp className="h-4 w-4 mr-1" />
