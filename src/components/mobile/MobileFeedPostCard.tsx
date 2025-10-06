@@ -186,8 +186,8 @@ const MobileFeedPostCard = ({
 
       {/* Action Bar */}
       <div className="px-4 py-3 border-t border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center flex-wrap gap-1 min-w-0">
             {/* Quick Reaction Buttons with reduced spacing */}
             {quickReactions.map((emoji) => {
               const reaction = reactions.find(r => r.emoji === emoji);
@@ -200,7 +200,7 @@ const MobileFeedPostCard = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleReactionSelect(emoji)}
-                  className={`w-8 h-8 p-0 hover:scale-110 transition-all ${
+                  className={`w-8 h-8 p-0 hover:scale-110 transition-all flex-shrink-0 ${
                     hasReacted ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'
                   }`}
                   title={`React with ${emoji} ${count > 0 ? `(${count})` : ''}`}
@@ -221,7 +221,7 @@ const MobileFeedPostCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-8 h-8 p-0 hover:scale-110 transition-all hover:bg-gray-100"
+                className="w-8 h-8 p-0 hover:scale-110 transition-all hover:bg-gray-100 flex-shrink-0"
                 title="More reactions"
               >
                 <Plus className="h-4 w-4" />
@@ -232,7 +232,7 @@ const MobileFeedPostCard = ({
               variant="ghost" 
               size="sm"
               onClick={() => setShowPostDetail(true)}
-              className="h-8 px-2 text-gray-600"
+              className="h-8 px-2 text-gray-600 flex-shrink-0"
             >
               <MessageCircle className="h-4 w-4 mr-1" />
               <span className="text-xs">{comments.length}</span>
@@ -242,7 +242,7 @@ const MobileFeedPostCard = ({
               variant="ghost" 
               size="sm" 
               onClick={handleShare}
-              className="h-8 px-2 text-gray-600"
+              className="h-8 px-2 text-gray-600 flex-shrink-0"
             >
               <Share2 className="h-4 w-4 mr-1" />
               <span className="text-xs">{post.shares}</span>
@@ -253,7 +253,7 @@ const MobileFeedPostCard = ({
             variant="ghost"
             size="sm"
             onClick={onBookmark}
-            className={`h-8 w-8 p-0 ${
+            className={`h-8 w-8 p-0 flex-shrink-0 ${
               post.isBookmarked ? 'text-blue-600' : 'text-gray-600'
             }`}
           >

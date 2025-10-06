@@ -303,8 +303,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
         )}
 
         {/* Actions - Modern Reaction System */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t">
+          <div className="flex items-center flex-wrap gap-2 min-w-0">
             {/* Quick Reaction Buttons with reduced spacing */}
             {quickReactions.map((emoji) => {
               const reaction = reactions.find(r => r.emoji === emoji);
@@ -317,7 +317,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
                   variant="ghost"
                   size="sm"
                   onClick={() => handleReactionSelect(emoji)}
-                  className={`flex items-center space-x-1 hover:scale-105 transition-all px-2 ${
+                  className={`flex items-center space-x-1 hover:scale-105 transition-all px-2 flex-shrink-0 ${
                     hasReacted ? 'bg-blue-100 border border-blue-300 text-blue-700' : 'text-gray-600 hover:text-blue-600'
                   }`}
                   title={`React with ${emoji}`}
@@ -336,7 +336,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-blue-600 hover:scale-105 transition-all px-2"
+                className="text-gray-600 hover:text-blue-600 hover:scale-105 transition-all px-2 flex-shrink-0"
                 title="More reactions"
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -348,7 +348,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               variant="ghost"
               size="sm"
               onClick={handleCommentClick}
-              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 px-2"
+              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 px-2 flex-shrink-0"
             >
               <MessageCircle className="h-4 w-4" />
               <span>{comments.length}</span>
@@ -358,7 +358,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
               variant="ghost"
               size="sm"
               onClick={handleShare}
-              className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-2"
+              className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-2 flex-shrink-0"
             >
               <Share2 className="h-4 w-4" />
               <span>{post.shares}</span>
@@ -369,7 +369,7 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
             variant="ghost"
             size="sm"
             onClick={onBookmark}
-            className={`${
+            className={`flex-shrink-0 ${
               post.isBookmarked ? 'text-blue-600' : 'text-gray-600'
             }`}
           >
