@@ -10,6 +10,7 @@ import AdminRoute from "@/components/AdminRoute";
 import { LoadingState } from "@/components/ui/loading-state";
 import { addSkipLink } from "@/utils/accessibility";
 import CookieConsent from "@/components/legal/CookieConsent";
+import { FloatingFeedbackButton } from "@/components/feedback/FloatingFeedbackButton";
 
 // Lazy load route components for better performance
 const Auth = lazy(() => import("@/pages/Auth"));
@@ -126,6 +127,7 @@ function App() {
             />
             </Routes>
           </Suspense>
+          <FloatingFeedbackButton />
           <CookieConsent />
           <Toaster />
         </AuthProvider>

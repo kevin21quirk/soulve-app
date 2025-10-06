@@ -3504,6 +3504,60 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_feedback: {
+        Row: {
+          admin_notes: string | null
+          browser_info: Json | null
+          created_at: string | null
+          description: string
+          feedback_type: Database["public"]["Enums"]["feedback_type"]
+          id: string
+          page_section: string | null
+          page_url: string | null
+          priority: Database["public"]["Enums"]["feedback_priority"] | null
+          resolved_at: string | null
+          screenshot_url: string | null
+          status: Database["public"]["Enums"]["feedback_status"] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          browser_info?: Json | null
+          created_at?: string | null
+          description: string
+          feedback_type: Database["public"]["Enums"]["feedback_type"]
+          id?: string
+          page_section?: string | null
+          page_url?: string | null
+          priority?: Database["public"]["Enums"]["feedback_priority"] | null
+          resolved_at?: string | null
+          screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          browser_info?: Json | null
+          created_at?: string | null
+          description?: string
+          feedback_type?: Database["public"]["Enums"]["feedback_type"]
+          id?: string
+          page_section?: string | null
+          page_url?: string | null
+          priority?: Database["public"]["Enums"]["feedback_priority"] | null
+          resolved_at?: string | null
+          screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       point_decay_log: {
         Row: {
           applied_at: string
@@ -6000,6 +6054,19 @@ export type Database = {
       }
     }
     Enums: {
+      feedback_priority: "low" | "medium" | "high" | "critical"
+      feedback_status:
+        | "new"
+        | "in_review"
+        | "in_progress"
+        | "resolved"
+        | "wont_fix"
+      feedback_type:
+        | "bug"
+        | "feature_request"
+        | "ui_issue"
+        | "performance"
+        | "general"
       waitlist_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -6128,6 +6195,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      feedback_priority: ["low", "medium", "high", "critical"],
+      feedback_status: [
+        "new",
+        "in_review",
+        "in_progress",
+        "resolved",
+        "wont_fix",
+      ],
+      feedback_type: [
+        "bug",
+        "feature_request",
+        "ui_issue",
+        "performance",
+        "general",
+      ],
       waitlist_status: ["pending", "approved", "denied"],
     },
   },

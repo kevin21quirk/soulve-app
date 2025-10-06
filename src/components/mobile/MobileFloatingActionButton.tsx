@@ -1,8 +1,9 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Camera, MapPin, Heart, AlertCircle, X } from "lucide-react";
+import { Plus, Camera, MapPin, Heart, AlertCircle, X, MessageSquare } from "lucide-react";
 import { useTouchGestures } from "@/components/ui/mobile/touch-gestures";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 interface MobileFloatingActionButtonProps {
   onQuickPost: (type: string) => void;
@@ -13,10 +14,12 @@ const quickActions = [
   { id: "help-offered", icon: Heart, label: "Offer Help", color: "bg-green-500" },
   { id: "photo", icon: Camera, label: "Share Photo", color: "bg-blue-500" },
   { id: "location", icon: MapPin, label: "Share Location", color: "bg-purple-500" },
+  { id: "feedback", icon: MessageSquare, label: "Give Feedback", color: "bg-orange-500" },
 ];
 
 const MobileFloatingActionButton = ({ onQuickPost }: MobileFloatingActionButtonProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { onTouchStart, onTouchMove, onTouchEnd } = useTouchGestures();
 
   const handleTouchEnd = () => {
@@ -29,12 +32,19 @@ const MobileFloatingActionButton = ({ onQuickPost }: MobileFloatingActionButtonP
   };
 
   const handleActionClick = (actionId: string) => {
-    onQuickPost(actionId);
-    setIsExpanded(false);
+    if (actionId === 'feedback') {
+      setShowFeedback(true);
+      setIsExpanded(false);
+    } else {
+      onQuickPost(actionId);
+      setIsExpanded(false);
+    }
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-40">
+    <>
+      <FeedbackModal open={showFeedback} onOpenChange={setShowFeedback} />
+      <div className="fixed bottom-20 right-4 z-40">
       {/* Expanded Actions */}
       {isExpanded && (
         <div className="mb-4 space-y-3">
@@ -79,6 +89,7 @@ const MobileFloatingActionButton = ({ onQuickPost }: MobileFloatingActionButtonP
         )}
       </Button>
     </div>
+    </>
   );
 };
 
