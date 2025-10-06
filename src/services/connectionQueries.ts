@@ -54,6 +54,21 @@ export const sendConnectionRequest = async (addresseeId: string) => {
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) throw new Error('Not authenticated');
 
+  // Check if connection already exists (in any direction)
+  const { data: existingConnection } = await supabase
+    .from('connections')
+    .select('id, status')
+    .or(`and(requester_id.eq.${user.user.id},addressee_id.eq.${addresseeId}),and(requester_id.eq.${addresseeId},addressee_id.eq.${user.user.id})`)
+    .maybeSingle();
+
+  if (existingConnection) {
+    if (existingConnection.status === 'pending') {
+      throw new Error('A connection request is already pending with this user');
+    } else if (existingConnection.status === 'accepted') {
+      throw new Error('You are already connected with this user');
+    }
+  }
+
   const { data, error } = await supabase
     .from('connections')
     .insert({

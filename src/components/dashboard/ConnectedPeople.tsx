@@ -7,6 +7,7 @@ import { MessageSquare, MapPin, Users } from "lucide-react";
 import { useConnectionRequests } from "@/hooks/useConnectionRequests";
 import TrustScoreDisplay from "./TrustScoreDisplay";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ConnectedPeopleProps {
   getTrustScoreColor: (score: number) => string;
@@ -15,6 +16,7 @@ interface ConnectedPeopleProps {
 const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
   const { acceptedConnections, loading } = useConnectionRequests();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   if (loading) {
     return (
@@ -59,8 +61,7 @@ const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
         <div className="space-y-4">
           {acceptedConnections.map((connection) => {
             // Show the other person's profile (not the current user)
-            const isRequester = connection.requester && connection.requester.id !== connection.addressee?.id;
-            const profile = isRequester ? connection.addressee : connection.requester;
+            const profile = connection.requester_id === user?.id ? connection.addressee : connection.requester;
             const name = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous';
             
             return (

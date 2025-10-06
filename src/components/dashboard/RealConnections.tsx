@@ -9,9 +9,11 @@ import { MessageCircle, UserPlus, Users, Check, X } from "lucide-react";
 import { useRealConnections, useSendConnectionRequest, useRespondToConnection, useSuggestedConnections } from "@/services/realConnectionsService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConnectionsRealtime } from "@/hooks/useConnectionsRealtime";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const RealConnections = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Enable real-time updates
   useConnectionsRealtime();
@@ -34,9 +36,9 @@ export const RealConnections = () => {
     );
   }
 
-  // Filter connections by type
+  // Filter connections by type - only show requests addressed to current user
   const pendingRequests = connections?.filter(conn => 
-    conn.status === 'pending' && conn.addressee?.id // Requests I received
+    conn.status === 'pending' && conn.addressee_id === user?.id
   ) || [];
   
   const acceptedConnections = connections?.filter(conn => 
@@ -128,8 +130,8 @@ export const RealConnections = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {acceptedConnections.map((connection) => {
-              // Show the other person's profile
-              const profile = connection.requester?.id === connection.addressee?.id ? connection.addressee : connection.requester;
+              // Show the other person's profile (not the current user)
+              const profile = connection.requester_id === user?.id ? connection.addressee : connection.requester;
               return (
                 <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div 

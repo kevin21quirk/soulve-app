@@ -20,10 +20,12 @@ export const useEnhancedConnections = () => {
   const respondToConnection = useRespondToConnection();
 
   // Process connections data
+  // Only show requests where current user is the addressee (recipient)
   const pendingRequests = connections.filter(conn => 
     conn.status === 'pending' && conn.addressee_id === user?.id
   );
   
+  // For accepted connections, show the other person's profile
   const connectedPeople = connections
     .filter(conn => conn.status === 'accepted')
     .map(conn => ({
