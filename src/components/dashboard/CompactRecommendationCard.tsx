@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Recommendation } from "@/types/recommendations";
 import { getRecommendationIcon, getConfidenceColour } from "@/utils/recommendationUtils";
+import { useNavigate } from "react-router-dom";
 
 interface CompactRecommendationCardProps {
   recommendation: Recommendation;
@@ -10,6 +11,14 @@ interface CompactRecommendationCardProps {
 }
 
 const CompactRecommendationCard = ({ recommendation, onAction }: CompactRecommendationCardProps) => {
+  const navigate = useNavigate();
+
+  const handleUserClick = () => {
+    if (recommendation.type === "connection" && recommendation.data?.target_id) {
+      navigate(`/profile/${recommendation.data.target_id}`);
+    }
+  };
+
   const getTypeDisplay = () => {
     switch (recommendation.type) {
       case "connection":
@@ -49,14 +58,22 @@ const CompactRecommendationCard = ({ recommendation, onAction }: CompactRecommen
       {/* Connection preview */}
       {recommendation.type === "connection" && (
         <div className="flex items-centre space-x-2 mb-2">
-          <Avatar className="h-6 w-6">
+          <Avatar 
+            className="h-6 w-6 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
+            onClick={handleUserClick}
+          >
             <AvatarImage src={recommendation.data.avatar} />
             <AvatarFallback className="text-xs">
               {recommendation.data.user.split(' ').map((n: string) => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-grey-900 truncate">{recommendation.data.user}</p>
+            <p 
+              className="text-xs font-medium text-grey-900 truncate cursor-pointer hover:text-primary hover:underline transition-colors" 
+              onClick={handleUserClick}
+            >
+              {recommendation.data.user}
+            </p>
             <p className="text-xs text-grey-500 truncate">{recommendation.data.location}</p>
           </div>
         </div>

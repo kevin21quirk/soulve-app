@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, Award } from "lucide-react";
 import { OrganizationConnection } from "../UserProfileTypes";
+import { useNavigate } from "react-router-dom";
 
 interface OrganizationConnectionsProps {
   connections: OrganizationConnection[];
@@ -10,9 +11,15 @@ interface OrganizationConnectionsProps {
 }
 
 const OrganizationConnections = ({ connections, isEditing = false }: OrganizationConnectionsProps) => {
+  const navigate = useNavigate();
+
   if (!connections || connections.length === 0) {
     return null;
   }
+
+  const handleOrgClick = (orgId: string) => {
+    navigate(`/organization/${orgId}`);
+  };
 
   const formatRole = (role: string) => {
     return role.split('_').map(word => 
@@ -52,7 +59,12 @@ const OrganizationConnections = ({ connections, isEditing = false }: Organizatio
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-medium text-gray-900">{connection.organizationName}</h4>
+                  <h4 
+                    className="font-medium text-gray-900 cursor-pointer hover:text-primary hover:underline transition-colors"
+                    onClick={() => handleOrgClick(connection.organizationId)}
+                  >
+                    {connection.organizationName}
+                  </h4>
                   {connection.isCurrent && (
                     <Badge variant="soulve-teal" className="text-xs">
                       Current

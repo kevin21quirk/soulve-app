@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ConnectionRequest } from "@/types/connections";
 import { MapPin, Users, Clock, UserPlus, UserCheck, UserX } from "lucide-react";
 import { useImpactTracking } from '@/hooks/useImpactTracking';
+import { useNavigate } from 'react-router-dom';
 
 interface ConnectionCardProps {
   connection: ConnectionRequest;
@@ -27,6 +28,7 @@ const ConnectionCard = ({
   variant 
 }: ConnectionCardProps) => {
   const { trackConnection } = useImpactTracking();
+  const navigate = useNavigate();
 
   const handleAccept = () => {
     if (onAccept) {
@@ -35,19 +37,31 @@ const ConnectionCard = ({
     }
   };
 
+  const handleProfileClick = () => {
+    navigate(`/profile/${connection.id}`);
+  };
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-12 w-12">
+            <Avatar 
+              className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all" 
+              onClick={handleProfileClick}
+            >
               <AvatarImage src={connection.avatar} />
               <AvatarFallback>
                 {connection.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 truncate">{connection.name}</h4>
+              <h4 
+                className="font-medium text-gray-900 truncate cursor-pointer hover:text-primary hover:underline transition-colors" 
+                onClick={handleProfileClick}
+              >
+                {connection.name}
+              </h4>
               <div className="flex items-center space-x-1 text-sm text-gray-500">
                 <MapPin className="h-3 w-3" />
                 <span>{connection.location}</span>
