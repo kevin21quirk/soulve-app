@@ -10,7 +10,12 @@ export const useRespondToConnection = () => {
   return useMutation({
     mutationFn: respondToConnectionRequest,
     onSuccess: (_, { status }) => {
+      // Invalidate all related queries for immediate updates
       queryClient.invalidateQueries({ queryKey: ['real-connections'] });
+      queryClient.invalidateQueries({ queryKey: ['suggested-connections'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['public-profile'] });
+      
       toast({
         title: status === 'accepted' ? "Connection accepted!" : "Connection declined",
         description: status === 'accepted' ? "You're now connected!" : "Connection request declined.",

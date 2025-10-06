@@ -2,12 +2,16 @@
 import { useState } from "react";
 import { useRealConnections, useSuggestedConnections, useSendConnectionRequest, useRespondToConnection } from "@/services/realConnectionsService";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConnectionsRealtime } from "./useConnectionsRealtime";
 
 export const useEnhancedConnections = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showSearch, setShowSearch] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  
+  // Enable real-time updates
+  useConnectionsRealtime();
   
   // Real database connections
   const { data: connections = [], isLoading: connectionsLoading } = useRealConnections();

@@ -10,8 +10,12 @@ export const useSendConnectionRequest = () => {
   return useMutation({
     mutationFn: sendConnectionRequest,
     onSuccess: () => {
+      // Invalidate all related queries for immediate updates
       queryClient.invalidateQueries({ queryKey: ['real-connections'] });
       queryClient.invalidateQueries({ queryKey: ['suggested-connections'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['public-profile'] });
+      
       toast({
         title: "Connection request sent!",
         description: "Your request has been sent successfully.",

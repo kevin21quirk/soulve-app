@@ -8,9 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, UserPlus, Users, Check, X } from "lucide-react";
 import { useRealConnections, useSendConnectionRequest, useRespondToConnection, useSuggestedConnections } from "@/services/realConnectionsService";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useConnectionsRealtime } from "@/hooks/useConnectionsRealtime";
 
 export const RealConnections = () => {
   const navigate = useNavigate();
+  
+  // Enable real-time updates
+  useConnectionsRealtime();
+  
   const { data: connections, isLoading: connectionsLoading } = useRealConnections();
   const { data: suggested, isLoading: suggestedLoading } = useSuggestedConnections();
   const sendRequest = useSendConnectionRequest();

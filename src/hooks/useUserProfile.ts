@@ -57,19 +57,15 @@ export const useUserProfile = () => {
         console.warn('Achievements fetch error:', achievementsError);
       }
 
-      // Get real follower count
-      const { count: followerCount } = await supabase
+      // Get real connection count (bidirectional - same for follower/following)
+      const { count: connectionsCount } = await supabase
         .from('connections')
         .select('*', { count: 'exact', head: true })
-        .eq('addressee_id', user.id)
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
         .eq('status', 'accepted');
 
-      // Get real following count
-      const { count: followingCount } = await supabase
-        .from('connections')
-        .select('*', { count: 'exact', head: true })
-        .eq('requester_id', user.id)
-        .eq('status', 'accepted');
+      const followerCount = connectionsCount || 0;
+      const followingCount = connectionsCount || 0;
 
       // Get real post count
       const { count: postCount } = await supabase

@@ -46,8 +46,7 @@ export const usePublicProfile = (userId: string) => {
         // Fetch stats in parallel
         const [
           { data: impactMetrics },
-          { data: followerData },
-          { data: followingData },
+          { count: connectionsCount },
           { data: postsData },
           { data: orgConnections }
         ] = await Promise.all([
@@ -58,13 +57,8 @@ export const usePublicProfile = (userId: string) => {
             .maybeSingle(),
           supabase
             .from('connections')
-            .select('id')
-            .eq('addressee_id', userId)
-            .eq('status', 'accepted'),
-          supabase
-            .from('connections')
-            .select('id')
-            .eq('requester_id', userId)
+            .select('*', { count: 'exact', head: true })
+            .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
             .eq('status', 'accepted'),
           supabase
             .from('posts')
@@ -136,8 +130,8 @@ export const usePublicProfile = (userId: string) => {
             isCurrent: conn.is_current,
             isPublic: conn.is_public
           })),
-          followerCount: followerData?.length || 0,
-          followingCount: followingData?.length || 0,
+          followerCount: connectionsCount || 0,
+          followingCount: connectionsCount || 0,
           postCount: postsData?.length || 0,
           isVerified: false, // Can add verification logic later
           verificationBadges: []
