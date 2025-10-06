@@ -61,7 +61,19 @@ const ConnectedPeople = ({ getTrustScoreColor }: ConnectedPeopleProps) => {
         <div className="space-y-4">
           {acceptedConnections.map((connection) => {
             // Show the other person's profile (not the current user)
+            console.log('Connection data:', {
+              connection_id: connection.id,
+              requester_id: connection.requester_id,
+              addressee_id: connection.addressee_id,
+              current_user_id: user?.id,
+              requester_profile: connection.requester,
+              addressee_profile: connection.addressee
+            });
+            
             const profile = connection.requester_id === user?.id ? connection.addressee : connection.requester;
+            
+            console.log('Selected profile:', profile);
+            
             const name = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous' : 'Anonymous';
             
             return (
