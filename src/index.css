@@ -140,4 +140,13 @@
   .border-soulve-purple {
     border-color: hsl(var(--soulve-purple));
   }
+  
+  /* Hide scrollbar for mobile tabs */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

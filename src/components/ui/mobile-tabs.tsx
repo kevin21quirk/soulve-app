@@ -13,24 +13,16 @@ export const MobileAwareTabsList = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const isMobile = useIsMobile();
 
-  if (isMobile) {
-    return (
-      <div
-        ref={ref as any}
-        className={cn(
-          "inline-flex h-10 items-center p-1 text-muted-foreground overflow-x-auto scrollbar-hide snap-x snap-mandatory bg-muted rounded-md",
-          "flex-nowrap gap-1",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-
+  // Always use TabsList to maintain Radix context, just change styling
   return (
-    <TabsList ref={ref} className={className} {...props}>
+    <TabsList 
+      ref={ref} 
+      className={cn(
+        isMobile && "overflow-x-auto scrollbar-hide snap-x snap-mandatory flex-nowrap w-full",
+        className
+      )} 
+      {...props}
+    >
       {children}
     </TabsList>
   );
