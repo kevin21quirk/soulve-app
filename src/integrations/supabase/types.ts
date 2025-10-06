@@ -5507,6 +5507,91 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_document_audit: {
+        Row: {
+          accessed_by: string
+          action_type: string
+          created_at: string
+          document_id: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_by: string
+          action_type: string
+          created_at?: string
+          document_id: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_by?: string
+          action_type?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_document_audit_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "verification_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          uploaded_at: string
+          user_id: string
+          verification_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          uploaded_at?: string
+          user_id: string
+          verification_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          uploaded_at?: string
+          user_id?: string
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_documents_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "user_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       volunteer_applications: {
         Row: {
           application_message: string | null

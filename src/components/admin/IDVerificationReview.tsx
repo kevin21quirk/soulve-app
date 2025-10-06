@@ -16,6 +16,7 @@ interface VerificationWithDocuments {
   status: string;
   verification_data: any;
   created_at: string;
+  notes?: string | null;
   user_email: string;
   user_name: string;
   documents: {
@@ -45,18 +46,16 @@ export const IDVerificationReview = () => {
       // Fetch pending ID verifications
       const { data: verificationsData, error: verError } = await supabase
         .from('user_verifications')
-        .select(`
-          *,
-          profiles!inner(email, first_name, last_name)
-        `)
+        .select('*')
         .eq('verification_type', 'government_id')
         .order('created_at', { ascending: false });
 
       if (verError) throw verError;
 
-      // Fetch associated documents for each verification
+      // Fetch associated documents and profile data for each verification
       const verificationsWithDocs = await Promise.all(
         (verificationsData || []).map(async (verification) => {
+          // Fetch documents
           const { data: docs, error: docError } = await supabase
             .from('verification_documents')
             .select('*')
@@ -65,16 +64,25 @@ export const IDVerificationReview = () => {
 
           if (docError) console.error('Error fetching docs:', docError);
 
+          // Fetch user profile and email
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', verification.user_id)
+            .single();
+
+          const { data: { user: authUser } } = await supabase.auth.admin.getUserById(verification.user_id);
+
           return {
             ...verification,
-            user_email: verification.profiles?.email || 'Unknown',
-            user_name: `${verification.profiles?.first_name || ''} ${verification.profiles?.last_name || ''}`.trim(),
+            user_email: authUser?.email || 'Unknown',
+            user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Unknown User',
             documents: docs || []
           };
         })
       );
 
-      setVerifications(verificationsWithDocs);
+      setVerifications(verificationsWithDocs as any);
     } catch (error: any) {
       console.error('Error fetching verifications:', error);
       toast({
@@ -265,7 +273,7 @@ export const IDVerificationReview = () => {
           {verification.status === 'rejected' && verification.notes && (
             <div className="bg-red-50 p-3 rounded-lg mt-3">
               <p className="text-sm font-medium text-red-900">Rejection Reason:</p>
-              <p className="text-sm text-red-800">{verification.notes}</p>
+              <p className="text-sm text-red-800">{String(verification.notes)}</p>
             </div>
           )}
         </div>
