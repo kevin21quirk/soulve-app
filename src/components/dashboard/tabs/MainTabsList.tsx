@@ -18,10 +18,10 @@ const MainTabsList = () => {
   const { counts } = useNotificationCounts();
 
   const tabs = [
-    { value: "feed", icon: Rss, label: "Feed", badgeCount: counts.social },
+    { value: "feed", icon: Rss, label: "Feed", badgeCount: 0 },
     { value: "discover-connect", icon: Users, label: "Discover & Connect", badgeCount: counts.connections },
     { value: "messaging", icon: MessageCircle, label: "Messages", badgeCount: counts.messages },
-    { value: "campaigns", icon: Target, label: "Campaigns", badgeCount: counts.donations },
+    { value: "campaigns", icon: Target, label: "Campaigns", badgeCount: 0 },
     { value: "organisation-tools", icon: Building, label: "Organisation Tools", badgeCount: counts.esg },
     { value: "impact-analytics", icon: TrendingUp, label: "Impact & Analytics", badgeCount: 0 },
     { value: "help-center", icon: HelpCircle, label: "Help Center", badgeCount: 0 },

@@ -24,10 +24,10 @@ const MobileBottomNav = ({ activeTab, onTabChange }: MobileBottomNavProps) => {
   if (!isMobile) return null;
 
   const tabs = [
-    { value: "feed", icon: Rss, label: "Feed", badgeCount: counts.social },
+    { value: "feed", icon: Rss, label: "Feed", badgeCount: 0 },
     { value: "discover-connect", icon: Users, label: "Discover", badgeCount: counts.connections },
     { value: "messaging", icon: MessageCircle, label: "Messages", badgeCount: counts.messages },
-    { value: "impact", icon: TrendingUp, label: "Impact", badgeCount: counts.donations },
+    { value: "impact", icon: TrendingUp, label: "Impact", badgeCount: 0 },
     { value: "analytics-points", icon: Trophy, label: "Points", badgeCount: 0 },
     { value: "profile", icon: User, label: "Profile", badgeCount: 0 }
   ];
