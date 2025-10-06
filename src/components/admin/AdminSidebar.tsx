@@ -24,25 +24,29 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { NotificationBadge } from '@/components/ui/notification-badge';
+import { useNotificationCounts } from '@/hooks/useNotificationCounts';
 
 const adminNavItems = [
-  { title: 'Overview', url: '/admin', icon: LayoutDashboard, exact: true },
-  { title: 'User Management', url: '/admin/users', icon: Users },
-  { title: 'Waitlist', url: '/admin/waitlist', icon: ClipboardList },
-  { title: 'Helper Verification', url: '/admin/helpers', icon: HeartHandshake },
-  { title: 'Training Management', url: '/admin/training', icon: GraduationCap },
-  { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck },
-  { title: 'Content Moderation', url: '/admin/moderation', icon: Shield },
-  { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare },
-  { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle },
-  { title: 'Badge Management', url: '/admin/badges', icon: Award },
-  { title: 'Points Config', url: '/admin/points-config', icon: Sliders },
-  { title: 'Campaigns', url: '/admin/campaigns', icon: Award },
-  { title: 'Organizations', url: '/admin/organizations', icon: Users },
-  { title: 'Settings', url: '/admin/settings', icon: Settings },
+  { title: 'Overview', url: '/admin', icon: LayoutDashboard, exact: true, showBadge: false },
+  { title: 'User Management', url: '/admin/users', icon: Users, showBadge: false },
+  { title: 'Waitlist', url: '/admin/waitlist', icon: ClipboardList, showBadge: false },
+  { title: 'Helper Verification', url: '/admin/helpers', icon: HeartHandshake, showBadge: false },
+  { title: 'Training Management', url: '/admin/training', icon: GraduationCap, showBadge: false },
+  { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck, showBadge: false },
+  { title: 'Content Moderation', url: '/admin/moderation', icon: Shield, showBadge: false },
+  { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare, showBadge: true },
+  { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle, showBadge: false },
+  { title: 'Badge Management', url: '/admin/badges', icon: Award, showBadge: false },
+  { title: 'Points Config', url: '/admin/points-config', icon: Sliders, showBadge: false },
+  { title: 'Campaigns', url: '/admin/campaigns', icon: Award, showBadge: false },
+  { title: 'Organizations', url: '/admin/organizations', icon: Users, showBadge: false },
+  { title: 'Settings', url: '/admin/settings', icon: Settings, showBadge: false },
 ];
 
 const AdminSidebar = () => {
+  const { counts } = useNotificationCounts();
+
   return (
     <Sidebar className="border-r-2 border-slate-700 bg-slate-900 shadow-lg">
       <SidebarContent className="bg-slate-900">
@@ -77,7 +81,7 @@ const AdminSidebar = () => {
                       to={item.url}
                       end={item.exact}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
                           isActive
                             ? 'bg-blue-600 text-white font-semibold shadow-md'
                             : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -86,6 +90,12 @@ const AdminSidebar = () => {
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span className="text-sm">{item.title}</span>
+                      {item.showBadge && (
+                        <NotificationBadge 
+                          count={counts.feedback} 
+                          className="relative top-0 right-0 ml-auto"
+                        />
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

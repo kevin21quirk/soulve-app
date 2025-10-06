@@ -11,17 +11,21 @@ import {
   HelpCircle,
   Building
 } from "lucide-react";
+import { NotificationBadge } from "@/components/ui/notification-badge";
+import { useNotificationCounts } from "@/hooks/useNotificationCounts";
 
 const MainTabsList = () => {
+  const { counts } = useNotificationCounts();
+
   const tabs = [
-    { value: "feed", icon: Rss, label: "Feed" },
-    { value: "discover-connect", icon: Users, label: "Discover & Connect" },
-    { value: "messaging", icon: MessageCircle, label: "Messages" },
-    { value: "campaigns", icon: Target, label: "Campaigns" },
-    { value: "organisation-tools", icon: Building, label: "Organisation Tools" },
-    { value: "impact-analytics", icon: TrendingUp, label: "Impact & Analytics" },
-    { value: "help-center", icon: HelpCircle, label: "Help Center" },
-    { value: "profile", icon: User, label: "Profile" }
+    { value: "feed", icon: Rss, label: "Feed", badgeCount: 0 },
+    { value: "discover-connect", icon: Users, label: "Discover & Connect", badgeCount: 0 },
+    { value: "messaging", icon: MessageCircle, label: "Messages", badgeCount: counts.messages },
+    { value: "campaigns", icon: Target, label: "Campaigns", badgeCount: 0 },
+    { value: "organisation-tools", icon: Building, label: "Organisation Tools", badgeCount: 0 },
+    { value: "impact-analytics", icon: TrendingUp, label: "Impact & Analytics", badgeCount: 0 },
+    { value: "help-center", icon: HelpCircle, label: "Help Center", badgeCount: 0 },
+    { value: "profile", icon: User, label: "Profile", badgeCount: 0 }
   ];
 
   return (
@@ -34,9 +38,10 @@ const MainTabsList = () => {
               <TooltipTrigger asChild>
                 <TabsTrigger 
                   value={tab.value} 
-                  className="flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent hover:scale-105 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent data-[state=active]:scale-105 transition-all duration-200 flex-1 min-w-0"
+                  className="flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-4 py-3 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent hover:scale-105 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent data-[state=active]:scale-105 transition-all duration-200 flex-1 min-w-0 relative"
                 >
                   <IconComponent className="h-5 w-5" />
+                  <NotificationBadge count={tab.badgeCount} />
                 </TabsTrigger>
               </TooltipTrigger>
               <TooltipContent>
