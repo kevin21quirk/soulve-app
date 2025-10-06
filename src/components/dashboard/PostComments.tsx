@@ -7,6 +7,7 @@ import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,7 @@ const CommentItem = ({
   level?: number;
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -69,7 +71,10 @@ const CommentItem = ({
   return (
     <div style={{ marginLeft }} className="mb-3">
       <div className="flex space-x-3">
-        <Avatar className="h-8 w-8 flex-shrink-0">
+        <Avatar 
+          className="h-8 w-8 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+          onClick={() => comment.authorId && navigate(`/profile/${comment.authorId}`)}
+        >
           <AvatarImage src={comment.avatar} alt={comment.author} />
           <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
             {comment.author.charAt(0).toUpperCase()}
@@ -79,7 +84,12 @@ const CommentItem = ({
           <div className="bg-gray-50 rounded-lg px-3 py-2">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-900">{comment.author}</span>
+                <span 
+                  className="font-medium text-sm text-gray-900 cursor-pointer hover:text-primary hover:underline transition-colors"
+                  onClick={() => comment.authorId && navigate(`/profile/${comment.authorId}`)}
+                >
+                  {comment.author}
+                </span>
                 <span className="text-xs text-gray-500">{comment.timestamp}</span>
                 {comment.editedAt && (
                   <span className="text-xs text-gray-400 italic">(edited)</span>

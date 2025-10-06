@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trophy, Medal, Award, Crown, Star, Shield } from "lucide-react";
 import { LeaderboardEntry, TrustLevel } from "@/types/gamification";
+import { useNavigate } from "react-router-dom";
 
 interface LeaderboardCardProps {
   leaderboard: LeaderboardEntry[];
@@ -12,6 +13,8 @@ interface LeaderboardCardProps {
 }
 
 const LeaderboardCard = ({ leaderboard, timeframe = "all-time" }: LeaderboardCardProps) => {
+  const navigate = useNavigate();
+  
   const getTrustLevelIcon = (level: TrustLevel) => {
     switch (level) {
       case "new_user": return Shield;
@@ -92,12 +95,20 @@ const LeaderboardCard = ({ leaderboard, timeframe = "all-time" }: LeaderboardCar
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
+                      <Avatar 
+                        className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                        onClick={() => navigate(`/profile/${entry.userId}`)}
+                      >
                         <AvatarImage src={entry.avatar} alt={entry.userName} />
                         <AvatarFallback>{entry.userName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{entry.userName}</div>
+                        <div 
+                          className="font-medium cursor-pointer hover:text-primary hover:underline transition-colors"
+                          onClick={() => navigate(`/profile/${entry.userId}`)}
+                        >
+                          {entry.userName}
+                        </div>
                         {entry.userId === "current-user" && (
                           <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">
                             You

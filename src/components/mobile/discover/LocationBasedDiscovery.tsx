@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, Navigation, Users, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface NearbyPerson {
   id: string;
@@ -22,6 +23,7 @@ interface LocationBasedDiscoveryProps {
 }
 
 const LocationBasedDiscovery = ({ onConnect }: LocationBasedDiscoveryProps) => {
+  const navigate = useNavigate();
   const [nearbyPeople] = useState<NearbyPerson[]>([
     {
       id: "1",
@@ -58,12 +60,20 @@ const LocationBasedDiscovery = ({ onConnect }: LocationBasedDiscoveryProps) => {
         {nearbyPeople.map((person) => (
           <div key={person.id} className="p-3 border rounded-lg bg-gradient-to-r from-blue-50 to-green-50">
             <div className="flex items-center space-x-3 mb-2">
-              <Avatar className="h-10 w-10">
+              <Avatar 
+                className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                onClick={() => navigate(`/profile/${person.id}`)}
+              >
                 <AvatarImage src={person.avatar} alt={person.name} />
                 <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h4 className="font-medium text-sm">{person.name}</h4>
+                <h4 
+                  className="font-medium text-sm cursor-pointer hover:text-primary hover:underline transition-colors"
+                  onClick={() => navigate(`/profile/${person.id}`)}
+                >
+                  {person.name}
+                </h4>
                 <div className="flex items-center space-x-1 text-xs text-gray-600">
                   <MapPin className="h-3 w-3" />
                   <span>{person.distance} • {person.location}</span>

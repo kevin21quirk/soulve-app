@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Medal, Award, TrendingUp, Users, Crown } from "lucide-react";
 import { LeaderboardService } from "@/services/leaderboardService";
 import { LeaderboardEntry } from "@/types/gamification";
+import { useNavigate } from "react-router-dom";
 
 const EnhancedLeaderboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'weekly' | 'monthly' | 'all-time'>('all-time');
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(
     LeaderboardService.getLeaderboard(activeTab)
@@ -117,14 +119,22 @@ const EnhancedLeaderboard = () => {
                       {getRankIcon(entry.rank)}
                     </div>
                     
-                    <Avatar className="h-10 w-10">
+                    <Avatar 
+                      className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                      onClick={() => navigate(`/profile/${entry.userId}`)}
+                    >
                       <AvatarImage src={entry.avatar} />
                       <AvatarFallback>{entry.userName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     
                     <div>
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-sm">{entry.userName}</p>
+                        <p 
+                          className="font-medium text-sm cursor-pointer hover:text-primary hover:underline transition-colors"
+                          onClick={() => navigate(`/profile/${entry.userId}`)}
+                        >
+                          {entry.userName}
+                        </p>
                         {entry.userId === 'current-user' && (
                           <Badge variant="secondary" className="text-xs">You</Badge>
                         )}
