@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
-import UserProfileDisplay from "@/components/dashboard/UserProfileDisplay";
+import ProfileDisplayMode from "@/components/dashboard/ProfileDisplayMode";
 
 const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -81,7 +81,12 @@ const PublicProfile = () => {
         </Button>
 
         {/* Full Profile Display */}
-        <UserProfileDisplay profileData={profileData} />
+        <Card className="overflow-hidden">
+          <ProfileDisplayMode 
+            profileData={profileData} 
+            onViewPointsDetails={() => {}} 
+          />
+        </Card>
 
         {/* Message Button - Only show for other users */}
         {user && user.id !== profileData.id && (
