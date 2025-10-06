@@ -119,7 +119,7 @@ export class TrustScoreCalculator {
     const suggestions: string[] = [];
 
     if (gap > 20) {
-      suggestions.push('Complete ID verification (+15 points)');
+      suggestions.push('Complete ID verification (+25 points)');
       suggestions.push('Verify 2-3 professional skills (+10 points each)');
       suggestions.push('Help 3-5 community members (+5 points each)');
     } else if (gap > 10) {
@@ -142,7 +142,7 @@ export class TrustScoreCalculator {
     const verificationBonuses = {
       'email': 5,
       'phone': 5,
-      'government_id': 15,
+      'government_id': 25,
       'organization': 20,
       'expert': 10,
       'background_check': 15,
@@ -178,7 +178,7 @@ export class TrustScoreCalculator {
     const impacts = {
       'email': { points: 5, description: 'Basic identity confirmation' },
       'phone': { points: 5, description: 'Contact verification' },
-      'government_id': { points: 15, description: 'Official identity verification' },
+      'government_id': { points: 25, description: 'Official identity verification' },
       'organization': { points: 20, description: 'Institutional credibility' },
       'expert': { points: 10, description: 'Professional expertise' },
       'background_check': { points: 15, description: 'Enhanced safety verification' },
