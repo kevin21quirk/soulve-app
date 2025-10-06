@@ -27,7 +27,7 @@ export const usePublicProfile = (userId: string) => {
         // In the future, we can add privacy settings to make profiles private
         setCanView(true);
 
-        // Fetch profile data
+        // Fetch profile data with all related information
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -43,15 +43,105 @@ export const usePublicProfile = (userId: string) => {
           return;
         }
 
-        // Map to UserProfileData format - profile table has all we need
-        const userProfileData = mapDatabaseProfileToUserProfile(
-          { 
-            id: userId, 
-            email: '', 
-            created_at: profile.created_at || new Date().toISOString() 
+        // Fetch stats in parallel
+        const [
+          { data: impactMetrics },
+          { data: followerData },
+          { data: followingData },
+          { data: postsData },
+          { data: orgConnections }
+        ] = await Promise.all([
+          supabase
+            .from('impact_metrics')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle(),
+          supabase
+            .from('connections')
+            .select('id')
+            .eq('addressee_id', userId)
+            .eq('status', 'accepted'),
+          supabase
+            .from('connections')
+            .select('id')
+            .eq('requester_id', userId)
+            .eq('status', 'accepted'),
+          supabase
+            .from('posts')
+            .select('id')
+            .eq('author_id', userId)
+            .eq('is_active', true),
+          supabase
+            .from('organization_members')
+            .select(`
+              id,
+              organization_id,
+              role,
+              title,
+              is_current,
+              is_public,
+              organizations:organization_id (
+                id,
+                name
+              )
+            `)
+            .eq('user_id', userId)
+            .eq('is_active', true)
+        ]);
+
+        // Construct complete user profile data
+        const displayName = profile.first_name || profile.last_name 
+          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+          : 'Anonymous User';
+
+        const userProfileData: UserProfileData = {
+          id: userId,
+          name: displayName,
+          email: '', // Don't expose email on public profiles
+          phone: profile.phone || '',
+          location: profile.location || 'Location not set',
+          bio: profile.bio || 'No bio added yet',
+          avatar: profile.avatar_url || '',
+          banner: profile.banner_url || '',
+          bannerType: profile.banner_type as 'image' | 'video' | null || null,
+          joinDate: new Date(profile.created_at).toLocaleDateString('en-US', { 
+            month: 'short', 
+            year: 'numeric' 
+          }),
+          trustScore: impactMetrics?.trust_score || 50,
+          helpCount: impactMetrics?.help_provided_count || 0,
+          skills: profile.skills || [],
+          interests: profile.interests || [],
+          socialLinks: {
+            website: profile.website || '',
+            facebook: profile.facebook || '',
+            twitter: profile.twitter || '',
+            instagram: profile.instagram || '',
+            linkedin: profile.linkedin || ''
           },
-          profile
-        );
+          organizationInfo: {
+            organizationType: 'individual',
+            establishedYear: '',
+            registrationNumber: '',
+            description: '',
+            mission: '',
+            vision: ''
+          },
+          organizationConnections: (orgConnections || []).map((conn: any) => ({
+            id: conn.id,
+            organizationId: conn.organization_id,
+            organizationName: conn.organizations?.name || 'Unknown Organization',
+            role: conn.role,
+            title: conn.title,
+            isCurrent: conn.is_current,
+            isPublic: conn.is_public
+          })),
+          followerCount: followerData?.length || 0,
+          followingCount: followingData?.length || 0,
+          postCount: postsData?.length || 0,
+          isVerified: false, // Can add verification logic later
+          verificationBadges: []
+        };
 
         setProfileData(userProfileData);
       } catch (err) {
