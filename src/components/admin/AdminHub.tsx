@@ -1,11 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, FileText, BarChart3, Download } from "lucide-react";
+import { Shield, Users, FileText, BarChart3, Download, MessageSquare } from "lucide-react";
 import StakeholderDataRequestsPanel from "@/components/dashboard/esg/StakeholderDataRequestsPanel";
 import ESGReportsPanel from "@/components/dashboard/esg/ESGReportsPanel";
 import DataVerificationPanel from "@/components/dashboard/esg/DataVerificationPanel";
 import { AICreditManagement } from "@/components/dashboard/esg/AICreditManagement";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
+import { FeedbackManagementPanel } from "./FeedbackManagementPanel";
 
 interface AdminHubProps {
   organizationId: string;
@@ -30,10 +31,14 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
       </div>
 
       <Tabs defaultValue="esg" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-secondary/20">
+        <TabsList className="grid w-full grid-cols-6 bg-secondary/20">
           <TabsTrigger value="esg">
             <FileText className="h-4 w-4 mr-2" />
             ESG Management
+          </TabsTrigger>
+          <TabsTrigger value="feedback">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Feedback
           </TabsTrigger>
           <TabsTrigger value="reports">
             <Download className="h-4 w-4 mr-2" />
@@ -65,6 +70,10 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
             </div>
             <StakeholderDataRequestsPanel organizationId={organizationId} />
           </div>
+        </TabsContent>
+
+        <TabsContent value="feedback" className="mt-6">
+          <FeedbackManagementPanel />
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">
