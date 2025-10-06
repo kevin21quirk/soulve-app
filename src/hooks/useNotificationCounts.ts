@@ -41,7 +41,8 @@ export const useNotificationCounts = () => {
           table: 'messages',
           filter: `recipient_id=eq.${user.id}`,
         },
-        () => {
+        (payload) => {
+          console.log('Message change detected:', payload);
           loadCounts();
         }
       )

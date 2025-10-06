@@ -57,8 +57,11 @@ const MessagingTab = () => {
         markAsRead.mutate(unreadMessageIds, {
           onSuccess: () => {
             console.log('Messages marked as read successfully');
-            refreshCounts();
-            refetchConversations();
+            // Force refresh after a small delay to ensure DB update propagates
+            setTimeout(() => {
+              refreshCounts();
+              refetchConversations();
+            }, 500);
           }
         });
       }
