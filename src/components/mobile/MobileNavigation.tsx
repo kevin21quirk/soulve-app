@@ -1,5 +1,5 @@
 
-import { Home, Users, MessageCircle, Bell, User, Trophy, TrendingUp } from "lucide-react";
+import { Home, Users, MessageCircle, Target, Building2, TrendingUp, HeartHandshake, User } from "lucide-react";
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -8,12 +8,13 @@ interface MobileNavigationProps {
 
 const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => {
   const tabs = [
-    { id: "feed", icon: Home, label: "Home" },
+    { id: "feed", icon: Home, label: "Feed" },
     { id: "discover", icon: Users, label: "Discover" },
     { id: "messaging", icon: MessageCircle, label: "Messages" },
-    { id: "notifications", icon: Bell, label: "Activity" },
+    { id: "campaigns", icon: Target, label: "Campaigns" },
+    { id: "organisation-tools", icon: Building2, label: "Org Tools" },
     { id: "impact", icon: TrendingUp, label: "Impact" },
-    { id: "points", icon: Trophy, label: "Points" },
+    { id: "help-center", icon: HeartHandshake, label: "Help" },
     { id: "profile", icon: User, label: "Profile" },
   ];
 
