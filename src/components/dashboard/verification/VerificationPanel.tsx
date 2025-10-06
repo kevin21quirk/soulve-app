@@ -28,14 +28,23 @@ const VerificationPanel = () => {
 
   const approvedCount = verifications.filter(v => v.status === 'approved').length;
   const pendingCount = verifications.filter(v => v.status === 'pending').length;
+  const hasGovernmentId = verifications.some(v => v.verification_type === 'government_id' && v.status === 'approved');
+  const needsVerification = !hasGovernmentId;
 
   return (
     <>
-      <Card>
+      <Card className={needsVerification ? "border-2 border-primary shadow-lg" : ""}>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield className="h-5 w-5 text-blue-600" />
-            <span>Profile Verification</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Shield className={`h-6 w-6 ${needsVerification ? 'text-primary animate-pulse' : 'text-blue-600'}`} />
+              <span>Profile Verification</span>
+            </div>
+            {needsVerification && (
+              <Badge variant="soulve" className="animate-pulse">
+                Action Required
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -77,11 +86,12 @@ const VerificationPanel = () => {
           {/* Action Button */}
           <Button 
             onClick={() => setShowRequestDialog(true)}
-            className="w-full"
-            variant="outline"
+            className={`w-full ${needsVerification ? 'animate-pulse' : ''}`}
+            variant="gradient"
+            size="lg"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Request New Verification
+            <Plus className="h-5 w-5 mr-2" />
+            {needsVerification ? 'Verify Your ID Now' : 'Request New Verification'}
           </Button>
         </CardContent>
       </Card>
