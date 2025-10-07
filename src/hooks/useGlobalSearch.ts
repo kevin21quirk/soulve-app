@@ -93,14 +93,19 @@ export const useGlobalSearch = () => {
         .limit(10);
       console.log('🔍 [Global Search] Groups found:', groups?.length || 0);
 
-      // Search organizations
+      // Search organizations - skip if RLS issues
       console.log('🔍 [Global Search] Searching organizations...');
       const { data: organizations, error: orgsError } = await supabase
         .from('organizations')
         .select('id, name, description, avatar_url')
         .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
-      console.log('🔍 [Global Search] Organizations found:', organizations?.length || 0);
+      
+      if (orgsError?.code === '42P17') {
+        console.warn('🔍 [Global Search] Organizations search skipped due to RLS recursion');
+      } else {
+        console.log('🔍 [Global Search] Organizations found:', organizations?.length || 0);
+      }
 
       // Search posts
       console.log('🔍 [Global Search] Searching posts...');
@@ -111,25 +116,24 @@ export const useGlobalSearch = () => {
         .limit(10);
       console.log('🔍 [Global Search] Posts found:', posts?.length || 0);
 
-      // Search volunteer opportunities
+      // Search volunteer opportunities - skip if RLS issues
       console.log('🔍 [Global Search] Searching opportunities...');
       const { data: opportunities, error: oppsError } = await supabase
         .from('volunteer_opportunities')
         .select('id, title, description, organization_id')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
-      console.log('🔍 [Global Search] Opportunities found:', opportunities?.length || 0);
+      
+      if (oppsError?.code === '42P17') {
+        console.warn('🔍 [Global Search] Opportunities search skipped due to RLS recursion');
+      } else {
+        console.log('🔍 [Global Search] Opportunities found:', opportunities?.length || 0);
+      }
 
-      if (usersError || campaignsError || groupsError || orgsError || postsError || oppsError) {
-        const errorDetails = {
-          users: usersError,
-          campaigns: campaignsError,
-          groups: groupsError,
-          organizations: orgsError,
-          posts: postsError,
-          opportunities: oppsError
-        };
-        console.error('🔍 [Global Search] Search errors:', errorDetails);
+      // Check if critical searches failed (users, campaigns, groups, posts)
+      const criticalErrors = [usersError, campaignsError, groupsError, postsError].filter(Boolean);
+      if (criticalErrors.length === 4) {
+        console.error('🔍 [Global Search] All critical searches failed');
         throw new Error('Search failed');
       }
 
