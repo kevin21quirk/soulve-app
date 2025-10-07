@@ -141,7 +141,7 @@ const HeaderOverlays = ({
                   variant="ghost" 
                   className="w-full justify-start"
                   onClick={() => {
-                    if (onNavigateToTab) onNavigateToTab('analytics-points');
+                    if (onNavigateToTab) onNavigateToTab('impact-analytics');
                     setShowShortcuts(false);
                   }}
                 >
