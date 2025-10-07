@@ -91,8 +91,8 @@ const CreatePostModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 p-6 pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle>
               {sharedPost ? 'Share Post' : 'Create New Post'}
@@ -103,8 +103,8 @@ const CreatePostModal = ({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto space-y-4 p-1">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-4 px-6 pb-4">
             <PostFormHeader />
             
             <PostContentArea
@@ -125,17 +125,21 @@ const CreatePostModal = ({
             />
           </div>
 
-          <MediaPreview
-            mediaFiles={formData.selectedMedia || []}
-            onRemoveFile={handleRemoveMedia}
-          />
+          <div className="flex-shrink-0 px-6">
+            <MediaPreview
+              mediaFiles={formData.selectedMedia || []}
+              onRemoveFile={handleRemoveMedia}
+            />
+          </div>
 
-          <PostActionBar
-            formData={formData}
-            onLocationDetect={handleLocationDetect}
-            onUpdateFormData={setFormData}
-            disabled={!isFormValid || isSubmitting}
-          />
+          <div className="flex-shrink-0">
+            <PostActionBar
+              formData={formData}
+              onLocationDetect={handleLocationDetect}
+              onUpdateFormData={setFormData}
+              disabled={!isFormValid || isSubmitting}
+            />
+          </div>
         </form>
       </DialogContent>
     </Dialog>
