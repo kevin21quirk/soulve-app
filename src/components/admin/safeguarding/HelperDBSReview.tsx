@@ -18,7 +18,7 @@ interface DBSDocument {
   file_name: string;
   file_size: number;
   mime_type: string;
-  storage_path: string;
+  file_path: string;
   verification_status: string;
   dbs_certificate_number: string | null;
   dbs_issue_date: string | null;
@@ -27,8 +27,8 @@ interface DBSDocument {
   verified_by: string | null;
   verified_at: string | null;
   rejection_reason: string | null;
+  uploaded_at?: string;
   created_at: string;
-  updated_at: string;
 }
 
 export const HelperDBSReview = () => {
@@ -297,7 +297,7 @@ export const HelperDBSReview = () => {
 
                 <div className="flex gap-2">
                   <Button variant="outline" asChild>
-                    <a href={doc.storage_path} target="_blank" rel="noopener noreferrer">
+                    <a href={doc.file_path} target="_blank" rel="noopener noreferrer">
                       View Document
                     </a>
                   </Button>
