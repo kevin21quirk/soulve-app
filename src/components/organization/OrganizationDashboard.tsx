@@ -38,6 +38,8 @@ import { DonorManagementService } from "@/services/donorManagementService";
 import { VolunteerManagementService } from "@/services/volunteerManagementService";
 import { GrantManagementService } from "@/services/grantManagementService";
 import { BusinessManagementService } from "@/services/businessManagementService";
+import { OrganizationProfileEditor } from "./OrganizationProfileEditor";
+import { fetchOrganizationProfile } from "@/services/organizationProfileService";
 
 interface OrganizationDashboardProps {
   organizationId: string;
@@ -57,6 +59,7 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
     activeGrants: 0,
     activeCampaigns: 0
   });
+  const [organization, setOrganization] = useState<any>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -66,11 +69,12 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
     try {
       setLoading(true);
       
-      const [teamMembers, donorAnalytics, volunteerAnalytics, grants] = await Promise.all([
+      const [teamMembers, donorAnalytics, volunteerAnalytics, grants, orgProfile] = await Promise.all([
         OrganizationManagementService.getTeamMembers(organizationId),
         DonorManagementService.getDonorAnalytics(organizationId),
         VolunteerManagementService.getVolunteerAnalytics(organizationId),
-        GrantManagementService.getGrants(organizationId)
+        GrantManagementService.getGrants(organizationId),
+        fetchOrganizationProfile(organizationId)
       ]);
 
       setStats({
@@ -81,6 +85,10 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
         activeGrants: grants.filter(g => g.status === 'active').length,
         activeCampaigns: 0 // Would need to fetch campaigns
       });
+
+      if (orgProfile.data) {
+        setOrganization(orgProfile.data);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
@@ -198,12 +206,18 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <MobileAwareTabsList className="grid w-full grid-cols-9 bg-secondary/20">
+        <MobileAwareTabsList className="grid w-full grid-cols-10 bg-secondary/20">
           <TabsTrigger 
             value="overview"
             className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
           >
             Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="profile"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent transition-all duration-200"
+          >
+            Profile
           </TabsTrigger>
           <TabsTrigger 
             value="team"
@@ -312,6 +326,15 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="profile" className="mt-4">
+          {organization && (
+            <OrganizationProfileEditor 
+              organization={organization} 
+              onUpdate={loadDashboardData}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="team" className="mt-4">
