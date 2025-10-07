@@ -156,6 +156,24 @@ Return format:
       } else {
         console.log(`ALERT CREATED: Risk score ${finalRiskScore}, Immediate escalation: ${requiresImmediateEscalation}`);
         
+        // Auto-pause session for critical/high severity
+        if (maxSeverity === 'critical' || maxSeverity === 'high' || requiresImmediateEscalation) {
+          const { error: pauseError } = await supabaseClient
+            .from('safe_space_sessions')
+            .update({
+              session_paused: true,
+              paused_reason: `Automated pause: ${maxSeverity} severity content detected (Risk: ${Math.round(finalRiskScore)})`,
+              paused_at: new Date().toISOString()
+            })
+            .eq('id', sessionId);
+
+          if (pauseError) {
+            console.error('Error pausing session:', pauseError);
+          } else {
+            console.log(`Session ${sessionId} AUTO-PAUSED due to ${maxSeverity} severity content`);
+          }
+        }
+        
         // Send notification email to safeguarding lead
         const { data: safeguardingLeads } = await supabaseClient
           .from('safeguarding_roles')

@@ -4383,11 +4383,14 @@ export type Database = {
           emergency_contact_phone: string | null
           emergency_contact_relationship: string | null
           id: string
+          id_verification_status: string | null
           is_available: boolean
           last_active: string | null
+          last_verification_check: string | null
           max_concurrent_sessions: number
           professional_credentials: Json | null
           specializations: string[]
+          trust_score: number | null
           updated_at: string
           user_id: string | null
           verification_status: string
@@ -4400,11 +4403,14 @@ export type Database = {
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           id?: string
+          id_verification_status?: string | null
           is_available?: boolean
           last_active?: string | null
+          last_verification_check?: string | null
           max_concurrent_sessions?: number
           professional_credentials?: Json | null
           specializations?: string[]
+          trust_score?: number | null
           updated_at?: string
           user_id?: string | null
           verification_status?: string
@@ -4417,11 +4423,14 @@ export type Database = {
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           id?: string
+          id_verification_status?: string | null
           is_available?: boolean
           last_active?: string | null
+          last_verification_check?: string | null
           max_concurrent_sessions?: number
           professional_credentials?: Json | null
           specializations?: string[]
+          trust_score?: number | null
           updated_at?: string
           user_id?: string | null
           verification_status?: string
@@ -4571,7 +4580,11 @@ export type Database = {
           id: string
           issue_category: string
           metadata: Json | null
+          paused_at: string | null
+          paused_by: string | null
+          paused_reason: string | null
           requester_id: string | null
+          session_paused: boolean | null
           session_token: string
           started_at: string | null
           status: string
@@ -4586,7 +4599,11 @@ export type Database = {
           id?: string
           issue_category: string
           metadata?: Json | null
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_reason?: string | null
           requester_id?: string | null
+          session_paused?: boolean | null
           session_token: string
           started_at?: string | null
           status?: string
@@ -4601,7 +4618,11 @@ export type Database = {
           id?: string
           issue_category?: string
           metadata?: Json | null
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_reason?: string | null
           requester_id?: string | null
+          session_paused?: boolean | null
           session_token?: string
           started_at?: string | null
           status?: string
@@ -6109,6 +6130,10 @@ export type Database = {
           p_window_minutes?: number
         }
         Returns: boolean
+      }
+      check_expired_dbs_certificates: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       check_rate_limit: {
         Args: {

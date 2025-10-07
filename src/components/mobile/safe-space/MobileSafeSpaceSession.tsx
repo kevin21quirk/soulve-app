@@ -31,7 +31,8 @@ const MobileSafeSpaceSession = ({ session, onBack }: MobileSafeSpaceSessionProps
     messages,
     sendMessage,
     endSession,
-    isConnected
+    isConnected,
+    sessionStatus
   } = useSafeSpaceSession(session.id);
 
   useEffect(() => {
@@ -135,6 +136,27 @@ const MobileSafeSpaceSession = ({ session, onBack }: MobileSafeSpaceSessionProps
         </div>
       </div>
 
+      {/* Session Paused Notice */}
+      {sessionStatus.isPaused && (
+        <div className="bg-orange-50 border-b border-orange-200 p-4">
+          <div className="flex items-start space-x-3">
+            <Shield className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-medium text-orange-900 text-sm mb-1">
+                Session Paused by Safeguarding Team
+              </h4>
+              <p className="text-xs text-orange-800 mb-2">
+                {sessionStatus.pausedReason || 'This session has been temporarily paused for your safety.'}
+              </p>
+              <p className="text-xs text-orange-700">
+                Our safeguarding team has been notified and will review this session shortly. 
+                If you need immediate help, please contact emergency services.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 pb-20">
         {messages.length === 0 ? (
@@ -174,22 +196,31 @@ const MobileSafeSpaceSession = ({ session, onBack }: MobileSafeSpaceSessionProps
 
       {/* Message Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <form onSubmit={handleSendMessage} className="flex space-x-2">
-          <Input
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1"
-            maxLength={500}
-          />
-          <Button
-            type="submit"
-            disabled={!messageText.trim() || !isConnected}
-            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+        {sessionStatus.isPaused ? (
+          <div className="flex items-center justify-center p-4 bg-orange-50 rounded-lg">
+            <Shield className="h-4 w-4 text-orange-600 mr-2" />
+            <span className="text-sm text-orange-800 font-medium">
+              Messaging disabled - Session under review
+            </span>
+          </div>
+        ) : (
+          <form onSubmit={handleSendMessage} className="flex space-x-2">
+            <Input
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-1"
+              maxLength={500}
+            />
+            <Button
+              type="submit"
+              disabled={!messageText.trim() || !isConnected}
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+        )}
       </div>
 
       {/* Rating Modal */}

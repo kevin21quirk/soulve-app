@@ -9,13 +9,22 @@ interface Message {
   created_at: string;
 }
 
+interface SessionStatus {
+  isPaused: boolean;
+  pausedReason?: string;
+  pausedAt?: string;
+}
+
 export const useSafeSpaceSession = (sessionId: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>({ isPaused: false });
 
   useEffect(() => {
     fetchMessages();
+    fetchSessionStatus();
     subscribeToMessages();
+    subscribeToSessionStatus();
     setIsConnected(true);
 
     return () => {
@@ -47,6 +56,27 @@ export const useSafeSpaceSession = (sessionId: string) => {
     }
   };
 
+  const fetchSessionStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('safe_space_sessions')
+        .select('session_paused, paused_reason, paused_at')
+        .eq('id', sessionId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSessionStatus({
+          isPaused: data.session_paused || false,
+          pausedReason: data.paused_reason,
+          pausedAt: data.paused_at
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching session status:', error);
+    }
+  };
+
   const subscribeToMessages = () => {
     const channel = supabase
       .channel(`safe-space-session-${sessionId}`)
@@ -75,8 +105,39 @@ export const useSafeSpaceSession = (sessionId: string) => {
     };
   };
 
+  const subscribeToSessionStatus = () => {
+    const channel = supabase
+      .channel(`safe-space-session-status-${sessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'safe_space_sessions',
+          filter: `id=eq.${sessionId}`
+        },
+        (payload) => {
+          setSessionStatus({
+            isPaused: payload.new.session_paused || false,
+            pausedReason: payload.new.paused_reason,
+            pausedAt: payload.new.paused_at
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
   const sendMessage = async (content: string) => {
     try {
+      // Check if session is paused before allowing message send
+      if (sessionStatus.isPaused) {
+        throw new Error('This session has been paused by the safeguarding team. Please contact support for assistance.');
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -173,6 +234,7 @@ export const useSafeSpaceSession = (sessionId: string) => {
   return {
     messages,
     isConnected,
+    sessionStatus,
     sendMessage,
     endSession,
     rateSession
