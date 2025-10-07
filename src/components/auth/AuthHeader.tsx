@@ -9,12 +9,12 @@ const AuthHeader = ({ isLogin }: AuthHeaderProps) => {
   return (
     <CardHeader className="text-center">
       <CardTitle className="text-2xl font-bold text-teal-700">
-        {isLogin ? "Welcome Back" : "Join SouLVE"}
+        {isLogin ? "Welcome Back" : "Join Our Testing Community"}
       </CardTitle>
       <p className="text-gray-600">
         {isLogin 
           ? "Sign in to your account to continue helping your community" 
-          : "Create your account and start making a difference"
+          : "Be part of our exclusive beta program. You'll be added to our waitlist for manual approval."
         }
       </p>
     </CardHeader>

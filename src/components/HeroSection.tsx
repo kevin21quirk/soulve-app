@@ -36,7 +36,7 @@ const HeroSection = () => {
     checkOnboardingStatus();
   }, [user]);
 
-  const handleTryDemo = () => {
+  const handleJoinBeta = () => {
     if (user) {
       // If user is logged in, check their onboarding status
       if (hasCompletedOnboarding) {
@@ -45,24 +45,16 @@ const HeroSection = () => {
         navigate("/profile-registration");
       }
     } else {
-      // For non-logged-in users, go to auth page with login context
-      navigate("/auth");
+      // For non-logged-in users, go to auth page with signup mode
+      navigate("/auth?mode=signup");
     }
   };
 
-  const handleBecomeSoulver = () => {
-    if (user) {
-      // If user is already logged in, direct them based on onboarding status
-      if (hasCompletedOnboarding) {
-        // Take them to dashboard to explore full features
-        navigate("/dashboard");
-      } else {
-        // Take them to complete their soulver registration
-        navigate("/profile-registration");
-      }
-    } else {
-      // For non-logged-in users, go to auth page defaulting to signup mode
-      navigate("/auth?mode=signup");
+  const handleLearnMore = () => {
+    // Scroll to features section
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -77,6 +69,9 @@ const HeroSection = () => {
           {/* Left Column - Content */}
           <div className="text-center lg:text-left space-y-8 animate-fade-in">
             <div className="space-y-6">
+              <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                🚀 Join Our Exclusive Beta Testing Community
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Connect.
                 <br />
@@ -86,7 +81,7 @@ const HeroSection = () => {
               </h1>
               
               <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                The community platform where help meets hope. Connect with people who need support and those ready to provide it.
+                Be among the first to experience the community platform where help meets hope. Join our testing community and help shape the future of meaningful connections.
               </p>
             </div>
             
@@ -95,36 +90,39 @@ const HeroSection = () => {
               <Button 
                 size="lg" 
                 className="bg-white text-[#18a5fe] hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl group border-none"
-                onClick={handleTryDemo}
+                onClick={handleJoinBeta}
               >
-                <Heart className="mr-3 h-6 w-6" />
-                Try SouLVE Demo
+                <Users className="mr-3 h-6 w-6" />
+                Join Beta Testing
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
               <Button 
                 size="lg" 
                 className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-[#18a5fe] transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl"
-                onClick={handleBecomeSoulver}
+                onClick={handleLearnMore}
               >
-                <Users className="mr-3 h-6 w-6" />
-                Become a Soulver
+                <Heart className="mr-3 h-6 w-6" />
+                Learn More
               </Button>
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-cyan-100">Verified Community</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-cyan-100">Safe & Secure</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-cyan-100">Real Impact</span>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-xl mx-auto lg:mx-0">
+              <p className="text-sm text-cyan-100 mb-3 font-semibold">What You Get as a Beta Tester:</p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-cyan-100">Early Access</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-cyan-100">Shape Features</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-cyan-100">Priority Support</span>
+                </div>
               </div>
             </div>
           </div>

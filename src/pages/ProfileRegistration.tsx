@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { saveQuestionnaireResponse } from "@/services/questionnaireService";
 import ProfileRegistrationHeader from "@/components/profile-registration/ProfileRegistrationHeader";
 import WelcomeStep from "@/components/profile-registration/steps/WelcomeStep";
@@ -69,15 +70,34 @@ const ProfileRegistration = () => {
         agree_to_terms: completeData.agreeToTerms || true
       });
 
-      // Onboarding status is now tracked only in database
+      // Check waitlist status after profile completion
+      const { data: { user } } = await supabase.auth.getUser();
       
-      toast({
-        title: "Welcome to SouLVE! 🎉",
-        description: "Your profile has been successfully created. Let's start building community together!",
-      });
+      if (user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('waitlist_status')
+          .eq('id', user.id)
+          .maybeSingle();
 
-      // Use replace to prevent going back to registration
-      navigate('/dashboard', { replace: true });
+        const waitlistStatus = profileData?.waitlist_status;
+
+        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+          toast({
+            title: "Profile Complete! ⏳",
+            description: "Thank you for joining! Your application is under review. We'll notify you once you're approved.",
+          });
+          // Redirect to waitlist page
+          navigate('/waitlist', { replace: true });
+        } else {
+          toast({
+            title: "Welcome to SouLVE! 🎉",
+            description: "Your profile has been successfully created. Let's start building community together!",
+          });
+          // User is approved, go to dashboard
+          navigate('/dashboard', { replace: true });
+        }
+      }
     } catch (error) {
       console.error('Error saving questionnaire:', error);
       toast({

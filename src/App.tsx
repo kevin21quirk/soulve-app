@@ -13,6 +13,7 @@ import CookieConsent from "@/components/legal/CookieConsent";
 import { FloatingFeedbackButton } from "@/components/feedback/FloatingFeedbackButton";
 
 // Lazy load route components for better performance
+const Index = lazy(() => import("@/pages/Index"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const WaitlistDashboard = lazy(() => import("@/pages/WaitlistDashboard"));
@@ -43,6 +44,8 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<LoadingState message="Loading application..." />}>
             <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-email" element={<EmailVerificationHandler />} />
             <Route path="/reset-password" element={<PasswordResetHandler />} />
@@ -115,14 +118,6 @@ function App() {
                 <AdminRoute>
                   <AdminHub />
                 </AdminRoute>
-              } 
-            />
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
               } 
             />
             </Routes>

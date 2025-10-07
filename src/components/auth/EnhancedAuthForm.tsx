@@ -226,17 +226,14 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
         if (data.user) {
           toast({
-            title: "Account created!",
-            description: "Please check your email to verify your account, then you'll be added to our waitlist for approval."
+            title: "Welcome to the Testing Community! 🎉",
+            description: "We'll review your application shortly. Check your email to verify your account, then you'll receive updates on your approval status."
           });
           
-          // Clear form
-          setFormData({
-            email: "",
-            password: "",
-            firstName: "",
-            lastName: ""
-          });
+          // Redirect to profile registration after successful signup
+          setTimeout(() => {
+            onSuccess();
+          }, 1500);
         }
       }
     } catch (error: any) {

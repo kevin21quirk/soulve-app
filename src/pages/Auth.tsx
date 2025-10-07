@@ -56,7 +56,7 @@ const Auth = () => {
   };
 
   const handleAuthSuccess = () => {
-    navigate("/dashboard");
+    navigate("/profile-registration");
   };
 
   return (

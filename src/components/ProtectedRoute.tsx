@@ -24,22 +24,38 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         return;
       }
 
-      // Check if user has completed onboarding
       try {
-        const { data } = await supabase
+        // Check waitlist status first
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('waitlist_status')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        const waitlistStatus = profileData?.waitlist_status;
+
+        // If user is pending or denied, redirect to waitlist page
+        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+          navigate('/waitlist', { replace: true });
+          return;
+        }
+
+        // Check if user has completed onboarding
+        const { data: onboardingData } = await supabase
           .from('questionnaire_responses')
           .select('id')
           .eq('user_id', user.id)
           .maybeSingle();
         
-        const completed = !!data;
+        const completed = !!onboardingData;
         
         if (!completed) {
           navigate('/profile-registration', { replace: true });
           return;
         }
       } catch (error) {
-        // If error checking onboarding, allow access to dashboard
+        // If error checking, allow access (fail open for better UX)
+        console.error('Error checking access:', error);
       }
 
       setChecking(false);

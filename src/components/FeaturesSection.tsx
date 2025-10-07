@@ -43,7 +43,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-white">
+    <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-white">
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold text-gray-900 mb-4">The Missing Link in Community Connection</h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -70,7 +70,7 @@ const FeaturesSection = () => {
           </Card>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
