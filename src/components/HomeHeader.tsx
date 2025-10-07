@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import SouLVELogo from "./SouLVELogo";
+import SouLVEIcon from "./SouLVEIcon";
 
 const HomeHeader = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const HomeHeader = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo - Clickable and properly sized */}
           <div className="flex items-center">
-            <SouLVELogo size="header" clickable={true} />
+            <SouLVEIcon size="small" clickable={true} />
           </div>
 
           {/* Auth Section */}
