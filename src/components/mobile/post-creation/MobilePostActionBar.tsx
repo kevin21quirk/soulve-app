@@ -80,8 +80,8 @@ const MobilePostActionBar = ({
 
   return (
     <>
-      <div className="flex items-center justify-between border-t border-gray-100 p-3">
-        <div className="flex items-center space-x-1 overflow-x-auto">
+      <div className="flex items-center gap-2 border-t border-gray-100 p-3">
+        <div className="flex items-center space-x-1 overflow-x-auto flex-1 min-w-0 scrollbar-hide">
           <input
             ref={fileInputRef}
             type="file"
@@ -95,7 +95,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className="p-2"
+            className="p-2 flex-shrink-0"
             onClick={handleCameraClick}
             title="Add Photo"
           >
@@ -106,7 +106,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className={`p-2 ${formData.isLiveVideo ? 'bg-red-50' : ''}`}
+            className={`p-2 flex-shrink-0 ${formData.isLiveVideo ? 'bg-red-50' : ''}`}
             onClick={() => handleFeatureClick('liveVideo')}
             title="Live Video"
           >
@@ -117,7 +117,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className={`p-2 ${formData.hasGif ? 'bg-purple-50' : ''}`}
+            className={`p-2 flex-shrink-0 ${formData.hasGif ? 'bg-purple-50' : ''}`}
             onClick={() => handleFeatureClick('gif')}
             title="Add GIF"
           >
@@ -128,7 +128,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className="p-2"
+            className="p-2 flex-shrink-0"
             onClick={() => handleFeatureClick('tagUsers')}
             title="Tag People"
           >
@@ -139,7 +139,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className="p-2"
+            className="p-2 flex-shrink-0"
             onClick={onLocationDetect}
             title="Add Location"
           >
@@ -150,7 +150,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className={`p-2 ${formData.hasPoll ? 'bg-yellow-50' : ''}`}
+            className={`p-2 flex-shrink-0 ${formData.hasPoll ? 'bg-yellow-50' : ''}`}
             onClick={() => handleFeatureClick('poll')}
             title="Create Poll"
           >
@@ -161,7 +161,7 @@ const MobilePostActionBar = ({
             type="button"
             variant="ghost" 
             size="sm" 
-            className={`p-2 ${formData.isEvent ? 'bg-blue-50' : ''}`}
+            className={`p-2 flex-shrink-0 ${formData.isEvent ? 'bg-blue-50' : ''}`}
             onClick={() => handleFeatureClick('event')}
             title="Create Event"
           >
@@ -174,7 +174,7 @@ const MobilePostActionBar = ({
           size="sm"
           onClick={onPost}
           disabled={disabled}
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-4 py-2 text-sm font-medium disabled:opacity-50 flex-shrink-0"
         >
           <Send className="h-4 w-4 mr-2" />
           Share
