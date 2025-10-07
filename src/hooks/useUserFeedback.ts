@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export interface UserFeedback {
   id: string;
@@ -52,11 +53,44 @@ export const useUserFeedback = (options?: UseUserFeedbackOptions) => {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
           table: 'platform_feedback',
         },
-        () => {
+        (payload) => {
+          const newFeedback = payload.new as UserFeedback;
+          const oldFeedback = payload.old as UserFeedback;
+          
+          // Show toast notification if status changed
+          if (newFeedback.status !== oldFeedback.status) {
+            const statusMessages = {
+              'in_review': {
+                title: 'Feedback Acknowledged',
+                description: `We're looking into: "${newFeedback.title}"`
+              },
+              'in_progress': {
+                title: 'Work Started',
+                description: `We've started working on: "${newFeedback.title}"`
+              },
+              'resolved': {
+                title: 'Issue Resolved! 🎉',
+                description: `We've addressed: "${newFeedback.title}"`
+              },
+              'wont_fix': {
+                title: 'Feedback Response',
+                description: newFeedback.admin_notes || `Thanks for your feedback on: "${newFeedback.title}"`
+              }
+            };
+
+            const message = statusMessages[newFeedback.status as keyof typeof statusMessages];
+            if (message) {
+              toast({
+                title: message.title,
+                description: message.description,
+              });
+            }
+          }
+          
           query.refetch();
         }
       )
