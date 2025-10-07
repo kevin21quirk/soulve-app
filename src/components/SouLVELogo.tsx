@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import soulveLogo from "@/assets/soulve-logo.png";
 
 interface SouLVELogoProps {
-  size?: "small" | "medium" | "large" | "header";
+  size?: "small" | "medium" | "large" | "xlarge" | "header";
   clickable?: boolean;
 }
 
@@ -13,20 +13,24 @@ const SouLVELogo = ({ size = "large", clickable = false }: SouLVELogoProps) => {
   // Size configurations
   const sizeConfig = {
     small: {
-      width: "w-24",
-      height: "h-12"
-    },
-    medium: {
       width: "w-32",
       height: "h-16"
     },
-    large: {
+    medium: {
       width: "w-48",
       height: "h-24"
     },
+    large: {
+      width: "w-64",
+      height: "h-32"
+    },
+    xlarge: {
+      width: "w-96",
+      height: "h-48"
+    },
     header: {
       width: "w-auto",
-      height: "h-16"
+      height: "h-20"
     }
   };
 
