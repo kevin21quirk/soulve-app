@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import soulveIcon from "@/assets/soulve-icon.jpg";
+import soulveIcon from "@/assets/soulve-icon.png";
 
 interface SouLVEIconProps {
   size?: "small" | "medium" | "large" | "xlarge";
