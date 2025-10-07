@@ -18,7 +18,7 @@ const SouLVEIcon = ({ size = "large", clickable = false }: SouLVEIconProps) => {
       dimensions: "w-16 h-16"
     },
     large: {
-      dimensions: "w-24 h-24"
+      dimensions: "w-40 h-40"
     },
     xlarge: {
       dimensions: "w-32 h-32"

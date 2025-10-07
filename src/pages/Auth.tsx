@@ -63,9 +63,9 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       {/* Branded Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-6 mb-8">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-4 mb-8">
         <div className="max-w-md mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-center mb-2">
             <SouLVEIcon size="large" />
           </div>
           <h1 className="text-3xl font-bold mb-2">
