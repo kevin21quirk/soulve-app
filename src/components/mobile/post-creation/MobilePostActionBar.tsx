@@ -80,8 +80,9 @@ const MobilePostActionBar = ({
 
   return (
     <>
-      <div className="flex items-center border-t border-gray-100 p-3">
-        <div className="flex items-center space-x-1 overflow-x-auto" style={{ maxWidth: 'calc(100% - 90px)' }}>
+      <div className="flex flex-col border-t border-gray-100 p-3 space-y-3">
+        {/* Row 1: Action Icons - Horizontally scrollable */}
+        <div className="flex items-center space-x-1 overflow-x-auto w-full scrollbar-hide">
           <input
             ref={fileInputRef}
             type="file"
@@ -169,15 +170,15 @@ const MobilePostActionBar = ({
           </Button>
         </div>
         
+        {/* Row 2: Share Button - Full width, always visible */}
         <Button 
           type="button"
           size="sm"
           onClick={onPost}
           disabled={disabled}
-          className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white px-3 py-2 text-sm font-medium disabled:opacity-50 ml-2 whitespace-nowrap"
-          style={{ minWidth: '82px' }}
+          className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white py-2.5 text-sm font-medium disabled:opacity-50"
         >
-          <Send className="h-4 w-4 mr-1.5" />
+          <Send className="h-4 w-4 mr-2" />
           Share
         </Button>
       </div>
