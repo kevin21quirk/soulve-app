@@ -31,7 +31,7 @@ const HeaderOverlays = ({
 }: HeaderOverlaysProps) => {
   const searchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const { query, setQuery, results, loading, clearSearch } = useGlobalSearch();
+  const { query, setQuery, results, loading, error, clearSearch } = useGlobalSearch();
   const { activities, loading: activitiesLoading } = useUserActivity();
 
   useEffect(() => {
@@ -58,7 +58,10 @@ const HeaderOverlays = ({
                   ref={searchRef}
                   placeholder="Search users, campaigns, groups, organizations, posts..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    console.log('🔍 [Search Input] Value changed:', e.target.value);
+                    setQuery(e.target.value);
+                  }}
                   className="pl-10"
                 />
               </div>
@@ -67,13 +70,33 @@ const HeaderOverlays = ({
               </Button>
             </div>
             
-            {query.length >= 2 && (
+            {loading && (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">Searching...</p>
+              </div>
+            )}
+            
+            {error && (
+              <div className="text-center py-4">
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+            
+            {!loading && !error && query.length >= 2 && (
               <GlobalSearchResults 
                 results={results} 
                 loading={loading}
                 query={query}
                 onResultClick={handleSearchClose}
               />
+            )}
+            
+            {!loading && query.length > 0 && query.length < 2 && (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  Type at least 2 characters to search
+                </p>
+              </div>
             )}
           </div>
         </div>

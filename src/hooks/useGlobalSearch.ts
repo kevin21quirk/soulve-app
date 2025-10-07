@@ -39,7 +39,10 @@ export const useGlobalSearch = () => {
   const debouncedQuery = useDebounce(query, 300);
 
   const performSearch = useCallback(async (searchQuery: string) => {
+    console.log('🔍 [Global Search] Query:', searchQuery);
+    
     if (!searchQuery || searchQuery.trim().length < 2) {
+      console.log('🔍 [Global Search] Query too short, clearing results');
       setResults({
         users: [],
         campaigns: [],
@@ -54,54 +57,79 @@ export const useGlobalSearch = () => {
 
     setLoading(true);
     setError(null);
+    console.log('🔍 [Global Search] Starting search...');
 
     try {
       const searchTerm = `%${searchQuery.trim()}%`;
+      console.log('🔍 [Global Search] Search term:', searchTerm);
 
       // Search users/profiles
+      console.log('🔍 [Global Search] Searching profiles...');
       const { data: users, error: usersError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, avatar_url, bio, location')
         .or(`first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},bio.ilike.${searchTerm}`)
         .limit(10);
+      
+      console.log('🔍 [Global Search] Users found:', users?.length || 0, 'Error:', usersError);
+      if (usersError) console.error('🔍 [Global Search] Users error details:', usersError);
 
       // Search campaigns
+      console.log('🔍 [Global Search] Searching campaigns...');
       const { data: campaigns, error: campaignsError } = await supabase
         .from('campaigns')
         .select('id, title, description, featured_image, category')
         .eq('status', 'active')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
+      console.log('🔍 [Global Search] Campaigns found:', campaigns?.length || 0);
 
       // Search groups
+      console.log('🔍 [Global Search] Searching groups...');
       const { data: groups, error: groupsError } = await supabase
         .from('groups')
         .select('id, name, description, cover_image')
         .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
+      console.log('🔍 [Global Search] Groups found:', groups?.length || 0);
 
       // Search organizations
+      console.log('🔍 [Global Search] Searching organizations...');
       const { data: organizations, error: orgsError } = await supabase
         .from('organizations')
         .select('id, name, description, avatar_url')
         .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
+      console.log('🔍 [Global Search] Organizations found:', organizations?.length || 0);
 
       // Search posts
+      console.log('🔍 [Global Search] Searching posts...');
       const { data: posts, error: postsError } = await supabase
         .from('posts')
         .select('id, content, title, created_at, author_id')
         .or(`content.ilike.${searchTerm},title.ilike.${searchTerm}`)
         .limit(10);
+      console.log('🔍 [Global Search] Posts found:', posts?.length || 0);
 
       // Search volunteer opportunities
+      console.log('🔍 [Global Search] Searching opportunities...');
       const { data: opportunities, error: oppsError } = await supabase
         .from('volunteer_opportunities')
         .select('id, title, description, organization_id')
         .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .limit(10);
+      console.log('🔍 [Global Search] Opportunities found:', opportunities?.length || 0);
 
       if (usersError || campaignsError || groupsError || orgsError || postsError || oppsError) {
+        const errorDetails = {
+          users: usersError,
+          campaigns: campaignsError,
+          groups: groupsError,
+          organizations: orgsError,
+          posts: postsError,
+          opportunities: oppsError
+        };
+        console.error('🔍 [Global Search] Search errors:', errorDetails);
         throw new Error('Search failed');
       }
 
@@ -158,6 +186,15 @@ export const useGlobalSearch = () => {
                         groupResults.length + orgResults.length + 
                         postResults.length + oppResults.length;
 
+      console.log('🔍 [Global Search] Total results:', totalCount, {
+        users: userResults.length,
+        campaigns: campaignResults.length,
+        groups: groupResults.length,
+        organizations: orgResults.length,
+        posts: postResults.length,
+        opportunities: oppResults.length
+      });
+
       setResults({
         users: userResults,
         campaigns: campaignResults,
@@ -168,10 +205,11 @@ export const useGlobalSearch = () => {
         totalCount,
       });
     } catch (err) {
-      console.error('Search error:', err);
+      console.error('🔍 [Global Search] Error:', err);
       setError('Failed to perform search');
     } finally {
       setLoading(false);
+      console.log('🔍 [Global Search] Search complete');
     }
   }, []);
 
