@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/auth/AuthHeader";
 import EnhancedAuthForm from "@/components/auth/EnhancedAuthForm";
 import AuthToggle from "@/components/auth/AuthToggle";
+import SouLVELogo from "@/components/SouLVELogo";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -60,8 +61,28 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+      {/* Branded Header */}
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-8 mb-8">
+        <div className="max-w-md mx-auto px-4 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <SouLVELogo size="medium" />
+          </div>
+          <h1 className="text-3xl font-bold mb-2">
+            {isLogin ? "Welcome Back" : "Join Our Testing Community"}
+          </h1>
+          <p className="text-teal-100">
+            {isLogin 
+              ? "Sign in to continue helping your community" 
+              : "Be part of our exclusive beta program"
+            }
+          </p>
+        </div>
+      </div>
+
+      {/* Auth Content */}
+      <div className="max-w-md mx-auto px-4 pb-8">
+        <div className="space-y-4">
         {backendStatus === 'offline' && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -94,6 +115,7 @@ const Auth = () => {
             <AuthToggle isLogin={isLogin} onToggle={handleToggleMode} />
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
