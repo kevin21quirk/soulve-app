@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,13 +31,15 @@ interface SocialPostCardProps {
   onPostDeleted?: () => void;
 }
 
-const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
-  console.log('🎨 [SocialPostCard] Rendered with post:', {
-    id: post.id,
-    author: post.author,
-    authorId: post.authorId,
-    hasAuthorId: !!post.authorId
-  });
+const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
+  if (import.meta.env.DEV) {
+    console.log('🎨 [SocialPostCard] Rendered with post:', {
+      id: post.id,
+      author: post.author,
+      authorId: post.authorId,
+      hasAuthorId: !!post.authorId
+    });
+  }
   
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -96,17 +98,21 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
   const { comments } = usePostComments(post.id);
 
   const handleProfileClick = () => {
-    console.log('👆 [SocialPostCard] Profile click:', {
-      postId: post.id,
-      authorId: post.authorId,
-      willNavigate: !!post.authorId,
-      navigateTo: post.authorId ? `/profile/${post.authorId}` : 'NOWHERE - authorId missing!'
-    });
+    if (import.meta.env.DEV) {
+      console.log('👆 [SocialPostCard] Profile click:', {
+        postId: post.id,
+        authorId: post.authorId,
+        willNavigate: !!post.authorId,
+        navigateTo: post.authorId ? `/profile/${post.authorId}` : 'NOWHERE - authorId missing!'
+      });
+    }
     
     if (post.authorId) {
       navigate(`/profile/${post.authorId}`);
     } else {
-      console.error('❌ [SocialPostCard] Cannot navigate - authorId is missing!');
+      if (import.meta.env.DEV) {
+        console.error('❌ [SocialPostCard] Cannot navigate - authorId is missing!');
+      }
     }
   };
 
@@ -429,6 +435,8 @@ const SocialPostCard = ({ post, onLike, onShare, onBookmark, onComment, onReacti
       </CardContent>
     </Card>
   );
-};
+});
+
+SocialPostCard.displayName = 'SocialPostCard';
 
 export default SocialPostCard;

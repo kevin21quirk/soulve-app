@@ -199,12 +199,14 @@ const RealSocialFeed = () => {
         <div className="space-y-6">
           {posts.map((post) => {
             const transformedPost = transformSocialPostToFeedPost(post);
-            console.log('📦 [RealSocialFeed] Rendering post:', {
-              rawPostId: post.id,
-              rawAuthorId: post.author_id,
-              transformedPostId: transformedPost.id,
-              transformedAuthorId: transformedPost.authorId
-            });
+            if (import.meta.env.DEV) {
+              console.log('📦 [RealSocialFeed] Rendering post:', {
+                rawPostId: post.id,
+                rawAuthorId: post.author_id,
+                transformedPostId: transformedPost.id,
+                transformedAuthorId: transformedPost.authorId
+              });
+            }
             return (
               <SocialPostCard
                 key={post.id}

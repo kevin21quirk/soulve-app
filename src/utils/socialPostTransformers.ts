@@ -2,16 +2,20 @@
 import { FeedPost } from '@/types/feed';
 
 export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
-  console.log('🔍 [Transform] Input socialPost:', {
-    id: socialPost.id,
-    author_id: socialPost.author_id,
-    author_name: socialPost.author_name,
-    fullPost: socialPost
-  });
+  if (import.meta.env.DEV) {
+    console.log('🔍 [Transform] Input socialPost:', {
+      id: socialPost.id,
+      author_id: socialPost.author_id,
+      author_name: socialPost.author_name,
+      fullPost: socialPost
+    });
+  }
   
   // Validate that we have an author_id
   if (!socialPost.author_id) {
-    console.error('❌ [Transform] Missing author_id in socialPost:', socialPost);
+    if (import.meta.env.DEV) {
+      console.error('❌ [Transform] Missing author_id in socialPost:', socialPost);
+    }
     throw new Error('Cannot transform post without author_id');
   }
   
@@ -40,11 +44,13 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     visibility: socialPost.visibility || 'public'
   };
   
-  console.log('✅ [Transform] Output feedPost:', {
-    id: feedPost.id,
-    author: feedPost.author,
-    authorId: feedPost.authorId
-  });
+  if (import.meta.env.DEV) {
+    console.log('✅ [Transform] Output feedPost:', {
+      id: feedPost.id,
+      author: feedPost.author,
+      authorId: feedPost.authorId
+    });
+  }
   
   return feedPost;
 };

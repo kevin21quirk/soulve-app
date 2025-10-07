@@ -50,12 +50,16 @@ export const useRealSocialFeed = () => {
       ]);
 
       if (postsResult.error) {
-        console.error('useRealSocialFeed - Posts query error:', postsResult.error);
+        if (import.meta.env.DEV) {
+          console.error('useRealSocialFeed - Posts query error:', postsResult.error);
+        }
         throw postsResult.error;
       }
 
       if (campaignsResult.error) {
-        console.error('useRealSocialFeed - Campaigns query error:', campaignsResult.error);
+        if (import.meta.env.DEV) {
+          console.error('useRealSocialFeed - Campaigns query error:', campaignsResult.error);
+        }
         throw campaignsResult.error;
       }
 
@@ -76,7 +80,9 @@ export const useRealSocialFeed = () => {
           .in('id', authorIds);
 
         if (profilesError) {
-          console.error('useRealSocialFeed - Profiles query error:', profilesError);
+          if (import.meta.env.DEV) {
+            console.error('useRealSocialFeed - Profiles query error:', profilesError);
+          }
         } else {
           profilesData = profiles || [];
         }
@@ -191,7 +197,9 @@ export const useRealSocialFeed = () => {
       
       setPosts(allPosts);
     } catch (error: any) {
-      console.error('useRealSocialFeed - Error fetching posts:', error);
+      if (import.meta.env.DEV) {
+        console.error('useRealSocialFeed - Error fetching posts:', error);
+      }
       toast({
         title: "Failed to load posts",
         description: "Please try refreshing the page",
@@ -238,7 +246,9 @@ export const useRealSocialFeed = () => {
         description: "Your reaction has been recorded."
       });
     } catch (error: any) {
-      console.error('useRealSocialFeed - Error liking post:', error);
+      if (import.meta.env.DEV) {
+        console.error('useRealSocialFeed - Error liking post:', error);
+      }
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -284,7 +294,9 @@ export const useRealSocialFeed = () => {
         description: "You can find it in your saved posts."
       });
     } catch (error: any) {
-      console.error('useRealSocialFeed - Error bookmarking post:', error);
+      if (import.meta.env.DEV) {
+        console.error('useRealSocialFeed - Error bookmarking post:', error);
+      }
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -330,7 +342,9 @@ export const useRealSocialFeed = () => {
         description: "The post has been shared with your network."
       });
     } catch (error: any) {
-      console.error('useRealSocialFeed - Error sharing post:', error);
+      if (import.meta.env.DEV) {
+        console.error('useRealSocialFeed - Error sharing post:', error);
+      }
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -377,7 +391,9 @@ export const useRealSocialFeed = () => {
         description: "Your comment has been posted."
       });
     } catch (error: any) {
-      console.error('useRealSocialFeed - Error adding comment:', error);
+      if (import.meta.env.DEV) {
+        console.error('useRealSocialFeed - Error adding comment:', error);
+      }
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 

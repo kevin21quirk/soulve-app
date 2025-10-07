@@ -67,10 +67,18 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Show loading while checking auth status
   if (authLoading || checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-6 w-6 rounded-full bg-primary/20 animate-pulse"></div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">Verifying access...</p>
+            <p className="text-xs text-muted-foreground">Please wait</p>
+          </div>
         </div>
       </div>
     );
