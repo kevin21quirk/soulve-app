@@ -12,7 +12,11 @@ import {
   HeartHandshake,
   Sliders,
   ArrowLeft,
-  MessageSquare
+  MessageSquare,
+  ShieldAlert,
+  Eye,
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import {
   Sidebar,
@@ -45,6 +49,13 @@ const adminNavItems = [
   { title: 'Settings', url: '/admin/settings', icon: Settings, showBadge: false },
 ];
 
+const safeguardingNavItems = [
+  { title: 'Emergency Alerts', url: '/admin/safeguarding/alerts', icon: ShieldAlert, showBadge: true },
+  { title: 'Active Sessions', url: '/admin/safeguarding/sessions', icon: Eye, showBadge: false },
+  { title: 'DBS Reviews', url: '/admin/safeguarding/dbs', icon: FileText, showBadge: false },
+  { title: 'Keywords', url: '/admin/safeguarding/keywords', icon: AlertCircle, showBadge: false },
+];
+
 const AdminSidebar = () => {
   const { counts } = useNotificationCounts();
 
@@ -75,6 +86,42 @@ const AdminSidebar = () => {
               
               {/* Divider */}
               <div className="h-px bg-slate-700 my-2" />
+              
+              {/* Safeguarding Section */}
+              <div className="px-2 py-2">
+                <h3 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2 px-2">
+                  🚨 Safeguarding
+                </h3>
+                {safeguardingNavItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
+                            isActive
+                              ? 'bg-red-600 text-white font-semibold shadow-md'
+                              : 'text-slate-300 hover:bg-red-900/30 hover:text-white'
+                          }`
+                        }
+                      >
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="text-sm">{item.title}</span>
+                        {item.showBadge && counts.safeguardingAlerts > 0 && (
+                          <NotificationBadge 
+                            count={counts.safeguardingAlerts} 
+                            className="relative top-0 right-0 ml-auto bg-red-500"
+                          />
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </div>
+              
+              <div className="h-px bg-slate-700 my-2" />
+              
+              {/* General Admin Items */}
               {adminNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>

@@ -9,6 +9,7 @@ interface NotificationCounts {
   social: number;
   donations: number;
   esg: number;
+  safeguardingAlerts: number;
   total: number;
 }
 
@@ -25,13 +26,14 @@ export const useNotificationCounts = () => {
     social: 0,
     donations: 0,
     esg: 0,
+    safeguardingAlerts: 0,
     total: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) {
-      setCounts({ messages: 0, feedback: 0, connections: 0, social: 0, donations: 0, esg: 0, total: 0 });
+      setCounts({ messages: 0, feedback: 0, connections: 0, social: 0, donations: 0, esg: 0, safeguardingAlerts: 0, total: 0 });
       setLoading(false);
       return;
     }
@@ -252,6 +254,8 @@ export const useNotificationCounts = () => {
 
       // Get unread feedback count (for admins only)
       let feedbackCount = 0;
+      let safeguardingAlertsCount = 0;
+      
       const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin', {
         user_uuid: user.id,
       });
@@ -271,6 +275,18 @@ export const useNotificationCounts = () => {
         } else {
           feedbackCount = count || 0;
         }
+
+        // Get active safeguarding alerts count (for safeguarding staff)
+        const { count: alertsCount, error: alertsError } = await supabase
+          .from('safe_space_emergency_alerts')
+          .select('*', { count: 'exact', head: true })
+          .in('status', ['pending', 'acknowledged', 'reviewing']);
+
+        if (alertsError) {
+          console.error('Error loading safeguarding alerts:', alertsError);
+        } else {
+          safeguardingAlertsCount = alertsCount || 0;
+        }
       }
 
       const newCounts = {
@@ -280,7 +296,8 @@ export const useNotificationCounts = () => {
         social: socialCount,
         donations: donationsCount || 0,
         esg: esgCount,
-        total: (messagesCount || 0) + feedbackCount + (connectionsCount || 0) + socialCount + (donationsCount || 0) + esgCount,
+        safeguardingAlerts: safeguardingAlertsCount,
+        total: (messagesCount || 0) + feedbackCount + (connectionsCount || 0) + socialCount + (donationsCount || 0) + esgCount + safeguardingAlertsCount,
       };
 
       console.log('Setting notification counts:', newCounts);
