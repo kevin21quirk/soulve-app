@@ -66,7 +66,7 @@ const Auth = () => {
       <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-8 mb-8">
         <div className="max-w-md mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
-            <SouLVELogo size="medium" />
+            <SouLVELogo size="large" />
           </div>
           <h1 className="text-3xl font-bold mb-2">
             {isLogin ? "Welcome Back" : "Join Our Testing Community"}
