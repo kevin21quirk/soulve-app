@@ -12,8 +12,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface DashboardHeaderProps {
   showSearch: boolean;
   setShowSearch: (show: boolean) => void;
-  showNotifications: boolean;
-  setShowNotifications: (show: boolean) => void;
   showShortcuts: boolean;
   setShowShortcuts: (show: boolean) => void;
   showActivity: boolean;
@@ -24,8 +22,6 @@ interface DashboardHeaderProps {
 const DashboardHeader = ({
   showSearch,
   setShowSearch,
-  showNotifications,
-  setShowNotifications,
   showShortcuts,
   setShowShortcuts,
   showActivity,
@@ -33,18 +29,7 @@ const DashboardHeader = ({
   onNavigateToTab,
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
-  const { unreadCount } = useRealTimeNotifications();
   const isMobile = useIsMobile();
-
-  const handleSearchSubmit = (query: string) => {
-    // Search handled by EnhancedSearchBar component
-  };
-
-  const handleNotificationClick = () => {
-    // Navigate to notifications tab instead of showing modal
-    onNavigateToTab("notifications");
-    setShowNotifications(false);
-  };
 
   const quickActions = [
     { label: "Create Campaign", action: () => navigate('/campaign-builder'), icon: Plus },
@@ -62,14 +47,10 @@ const DashboardHeader = ({
               <MobileHeader
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
-                showNotifications={showNotifications}
-                setShowNotifications={setShowNotifications}
                 showShortcuts={showShortcuts}
                 setShowShortcuts={setShowShortcuts}
                 showActivity={showActivity}
                 setShowActivity={setShowActivity}
-                unreadCount={unreadCount}
-                onNotificationClick={handleNotificationClick}
                 onNavigateToTab={onNavigateToTab}
               />
             ) : (
@@ -79,14 +60,10 @@ const DashboardHeader = ({
                   <HeaderActions
                     showSearch={showSearch}
                     setShowSearch={setShowSearch}
-                    showNotifications={showNotifications}
-                    setShowNotifications={setShowNotifications}
                     showShortcuts={showShortcuts}
                     setShowShortcuts={setShowShortcuts}
                     showActivity={showActivity}
                     setShowActivity={setShowActivity}
-                    unreadCount={unreadCount}
-                    onNotificationClick={handleNotificationClick}
                   />
                   <UserSection />
                 </div>
@@ -99,13 +76,11 @@ const DashboardHeader = ({
       <HeaderOverlays
         showSearch={showSearch}
         setShowSearch={setShowSearch}
-        showNotifications={showNotifications}
-        setShowNotifications={setShowNotifications}
         showShortcuts={showShortcuts}
         setShowShortcuts={setShowShortcuts}
         showActivity={showActivity}
         setShowActivity={setShowActivity}
-        onSearchSubmit={handleSearchSubmit}
+        onNavigateToTab={onNavigateToTab}
       />
     </>
   );

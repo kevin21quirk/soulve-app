@@ -16,28 +16,20 @@ import {
 interface MobileHeaderProps {
   showSearch: boolean;
   setShowSearch: (show: boolean) => void;
-  showNotifications: boolean;
-  setShowNotifications: (show: boolean) => void;
   showShortcuts: boolean;
   setShowShortcuts: (show: boolean) => void;
   showActivity: boolean;
   setShowActivity: (show: boolean) => void;
-  unreadCount?: number;
-  onNotificationClick?: () => void;
   onNavigateToTab?: (tab: string) => void;
 }
 
 const MobileHeader = ({
   showSearch,
   setShowSearch,
-  showNotifications,
-  setShowNotifications,
   showShortcuts,
   setShowShortcuts,
   showActivity,
   setShowActivity,
-  unreadCount = 0,
-  onNotificationClick,
   onNavigateToTab,
 }: MobileHeaderProps) => {
   const isMobile = useIsMobile();
@@ -101,14 +93,10 @@ const MobileHeader = ({
               <HeaderActions
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
-                showNotifications={showNotifications}
-                setShowNotifications={setShowNotifications}
                 showShortcuts={showShortcuts}
                 setShowShortcuts={setShowShortcuts}
                 showActivity={showActivity}
                 setShowActivity={setShowActivity}
-                unreadCount={unreadCount}
-                onNotificationClick={onNotificationClick}
               />
             </div>
           </div>

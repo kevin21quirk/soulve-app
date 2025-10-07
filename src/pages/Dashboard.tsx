@@ -22,7 +22,6 @@ const Dashboard = () => {
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
 
@@ -71,7 +70,6 @@ const Dashboard = () => {
     setActiveTab(tab);
     // Close any open overlays when navigating
     setShowSearch(false);
-    setShowNotifications(false);
     setShowShortcuts(false);
     setShowActivity(false);
   };
@@ -102,8 +100,6 @@ const Dashboard = () => {
       <DashboardHeader
         showSearch={showSearch}
         setShowSearch={setShowSearch}
-        showNotifications={showNotifications}
-        setShowNotifications={setShowNotifications}
         showShortcuts={showShortcuts}
         setShowShortcuts={setShowShortcuts}
         showActivity={showActivity}
