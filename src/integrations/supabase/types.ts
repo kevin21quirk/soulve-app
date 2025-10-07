@@ -4120,6 +4120,147 @@ export type Database = {
           },
         ]
       }
+      safe_space_audit_log: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      safe_space_emergency_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          ai_analysis: Json | null
+          alert_type: string
+          assigned_to: string | null
+          created_at: string | null
+          detected_keywords: string[] | null
+          id: string
+          message_id: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          risk_score: number | null
+          session_id: string | null
+          severity: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          ai_analysis?: Json | null
+          alert_type: string
+          assigned_to?: string | null
+          created_at?: string | null
+          detected_keywords?: string[] | null
+          id?: string
+          message_id?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          severity: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          ai_analysis?: Json | null
+          alert_type?: string
+          assigned_to?: string | null
+          created_at?: string | null
+          detected_keywords?: string[] | null
+          id?: string
+          message_id?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          severity?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_emergency_alerts_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safe_space_emergency_alerts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "safe_space_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      safe_space_flagged_keywords: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          keyword: string
+          requires_immediate_escalation: boolean | null
+          severity: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword: string
+          requires_immediate_escalation?: boolean | null
+          severity: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword?: string
+          requires_immediate_escalation?: boolean | null
+          severity?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       safe_space_helper_applications: {
         Row: {
           application_status: string
@@ -4237,6 +4378,10 @@ export type Database = {
         Row: {
           created_at: string
           current_sessions: number
+          dbs_required: boolean | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relationship: string | null
           id: string
           is_available: boolean
           last_active: string | null
@@ -4250,6 +4395,10 @@ export type Database = {
         Insert: {
           created_at?: string
           current_sessions?: number
+          dbs_required?: boolean | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
           id?: string
           is_available?: boolean
           last_active?: string | null
@@ -4263,6 +4412,10 @@ export type Database = {
         Update: {
           created_at?: string
           current_sessions?: number
+          dbs_required?: boolean | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
           id?: string
           is_available?: boolean
           last_active?: string | null
@@ -4279,8 +4432,10 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          encrypted_content: string | null
           expires_at: string
           id: string
+          is_encrypted: boolean | null
           message_type: string
           sender_role: string
           session_id: string | null
@@ -4288,8 +4443,10 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          encrypted_content?: string | null
           expires_at?: string
           id?: string
+          is_encrypted?: boolean | null
           message_type?: string
           sender_role: string
           session_id?: string | null
@@ -4297,8 +4454,10 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          encrypted_content?: string | null
           expires_at?: string
           id?: string
+          is_encrypted?: boolean | null
           message_type?: string
           sender_role?: string
           session_id?: string | null
@@ -4520,6 +4679,10 @@ export type Database = {
         Row: {
           application_id: string | null
           created_at: string
+          dbs_certificate_number: string | null
+          dbs_check_level: string | null
+          dbs_expiry_date: string | null
+          dbs_issue_date: string | null
           document_type: string
           file_name: string
           file_path: string
@@ -4536,6 +4699,10 @@ export type Database = {
         Insert: {
           application_id?: string | null
           created_at?: string
+          dbs_certificate_number?: string | null
+          dbs_check_level?: string | null
+          dbs_expiry_date?: string | null
+          dbs_issue_date?: string | null
           document_type: string
           file_name: string
           file_path: string
@@ -4552,6 +4719,10 @@ export type Database = {
         Update: {
           application_id?: string | null
           created_at?: string
+          dbs_certificate_number?: string | null
+          dbs_check_level?: string | null
+          dbs_expiry_date?: string | null
+          dbs_issue_date?: string | null
           document_type?: string
           file_name?: string
           file_path?: string
@@ -4574,6 +4745,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      safeguarding_roles: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          role: Database["public"]["Enums"]["safeguarding_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role: Database["public"]["Enums"]["safeguarding_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          role?: Database["public"]["Enums"]["safeguarding_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       scheduled_notifications: {
         Row: {
@@ -5939,9 +6143,17 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      decrypt_message: {
+        Args: { encrypted_data: string }
+        Returns: string
+      }
       detect_fraud_patterns: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      encrypt_message: {
+        Args: { message_text: string }
+        Returns: string
       }
       generate_user_recommendations: {
         Args: { target_user_id: string }
@@ -6066,6 +6278,13 @@ export type Database = {
         Args: { p_time_window?: unknown; p_type: string; p_user_id: string }
         Returns: string
       }
+      has_safeguarding_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["safeguarding_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: { user_uuid: string }
         Returns: boolean
@@ -6084,6 +6303,10 @@ export type Database = {
       }
       is_organization_member: {
         Args: { org_id: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_safeguarding_staff: {
+        Args: { _user_id: string }
         Returns: boolean
       }
       is_user_admin: {
@@ -6152,6 +6375,10 @@ export type Database = {
         | "ui_issue"
         | "performance"
         | "general"
+      safeguarding_role:
+        | "safeguarding_lead"
+        | "senior_reviewer"
+        | "crisis_manager"
       waitlist_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -6294,6 +6521,11 @@ export const Constants = {
         "ui_issue",
         "performance",
         "general",
+      ],
+      safeguarding_role: [
+        "safeguarding_lead",
+        "senior_reviewer",
+        "crisis_manager",
       ],
       waitlist_status: ["pending", "approved", "denied"],
     },
