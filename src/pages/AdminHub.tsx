@@ -16,6 +16,10 @@ import CampaignModerationPanel from '@/components/admin/CampaignModerationPanel'
 import OrganizationVerificationPanel from '@/components/admin/OrganizationVerificationPanel';
 import { FeedbackManagementPanel } from '@/components/admin/FeedbackManagementPanel';
 import { IDVerificationReview } from '@/components/admin/IDVerificationReview';
+import AdminSafeguardingAlerts from './AdminSafeguardingAlerts';
+import AdminSafeguardingSessions from './AdminSafeguardingSessions';
+import AdminSafeguardingDBS from './AdminSafeguardingDBS';
+import AdminSafeguardingKeywords from './AdminSafeguardingKeywords';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -255,6 +259,10 @@ const AdminHub = () => {
             <Route path="points-config" element={<PointsConfigPanel />} />
             <Route path="campaigns" element={<CampaignModerationPanel />} />
             <Route path="organizations" element={<OrganizationVerificationPanel />} />
+            <Route path="safeguarding/alerts" element={<AdminSafeguardingAlerts />} />
+            <Route path="safeguarding/sessions" element={<AdminSafeguardingSessions />} />
+            <Route path="safeguarding/dbs" element={<AdminSafeguardingDBS />} />
+            <Route path="safeguarding/keywords" element={<AdminSafeguardingKeywords />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>

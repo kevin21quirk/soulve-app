@@ -91,16 +91,29 @@ export const useSafeSpaceSession = (sessionId: string) => {
 
       const senderRole = session.requester_id === user.id ? 'requester' : 'helper';
 
-      const { error } = await supabase
+      const { data: newMessage, error } = await supabase
         .from('safe_space_messages')
         .insert({
           session_id: sessionId,
           sender_role: senderRole,
           content: content.trim(),
           message_type: 'text'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Monitor message for keywords (async, don't wait)
+      if (newMessage) {
+        supabase.functions.invoke('monitor-safe-space-message', {
+          body: { 
+            messageId: newMessage.id,
+            sessionId,
+            content: content.trim()
+          }
+        }).catch(err => console.error('Failed to monitor message:', err));
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
