@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,43 @@ const ProfileRegistration = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingWaitlist, setIsCheckingWaitlist] = useState(true);
   const totalSteps = 4;
+
+  // Check waitlist status on mount - redirect if not approved
+  useEffect(() => {
+    const checkWaitlistStatus = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/auth', { replace: true });
+          return;
+        }
+
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('waitlist_status')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        const waitlistStatus = profileData?.waitlist_status;
+
+        // Only approved users can access profile registration
+        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+          navigate('/waitlist', { replace: true });
+          return;
+        }
+
+        setIsCheckingWaitlist(false);
+      } catch (error) {
+        console.error('Error checking waitlist status:', error);
+        setIsCheckingWaitlist(false);
+      }
+    };
+
+    checkWaitlistStatus();
+  }, [navigate]);
 
   // Store questionnaire data across steps
   const [questionnaireData, setQuestionnaireData] = useState({
@@ -155,6 +191,18 @@ const ProfileRegistration = () => {
         return null;
     }
   };
+
+  // Show loading state while checking waitlist
+  if (isCheckingWaitlist) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
