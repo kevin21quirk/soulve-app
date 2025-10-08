@@ -32,7 +32,7 @@ const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const WelcomeWizard = lazy(() => import("@/components/onboarding/WelcomeWizard"));
 const ProfileSettings = lazy(() => import("@/components/profile/ProfileSettings"));
-const OrganizationPublicProfile = lazy(() => import("@/components/organization/OrganizationPublicProfile"));
+const OrganizationRedirect = lazy(() => import("@/components/organization/OrganizationRedirect"));
 
 function App() {
   useEffect(() => {
@@ -55,7 +55,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/register/esg-contributor/:token" element={<StakeholderRegistration />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
-            <Route path="/organization/:organizationId" element={<OrganizationPublicProfile />} />
+            <Route path="/organization/:organizationId" element={<OrganizationRedirect />} />
             <Route path="/waitlist" element={<WaitlistDashboard />} />
             <Route path="/welcome" element={<WelcomeWizard />} />
             <Route 

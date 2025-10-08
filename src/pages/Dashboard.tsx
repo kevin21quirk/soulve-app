@@ -14,16 +14,34 @@ const Dashboard = () => {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const context = searchParams.get('context') || 'personal';
+  const orgId = searchParams.get('orgId');
   const [activeTab, setActiveTab] = useState(() => {
     return searchParams.get("tab") || "feed";
   });
+  const [currentOrgName, setCurrentOrgName] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+
+  // Load organization name if in org context
+  useEffect(() => {
+    const loadOrgName = async () => {
+      if (context === 'org' && orgId) {
+        const { data } = await supabase
+          .from('organizations')
+          .select('name')
+          .eq('id', orgId)
+          .single();
+        if (data) setCurrentOrgName(data.name);
+      }
+    };
+    loadOrgName();
+  }, [context, orgId]);
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -105,6 +123,9 @@ const Dashboard = () => {
         showActivity={showActivity}
         setShowActivity={setShowActivity}
         onNavigateToTab={handleNavigateToTab}
+        context={context}
+        orgId={orgId || undefined}
+        orgName={currentOrgName}
       />
       
       <main className="container mx-auto px-4 py-6">

@@ -17,6 +17,9 @@ interface DashboardHeaderProps {
   showActivity: boolean;
   setShowActivity: (show: boolean) => void;
   onNavigateToTab: (tab: string) => void;
+  context?: string;
+  orgId?: string;
+  orgName?: string;
 }
 
 const DashboardHeader = ({
@@ -27,6 +30,9 @@ const DashboardHeader = ({
   showActivity,
   setShowActivity,
   onNavigateToTab,
+  context = 'personal',
+  orgId,
+  orgName,
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -65,7 +71,7 @@ const DashboardHeader = ({
                     showActivity={showActivity}
                     setShowActivity={setShowActivity}
                   />
-                  <UserSection />
+                  <UserSection context={context} orgId={orgId} orgName={orgName} />
                 </div>
               </>
             )}

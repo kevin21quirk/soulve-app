@@ -55,7 +55,7 @@ export const ProfileSwitcher = ({ currentView = 'personal', currentOrgId }: Prof
         <DropdownMenuSeparator />
         
         <DropdownMenuItem
-          onClick={() => navigate('/dashboard?tab=profile')}
+          onClick={() => navigate('/dashboard?context=personal&tab=profile')}
           className={currentView === 'personal' ? 'bg-accent' : ''}
         >
           <div className="flex items-center gap-3 w-full">
@@ -83,7 +83,7 @@ export const ProfileSwitcher = ({ currentView = 'personal', currentOrgId }: Prof
         {organizations.map((org) => (
           <DropdownMenuItem
             key={org.id}
-            onClick={() => navigate(`/organization/${org.id}`)}
+            onClick={() => navigate(`/dashboard?context=org&orgId=${org.id}&tab=profile`)}
             className={currentView === 'organization' && currentOrgId === org.id ? 'bg-accent' : ''}
           >
             <div className="flex items-center gap-3 w-full">

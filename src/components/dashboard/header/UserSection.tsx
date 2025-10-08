@@ -1,11 +1,21 @@
 
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { LogOut, Building } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { ProfileSwitcher } from "@/components/profile/ProfileSwitcher";
 
-const UserSection = () => {
+interface UserSectionProps {
+  context?: string;
+  orgId?: string;
+  orgName?: string;
+}
+
+const UserSection = ({ context = 'personal', orgId, orgName }: UserSectionProps) => {
+  const [searchParams] = useSearchParams();
   const { signOut, user } = useAuth();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -30,8 +40,22 @@ const UserSection = () => {
   };
 
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm text-gray-600 hidden sm:inline">
+    <div className="flex items-center space-x-3">
+      {/* Context indicator */}
+      {context === 'org' && orgName && (
+        <Badge variant="secondary" className="gap-1.5 hidden md:flex">
+          <Building className="h-3 w-3" />
+          <span className="max-w-[150px] truncate">{orgName}</span>
+        </Badge>
+      )}
+      
+      {/* Profile Switcher */}
+      <ProfileSwitcher 
+        currentView={context === 'org' ? 'organization' : 'personal'}
+        currentOrgId={orgId}
+      />
+      
+      <span className="text-sm text-muted-foreground hidden lg:inline">
         {user?.email}
       </span>
       <Button
@@ -39,7 +63,7 @@ const UserSection = () => {
         size="sm"
         onClick={handleLogout}
         disabled={isLoggingOut}
-        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+        className="text-destructive hover:text-destructive hover:bg-destructive/10"
       >
         <LogOut className="h-5 w-5" />
         <span className="ml-1 hidden sm:inline">
