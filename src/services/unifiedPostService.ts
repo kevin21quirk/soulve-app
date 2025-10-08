@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ContentModerationService } from './contentModerationService';
+import { ImportedContent } from '@/components/dashboard/CreatePostTypes';
 
 interface CreatePostData {
   title?: string;
@@ -11,6 +12,7 @@ interface CreatePostData {
   tags?: string[];
   visibility?: string;
   media_urls?: string[];
+  importedContent?: ImportedContent;
 }
 
 export const createUnifiedPost = async (postData: CreatePostData) => {
@@ -60,14 +62,15 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
   };
 
   // Add imported content fields if present (Phase 2)
-  // Note: These columns need to be added to posts table manually:
-  // imported_from, original_url, original_author, imported_at
-  // if ('importedContent' in postData && postData.importedContent) {
-  //   postToInsert.imported_from = postData.importedContent.sourcePlatform;
-  //   postToInsert.original_url = postData.importedContent.sourceUrl;
-  //   postToInsert.original_author = postData.importedContent.sourceAuthor;
-  //   postToInsert.imported_at = postData.importedContent.importedAt;
-  // }
+  if ('importedContent' in postData && postData.importedContent) {
+    postToInsert.import_source = postData.importedContent.sourcePlatform;
+    postToInsert.external_id = postData.importedContent.sourceUrl;
+    postToInsert.import_metadata = {
+      sourceAuthor: postData.importedContent.sourceAuthor,
+      sourceTitle: postData.importedContent.sourceTitle
+    };
+    postToInsert.imported_at = postData.importedContent.importedAt.toISOString();
+  }
 
   console.log('createUnifiedPost - Inserting post:', postToInsert);
 
