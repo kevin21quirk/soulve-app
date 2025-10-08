@@ -3127,6 +3127,59 @@ export type Database = {
           },
         ]
       }
+      organization_activities: {
+        Row: {
+          activity_type: string
+          beneficiaries_count: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          impact_value: number | null
+          location: string | null
+          media_urls: Json | null
+          organization_id: string
+          published_at: string | null
+          related_campaign_id: string | null
+          title: string
+        }
+        Insert: {
+          activity_type: string
+          beneficiaries_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_value?: number | null
+          location?: string | null
+          media_urls?: Json | null
+          organization_id: string
+          published_at?: string | null
+          related_campaign_id?: string | null
+          title: string
+        }
+        Update: {
+          activity_type?: string
+          beneficiaries_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_value?: number | null
+          location?: string | null
+          media_urls?: Json | null
+          organization_id?: string
+          published_at?: string | null
+          related_campaign_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_activities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_esg_data: {
         Row: {
           collected_by: string | null
@@ -3192,6 +3245,94 @@ export type Database = {
             foreignKeyName: "organization_esg_data_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_followers: {
+        Row: {
+          followed_at: string | null
+          follower_id: string
+          id: string
+          notifications_enabled: boolean | null
+          organization_id: string
+        }
+        Insert: {
+          followed_at?: string | null
+          follower_id: string
+          id?: string
+          notifications_enabled?: boolean | null
+          organization_id: string
+        }
+        Update: {
+          followed_at?: string | null
+          follower_id?: string
+          id?: string
+          notifications_enabled?: boolean | null
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_followers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_impact_metrics: {
+        Row: {
+          active_campaigns: number | null
+          carbon_offset_kg: number | null
+          completed_projects: number | null
+          created_at: string | null
+          geographic_reach_countries: number | null
+          id: string
+          last_calculated: string | null
+          organization_id: string
+          partner_organizations: number | null
+          total_funds_raised: number | null
+          total_people_helped: number | null
+          total_volunteer_hours: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active_campaigns?: number | null
+          carbon_offset_kg?: number | null
+          completed_projects?: number | null
+          created_at?: string | null
+          geographic_reach_countries?: number | null
+          id?: string
+          last_calculated?: string | null
+          organization_id: string
+          partner_organizations?: number | null
+          total_funds_raised?: number | null
+          total_people_helped?: number | null
+          total_volunteer_hours?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active_campaigns?: number | null
+          carbon_offset_kg?: number | null
+          completed_projects?: number | null
+          created_at?: string | null
+          geographic_reach_countries?: number | null
+          id?: string
+          last_calculated?: string | null
+          organization_id?: string
+          partner_organizations?: number | null
+          total_funds_raised?: number | null
+          total_people_helped?: number | null
+          total_volunteer_hours?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_impact_metrics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -3345,6 +3486,56 @@ export type Database = {
           },
         ]
       }
+      organization_reviews: {
+        Row: {
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          is_anonymous: boolean | null
+          is_verified: boolean | null
+          organization_id: string
+          rating: number
+          review_text: string | null
+          reviewer_id: string
+          reviewer_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_verified?: boolean | null
+          organization_id: string
+          rating: number
+          review_text?: string | null
+          reviewer_id: string
+          reviewer_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_verified?: boolean | null
+          organization_id?: string
+          rating?: number
+          review_text?: string | null
+          reviewer_id?: string
+          reviewer_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_reviews_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_settings: {
         Row: {
           analytics_preferences: Json | null
@@ -3431,6 +3622,103 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      organization_trust_scores: {
+        Row: {
+          calculated_at: string | null
+          created_at: string | null
+          engagement_score: number | null
+          esg_score: number | null
+          id: string
+          organization_id: string
+          overall_score: number
+          review_score: number | null
+          transparency_score: number | null
+          verification_score: number | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          created_at?: string | null
+          engagement_score?: number | null
+          esg_score?: number | null
+          id?: string
+          organization_id: string
+          overall_score?: number
+          review_score?: number | null
+          transparency_score?: number | null
+          verification_score?: number | null
+        }
+        Update: {
+          calculated_at?: string | null
+          created_at?: string | null
+          engagement_score?: number | null
+          esg_score?: number | null
+          id?: string
+          organization_id?: string
+          overall_score?: number
+          review_score?: number | null
+          transparency_score?: number | null
+          verification_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_trust_scores_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_verifications: {
+        Row: {
+          created_at: string | null
+          documents: Json | null
+          expires_at: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          status: string
+          updated_at: string | null
+          verification_type: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          documents?: Json | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          status?: string
+          updated_at?: string | null
+          verification_type: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          documents?: Json | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          status?: string
+          updated_at?: string | null
+          verification_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_verifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -6084,6 +6372,10 @@ export type Database = {
       }
       calculate_esg_score: {
         Args: { assessment_year: number; org_id: string }
+        Returns: number
+      }
+      calculate_organization_trust_score: {
+        Args: { org_id: string }
         Returns: number
       }
       calculate_total_market_value: {
