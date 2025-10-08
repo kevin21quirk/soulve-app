@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, MapPin, Calendar, Send, Video, Users, BarChart3 } from 'lucide-react';
+import { Camera, MapPin, Calendar, Send, Video, Users, BarChart3, Link as LinkIcon } from 'lucide-react';
 import { URGENCY_LEVELS } from '../../post-options/PostOptionsConfig';
 import { PostFormData, MediaFile } from '../../CreatePostTypes';
 import LocationSelector from '../LocationSelector';
@@ -10,6 +10,8 @@ import LiveVideoModal from '../../live-video/LiveVideoModal';
 import UserTagging from '../../tagging/UserTagging';
 import PollCreator from '../../polls/PollCreator';
 import EventCreator from '../../events/EventCreator';
+import ImportFromURL from '../ImportFromURL';
+import { ImportedContentData } from '@/services/contentImportService';
 
 interface PostActionBarProps {
   formData: PostFormData;
@@ -30,6 +32,7 @@ export const PostActionBar = ({
   const [showUserTagging, setShowUserTagging] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [showEventCreator, setShowEventCreator] = useState(false);
+  const [showImportURL, setShowImportURL] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,6 +84,9 @@ export const PostActionBar = ({
       case 'location':
         setShowLocationPicker(true);
         break;
+      case 'import':
+        setShowImportURL(true);
+        break;
     }
   };
 
@@ -112,6 +118,24 @@ export const PostActionBar = ({
   const handleEventCreate = (eventData: any) => {
     onUpdateFormData(prev => ({ ...prev, isEvent: true, eventData }));
     setShowEventCreator(false);
+  };
+
+  const handleImport = (imported: ImportedContentData) => {
+    // Auto-fill form with imported content
+    onUpdateFormData(prev => ({ 
+      ...prev, 
+      title: prev.title || imported.title,
+      description: prev.description ? `${prev.description}\n\n${imported.description}` : imported.description,
+      tags: [...(prev.tags || []), ...(imported.tags || [])],
+      importedContent: {
+        sourceUrl: imported.sourceUrl,
+        sourcePlatform: imported.platform,
+        sourceTitle: imported.title,
+        sourceAuthor: imported.author,
+        importedAt: new Date()
+      }
+    }));
+    setShowImportURL(false);
   };
 
   return (
@@ -205,6 +229,17 @@ export const PostActionBar = ({
             <Calendar className="h-4 w-4" />
           </Button>
           
+          <Button 
+            type="button"
+            variant="ghost" 
+            size="sm" 
+            className={`${formData.importedContent ? 'bg-indigo-50 text-indigo-600' : 'text-indigo-600 hover:bg-indigo-50'} flex-shrink-0`}
+            onClick={() => handleFeatureToggle('import')}
+            title="Import from URL"
+          >
+            <LinkIcon className="h-4 w-4" />
+          </Button>
+          
           <select
             value={formData.urgency}
             onChange={(e) => onUpdateFormData(prev => ({ ...prev, urgency: e.target.value as any }))}
@@ -271,6 +306,14 @@ export const PostActionBar = ({
             onClose={() => setShowEventCreator(false)}
           />
         </div>
+      )}
+
+      {showImportURL && (
+        <ImportFromURL
+          isOpen={showImportURL}
+          onClose={() => setShowImportURL(false)}
+          onImport={handleImport}
+        />
       )}
     </>
   );

@@ -9,6 +9,7 @@ import { User } from '@supabase/supabase-js';
 import { URLPreviewService } from '@/services/urlPreviewService';
 import { LinkPreview } from '../LinkPreview';
 import { useDebounce } from '@/hooks/useDebounce';
+import ImportedContentBadge from '../ImportedContentBadge';
 
 interface PostContentProps {
   formData: PostFormData;
@@ -72,6 +73,15 @@ export const PostContent = ({ formData, user, onUpdateFormData }: PostContentPro
           <LinkPreview
             preview={formData.linkPreview}
             onRemove={() => onUpdateFormData(prev => ({ ...prev, linkPreview: undefined }))}
+          />
+        </div>
+      )}
+
+      {formData.importedContent && (
+        <div className="mt-3">
+          <ImportedContentBadge
+            content={formData.importedContent}
+            onRemove={() => onUpdateFormData(prev => ({ ...prev, importedContent: undefined }))}
           />
         </div>
       )}

@@ -48,6 +48,14 @@ export interface URLPreviewData {
   favicon: string | null;
 }
 
+export interface ImportedContent {
+  sourceUrl: string;
+  sourcePlatform: string;
+  sourceTitle: string;
+  sourceAuthor?: string;
+  importedAt: Date;
+}
+
 export interface PostFormData {
   title: string;
   description: string;
@@ -77,6 +85,8 @@ export interface PostFormData {
   selectedMedia?: MediaFile[];
   // Link preview
   linkPreview?: URLPreviewData;
+  // Imported content
+  importedContent?: ImportedContent;
 }
 
 // Re-export the constants for backward compatibility

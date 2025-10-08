@@ -45,8 +45,8 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     // In production, you might want to flag these for manual review
   }
 
-  // Create the post
-  const postToInsert = {
+  // Create the post with imported content metadata
+  const postToInsert: any = {
     author_id: user.id,
     title: postData.title || '',
     content: postData.content,
@@ -58,6 +58,16 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     media_urls: postData.media_urls || [],
     is_active: true
   };
+
+  // Add imported content fields if present (Phase 2)
+  // Note: These columns need to be added to posts table manually:
+  // imported_from, original_url, original_author, imported_at
+  // if ('importedContent' in postData && postData.importedContent) {
+  //   postToInsert.imported_from = postData.importedContent.sourcePlatform;
+  //   postToInsert.original_url = postData.importedContent.sourceUrl;
+  //   postToInsert.original_author = postData.importedContent.sourceAuthor;
+  //   postToInsert.imported_at = postData.importedContent.importedAt;
+  // }
 
   console.log('createUnifiedPost - Inserting post:', postToInsert);
 
