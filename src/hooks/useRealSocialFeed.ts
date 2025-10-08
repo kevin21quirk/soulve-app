@@ -238,26 +238,19 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      const interactionData: any = {
-        post_id: actualPostId,
-        user_id: user.id,
-        interaction_type: 'like'
-      };
-
-      // Add organization context if available
-      if (organizationId) {
-        interactionData.content = JSON.stringify({ organization_id: organizationId, action: 'like' });
-      }
-
+      // Remove organization context - likes are always from authenticated user
       const { error } = await supabase
         .from('post_interactions')
-        .insert(interactionData);
+        .insert({
+          post_id: actualPostId,
+          user_id: user.id,
+          interaction_type: 'like'
+        });
 
       if (error) throw error;
 
-      const contextMessage = organizationId ? "Liked on behalf of your organization!" : "Post liked!";
       toast({
-        title: contextMessage,
+        title: "Post liked!",
         description: "Your reaction has been recorded."
       });
     } catch (error: any) {
@@ -399,12 +392,10 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      let commentContent = content.trim();
-      // Add organization context prefix if in org mode
-      if (organizationId) {
-        commentContent = `[ORG:${organizationId}] ${commentContent}`;
-      }
-
+      // Remove organization context from backend for now - comments are always from the authenticated user
+      // The UI will show the organization context separately
+      const commentContent = content.trim();
+      
       const { error } = await supabase
         .from('post_interactions')
         .insert({
@@ -416,9 +407,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
 
       if (error) throw error;
 
-      const contextMessage = organizationId ? "Comment posted on behalf of your organization!" : "Comment added!";
       toast({
-        title: contextMessage,
+        title: "Comment added!",
         description: "Your comment has been posted."
       });
     } catch (error: any) {
@@ -435,7 +425,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       
       toast({
         title: "Failed to add comment",
-        description: "Please try again",
+        description: error.message || "Please try again",
         variant: "destructive"
       });
     }
