@@ -81,10 +81,12 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
       console.error('Error creating post:', error);
       
       // Handle duplicate import error specifically
-      if (error.message?.includes('duplicate key') && error.message?.includes('idx_posts_import_source_external_id')) {
+      if (error.message?.includes('duplicate key') && 
+          (error.message?.includes('idx_posts_import_source_external_id') || 
+           error.message?.includes('idx_posts_user_import_source_external_id'))) {
         toast({
           title: "Content Already Imported",
-          description: "You've already imported this content. Each URL can only be imported once to prevent duplicates.",
+          description: "You've already imported this content. Each URL can only be imported once per user to prevent duplicates.",
           variant: "destructive"
         });
       } else {

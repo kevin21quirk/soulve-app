@@ -4105,7 +4105,11 @@ export type Database = {
           category: string
           content: string
           created_at: string
+          external_id: string | null
           id: string
+          import_metadata: Json | null
+          import_source: string | null
+          imported_at: string | null
           is_active: boolean
           link_preview_data: Json | null
           link_preview_url: string | null
@@ -4122,7 +4126,11 @@ export type Database = {
           category: string
           content: string
           created_at?: string
+          external_id?: string | null
           id?: string
+          import_metadata?: Json | null
+          import_source?: string | null
+          imported_at?: string | null
           is_active?: boolean
           link_preview_data?: Json | null
           link_preview_url?: string | null
@@ -4139,7 +4147,11 @@ export type Database = {
           category?: string
           content?: string
           created_at?: string
+          external_id?: string | null
           id?: string
+          import_metadata?: Json | null
+          import_source?: string | null
+          imported_at?: string | null
           is_active?: boolean
           link_preview_data?: Json | null
           link_preview_url?: string | null
