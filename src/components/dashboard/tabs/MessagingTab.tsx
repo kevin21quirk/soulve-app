@@ -31,17 +31,20 @@ const MessagingTab = () => {
   // Check for userId URL parameter and automatically open that conversation
   useEffect(() => {
     const userIdParam = searchParams.get('userId');
-    if (userIdParam && !selectedConversation) {
+    if (userIdParam) {
       console.log('Opening conversation with user from URL:', userIdParam);
       setSelectedConversation(userIdParam);
       // Remove userId from URL after opening conversation
-      setSearchParams(prev => {
-        const newParams = new URLSearchParams(prev);
-        newParams.delete('userId');
-        return newParams;
-      });
+      const timer = setTimeout(() => {
+        setSearchParams(prev => {
+          const newParams = new URLSearchParams(prev);
+          newParams.delete('userId');
+          return newParams;
+        });
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [searchParams, selectedConversation, setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   // Fetch available users for new conversations
   useEffect(() => {

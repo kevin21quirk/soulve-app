@@ -13,7 +13,7 @@ const DiscoverConnectTab = () => {
   };
 
   const handleMessage = (userId: string) => {
-    navigate('/dashboard?tab=messages');
+    navigate(`/dashboard?tab=messaging&userId=${userId}`);
   };
 
   return (

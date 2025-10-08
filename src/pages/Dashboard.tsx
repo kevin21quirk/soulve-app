@@ -22,6 +22,14 @@ const Dashboard = () => {
   });
   const [currentOrgName, setCurrentOrgName] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+
+  // Sync activeTab with URL parameter changes
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);

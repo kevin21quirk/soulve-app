@@ -178,8 +178,8 @@ export const ConnectToHelpModal = ({
         description: `Starting conversation with ${postAuthor.name}`,
       });
 
-      // Navigate to messages tab - the conversation list will show this conversation at the top
-      navigate('/?tab=messages');
+      // Navigate to messages tab with userId to open conversation
+      navigate(`/dashboard?tab=messaging&userId=${postAuthor.id}`);
       onClose();
     } catch (error) {
       console.error('Error starting conversation:', error);

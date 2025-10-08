@@ -88,13 +88,13 @@ const PublicProfile = () => {
           />
         </Card>
 
-        {/* Message Button - Only show for other users */}
+        {/* Message Button - Only show for authenticated users */}
         {user && user.id !== profileData.id && (
           <div className="mt-6">
             <Card>
               <CardContent className="p-6">
                 <Button
-                  onClick={() => navigate(`/?tab=messages&userId=${profileData.id}`)}
+                  onClick={() => navigate(`/dashboard?tab=messaging&userId=${profileData.id}`)}
                   className="w-full sm:w-auto"
                   size="lg"
                 >
