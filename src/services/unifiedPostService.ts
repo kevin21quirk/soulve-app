@@ -63,6 +63,7 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
 
   // Add imported content fields if present (Phase 2)
   if ('importedContent' in postData && postData.importedContent) {
+    console.log('📝 [UnifiedPost] Adding imported content:', postData.importedContent);
     postToInsert.import_source = postData.importedContent.sourcePlatform;
     postToInsert.external_id = postData.importedContent.sourceUrl;
     postToInsert.import_metadata = {
@@ -71,6 +72,11 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
       thumbnailUrl: postData.importedContent.thumbnailUrl
     };
     postToInsert.imported_at = postData.importedContent.importedAt.toISOString();
+    console.log('📝 [UnifiedPost] Post with import data:', {
+      import_source: postToInsert.import_source,
+      external_id: postToInsert.external_id,
+      import_metadata: postToInsert.import_metadata
+    });
   }
 
   console.log('createUnifiedPost - Inserting post:', postToInsert);

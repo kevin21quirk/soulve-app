@@ -13,25 +13,29 @@ export interface ImportedContentData {
 export class ContentImportService {
   static async importFromURL(url: string): Promise<ImportedContentData> {
     try {
-      console.log('Importing content from URL:', url);
+      console.log('🎬 [ContentImport] Starting import from URL:', url);
       
       // Call the import-content edge function
       const { data, error } = await supabase.functions.invoke('import-content', {
         body: { url }
       });
 
+      console.log('🎬 [ContentImport] Edge function response:', { data, error });
+
       if (error) {
-        console.error('Import error:', error);
+        console.error('🎬 [ContentImport] Import error:', error);
         throw new Error(`Failed to import content: ${error.message}`);
       }
 
       if (!data) {
+        console.error('🎬 [ContentImport] No data returned');
         throw new Error('No data returned from import service');
       }
 
+      console.log('🎬 [ContentImport] Import successful:', data);
       return data as ImportedContentData;
     } catch (error: any) {
-      console.error('Content import service error:', error);
+      console.error('🎬 [ContentImport] Service error:', error);
       throw new Error(error.message || 'Failed to import content from URL');
     }
   }

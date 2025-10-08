@@ -251,7 +251,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
         </div>
 
         {/* Imported YouTube Video */}
-        {post.import_source === 'youtube' && post.external_id && (
+        {post.import_source === 'youtube' && post.external_id ? (
           <div className="mb-4 space-y-2">
             <YouTubeEmbed 
               url={post.external_id} 
@@ -264,7 +264,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               </p>
             )}
           </div>
-        )}
+        ) : null}
 
         {/* Imported Content Badge (non-YouTube) */}
         {post.import_source && post.import_source !== 'youtube' && post.external_id && (

@@ -3,7 +3,7 @@ import { ExternalLink } from 'lucide-react';
 interface YouTubeEmbedProps {
   url: string;
   title?: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string | null;
 }
 
 const YouTubeEmbed = ({ url, title, thumbnailUrl }: YouTubeEmbedProps) => {
@@ -21,9 +21,14 @@ const YouTubeEmbed = ({ url, title, thumbnailUrl }: YouTubeEmbedProps) => {
     return null;
   };
 
+  console.log('🎬 [YouTubeEmbed] Rendering with:', { url, title, hasThumbnail: !!thumbnailUrl });
+
   const videoId = getYouTubeVideoId(url);
   
+  console.log('🎬 [YouTubeEmbed] Extracted video ID:', videoId);
+  
   if (!videoId) {
+    console.warn('🎬 [YouTubeEmbed] Failed to extract video ID from URL:', url);
     return (
       <a 
         href={url} 
@@ -41,6 +46,9 @@ const YouTubeEmbed = ({ url, title, thumbnailUrl }: YouTubeEmbedProps) => {
 
   const embedUrl = `https://www.youtube.com/embed/${videoId}`;
   const thumb = thumbnailUrl || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+  console.log('🎬 [YouTubeEmbed] Embed URL:', embedUrl);
+  console.log('🎬 [YouTubeEmbed] Thumbnail URL:', thumb);
 
   return (
     <div className="space-y-2">

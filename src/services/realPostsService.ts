@@ -76,7 +76,7 @@ export const usePosts = () => {
         // Type cast to access new import fields until Supabase types are regenerated
         const postData = post as any;
         
-        return {
+        const transformed = {
           id: post.id,
           title: post.title,
           content: post.content,
@@ -104,6 +104,19 @@ export const usePosts = () => {
           import_metadata: postData.import_metadata || null,
           imported_at: postData.imported_at || null
         };
+
+        // Log imported content posts for debugging
+        if (transformed.import_source) {
+          console.log('📺 [RealPosts] Post with imported content:', {
+            id: transformed.id,
+            import_source: transformed.import_source,
+            external_id: transformed.external_id,
+            has_metadata: !!transformed.import_metadata,
+            metadata: transformed.import_metadata
+          });
+        }
+
+        return transformed;
       }) || [];
 
       console.log('Transformed posts with media:', transformedPosts);

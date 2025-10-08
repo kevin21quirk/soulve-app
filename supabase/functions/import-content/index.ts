@@ -84,24 +84,47 @@ async function extractYouTubeContent(url: string): Promise<ImportedContent> {
     throw new Error('Invalid YouTube URL');
   }
 
-  // Fetch video page to extract meta tags
-  const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
-  const html = await response.text();
-  
-  const title = extractMetaTag(html, 'og:title') || 'YouTube Video';
-  const description = extractMetaTag(html, 'og:description') || '';
-  const thumbnailUrl = extractMetaTag(html, 'og:image') || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  const author = extractMetaTag(html, 'author') || '';
+  console.log('Extracting YouTube content for video ID:', videoId);
 
-  return {
+  try {
+    // Use YouTube oEmbed API - more reliable
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const response = await fetch(oembedUrl);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('YouTube oEmbed data:', data);
+      
+      const result = {
+        platform: 'youtube',
+        title: data.title || 'YouTube Video',
+        description: '',
+        author: data.author_name || 'Unknown',
+        thumbnailUrl: data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        tags: [],
+        sourceUrl: `https://www.youtube.com/watch?v=${videoId}`,
+      };
+      
+      console.log('YouTube import result:', result);
+      return result;
+    }
+  } catch (error) {
+    console.error('YouTube oEmbed failed, using fallback:', error);
+  }
+
+  // Fallback method
+  const result = {
     platform: 'youtube',
-    title,
-    description,
-    author,
-    thumbnailUrl,
+    title: 'YouTube Video',
+    description: '',
+    author: '',
+    thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
     tags: [],
-    sourceUrl: url,
+    sourceUrl: `https://www.youtube.com/watch?v=${videoId}`,
   };
+  
+  console.log('YouTube import fallback result:', result);
+  return result;
 }
 
 async function extractTwitterContent(url: string): Promise<ImportedContent> {

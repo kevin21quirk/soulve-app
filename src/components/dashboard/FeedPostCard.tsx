@@ -171,12 +171,12 @@ const FeedPostCard = ({
       <CardContent className="pt-0">
         <div className="space-y-3">
           {/* Imported YouTube Video */}
-          {post.import_source === 'youtube' && post.external_id && (
+          {post.import_source === 'youtube' && post.external_id ? (
             <div className="space-y-2">
               <YouTubeEmbed 
-                url={post.external_id} 
+                url={post.external_id}
                 title={post.import_metadata?.sourceTitle || post.title}
-                thumbnailUrl={post.import_metadata?.thumbnailUrl as string | undefined}
+                thumbnailUrl={post.import_metadata?.thumbnailUrl}
               />
               {post.import_metadata?.sourceAuthor && (
                 <p className="text-xs text-muted-foreground">
@@ -184,7 +184,7 @@ const FeedPostCard = ({
                 </p>
               )}
             </div>
-          )}
+          ) : null}
 
           {/* Imported Content Badge (non-YouTube) */}
           {post.import_source && post.import_source !== 'youtube' && post.external_id && (
