@@ -15,9 +15,10 @@ import OrganizationTab from "../tabs/OrganizationTab";
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  organizationId?: string | null;
 }
 
-const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
+const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabsProps) => {
   const isMobile = useIsMobile();
 
   if (isMobile) {
@@ -29,7 +30,7 @@ const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
       <MainTabsList />
 
       <TabsContent value="feed" className="space-y-6">
-        <FeedTab />
+        <FeedTab organizationId={organizationId} />
       </TabsContent>
 
       <TabsContent value="discover-connect" className="space-y-6">

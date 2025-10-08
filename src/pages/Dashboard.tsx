@@ -131,7 +131,8 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-6">
         <DashboardTabs 
           activeTab={activeTab} 
-          onTabChange={setActiveTab} 
+          onTabChange={setActiveTab}
+          organizationId={context === 'org' ? orgId : null}
         />
       </main>
     </div>

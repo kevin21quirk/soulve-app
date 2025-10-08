@@ -37,11 +37,13 @@ const MobileDashboard = () => {
   }, [context, orgId]);
 
   const renderTabContent = () => {
+    const organizationId = context === 'org' ? orgId : null;
+    
     switch (activeTab) {
       case "feed":
         return (
           <div className="pb-20">
-            <FeedTab />
+            <FeedTab organizationId={organizationId} />
           </div>
         );
       case "discover":
@@ -89,7 +91,7 @@ const MobileDashboard = () => {
       default:
         return (
           <div className="pb-20">
-            <FeedTab />
+            <FeedTab organizationId={organizationId} />
           </div>
         );
     }

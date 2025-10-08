@@ -1,10 +1,14 @@
 
 import RealSocialFeed from '../RealSocialFeed';
 
-const FeedTab = () => {
+interface FeedTabProps {
+  organizationId?: string | null;
+}
+
+const FeedTab = ({ organizationId }: FeedTabProps) => {
   return (
     <div className="max-w-4xl mx-auto">
-      <RealSocialFeed />
+      <RealSocialFeed organizationId={organizationId} />
     </div>
   );
 };

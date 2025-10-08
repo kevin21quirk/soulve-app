@@ -10,7 +10,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
 import { supabase } from '@/integrations/supabase/client';
 
-const RealSocialFeed = () => {
+interface RealSocialFeedProps {
+  organizationId?: string | null;
+}
+
+const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const { 
     posts, 
@@ -21,7 +25,7 @@ const RealSocialFeed = () => {
     handleBookmark, 
     handleShare, 
     handleAddComment 
-  } = useRealSocialFeed();
+  } = useRealSocialFeed(organizationId);
 
   // Enhanced real-time updates for posts and campaigns
   useEffect(() => {

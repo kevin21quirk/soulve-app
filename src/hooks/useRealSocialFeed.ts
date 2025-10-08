@@ -26,7 +26,7 @@ export interface SocialPost {
   status?: string; // Add status field for campaigns
 }
 
-export const useRealSocialFeed = () => {
+export const useRealSocialFeed = (organizationId?: string | null) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<SocialPost[]>([]);
@@ -218,7 +218,14 @@ export const useRealSocialFeed = () => {
 
   // Enhanced interaction handlers with better campaign ID handling
   const handleLike = useCallback(async (postId: string) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to interact with posts.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       // Extract actual post ID if it's a campaign
@@ -231,18 +238,26 @@ export const useRealSocialFeed = () => {
           : post
       ));
 
+      const interactionData: any = {
+        post_id: actualPostId,
+        user_id: user.id,
+        interaction_type: 'like'
+      };
+
+      // Add organization context if available
+      if (organizationId) {
+        interactionData.content = JSON.stringify({ organization_id: organizationId, action: 'like' });
+      }
+
       const { error } = await supabase
         .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'like'
-        });
+        .insert(interactionData);
 
       if (error) throw error;
 
+      const contextMessage = organizationId ? "Liked on behalf of your organization!" : "Post liked!";
       toast({
-        title: "Post liked!",
+        title: contextMessage,
         description: "Your reaction has been recorded."
       });
     } catch (error: any) {
@@ -263,7 +278,7 @@ export const useRealSocialFeed = () => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   const handleBookmark = useCallback(async (postId: string) => {
     if (!user) return;
@@ -362,7 +377,16 @@ export const useRealSocialFeed = () => {
   }, [user, toast]);
 
   const handleAddComment = useCallback(async (postId: string, content: string) => {
-    if (!user || !content.trim()) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to comment.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!content.trim()) return;
 
     try {
       // Extract actual post ID if it's a campaign
@@ -375,19 +399,26 @@ export const useRealSocialFeed = () => {
           : post
       ));
 
+      let commentContent = content.trim();
+      // Add organization context prefix if in org mode
+      if (organizationId) {
+        commentContent = `[ORG:${organizationId}] ${commentContent}`;
+      }
+
       const { error } = await supabase
         .from('post_interactions')
         .insert({
           post_id: actualPostId,
           user_id: user.id,
           interaction_type: 'comment',
-          content: content.trim()
+          content: commentContent
         });
 
       if (error) throw error;
 
+      const contextMessage = organizationId ? "Comment posted on behalf of your organization!" : "Comment added!";
       toast({
-        title: "Comment added!",
+        title: contextMessage,
         description: "Your comment has been posted."
       });
     } catch (error: any) {
@@ -408,7 +439,7 @@ export const useRealSocialFeed = () => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   // Enhanced real-time subscription with better campaign handling
   useEffect(() => {
