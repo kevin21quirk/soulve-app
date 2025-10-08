@@ -39,6 +39,15 @@ export interface LiveVideoData {
   stream?: MediaStream;
 }
 
+export interface URLPreviewData {
+  url: string;
+  title: string | null;
+  description: string | null;
+  image_url: string | null;
+  site_name: string | null;
+  favicon: string | null;
+}
+
 export interface PostFormData {
   title: string;
   description: string;
@@ -66,6 +75,8 @@ export interface PostFormData {
   eventLocation?: string;
   // Media files
   selectedMedia?: MediaFile[];
+  // Link preview
+  linkPreview?: URLPreviewData;
 }
 
 // Re-export the constants for backward compatibility

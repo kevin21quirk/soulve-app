@@ -4107,6 +4107,8 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          link_preview_data: Json | null
+          link_preview_url: string | null
           location: string | null
           media_urls: string[] | null
           tags: string[] | null
@@ -4122,6 +4124,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          link_preview_data?: Json | null
+          link_preview_url?: string | null
           location?: string | null
           media_urls?: string[] | null
           tags?: string[] | null
@@ -4137,6 +4141,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          link_preview_data?: Json | null
+          link_preview_url?: string | null
           location?: string | null
           media_urls?: string[] | null
           tags?: string[] | null
@@ -5788,6 +5794,45 @@ export type Database = {
           is_typing?: boolean | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      url_previews: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          expires_at: string | null
+          favicon: string | null
+          id: string
+          image_url: string | null
+          metadata: Json | null
+          site_name: string | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          favicon?: string | null
+          id?: string
+          image_url?: string | null
+          metadata?: Json | null
+          site_name?: string | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          favicon?: string | null
+          id?: string
+          image_url?: string | null
+          metadata?: Json | null
+          site_name?: string | null
+          title?: string | null
+          url?: string
         }
         Relationships: []
       }

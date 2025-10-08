@@ -1,11 +1,14 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { MapPin, X } from 'lucide-react';
 import { PostFormData } from '../../CreatePostTypes';
 import { User } from '@supabase/supabase-js';
+import { URLPreviewService } from '@/services/urlPreviewService';
+import { LinkPreview } from '../LinkPreview';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface PostContentProps {
   formData: PostFormData;
@@ -14,6 +17,33 @@ interface PostContentProps {
 }
 
 export const PostContent = ({ formData, user, onUpdateFormData }: PostContentProps) => {
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const debouncedDescription = useDebounce(formData.description, 1000);
+
+  // Auto-detect URLs and fetch preview
+  useEffect(() => {
+    const fetchURLPreview = async () => {
+      if (!debouncedDescription || formData.linkPreview) return;
+
+      const urls = URLPreviewService.detectURLs(debouncedDescription);
+      if (urls.length === 0) return;
+
+      setIsLoadingPreview(true);
+      try {
+        const preview = await URLPreviewService.fetchPreview(urls[0]);
+        if (preview) {
+          onUpdateFormData(prev => ({ ...prev, linkPreview: preview }));
+        }
+      } catch (error) {
+        console.error('Error fetching URL preview:', error);
+      } finally {
+        setIsLoadingPreview(false);
+      }
+    };
+
+    fetchURLPreview();
+  }, [debouncedDescription]);
+
   return (
     <div className="p-4">
       <Input
@@ -30,6 +60,21 @@ export const PostContent = ({ formData, user, onUpdateFormData }: PostContentPro
         className="border-0 shadow-none resize-none focus-visible:ring-0 text-base placeholder-gray-500 min-h-[80px]"
         rows={3}
       />
+
+      {isLoadingPreview && (
+        <div className="text-xs text-muted-foreground animate-pulse mt-2">
+          Loading link preview...
+        </div>
+      )}
+
+      {formData.linkPreview && (
+        <div className="mt-3">
+          <LinkPreview
+            preview={formData.linkPreview}
+            onRemove={() => onUpdateFormData(prev => ({ ...prev, linkPreview: undefined }))}
+          />
+        </div>
+      )}
 
       {formData.location && (
         <div className="mt-3 flex items-center space-x-2 text-sm text-gray-600">
