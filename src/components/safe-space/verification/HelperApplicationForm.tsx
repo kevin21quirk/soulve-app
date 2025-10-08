@@ -13,6 +13,7 @@ import { useHelperVerification } from '@/hooks/useHelperVerification';
 import { ArrowLeft, ArrowRight, CheckCircle2, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Qualification, ReferenceContact } from '@/types/helperVerification';
+import { supabase } from '@/integrations/supabase/client';
 
 const SPECIALIZATIONS = [
   'general',
@@ -30,14 +31,14 @@ const SPECIALIZATIONS = [
 // Step 1: Personal Statement
 const personalStatementSchema = z.object({
   personal_statement: z.string()
-    .min(500, 'Personal statement must be at least 500 characters')
+    .min(1, 'Personal statement is required')
     .max(2000, 'Personal statement must not exceed 2000 characters')
 });
 
 // Step 2: Experience & Qualifications
 const experienceSchema = z.object({
   experience_description: z.string()
-    .min(100, 'Experience description must be at least 100 characters')
+    .min(1, 'Experience description is required')
     .max(1000, 'Experience description must not exceed 1000 characters'),
   preferred_specializations: z.array(z.string())
     .min(1, 'Please select at least one specialization')
@@ -149,6 +150,31 @@ export const HelperApplicationForm = () => {
       updates.qualifications = qualifications;
     } else if (currentStep === 3) {
       updates.reference_contacts = data.references;
+      
+      // Send reference emails after saving
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && application?.id) {
+          await supabase.functions.invoke('send-reference-request', {
+            body: {
+              applicationId: application.id,
+              applicantName: user.user_metadata?.first_name || 'A Safe Space applicant',
+              references: data.references.filter((ref: any) => ref.email)
+            }
+          });
+          toast({
+            title: "References Notified",
+            description: "Reference request emails have been sent."
+          });
+        }
+      } catch (error) {
+        console.error('Error sending reference emails:', error);
+        toast({
+          title: "Note",
+          description: "Application saved, but reference emails could not be sent.",
+          variant: "default"
+        });
+      }
     } else if (currentStep === 4) {
       updates.availability_commitment = data.availability_commitment;
     }
@@ -274,7 +300,7 @@ export const HelperApplicationForm = () => {
                       </FormControl>
                       <FormDescription>
                         {field.value?.length || 0} / 2000 characters
-                        {field.value?.length >= 500 && ' ✓'}
+                        {field.value?.length >= 200 && ' • We recommend at least 500 characters for a strong application'}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

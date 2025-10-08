@@ -1,11 +1,25 @@
 import { HelperApplicationForm } from '@/components/safe-space/verification/HelperApplicationForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Heart, Users, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Shield, Heart, Users, Clock, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SafeSpaceHelperApplication = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-6">
+        {/* Back Navigation */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/dashboard')}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold">Become a Safe Space Helper</h1>

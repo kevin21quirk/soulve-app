@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.send-emergency-alert]
 verify_jwt = false
 
+[functions.send-reference-request]
+verify_jwt = true
+
 [functions.verify-safeguarding-action]
 verify_jwt = true
 
