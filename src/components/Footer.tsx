@@ -5,11 +5,8 @@ const Footer = () => {
   return (
     <footer className="bg-grey-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-centre space-x-2 mb-4">
-              <SouLVELogo size="small" />
-            </div>
             <p className="text-grey-400 text-sm">
               Bridging the human gap AI cannot reach through trust-based community connections.
             </p>
