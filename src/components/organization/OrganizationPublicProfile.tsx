@@ -21,6 +21,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchOrganizationProfile } from '@/services/organizationProfileService';
 import { supabase } from '@/integrations/supabase/client';
+import { ProfileSwitcher } from '@/components/profile/ProfileSwitcher';
 
 export const OrganizationPublicProfile = () => {
   const { organizationId } = useParams();
@@ -104,6 +105,11 @@ export const OrganizationPublicProfile = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
+      {/* Profile Switcher */}
+      <div className="flex justify-end">
+        <ProfileSwitcher currentView="organization" currentOrgId={organizationId} />
+      </div>
+
       {/* Banner & Avatar Section */}
       <Card className="overflow-hidden">
         <div className="relative h-64 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe]">

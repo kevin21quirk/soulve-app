@@ -15,6 +15,7 @@ import { User, Settings, MessageSquare, TrendingUp, Shield } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { ProfileSwitcher } from "../profile/ProfileSwitcher";
 
 const UserProfile = () => {
   const { toast } = useToast();
@@ -95,6 +96,7 @@ const UserProfile = () => {
       
       <Tabs defaultValue="view" className="w-full">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <ProfileSwitcher currentView="personal" />
           <TabsList className="grid flex-1 grid-cols-2 gap-1 bg-muted p-1">
             <TabsTrigger 
               value="view" 
