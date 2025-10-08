@@ -53,6 +53,7 @@ export interface ImportedContent {
   sourcePlatform: string;
   sourceTitle: string;
   sourceAuthor?: string;
+  thumbnailUrl?: string;
   importedAt: Date;
 }
 

@@ -67,7 +67,8 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     postToInsert.external_id = postData.importedContent.sourceUrl;
     postToInsert.import_metadata = {
       sourceAuthor: postData.importedContent.sourceAuthor,
-      sourceTitle: postData.importedContent.sourceTitle
+      sourceTitle: postData.importedContent.sourceTitle,
+      thumbnailUrl: postData.importedContent.thumbnailUrl
     };
     postToInsert.imported_at = postData.importedContent.importedAt.toISOString();
   }

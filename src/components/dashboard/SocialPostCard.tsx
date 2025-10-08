@@ -20,6 +20,7 @@ import { HelpCompletionService } from '@/services/helpCompletionService';
 import { useToast } from '@/hooks/use-toast';
 import PostDetailModal from './PostDetailModal';
 import { usePostComments } from '@/hooks/usePostComments';
+import YouTubeEmbed from './YouTubeEmbed';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -249,8 +250,24 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
           />
         </div>
 
-        {/* Imported Content Badge */}
-        {post.import_source && post.external_id && (
+        {/* Imported YouTube Video */}
+        {post.import_source === 'youtube' && post.external_id && (
+          <div className="mb-4 space-y-2">
+            <YouTubeEmbed 
+              url={post.external_id} 
+              title={post.import_metadata?.sourceTitle || post.title}
+              thumbnailUrl={post.import_metadata?.thumbnailUrl}
+            />
+            {post.import_metadata?.sourceAuthor && (
+              <p className="text-xs text-muted-foreground px-2">
+                Original by {post.import_metadata.sourceAuthor}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Imported Content Badge (non-YouTube) */}
+        {post.import_source && post.import_source !== 'youtube' && post.external_id && (
           <div className="mb-4 px-4 py-2 bg-primary/5 border-l-4 border-primary flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <Share2 className="h-4 w-4 text-primary" />

@@ -9,6 +9,7 @@ import EnhancedPostReactions from "./EnhancedPostReactions";
 import PostDetailModal from "./PostDetailModal";
 import PostActions from "./PostActions";
 import UserModerationMenu from "@/components/moderation/UserModerationMenu";
+import YouTubeEmbed from "./YouTubeEmbed";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -169,15 +170,31 @@ const FeedPostCard = ({
       {/* Post Content */}
       <CardContent className="pt-0">
         <div className="space-y-3">
-          {/* Imported Content Badge */}
-          {post.import_source && post.external_id && (
+          {/* Imported YouTube Video */}
+          {post.import_source === 'youtube' && post.external_id && (
+            <div className="space-y-2">
+              <YouTubeEmbed 
+                url={post.external_id} 
+                title={post.import_metadata?.sourceTitle || post.title}
+                thumbnailUrl={post.import_metadata?.thumbnailUrl as string | undefined}
+              />
+              {post.import_metadata?.sourceAuthor && (
+                <p className="text-xs text-muted-foreground">
+                  Original by {post.import_metadata.sourceAuthor}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Imported Content Badge (non-YouTube) */}
+          {post.import_source && post.import_source !== 'youtube' && post.external_id && (
             <div className="px-4 py-2 bg-primary/5 border-l-4 border-primary flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm">
                 <Share2 className="h-4 w-4 text-primary" />
                 <span className="text-muted-foreground">
                   Imported from <span className="font-medium capitalize">{post.import_source}</span>
                   {post.import_metadata?.sourceAuthor && (
-                    <span className="text-xs ml-1">by {post.import_metadata.sourceAuthor}</span>
+                    <span className="text-xs ml-1">by {post.import_metadata.sourceAuthor as string}</span>
                   )}
                 </span>
                 <a 

@@ -30,6 +30,7 @@ export interface SocialPost {
   import_metadata?: {
     sourceAuthor?: string;
     sourceTitle?: string;
+    thumbnailUrl?: string;
   } | null;
   imported_at?: string | null;
 }

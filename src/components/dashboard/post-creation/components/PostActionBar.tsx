@@ -132,6 +132,7 @@ export const PostActionBar = ({
         sourcePlatform: imported.platform,
         sourceTitle: imported.title,
         sourceAuthor: imported.author,
+        thumbnailUrl: imported.thumbnailUrl,
         importedAt: new Date()
       }
     }));
