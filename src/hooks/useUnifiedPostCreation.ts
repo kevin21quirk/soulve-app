@@ -50,7 +50,7 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         });
       }
 
-      // Create the post with uploaded media URLs
+      // Create the post with uploaded media URLs and imported content
       const postId = await createUnifiedPost({
         title: postData.title,
         content: postData.description,
@@ -59,7 +59,8 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         location: postData.location,
         tags: postData.tags || [],
         visibility: postData.visibility || 'public',
-        media_urls: mediaUrls
+        media_urls: mediaUrls,
+        importedContent: postData.importedContent
       });
 
       // Show success message

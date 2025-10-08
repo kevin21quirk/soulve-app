@@ -169,6 +169,29 @@ const FeedPostCard = ({
       {/* Post Content */}
       <CardContent className="pt-0">
         <div className="space-y-3">
+          {/* Imported Content Badge */}
+          {post.import_source && post.external_id && (
+            <div className="px-4 py-2 bg-primary/5 border-l-4 border-primary flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm">
+                <Share2 className="h-4 w-4 text-primary" />
+                <span className="text-muted-foreground">
+                  Imported from <span className="font-medium capitalize">{post.import_source}</span>
+                  {post.import_metadata?.sourceAuthor && (
+                    <span className="text-xs ml-1">by {post.import_metadata.sourceAuthor}</span>
+                  )}
+                </span>
+                <a 
+                  href={post.external_id} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline text-xs"
+                >
+                  View original
+                </a>
+              </div>
+            </div>
+          )}
+          
           <div>
             <h2 className="font-semibold text-gray-900 text-base mb-2 leading-tight">
               {post.title}

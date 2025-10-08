@@ -25,6 +25,13 @@ export interface SocialPost {
   is_liked: boolean;
   is_bookmarked: boolean;
   status: string;
+  import_source?: string | null;
+  external_id?: string | null;
+  import_metadata?: {
+    sourceAuthor?: string;
+    sourceTitle?: string;
+  } | null;
+  imported_at?: string | null;
 }
 
 export interface PostWithProfile extends SocialPost {
@@ -65,6 +72,9 @@ export const usePosts = () => {
         // Handle the profiles relationship correctly
         const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
         
+        // Type cast to access new import fields until Supabase types are regenerated
+        const postData = post as any;
+        
         return {
           id: post.id,
           title: post.title,
@@ -87,7 +97,11 @@ export const usePosts = () => {
           shares_count: 0,
           is_liked: false,
           is_bookmarked: false,
-          status: 'active'
+          status: 'active',
+          import_source: postData.import_source || null,
+          external_id: postData.external_id || null,
+          import_metadata: postData.import_metadata || null,
+          imported_at: postData.imported_at || null
         };
       }) || [];
 

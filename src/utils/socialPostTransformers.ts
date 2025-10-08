@@ -41,7 +41,11 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     comments: [],
     reactions: [],
     feeling: socialPost.feeling,
-    visibility: socialPost.visibility || 'public'
+    visibility: socialPost.visibility || 'public',
+    import_source: socialPost.import_source || null,
+    external_id: socialPost.external_id || null,
+    import_metadata: socialPost.import_metadata || null,
+    imported_at: socialPost.imported_at || null
   };
   
   if (import.meta.env.DEV) {

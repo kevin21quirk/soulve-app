@@ -22,6 +22,13 @@ export interface FeedPost {
   reactions?: Reaction[];
   feeling?: string;
   visibility?: string;
+  import_source?: string | null;
+  external_id?: string | null;
+  import_metadata?: {
+    sourceAuthor?: string;
+    sourceTitle?: string;
+  } | null;
+  imported_at?: string | null;
 }
 
 export interface MediaItem {
