@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { createInteraction } from '@/services/interactionRoutingService';
 
 export interface SocialPost {
   id: string;
@@ -228,9 +229,6 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     }
 
     try {
-      // Extract actual post ID if it's a campaign
-      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
-      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -238,16 +236,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      // Remove organization context - likes are always from authenticated user
-      const { error } = await supabase
-        .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'like'
-        });
-
-      if (error) throw error;
+      // Use routing service to handle both posts and campaigns
+      await createInteraction(postId, user.id, 'like');
 
       toast({
         title: "Post liked!",
@@ -271,15 +261,12 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast, organizationId]);
+  }, [user, toast]);
 
   const handleBookmark = useCallback(async (postId: string) => {
     if (!user) return;
 
     try {
-      // Extract actual post ID if it's a campaign
-      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
-      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -287,15 +274,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      const { error } = await supabase
-        .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'bookmark'
-        });
-
-      if (error) throw error;
+      // Use routing service to handle both posts and campaigns
+      await createInteraction(postId, user.id, 'bookmark');
 
       toast({
         title: "Post bookmarked!",
@@ -325,9 +305,6 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     if (!user) return;
 
     try {
-      // Extract actual post ID if it's a campaign
-      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
-      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -335,15 +312,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      const { error } = await supabase
-        .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'share'
-        });
-
-      if (error) throw error;
+      // Use routing service to handle both posts and campaigns
+      await createInteraction(postId, user.id, 'share');
 
       toast({
         title: "Post shared!",
@@ -382,9 +352,6 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     if (!content.trim()) return;
 
     try {
-      // Extract actual post ID if it's a campaign
-      const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
-      
       // Optimistically update the UI
       setPosts(prev => prev.map(post => 
         post.id === postId 
@@ -392,20 +359,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           : post
       ));
 
-      // Remove organization context from backend for now - comments are always from the authenticated user
-      // The UI will show the organization context separately
-      const commentContent = content.trim();
-      
-      const { error } = await supabase
-        .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'comment',
-          content: commentContent
-        });
-
-      if (error) throw error;
+      // Use routing service to handle both posts and campaigns
+      await createInteraction(postId, user.id, 'comment', content.trim());
 
       toast({
         title: "Comment added!",
@@ -429,7 +384,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast, organizationId]);
+  }, [user, toast]);
 
   // Enhanced real-time subscription with better campaign handling
   useEffect(() => {
@@ -453,7 +408,29 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         schema: 'public',
         table: 'campaigns'
       }, () => {
-        // Immediate refresh when campaigns change
+        fetchPosts();
+      })
+      .subscribe();
+
+    // Listen for interactions on both tables
+    const postInteractionsChannel = supabase
+      .channel('post-interactions-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'post_interactions'
+      }, () => {
+        fetchPosts();
+      })
+      .subscribe();
+
+    const campaignInteractionsChannel = supabase
+      .channel('campaign-interactions-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'campaign_interactions'
+      }, () => {
         fetchPosts();
       })
       .subscribe();
@@ -461,6 +438,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     return () => {
       supabase.removeChannel(postsChannel);
       supabase.removeChannel(campaignsChannel);
+      supabase.removeChannel(postInteractionsChannel);
+      supabase.removeChannel(campaignInteractionsChannel);
     };
   }, [user, fetchPosts]);
 

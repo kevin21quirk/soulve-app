@@ -563,6 +563,57 @@ export type Database = {
           },
         ]
       }
+      campaign_interactions: {
+        Row: {
+          campaign_id: string
+          content: string | null
+          created_at: string
+          id: string
+          interaction_type: string
+          is_deleted: boolean | null
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          interaction_type: string
+          is_deleted?: boolean | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          is_deleted?: boolean | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_interactions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_interactions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_interactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_invitations: {
         Row: {
           campaign_id: string

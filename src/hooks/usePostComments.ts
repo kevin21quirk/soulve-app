@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Comment } from '@/types/feed';
 import { formatDistanceToNow } from 'date-fns';
+import { fetchComments as fetchCommentsService, getInteractionTarget } from '@/services/interactionRoutingService';
 
 interface RawComment {
   id: string;
@@ -72,14 +73,7 @@ export const usePostComments = (postId: string) => {
       setLoading(true);
       setError(null);
 
-      const actualPostId = postId.startsWith('campaign_') 
-        ? postId.replace('campaign_', '') 
-        : postId;
-
-      const { data, error: fetchError } = await supabase
-        .rpc('get_post_comments', { target_post_id: actualPostId });
-
-      if (fetchError) throw fetchError;
+      const data = await fetchCommentsService(postId, user?.id);
 
       const transformed = (data as RawComment[]).map(transformComment);
       const organized = organizeComments(transformed);
@@ -90,7 +84,7 @@ export const usePostComments = (postId: string) => {
     } finally {
       setLoading(false);
     }
-  }, [postId]);
+  }, [postId, user?.id]);
 
   useEffect(() => {
     fetchComments();
@@ -100,19 +94,19 @@ export const usePostComments = (postId: string) => {
   useEffect(() => {
     if (!postId) return;
 
-    const actualPostId = postId.startsWith('campaign_') 
-      ? postId.replace('campaign_', '') 
-      : postId;
+    const target = getInteractionTarget(postId);
+    const tableName = target.isCampaign ? 'campaign_interactions' : 'post_interactions';
+    const filterColumn = target.isCampaign ? 'campaign_id' : 'post_id';
 
     const channel = supabase
-      .channel(`comments:${actualPostId}`)
+      .channel(`comments:${target.actualId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'post_interactions',
-          filter: `post_id=eq.${actualPostId}`
+          table: tableName,
+          filter: `${filterColumn}=eq.${target.actualId}`
         },
         (payload) => {
           if (payload.new.interaction_type === 'comment') {
@@ -126,8 +120,8 @@ export const usePostComments = (postId: string) => {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'post_interactions',
-          filter: `post_id=eq.${actualPostId}`
+          table: tableName,
+          filter: `${filterColumn}=eq.${target.actualId}`
         },
         (payload) => {
           if (payload.new.interaction_type === 'comment') {
@@ -141,7 +135,7 @@ export const usePostComments = (postId: string) => {
         {
           event: 'DELETE',
           schema: 'public',
-          table: 'post_interactions'
+          table: tableName
         },
         () => {
           console.log('Comment deleted, refreshing...');
@@ -152,7 +146,7 @@ export const usePostComments = (postId: string) => {
 
     // Also subscribe to comment likes changes
     const likesChannel = supabase
-      .channel(`comment_likes:${actualPostId}`)
+      .channel(`comment_likes:${target.actualId}`)
       .on(
         'postgres_changes',
         {
