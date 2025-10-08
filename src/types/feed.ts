@@ -44,6 +44,8 @@ export interface Comment {
   editedAt?: string;
   isDeleted: boolean;
   replies?: Comment[];
+  isOrganization?: boolean;
+  organizationName?: string | null;
 }
 
 export interface Reaction {

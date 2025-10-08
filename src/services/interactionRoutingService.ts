@@ -29,7 +29,8 @@ export const createInteraction = async (
   id: string,
   userId: string,
   interactionType: 'like' | 'comment' | 'bookmark' | 'share',
-  content?: string
+  content?: string,
+  organizationId?: string | null
 ) => {
   const target = getInteractionTarget(id);
   
@@ -40,7 +41,8 @@ export const createInteraction = async (
         campaign_id: target.actualId,
         user_id: userId,
         interaction_type: interactionType,
-        ...(content && { content })
+        ...(content && { content }),
+        ...(organizationId && { organization_id: organizationId })
       });
     
     if (error) throw error;
@@ -51,7 +53,8 @@ export const createInteraction = async (
         post_id: target.actualId,
         user_id: userId,
         interaction_type: interactionType,
-        ...(content && { content })
+        ...(content && { content }),
+        ...(organizationId && { organization_id: organizationId })
       });
     
     if (error) throw error;
@@ -73,6 +76,7 @@ export const fetchComments = async (id: string, userId?: string) => {
         id,
         campaign_id,
         user_id,
+        organization_id,
         content,
         created_at,
         updated_at,
@@ -85,33 +89,55 @@ export const fetchComments = async (id: string, userId?: string) => {
 
     if (error) throw error;
 
-    // Get profiles for comment authors
+    // Get unique user IDs and organization IDs
     const userIds = [...new Set(data.map(c => c.user_id))];
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, first_name, last_name, avatar_url')
-      .in('id', userIds);
+    const orgIds = [...new Set(data.filter(c => c.organization_id).map(c => c.organization_id))];
 
-    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+    // Fetch profiles and organizations in parallel
+    const [profilesResult, orgsResult] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', userIds),
+      orgIds.length > 0 
+        ? supabase
+            .from('organizations')
+            .select('id, name, avatar_url')
+            .in('id', orgIds)
+        : Promise.resolve({ data: [] })
+    ]);
+
+    const profileMap = new Map(profilesResult.data?.map(p => [p.id, p] as const) || []);
+    const orgMap = new Map(orgsResult.data?.map(o => [o.id, o] as const) || []);
 
     // Transform to match RPC output format
     return data.map(comment => {
       const profile = profileMap.get(comment.user_id);
-      const authorName = profile 
-        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
-        : 'Anonymous';
+      const org = comment.organization_id ? orgMap.get(comment.organization_id) : null;
+      
+      // If comment is from an organization, use org name and avatar
+      const authorName = org 
+        ? org.name 
+        : profile 
+          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous'
+          : 'Anonymous';
+      
+      const authorAvatar = org?.avatar_url || profile?.avatar_url || null;
 
       return {
         id: comment.id,
         post_id: target.actualId,
         user_id: comment.user_id,
+        organization_id: comment.organization_id,
         parent_comment_id: comment.parent_id,
         content: comment.content,
         created_at: comment.created_at,
         edited_at: comment.updated_at !== comment.created_at ? comment.updated_at : null,
         is_deleted: comment.is_deleted,
         author_name: authorName,
-        author_avatar: profile?.avatar_url || null,
+        author_avatar: authorAvatar,
+        is_organization: !!org,
+        organization_name: org?.name || null,
         likes_count: 0, // TODO: Add likes count query
         user_has_liked: false // TODO: Add user like status query
       };

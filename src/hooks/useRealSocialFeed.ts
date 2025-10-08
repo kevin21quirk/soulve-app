@@ -237,7 +237,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       ));
 
       // Use routing service to handle both posts and campaigns
-      await createInteraction(postId, user.id, 'like');
+      await createInteraction(postId, user.id, 'like', undefined, organizationId);
 
       toast({
         title: "Post liked!",
@@ -261,7 +261,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   const handleBookmark = useCallback(async (postId: string) => {
     if (!user) return;
@@ -275,7 +275,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       ));
 
       // Use routing service to handle both posts and campaigns
-      await createInteraction(postId, user.id, 'bookmark');
+      await createInteraction(postId, user.id, 'bookmark', undefined, organizationId);
 
       toast({
         title: "Post bookmarked!",
@@ -299,7 +299,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   const handleShare = useCallback(async (postId: string) => {
     if (!user) return;
@@ -313,7 +313,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       ));
 
       // Use routing service to handle both posts and campaigns
-      await createInteraction(postId, user.id, 'share');
+      await createInteraction(postId, user.id, 'share', undefined, organizationId);
 
       toast({
         title: "Post shared!",
@@ -337,7 +337,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   const handleAddComment = useCallback(async (postId: string, content: string) => {
     if (!user) {
@@ -360,11 +360,11 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       ));
 
       // Use routing service to handle both posts and campaigns
-      await createInteraction(postId, user.id, 'comment', content.trim());
+      await createInteraction(postId, user.id, 'comment', content.trim(), organizationId);
 
       toast({
         title: "Comment added!",
-        description: "Your comment has been posted."
+        description: organizationId ? "Comment posted on behalf of the organization." : "Your comment has been posted."
       });
     } catch (error: any) {
       if (import.meta.env.DEV) {
@@ -384,7 +384,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, toast, organizationId]);
 
   // Enhanced real-time subscription with better campaign handling
   useEffect(() => {

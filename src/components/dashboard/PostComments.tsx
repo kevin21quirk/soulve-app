@@ -90,6 +90,11 @@ const CommentItem = ({
                 >
                   {comment.author}
                 </span>
+                {comment.isOrganization && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                    Organization
+                  </span>
+                )}
                 <span className="text-xs text-gray-500">{comment.timestamp}</span>
                 {comment.editedAt && (
                   <span className="text-xs text-gray-400 italic">(edited)</span>

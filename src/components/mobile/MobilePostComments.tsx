@@ -96,8 +96,13 @@ const MobileCommentItem = ({
         <div className="flex-1 min-w-0">
           <div className="bg-gray-50 rounded-2xl px-3 py-2">
             <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-1">
                 <span className="font-semibold text-sm text-gray-900">{comment.author}</span>
+                {comment.isOrganization && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                    Org
+                  </span>
+                )}
                 <span className="text-xs text-gray-500">{comment.timestamp}</span>
                 {comment.editedAt && (
                   <span className="text-xs text-gray-400 italic">(edited)</span>

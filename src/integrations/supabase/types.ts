@@ -571,6 +571,7 @@ export type Database = {
           id: string
           interaction_type: string
           is_deleted: boolean | null
+          organization_id: string | null
           parent_id: string | null
           updated_at: string
           user_id: string
@@ -582,6 +583,7 @@ export type Database = {
           id?: string
           interaction_type: string
           is_deleted?: boolean | null
+          organization_id?: string | null
           parent_id?: string | null
           updated_at?: string
           user_id: string
@@ -593,6 +595,7 @@ export type Database = {
           id?: string
           interaction_type?: string
           is_deleted?: boolean | null
+          organization_id?: string | null
           parent_id?: string | null
           updated_at?: string
           user_id?: string
@@ -603,6 +606,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_interactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -4001,6 +4011,7 @@ export type Database = {
           id: string
           interaction_type: string
           is_deleted: boolean | null
+          organization_id: string | null
           parent_comment_id: string | null
           post_id: string
           user_id: string
@@ -4012,6 +4023,7 @@ export type Database = {
           id?: string
           interaction_type: string
           is_deleted?: boolean | null
+          organization_id?: string | null
           parent_comment_id?: string | null
           post_id: string
           user_id: string
@@ -4023,11 +4035,19 @@ export type Database = {
           id?: string
           interaction_type?: string
           is_deleted?: boolean | null
+          organization_id?: string | null
           parent_comment_id?: string | null
           post_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_interactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_interactions_parent_comment_id_fkey"
             columns: ["parent_comment_id"]
