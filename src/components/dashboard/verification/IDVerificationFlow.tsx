@@ -1,12 +1,20 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Camera, Shield, CheckCircle, AlertCircle, Eye } from "lucide-react";
+import { Upload, Camera, Shield, CheckCircle, AlertCircle, Eye, Scan } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  detectFaceInImage, 
+  compareFaces, 
+  performBasicLivenessCheck, 
+  loadImageFromFile,
+  type FaceDetectionResult,
+  type LivenessCheckResult
+} from "@/utils/faceDetection";
 
 interface IDVerificationFlowProps {
   onComplete: (data: any) => void;
@@ -27,6 +35,15 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
     selfieImage: null as File | null
   });
   const [uploading, setUploading] = useState(false);
+  const [faceData, setFaceData] = useState<{
+    idFaceResult?: FaceDetectionResult;
+    selfieFaceResult?: FaceDetectionResult;
+    livenessResult?: LivenessCheckResult;
+    matchScore?: number;
+    processing: boolean;
+  }>({
+    processing: false
+  });
 
   const documentTypes = [
     { value: 'passport', label: 'Passport' },
@@ -35,7 +52,7 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
     { value: 'residence_permit', label: 'Residence Permit' }
   ];
 
-  const handleFileUpload = (field: string, file: File) => {
+  const handleFileUpload = async (field: string, file: File) => {
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -46,11 +63,106 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
     }
 
     setFormData(prev => ({ ...prev, [field]: file }));
-    toast({
-      title: "Image uploaded",
-      description: "Your document image has been uploaded successfully"
-    });
+    
+    // Perform face detection for ID front image and selfie
+    if (field === 'frontImage' || field === 'selfieImage') {
+      setFaceData(prev => ({ ...prev, processing: true }));
+      
+      try {
+        const img = await loadImageFromFile(file);
+        
+        if (field === 'frontImage') {
+          const faceResult = await detectFaceInImage(img);
+          setFaceData(prev => ({ ...prev, idFaceResult: faceResult, processing: false }));
+          
+          if (!faceResult.detected) {
+            toast({
+              title: "No face detected",
+              description: "Please upload a clear image showing your face on the ID",
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          toast({
+            title: "Face detected ✓",
+            description: `Quality score: ${faceResult.qualityScore.toFixed(0)}%`
+          });
+        } else if (field === 'selfieImage') {
+          // Perform liveness check on selfie
+          const livenessResult = await performBasicLivenessCheck(img);
+          const faceResult = await detectFaceInImage(img);
+          
+          setFaceData(prev => ({ 
+            ...prev, 
+            selfieFaceResult: faceResult, 
+            livenessResult,
+            processing: false 
+          }));
+          
+          if (!livenessResult.passed) {
+            toast({
+              title: "Liveness check failed",
+              description: "Please take a clear selfie with good lighting",
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          toast({
+            title: "Liveness check passed ✓",
+            description: "Face detected successfully"
+          });
+        }
+      } catch (error) {
+        console.error('Face detection error:', error);
+        setFaceData(prev => ({ ...prev, processing: false }));
+        toast({
+          title: "Processing error",
+          description: "Unable to process image. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      toast({
+        title: "Image uploaded",
+        description: "Your document image has been uploaded successfully"
+      });
+    }
   };
+
+  // Compare faces when both ID and selfie are uploaded
+  useEffect(() => {
+    const compareIDAndSelfie = async () => {
+      if (faceData.idFaceResult?.embedding && faceData.selfieFaceResult?.embedding) {
+        try {
+          const matchScore = compareFaces(
+            faceData.idFaceResult.embedding,
+            faceData.selfieFaceResult.embedding
+          );
+          
+          setFaceData(prev => ({ ...prev, matchScore }));
+          
+          if (matchScore >= 0.6) {
+            toast({
+              title: "Face match successful ✓",
+              description: `Match confidence: ${(matchScore * 100).toFixed(0)}%`,
+            });
+          } else {
+            toast({
+              title: "Low face match",
+              description: "The faces don't match well. Please retake your photos.",
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error('Face comparison error:', error);
+        }
+      }
+    };
+    
+    compareIDAndSelfie();
+  }, [faceData.idFaceResult, faceData.selfieFaceResult]);
 
   const handleSubmit = async () => {
     if (!formData.frontImage || !formData.backImage || !formData.selfieImage) {
@@ -69,18 +181,26 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
       
       if (!user) throw new Error('User not authenticated');
 
-      // First create the verification record
+      // First create the verification record with face match data
       const { data: verification, error: verificationError } = await supabase
         .from('user_verifications')
         .insert({
           user_id: user.id,
           verification_type: 'government_id',
+          face_match_score: faceData.matchScore,
+          liveness_check_passed: faceData.livenessResult?.passed || false,
+          face_embedding: faceData.selfieFaceResult?.embedding ? {
+            embedding: faceData.selfieFaceResult.embedding,
+            quality: faceData.selfieFaceResult.qualityScore
+          } : null,
           verification_data: {
             documentType: formData.documentType,
             documentNumber: formData.documentNumber,
             fullName: formData.fullName,
             dateOfBirth: formData.dateOfBirth,
-            expiryDate: formData.expiryDate
+            expiryDate: formData.expiryDate,
+            faceMatchScore: faceData.matchScore,
+            livenessCheckPassed: faceData.livenessResult?.passed
           }
         })
         .select()
@@ -106,7 +226,12 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
 
         if (uploadError) throw uploadError;
 
-        // Record document in database
+        // Record document in database with face detection results
+        const faceDetected = type === 'id_front' ? faceData.idFaceResult?.detected :
+                           type === 'selfie' ? faceData.selfieFaceResult?.detected : false;
+        const faceQuality = type === 'id_front' ? faceData.idFaceResult?.qualityScore :
+                          type === 'selfie' ? faceData.selfieFaceResult?.qualityScore : null;
+        
         const { error: docError } = await supabase
           .from('verification_documents')
           .insert({
@@ -116,7 +241,9 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
             file_path: fileName,
             file_name: file.name,
             file_size: file.size,
-            mime_type: file.type
+            mime_type: file.type,
+            face_detected: faceDetected,
+            face_quality_score: faceQuality
           });
 
         if (docError) throw docError;
@@ -251,10 +378,13 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
                 <Label htmlFor="front-upload" className="cursor-pointer text-blue-600 hover:underline">
                   {formData.frontImage ? 'Change file' : 'Choose file'}
                 </Label>
-                {formData.frontImage && (
-                  <div className="flex items-center justify-center mt-2">
+                {faceData.processing && <p className="text-xs text-blue-600 mt-2 flex items-center justify-center gap-1"><Scan className="h-4 w-4 animate-pulse" />Detecting face...</p>}
+                {formData.frontImage && faceData.idFaceResult && (
+                  <div className="flex items-center justify-center mt-2 gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-xs text-green-600 ml-1">Uploaded</span>
+                    <span className="text-xs text-green-600">
+                      Face detected ({faceData.idFaceResult.qualityScore.toFixed(0)}%)
+                    </span>
                   </div>
                 )}
               </div>
@@ -312,25 +442,56 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
                 <Label htmlFor="selfie-upload" className="cursor-pointer text-blue-600 hover:underline">
                   {formData.selfieImage ? 'Retake selfie' : 'Take selfie'}
                 </Label>
-                {formData.selfieImage && (
-                  <div className="flex items-center justify-center mt-2">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-xs text-green-600 ml-1">Uploaded</span>
+                {faceData.processing && <p className="text-xs text-blue-600 mt-2 flex items-center justify-center gap-1"><Scan className="h-4 w-4 animate-pulse" />Checking liveness...</p>}
+                {formData.selfieImage && faceData.livenessResult && (
+                  <div className="flex items-center justify-center mt-2 gap-2">
+                    {faceData.livenessResult.passed ? (
+                      <>
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-xs text-green-600">Liveness verified ✓</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-5 w-5 text-red-600" />
+                        <span className="text-xs text-red-600">Liveness check failed</span>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
+              
+              {faceData.matchScore !== undefined && (
+                <div className={`p-4 rounded-lg ${faceData.matchScore >= 0.6 ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
+                  <div className="flex items-center gap-2">
+                    {faceData.matchScore >= 0.6 ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-amber-600" />
+                    )}
+                    <div>
+                      <p className="font-medium text-sm">Face Match: {(faceData.matchScore * 100).toFixed(0)}%</p>
+                      <p className="text-xs text-gray-600">
+                        {faceData.matchScore >= 0.6 
+                          ? 'Faces match! Your verification will be processed faster.' 
+                          : 'Low match confidence. Manual review may take longer.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="flex items-start space-x-3">
-                <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                <Scan className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-900">Tips for better verification:</p>
+                  <p className="font-medium text-blue-900">AI-Powered Face Verification:</p>
                   <ul className="mt-1 text-blue-800 space-y-1">
-                    <li>• Ensure all text is clearly visible</li>
+                    <li>• Ensure all text on ID is clearly visible</li>
                     <li>• Avoid glare and shadows</li>
-                    <li>• Keep the document flat</li>
+                    <li>• Keep the document flat and in focus</li>
                     <li>• Face the camera directly for selfie</li>
+                    <li>• Good lighting helps improve match accuracy</li>
                   </ul>
                 </div>
               </div>

@@ -6053,7 +6053,10 @@ export type Database = {
         Row: {
           created_at: string
           expires_at: string | null
+          face_embedding: Json | null
+          face_match_score: number | null
           id: string
+          liveness_check_passed: boolean | null
           notes: string | null
           status: string
           updated_at: string
@@ -6066,7 +6069,10 @@ export type Database = {
         Insert: {
           created_at?: string
           expires_at?: string | null
+          face_embedding?: Json | null
+          face_match_score?: number | null
           id?: string
+          liveness_check_passed?: boolean | null
           notes?: string | null
           status?: string
           updated_at?: string
@@ -6079,7 +6085,10 @@ export type Database = {
         Update: {
           created_at?: string
           expires_at?: string | null
+          face_embedding?: Json | null
+          face_match_score?: number | null
           id?: string
+          liveness_check_passed?: boolean | null
           notes?: string | null
           status?: string
           updated_at?: string
@@ -6133,6 +6142,8 @@ export type Database = {
         Row: {
           created_at: string
           document_type: string
+          face_detected: boolean | null
+          face_quality_score: number | null
           file_name: string
           file_path: string
           file_size: number
@@ -6145,6 +6156,8 @@ export type Database = {
         Insert: {
           created_at?: string
           document_type: string
+          face_detected?: boolean | null
+          face_quality_score?: number | null
           file_name: string
           file_path: string
           file_size: number
@@ -6157,6 +6170,8 @@ export type Database = {
         Update: {
           created_at?: string
           document_type?: string
+          face_detected?: boolean | null
+          face_quality_score?: number | null
           file_name?: string
           file_path?: string
           file_size?: number
