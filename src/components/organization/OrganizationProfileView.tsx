@@ -32,6 +32,10 @@ import OrganizationReviews from './OrganizationReviews';
 import OrganizationFollowButton from './OrganizationFollowButton';
 import { OrganizationProfileEditMode } from './OrganizationProfileEditMode';
 import { fetchOrganizationTrustScore } from '@/services/organizationTrustScoreService';
+import OrganizationProfileDisplayMode from './OrganizationProfileDisplayMode';
+import { uploadOrganizationAvatar, uploadOrganizationBanner } from '@/services/organizationProfileService';
+import { useToast } from '@/hooks/use-toast';
+import { Users, MessageCircle, UserPlus } from 'lucide-react';
 
 interface OrganizationProfileViewProps {
   organizationId: string;
@@ -40,6 +44,7 @@ interface OrganizationProfileViewProps {
 export const OrganizationProfileView = ({ organizationId }: OrganizationProfileViewProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [organization, setOrganization] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -52,6 +57,9 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
   const [verifications, setVerifications] = useState<any[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isMember, setIsMember] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   useEffect(() => {
     if (organizationId) {
@@ -201,6 +209,70 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
     loadOrganizationProfile();
   };
 
+  const handleFollow = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to follow organizations",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsFollowLoading(true);
+    // Implement follow logic here
+    setIsFollowLoading(false);
+  };
+
+  const handleMessage = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Messaging feature is under development",
+    });
+  };
+
+  const handleJoinOrganization = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to join organizations",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Coming Soon",
+      description: "Join organization feature is under development",
+    });
+  };
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link Copied",
+      description: "Organization profile link copied to clipboard",
+    });
+  };
+
+  const handleAvatarUpload = async (newAvatarUrl: string) => {
+    toast({
+      title: "Avatar Updated",
+      description: "Organization avatar has been updated successfully",
+    });
+    loadOrganizationProfile();
+  };
+
+  const handleBannerUpload = async (file: File) => {
+    const bannerUrl = await uploadOrganizationBanner(organizationId, file);
+    if (bannerUrl) {
+      toast({
+        title: "Banner Updated",
+        description: "Organization banner has been updated successfully",
+      });
+      loadOrganizationProfile();
+    }
+  };
+
   if (loading) {
     return (
       <Card className="animate-pulse">
@@ -238,102 +310,51 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
     );
   }
 
+  // Enhance organization data with trust score and counts
+  const enhancedOrganization = {
+    ...organization,
+    trust_score: trustScore,
+    follower_count: followerCount,
+    member_count: teamMembers.length,
+    post_count: activities.length,
+    is_verified: verifications.length > 0,
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header Section with Banner */}
+      {/* Header Section with Banner - Using New Component Structure */}
       <Card className="overflow-hidden">
-        <div className="relative h-48 md:h-64 bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))]">
-          {organization.banner_url && (
-            <img
-              src={organization.banner_url}
-              alt="Organization banner"
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
-        
-        <CardContent className="relative pt-0 pb-6">
-          <div className="flex flex-col md:flex-row items-start md:items-end gap-4 md:gap-6 -mt-12 md:-mt-20">
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-xl">
-              <AvatarImage src={organization.avatar_url} />
-              <AvatarFallback className="text-2xl md:text-4xl bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))] text-white">
-                {organization.name?.[0] || 'O'}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 md:pt-8 w-full">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-2xl md:text-3xl font-bold">
-                        {organization.name}
-                      </h1>
-                      {verifications.length > 0 && (
-                        <Badge variant="secondary" className="gap-1">
-                          <Shield className="h-3 w-3" />
-                          Verified
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground capitalize">
-                      {organization.organization_type?.replace('-', ' ')} • {organization.location}
-                    </p>
-                    {trustScore !== null && (
-                      <OrganizationTrustScoreDisplay score={trustScore} size="md" />
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {/* Admin Actions */}
-                    {isAdmin && (
-                      <>
-                        <Button
-                          onClick={() => setIsEditing(true)}
-                          size="sm"
-                          variant="outline"
-                          className="gap-2"
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="hidden sm:inline">Edit Profile</span>
-                        </Button>
-                        <Button
-                          onClick={() => navigate(`/dashboard?tab=organisation-tools&org=${organizationId}`)}
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <Settings className="h-4 w-4" />
-                          <span className="hidden sm:inline">Manage</span>
-                        </Button>
-                      </>
-                    )}
-                    
-                    {/* Public Actions */}
-                    <OrganizationFollowButton
-                      organizationId={organizationId}
-                      followerCount={followerCount}
-                      onFollowChange={loadFollowerCount}
-                    />
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Share2 className="h-4 w-4" />
-                      <span className="hidden sm:inline">Share</span>
-                    </Button>
-                  </div>
-                </div>
-
-                {verifications.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {verifications.map((v) => (
-                      <Badge key={v.id} variant="outline" className="text-xs">
-                        {v.verification_type.replace('_', ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+        {isAdmin && (
+          <div className="p-4 bg-muted border-b flex justify-end gap-2">
+            <Button
+              onClick={() => setIsEditing(true)}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline">Edit Profile</span>
+            </Button>
+            <Button
+              onClick={() => navigate(`/dashboard?tab=organisation-tools&org=${organizationId}`)}
+              size="sm"
+              className="gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Manage</span>
+            </Button>
           </div>
-        </CardContent>
+        )}
+        
+        <OrganizationProfileDisplayMode
+          organization={enhancedOrganization}
+          isFollowing={isFollowing}
+          isMember={isMember}
+          onFollow={handleFollow}
+          onMessage={handleMessage}
+          onJoin={handleJoinOrganization}
+          onShare={handleShare}
+        />
       </Card>
 
       {impactMetrics && (
