@@ -4162,8 +4162,12 @@ export type Database = {
           instagram: string | null
           interests: string[] | null
           last_name: string | null
+          latitude: number | null
           linkedin: string | null
           location: string | null
+          location_sharing_enabled: boolean | null
+          location_updated_at: string | null
+          longitude: number | null
           phone: string | null
           skills: string[] | null
           twitter: string | null
@@ -4187,8 +4191,12 @@ export type Database = {
           instagram?: string | null
           interests?: string[] | null
           last_name?: string | null
+          latitude?: number | null
           linkedin?: string | null
           location?: string | null
+          location_sharing_enabled?: boolean | null
+          location_updated_at?: string | null
+          longitude?: number | null
           phone?: string | null
           skills?: string[] | null
           twitter?: string | null
@@ -4214,8 +4222,12 @@ export type Database = {
           instagram?: string | null
           interests?: string[] | null
           last_name?: string | null
+          latitude?: number | null
           linkedin?: string | null
           location?: string | null
+          location_sharing_enabled?: boolean | null
+          location_updated_at?: string | null
+          longitude?: number | null
           phone?: string | null
           skills?: string[] | null
           twitter?: string | null
@@ -6452,6 +6464,10 @@ export type Database = {
         Args: { campaign_uuid: string }
         Returns: number
       }
+      calculate_distance: {
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
+        Returns: number
+      }
       calculate_enhanced_trust_score: {
         Args: { user_uuid: string }
         Returns: number
@@ -6565,6 +6581,26 @@ export type Database = {
       encrypt_message: {
         Args: { message_text: string }
         Returns: string
+      }
+      find_nearby_users: {
+        Args: {
+          limit_count?: number
+          radius_km?: number
+          user_lat: number
+          user_lon: number
+        }
+        Returns: {
+          avatar_url: string
+          distance_km: number
+          first_name: string
+          id: string
+          interests: string[]
+          last_name: string
+          latitude: number
+          location: string
+          longitude: number
+          skills: string[]
+        }[]
       }
       generate_user_recommendations: {
         Args: { target_user_id: string }
