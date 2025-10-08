@@ -30,9 +30,11 @@ const SafeSpaceHelperTraining = lazy(() => import("@/pages/SafeSpaceHelperTraini
 const StakeholderRegistration = lazy(() => import("@/pages/StakeholderRegistration"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const CookiePolicy = lazy(() => import("@/pages/CookiePolicy"));
 const WelcomeWizard = lazy(() => import("@/components/onboarding/WelcomeWizard"));
 const ProfileSettings = lazy(() => import("@/components/profile/ProfileSettings"));
 const OrganizationRedirect = lazy(() => import("@/components/organization/OrganizationRedirect"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function App() {
   useEffect(() => {
@@ -53,6 +55,7 @@ function App() {
             <Route path="/profile-registration" element={<ProfileRegistration />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/register/esg-contributor/:token" element={<StakeholderRegistration />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/organization/:organizationId" element={<OrganizationRedirect />} />
@@ -122,6 +125,8 @@ function App() {
                 </AdminRoute>
               } 
             />
+            {/* 404 Catch-all Route */}
+            <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
           <FloatingFeedbackButton />

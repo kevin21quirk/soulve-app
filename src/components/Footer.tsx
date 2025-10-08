@@ -28,6 +28,14 @@ const Footer = () => {
             </ul>
           </div>
           <div>
+            <h4 className="font-semibold mb-4">Legal</h4>
+            <ul className="space-y-2 text-grey-400">
+              <li><a href="/privacy-policy" className="hover:text-white transition-colours">Privacy Policy</a></li>
+              <li><a href="/terms-of-service" className="hover:text-white transition-colours">Terms of Service</a></li>
+              <li><a href="/cookie-policy" className="hover:text-white transition-colours">Cookie Policy</a></li>
+            </ul>
+          </div>
+          <div>
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-grey-400">
               <li><a href="#" className="hover:text-white transition-colours">About SouLVE</a></li>

@@ -1,14 +1,10 @@
+# robots.txt for SouLVE
 User-agent: *
 Allow: /
-
-# Disallow authenticated/private pages
 Disallow: /dashboard
-Disallow: /auth
-Disallow: /profile-registration
+Disallow: /admin
 Disallow: /settings
-
-# Crawl rate (optional, adjust as needed)
-Crawl-delay: 1
+Disallow: /api/
 
 # Sitemap location
 Sitemap: https://join-soulve.com/sitemap.xml
