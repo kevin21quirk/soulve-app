@@ -100,7 +100,7 @@ const SafeSpaceHelperApplication = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold">•</span>
-                <span>Availability to help at least a few hours per week</span>
+                <span>Availability to help at least an hour a week</span>
               </li>
             </ul>
           </CardContent>
