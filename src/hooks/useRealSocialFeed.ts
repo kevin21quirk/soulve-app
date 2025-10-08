@@ -25,6 +25,15 @@ export interface SocialPost {
   is_liked: boolean;
   is_bookmarked: boolean;
   status?: string; // Add status field for campaigns
+  // Import fields for YouTube/external content
+  import_source?: string | null;
+  external_id?: string | null;
+  import_metadata?: {
+    sourceAuthor?: string;
+    sourceTitle?: string;
+    thumbnailUrl?: string;
+  } | null;
+  imported_at?: string | null;
 }
 
 export const useRealSocialFeed = (organizationId?: string | null) => {
@@ -106,7 +115,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           avatarUrl = profile.avatar_url || '';
         }
 
-        return {
+        const transformed = {
           id: post.id,
           title: post.title,
           content: post.content,
@@ -124,8 +133,26 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           comments_count: 0,
           shares_count: 0,
           is_liked: false,
-          is_bookmarked: false
+          is_bookmarked: false,
+          // Import fields - cast from Json to proper type
+          import_source: post.import_source || null,
+          external_id: post.external_id || null,
+          import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
+          imported_at: post.imported_at || null
         };
+
+        // Log imported content posts
+        if (transformed.import_source) {
+          console.log('📺 [useRealSocialFeed] Post with imported content:', {
+            id: transformed.id,
+            import_source: transformed.import_source,
+            external_id: transformed.external_id,
+            has_metadata: !!transformed.import_metadata,
+            metadata: transformed.import_metadata
+          });
+        }
+
+        return transformed;
       });
 
       // Transform campaigns to look like posts with enhanced status handling

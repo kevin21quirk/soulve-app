@@ -47,7 +47,7 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
     queryFn: async () => {
-      console.log('Fetching posts with media...');
+      console.log('📺 [usePosts] Fetching posts with media and import data...');
       
       const { data, error } = await supabase
         .from('posts')
