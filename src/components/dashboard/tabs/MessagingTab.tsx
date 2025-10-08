@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from '@/services/realMessagingService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { useNotificationCounts } from '@/hooks/useNotificationCounts';
 const MessagingTab = () => {
   const { user } = useAuth();
   const { refreshCounts } = useNotificationCounts();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [showNewConversation, setShowNewConversation] = useState(false);
@@ -25,6 +27,21 @@ const MessagingTab = () => {
   const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation || "");
   const sendMessage = useSendMessage();
   const markAsRead = useMarkAsRead();
+
+  // Check for userId URL parameter and automatically open that conversation
+  useEffect(() => {
+    const userIdParam = searchParams.get('userId');
+    if (userIdParam && !selectedConversation) {
+      console.log('Opening conversation with user from URL:', userIdParam);
+      setSelectedConversation(userIdParam);
+      // Remove userId from URL after opening conversation
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('userId');
+        return newParams;
+      });
+    }
+  }, [searchParams, selectedConversation, setSearchParams]);
 
   // Fetch available users for new conversations
   useEffect(() => {
