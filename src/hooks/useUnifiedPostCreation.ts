@@ -79,11 +79,21 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
       return postId;
     } catch (error: any) {
       console.error('Error creating post:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create post. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Handle duplicate import error specifically
+      if (error.message?.includes('duplicate key') && error.message?.includes('idx_posts_import_source_external_id')) {
+        toast({
+          title: "Content Already Imported",
+          description: "You've already imported this content. Each URL can only be imported once to prevent duplicates.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create post. Please try again.",
+          variant: "destructive"
+        });
+      }
       return false;
     } finally {
       setIsCreating(false);
