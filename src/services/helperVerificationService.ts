@@ -450,12 +450,15 @@ export class HelperVerificationService {
     const application = await this.getApplication(userId);
     if (!application) return false;
 
-    // Check required fields
+    // Check required fields (minimum character requirement removed)
     const hasPersonalStatement = !!application.personal_statement && 
-      application.personal_statement.length >= 500;
-    const hasExperience = !!application.experience_description;
-    const hasReferences = application.reference_contacts.length >= 2;
-    const hasAvailability = !!application.availability_commitment;
+      application.personal_statement.trim().length > 0;
+    const hasExperience = !!application.experience_description && 
+      application.experience_description.trim().length > 0;
+    const hasReferences = application.reference_contacts.length >= 2 &&
+      application.reference_contacts.every(ref => ref.name && ref.email && ref.relationship);
+    const hasAvailability = !!application.availability_commitment && 
+      application.availability_commitment.trim().length > 0;
 
     return hasPersonalStatement && hasExperience && hasReferences && hasAvailability;
   }

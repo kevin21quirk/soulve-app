@@ -75,7 +75,7 @@ export const HelperApplicationForm = () => {
   const form1 = useForm({
     resolver: zodResolver(personalStatementSchema),
     defaultValues: {
-      personal_statement: application?.personal_statement || ''
+      personal_statement: ''
     }
   });
 
@@ -83,8 +83,8 @@ export const HelperApplicationForm = () => {
   const form2 = useForm({
     resolver: zodResolver(experienceSchema),
     defaultValues: {
-      experience_description: application?.experience_description || '',
-      preferred_specializations: application?.preferred_specializations || []
+      experience_description: '',
+      preferred_specializations: []
     }
   });
 
@@ -92,7 +92,7 @@ export const HelperApplicationForm = () => {
   const form3 = useForm({
     resolver: zodResolver(referencesSchema),
     defaultValues: {
-      references: application?.reference_contacts || [
+      references: [
         { name: '', email: '', phone: '', relationship: '' },
         { name: '', email: '', phone: '', relationship: '' }
       ]
@@ -103,7 +103,7 @@ export const HelperApplicationForm = () => {
   const form4 = useForm({
     resolver: zodResolver(availabilitySchema),
     defaultValues: {
-      availability_commitment: application?.availability_commitment || ''
+      availability_commitment: ''
     }
   });
 
