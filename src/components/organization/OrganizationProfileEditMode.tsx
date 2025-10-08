@@ -64,7 +64,8 @@ export const OrganizationProfileEditMode = ({ organization, onSave, onCancel }: 
           title: "Avatar Updated",
           description: "Organization avatar has been updated.",
         });
-        onSave();
+        // Update local organization state instead of calling onSave
+        organization.avatar_url = avatarUrl;
       }
     } catch (error) {
       toast({
@@ -86,7 +87,8 @@ export const OrganizationProfileEditMode = ({ organization, onSave, onCancel }: 
           title: "Banner Updated",
           description: "Organization banner has been updated.",
         });
-        onSave();
+        // Update local organization state instead of calling onSave
+        organization.banner_url = bannerUrl;
       }
     } catch (error) {
       toast({

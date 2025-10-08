@@ -284,37 +284,42 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    {/* Admin Actions - Primary Row */}
                     {isAdmin && (
-                      <Button
-                        onClick={() => setIsEditing(true)}
-                        size="sm"
-                        variant="outline"
-                        className="gap-2"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Edit Profile
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          size="sm"
+                          variant="outline"
+                          className="gap-2 flex-1 sm:flex-none"
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span>Edit Profile</span>
+                        </Button>
+                        <Button
+                          onClick={() => navigate(`/dashboard?tab=organisation-tools&org=${organizationId}`)}
+                          size="sm"
+                          className="gap-2 flex-1 sm:flex-none"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Manage</span>
+                        </Button>
+                      </div>
                     )}
-                    <OrganizationFollowButton
-                      organizationId={organizationId}
-                      followerCount={followerCount}
-                      onFollowChange={loadFollowerCount}
-                    />
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Share2 className="h-4 w-4" />
-                      <span className="hidden sm:inline">Share</span>
-                    </Button>
-                    {isAdmin && (
-                      <Button
-                        onClick={() => navigate(`/dashboard?tab=organisation-tools&org=${organizationId}`)}
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <Settings className="h-4 w-4" />
-                        <span className="hidden sm:inline">Manage</span>
+                    
+                    {/* Public Actions - Secondary Row */}
+                    <div className="flex gap-2">
+                      <OrganizationFollowButton
+                        organizationId={organizationId}
+                        followerCount={followerCount}
+                        onFollowChange={loadFollowerCount}
+                      />
+                      <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-none">
+                        <Share2 className="h-4 w-4" />
+                        <span>Share</span>
                       </Button>
-                    )}
+                    </div>
                   </div>
                 </div>
 
