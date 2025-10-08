@@ -58,7 +58,11 @@ const UserPostsTimeline = () => {
           comments_count: 0,
           shares_count: 0,
           is_liked: false,
-          is_bookmarked: false
+          is_bookmarked: false,
+          import_source: post.import_source || null,
+          external_id: post.external_id || null,
+          import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
+          imported_at: post.imported_at || null
         }));
 
         setPosts(transformedPosts);
