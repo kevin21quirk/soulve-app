@@ -19,6 +19,10 @@ export interface DatabaseProfile {
   twitter?: string;
   instagram?: string;
   linkedin?: string;
+  latitude?: number;
+  longitude?: number;
+  location_updated_at?: string;
+  location_sharing_enabled?: boolean;
 }
 
 export interface UseUserProfileReturn {
