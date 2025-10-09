@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async';
 import * as Sentry from "@sentry/react";
+import ReactGA from 'react-ga4';
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ErrorProvider } from '@/contexts/ErrorContext'
@@ -38,6 +39,18 @@ if (SENTRY_DSN && import.meta.env.PROD) {
         }
       }
       return event;
+    },
+  });
+}
+
+// Initialize Google Analytics 4
+// Set VITE_GA4_MEASUREMENT_ID in your environment or Supabase secrets
+const GA4_MEASUREMENT_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
+
+if (GA4_MEASUREMENT_ID) {
+  ReactGA.initialize(GA4_MEASUREMENT_ID, {
+    gaOptions: {
+      siteSpeedSampleRate: 100,
     },
   });
 }

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import ReactGA from 'react-ga4';
 
 interface AnalyticsEvent {
   event_name: string;
@@ -20,10 +21,17 @@ export const useAnalytics = () => {
         session_id: sessionStorage.getItem('session_id') || undefined,
       };
 
-      // Store in local analytics table or send to external service
+      // Store in Supabase (existing internal analytics)
       console.log('Analytics Event:', event);
       
-      // You can extend this to send to Google Analytics, Mixpanel, etc.
+      // Send to Google Analytics 4
+      ReactGA.event({
+        category: eventData?.category || 'general',
+        action: eventName,
+        label: eventData?.label,
+        value: eventData?.value,
+        ...eventData
+      });
     } catch (error) {
       console.error('Analytics tracking error:', error);
     }

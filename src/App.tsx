@@ -11,6 +11,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { addSkipLink } from "@/utils/accessibility";
 import CookieConsent from "@/components/legal/CookieConsent";
 import { FloatingFeedbackButton } from "@/components/feedback/FloatingFeedbackButton";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 // Lazy load route components for better performance
 const Index = lazy(() => import("@/pages/Index"));
@@ -46,6 +47,7 @@ function App() {
       <ErrorProvider>
         <AuthProvider>
           <Suspense fallback={<LoadingState message="Loading application..." />}>
+            <GoogleAnalytics />
             <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
