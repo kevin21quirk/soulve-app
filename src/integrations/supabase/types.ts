@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -6799,6 +6799,22 @@ export type Database = {
       }
       is_campaign_participant: {
         Args: { campaign_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { conversation_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { group_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_org_admin: {
+        Args: { org_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_org_member: {
+        Args: { org_uuid: string; user_uuid: string }
         Returns: boolean
       }
       is_organization_admin: {
