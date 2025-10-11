@@ -30,14 +30,21 @@ const ProfileRegistration = () => {
         }
 
         // Check if user already completed questionnaire
-        const { data: questionnaireData } = await supabase
+        const { data: questionnaireData, error: questionnaireError } = await supabase
           .from('questionnaire_responses')
           .select('id')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        console.log('[ProfileRegistration] Questionnaire check:', {
+          hasQuestionnaire: !!questionnaireData,
+          questionnaireError,
+          userId: user.id
+        });
+
         if (questionnaireData) {
           // User already completed onboarding, redirect to dashboard
+          console.log('[ProfileRegistration] User has questionnaire, redirecting to dashboard');
           navigate('/dashboard', { replace: true });
           return;
         }
