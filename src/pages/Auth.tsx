@@ -38,12 +38,23 @@ const Auth = () => {
 
     checkBackend();
 
-    // Check if user is already logged in
+    // Check if user is already logged in and redirect appropriately
     const checkUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          navigate("/dashboard");
+          // Check if user has completed onboarding
+          const { data: questionnaireData } = await supabase
+            .from('questionnaire_responses')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+          
+          if (questionnaireData) {
+            navigate("/dashboard");
+          } else {
+            navigate("/profile-registration");
+          }
         }
       } catch (error) {
         // Session check failed, user stays on auth page
@@ -56,8 +67,26 @@ const Auth = () => {
     setIsLogin(!isLogin);
   };
 
-  const handleAuthSuccess = () => {
-    navigate("/profile-registration");
+  const handleAuthSuccess = async () => {
+    // Check if user has completed onboarding
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Check for questionnaire completion
+      const { data: questionnaireData } = await supabase
+        .from('questionnaire_responses')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (questionnaireData) {
+        // User has completed onboarding, go to dashboard
+        navigate("/dashboard");
+      } else {
+        // New user, needs to complete profile
+        navigate("/profile-registration");
+      }
+    }
   };
 
   return (
