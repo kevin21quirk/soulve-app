@@ -23,11 +23,12 @@ export const ProfileSwitcher = ({ currentView = 'personal', currentOrgId }: Prof
   const { user } = useAuth();
   const { organizations, loading } = useUserOrganizations();
 
-  if (loading || organizations.length === 0) {
+  const currentOrg = organizations.find(org => org.id === currentOrgId);
+
+  // Don't show anything while loading
+  if (loading) {
     return null;
   }
-
-  const currentOrg = organizations.find(org => org.id === currentOrgId);
 
   return (
     <DropdownMenu>
