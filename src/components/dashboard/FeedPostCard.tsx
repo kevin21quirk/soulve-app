@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { usePostComments } from '@/hooks/usePostComments';
+import { logger } from '@/utils/logger';
 
 interface FeedPostCardProps {
   post: FeedPost;
@@ -46,22 +47,18 @@ const FeedPostCard = ({
   const { comments } = usePostComments(post.id);
 
   const handleProfileClick = () => {
-    console.log('👆 [FeedPostCard] Profile click:', {
+    logger.debug('FeedPostCard profile click', {
       postId: post.id,
-      author: post.author,
       authorId: post.authorId,
-      hasAuthorId: !!post.authorId,
-      willNavigate: !!post.authorId,
-      navigateTo: post.authorId ? `/profile/${post.authorId}` : 'BLOCKED - authorId missing!'
+      willNavigate: !!post.authorId
     });
     
     if (post.authorId) {
       navigate(`/profile/${post.authorId}`);
     } else {
-      console.error('❌ [FeedPostCard] Cannot navigate to profile - authorId is missing for post:', {
+      logger.warn('FeedPostCard cannot navigate - missing authorId', {
         postId: post.id,
-        author: post.author,
-        post: post
+        author: post.author
       });
     }
   };
@@ -95,10 +92,9 @@ const FeedPostCard = ({
     }
   };
 
-  console.log('🎨 [FeedPostCard] Rendering post:', {
+  logger.debug('FeedPostCard rendering post', {
     id: post.id,
     author: post.author,
-    authorId: post.authorId,
     hasAuthorId: !!post.authorId
   });
 

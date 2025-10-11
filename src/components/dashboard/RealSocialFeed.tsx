@@ -82,7 +82,8 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
       .subscribe();
 
     const handleCampaignCreated = () => {
-      setTimeout(() => refreshFeed(), 1000);
+      // Real-time subscriptions handle updates automatically
+      refreshFeed();
     };
 
     window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
@@ -203,14 +204,6 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
         <div className="space-y-6">
           {posts.map((post) => {
             const transformedPost = transformSocialPostToFeedPost(post);
-            if (import.meta.env.DEV) {
-              console.log('📦 [RealSocialFeed] Rendering post:', {
-                rawPostId: post.id,
-                rawAuthorId: post.author_id,
-                transformedPostId: transformedPost.id,
-                transformedAuthorId: transformedPost.authorId
-              });
-            }
             return (
               <SocialPostCard
                 key={post.id}

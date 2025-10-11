@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import PostDetailModal from './PostDetailModal';
 import { usePostComments } from '@/hooks/usePostComments';
 import YouTubeEmbed from './YouTubeEmbed';
+import { logger } from '@/utils/logger';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -33,14 +34,11 @@ interface SocialPostCardProps {
 }
 
 const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onReaction, onPostDeleted }: SocialPostCardProps) => {
-  if (import.meta.env.DEV) {
-    console.log('🎨 [SocialPostCard] Rendered with post:', {
-      id: post.id,
-      author: post.author,
-      authorId: post.authorId,
-      hasAuthorId: !!post.authorId
-    });
-  }
+  logger.debug('SocialPostCard rendered', {
+    id: post.id,
+    author: post.author,
+    hasAuthorId: !!post.authorId
+  });
   
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -87,7 +85,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
         description: `${helperName} has been awarded points for helping you.`,
       });
     } catch (error) {
-      console.error('Error confirming help:', error);
+      logger.error('Error confirming help', error);
       toast({
         title: "Error",
         description: "Failed to confirm help completion.",
@@ -99,21 +97,16 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   const { comments } = usePostComments(post.id);
 
   const handleProfileClick = () => {
-    if (import.meta.env.DEV) {
-      console.log('👆 [SocialPostCard] Profile click:', {
-        postId: post.id,
-        authorId: post.authorId,
-        willNavigate: !!post.authorId,
-        navigateTo: post.authorId ? `/profile/${post.authorId}` : 'NOWHERE - authorId missing!'
-      });
-    }
+    logger.debug('SocialPostCard profile click', {
+      postId: post.id,
+      authorId: post.authorId,
+      willNavigate: !!post.authorId
+    });
     
     if (post.authorId) {
       navigate(`/profile/${post.authorId}`);
     } else {
-      if (import.meta.env.DEV) {
-        console.error('❌ [SocialPostCard] Cannot navigate - authorId is missing!');
-      }
+      logger.warn('SocialPostCard cannot navigate - missing authorId');
     }
   };
 

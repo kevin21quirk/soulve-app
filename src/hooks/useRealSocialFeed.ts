@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createInteraction } from '@/services/interactionRoutingService';
+import { logger } from '@/utils/logger';
 
 export interface SocialPost {
   id: string;
@@ -84,16 +85,12 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       ]);
 
       if (postsResult.error) {
-        if (import.meta.env.DEV) {
-          console.error('useRealSocialFeed - Posts query error:', postsResult.error);
-        }
+        logger.error('useRealSocialFeed - Posts query error', postsResult.error);
         throw postsResult.error;
       }
 
       if (campaignsResult.error) {
-        if (import.meta.env.DEV) {
-          console.error('useRealSocialFeed - Campaigns query error:', campaignsResult.error);
-        }
+        logger.error('useRealSocialFeed - Campaigns query error', campaignsResult.error);
         throw campaignsResult.error;
       }
 
@@ -115,8 +112,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
               .select('id, first_name, last_name, avatar_url')
               .in('id', authorIds)
               .then(({ data, error }) => {
-                if (error && import.meta.env.DEV) {
-                  console.error('useRealSocialFeed - Profiles query error:', error);
+                if (error) {
+                  logger.error('useRealSocialFeed - Profiles query error', error);
                 }
                 return data || [];
               })
@@ -127,8 +124,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
               .select('id, name, avatar_url')
               .in('id', orgIds)
               .then(({ data, error }) => {
-                if (error && import.meta.env.DEV) {
-                  console.error('useRealSocialFeed - Organizations query error:', error);
+                if (error) {
+                  logger.error('useRealSocialFeed - Organizations query error', error);
                 }
                 return data || [];
               })
@@ -191,14 +188,13 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           imported_at: post.imported_at || null
         };
 
-        // Log imported content posts
+        // Log imported content posts in dev mode
         if (transformed.import_source) {
-          console.log('📺 [useRealSocialFeed] Post with imported content:', {
+          logger.debug('Post with imported content', {
             id: transformed.id,
             import_source: transformed.import_source,
             external_id: transformed.external_id,
-            has_metadata: !!transformed.import_metadata,
-            metadata: transformed.import_metadata
+            has_metadata: !!transformed.import_metadata
           });
         }
 
@@ -275,9 +271,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       
       setPosts(allPosts);
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('useRealSocialFeed - Error fetching posts:', error);
-      }
+      logger.error('useRealSocialFeed - Error fetching posts', error);
       toast({
         title: "Failed to load posts",
         description: "Please try refreshing the page",
@@ -321,9 +315,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         description: "Your reaction has been recorded."
       });
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('useRealSocialFeed - Error liking post:', error);
-      }
+      logger.error('useRealSocialFeed - Error liking post', error);
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -359,9 +351,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         description: "You can find it in your saved posts."
       });
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('useRealSocialFeed - Error bookmarking post:', error);
-      }
+      logger.error('useRealSocialFeed - Error bookmarking post', error);
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -397,9 +387,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         description: "The post has been shared with your network."
       });
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('useRealSocialFeed - Error sharing post:', error);
-      }
+      logger.error('useRealSocialFeed - Error sharing post', error);
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
@@ -444,9 +432,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         description: organizationId ? "Comment posted on behalf of the organization." : "Your comment has been posted."
       });
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('useRealSocialFeed - Error adding comment:', error);
-      }
+      logger.error('useRealSocialFeed - Error adding comment', error);
       
       // Revert optimistic update on error
       setPosts(prev => prev.map(post => 
