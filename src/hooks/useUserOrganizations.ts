@@ -26,8 +26,6 @@ export const useUserOrganizations = () => {
 
     try {
       setLoading(true);
-      console.log('🔍 Fetching organizations for user:', user.id);
-      
       const { data, error } = await supabase
         .from('organization_members')
         .select(`
@@ -44,21 +42,13 @@ export const useUserOrganizations = () => {
         .in('role', ['owner', 'admin'])
         .order('created_at', { ascending: false });
 
-      console.log('📊 Organizations query result:', { data, error });
-
       if (error) {
-        console.error('❌ Error fetching user organizations:', error);
+        console.error('Error fetching user organizations:', error);
         return;
       }
 
       const formattedOrgs = data
-        .filter(item => {
-          if (!item.organization) {
-            console.warn('⚠️ Organization data missing for item:', item);
-            return false;
-          }
-          return true;
-        })
+        .filter(item => item.organization)
         .map(item => ({
           id: item.organization.id,
           name: item.organization.name,
@@ -67,10 +57,9 @@ export const useUserOrganizations = () => {
           role: item.role,
         }));
 
-      console.log('✅ Formatted organizations:', formattedOrgs);
       setOrganizations(formattedOrgs);
     } catch (error) {
-      console.error('💥 Exception fetching organizations:', error);
+      console.error('Error fetching organizations:', error);
     } finally {
       setLoading(false);
     }
