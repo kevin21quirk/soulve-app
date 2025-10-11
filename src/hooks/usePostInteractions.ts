@@ -78,13 +78,13 @@ export const usePostInteractions = () => {
         // Like - add new like
         const interactionData: any = {
           post_id: actualPostId,
+          user_id: user.id, // ✅ ALWAYS include user_id for audit trail
           interaction_type: 'like'
         };
         
+        // Add organization context if present
         if (organizationId) {
           interactionData.organization_id = organizationId;
-        } else {
-          interactionData.user_id = user.id;
         }
 
         const { error: insertError } = await supabase
@@ -110,7 +110,7 @@ export const usePostInteractions = () => {
     } finally {
       setLoading(postId, 'like', false);
     }
-  }, [user, toast, isLoading, setLoading]);
+  }, [user, organizationId, toast, isLoading, setLoading]);
 
   const handleBookmark = useCallback(async (postId: string) => {
     if (!user) {
@@ -168,13 +168,13 @@ export const usePostInteractions = () => {
         // Add bookmark
         const interactionData: any = {
           post_id: actualPostId,
+          user_id: user.id, // ✅ ALWAYS include user_id for audit trail
           interaction_type: 'bookmark'
         };
         
+        // Add organization context if present
         if (organizationId) {
           interactionData.organization_id = organizationId;
-        } else {
-          interactionData.user_id = user.id;
         }
 
         const { error: insertError } = await supabase
@@ -200,7 +200,7 @@ export const usePostInteractions = () => {
     } finally {
       setLoading(postId, 'bookmark', false);
     }
-  }, [user, toast, isLoading, setLoading]);
+  }, [user, organizationId, toast, isLoading, setLoading]);
 
   const handleAddComment = useCallback(async (postId: string, content: string) => {
     if (!user || !content.trim()) {
@@ -221,14 +221,14 @@ export const usePostInteractions = () => {
 
       const interactionData: any = {
         post_id: actualPostId,
+        user_id: user.id, // ✅ ALWAYS include user_id for audit trail
         interaction_type: 'comment',
         content: content.trim()
       };
       
+      // Add organization context if present
       if (organizationId) {
         interactionData.organization_id = organizationId;
-      } else {
-        interactionData.user_id = user.id;
       }
 
       const { error } = await supabase
@@ -253,7 +253,7 @@ export const usePostInteractions = () => {
     } finally {
       setLoading(postId, 'comment', false);
     }
-  }, [user, toast, isLoading, setLoading]);
+  }, [user, organizationId, toast, isLoading, setLoading]);
 
   const handleShare = useCallback(async (postId: string) => {
     if (!user) {
@@ -274,13 +274,13 @@ export const usePostInteractions = () => {
 
       const interactionData: any = {
         post_id: actualPostId,
+        user_id: user.id, // ✅ ALWAYS include user_id for audit trail
         interaction_type: 'share'
       };
       
+      // Add organization context if present
       if (organizationId) {
         interactionData.organization_id = organizationId;
-      } else {
-        interactionData.user_id = user.id;
       }
 
       const { error } = await supabase
@@ -305,7 +305,7 @@ export const usePostInteractions = () => {
     } finally {
       setLoading(postId, 'share', false);
     }
-  }, [user, toast, isLoading, setLoading]);
+  }, [user, organizationId, toast, isLoading, setLoading]);
 
   // Placeholder methods for interface compatibility
   const handleRespond = useCallback(async (postId: string) => {

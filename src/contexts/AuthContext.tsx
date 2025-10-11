@@ -29,7 +29,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Initialize auth state
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        console.log('Auth state change:', event, newSession?.user?.id);
+        
+        // Handle token refresh events
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('✅ Token refreshed successfully');
+        }
+        
+        // Handle sign out and user deletion
+        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          console.log('🔓 User signed out or deleted');
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+        
+        // Handle token refresh failure - critical for fixing infinite loop
+        if (event === 'TOKEN_REFRESH_FAILED') {
+          console.error('🔴 Token refresh failed - invalid or expired session, signing out');
+          // Clear invalid session and force sign out
+          await supabase.auth.signOut();
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+        
+        // Update state for all other events
+        if (mounted) {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          // Only set loading to false after initialization
+          if (initialized) {
+            setLoading(false);
+          }
+        }
+      }
+    );
+
+    // THEN initialize auth state
     const initializeAuth = async () => {
       try {
         // Get initial session
@@ -38,10 +85,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (mounted) {
           if (error) {
             console.error('Error getting initial session:', error);
+            // If session is invalid, clear it
+            if (error.message?.includes('session') || error.message?.includes('JWT')) {
+              console.error('🔴 Invalid session detected, clearing...');
+              await supabase.auth.signOut();
+              setSession(null);
+              setUser(null);
+            }
+          } else {
+            setSession(initialSession);
+            setUser(initialSession?.user ?? null);
           }
           
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
           setLoading(false);
           setInitialized(true);
         }
@@ -56,32 +111,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           error.name === 'NetworkError';
           
         if (isConnectionError) {
-          console.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues after upgrade');
+          console.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues');
+        }
+        
+        // Check for session/token errors
+        const isSessionError = 
+          error.message?.includes('session') ||
+          error.message?.includes('JWT') ||
+          error.message?.includes('token');
+          
+        if (isSessionError) {
+          console.error('🔴 Session error detected, clearing invalid session');
+          await supabase.auth.signOut();
         }
         
         if (mounted) {
+          setSession(null);
+          setUser(null);
           setLoading(false);
           setInitialized(true);
         }
       }
     };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        console.log('Auth state change:', event, newSession?.user?.id);
-        
-        if (mounted) {
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          
-          // Only set loading to false after initialization
-          if (initialized) {
-            setLoading(false);
-          }
-        }
-      }
-    );
 
     // Initialize auth
     initializeAuth();

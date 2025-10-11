@@ -34,15 +34,20 @@ export const createInteraction = async (
 ) => {
   const target = getInteractionTarget(id);
   
+  // ✅ Always include user_id for audit trail and RLS validation
+  const baseData = {
+    user_id: userId,
+    interaction_type: interactionType,
+    ...(content && { content }),
+    ...(organizationId && { organization_id: organizationId })
+  };
+
   if (target.isCampaign) {
     const { error } = await supabase
       .from('campaign_interactions')
       .insert({
         campaign_id: target.actualId,
-        user_id: userId,
-        interaction_type: interactionType,
-        ...(content && { content }),
-        ...(organizationId && { organization_id: organizationId })
+        ...baseData
       });
     
     if (error) throw error;
@@ -51,10 +56,7 @@ export const createInteraction = async (
       .from('post_interactions')
       .insert({
         post_id: target.actualId,
-        user_id: userId,
-        interaction_type: interactionType,
-        ...(content && { content }),
-        ...(organizationId && { organization_id: organizationId })
+        ...baseData
       });
     
     if (error) throw error;
