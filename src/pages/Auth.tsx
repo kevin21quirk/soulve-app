@@ -68,24 +68,35 @@ const Auth = () => {
   };
 
   const handleAuthSuccess = async () => {
-    // Check if user has completed onboarding
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
+    try {
+      // Check if user has completed onboarding
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('Error getting user:', userError);
+        return;
+      }
+
       // Check for questionnaire completion
-      const { data: questionnaireData } = await supabase
+      const { data: questionnaireData, error: questionnaireError } = await supabase
         .from('questionnaire_responses')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
       
+      if (questionnaireError) {
+        console.error('Error checking questionnaire:', questionnaireError);
+      }
+      
       if (questionnaireData) {
         // User has completed onboarding, go to dashboard
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } else {
         // New user, needs to complete profile
-        navigate("/profile-registration");
+        navigate("/profile-registration", { replace: true });
       }
+    } catch (error) {
+      console.error('Error in handleAuthSuccess:', error);
     }
   };
 

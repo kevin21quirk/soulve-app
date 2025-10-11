@@ -29,6 +29,19 @@ const ProfileRegistration = () => {
           return;
         }
 
+        // Check if user already completed questionnaire
+        const { data: questionnaireData } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (questionnaireData) {
+          // User already completed onboarding, redirect to dashboard
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+
         const { data: profileData } = await supabase
           .from('profiles')
           .select('waitlist_status')
