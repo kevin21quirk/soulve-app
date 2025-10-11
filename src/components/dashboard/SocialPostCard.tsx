@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, Share2, MapPin, Clock, Plus, CheckCircle } from 'lucide-react';
+import { MessageCircle, Share2, MapPin, Clock, Plus, CheckCircle, Building } from 'lucide-react';
 import { FeedPost } from '@/types/feed';
 import { usePostReactions } from '@/hooks/usePostReactions';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
@@ -217,6 +217,12 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
                 >
                   {post.author}
                 </h3>
+                {(post as any).organization_id && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Building className="h-3 w-3" />
+                    <span className="text-xs">Organization</span>
+                  </Badge>
+                )}
                 <Badge variant="outline" className={getCategoryColor(post.category)}>
                   {post.category.replace('-', ' ')}
                 </Badge>

@@ -12,6 +12,9 @@ export interface SocialPost {
   author_id: string;
   author_name: string;
   author_avatar: string;
+  organization_id?: string | null;
+  organization_name?: string;
+  organization_logo?: string;
   category: string;
   urgency: string;
   location?: string;
@@ -24,8 +27,7 @@ export interface SocialPost {
   shares_count: number;
   is_liked: boolean;
   is_bookmarked: boolean;
-  status?: string; // Add status field for campaigns
-  // Import fields for YouTube/external content
+  status?: string;
   import_source?: string | null;
   external_id?: string | null;
   import_metadata?: {
@@ -45,18 +47,40 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      // Fetch both posts and campaigns with enhanced filtering
+      // Build posts query with organization context filtering
+      let postsQuery = supabase
+        .from('posts')
+        .select('*')
+        .eq('is_active', true);
+
+      // Filter by organization context
+      if (organizationId) {
+        // When viewing organization profile, only show posts by that organization
+        postsQuery = postsQuery.eq('organization_id', organizationId);
+      } else {
+        // When viewing personal feed, show personal posts (no organization_id) and posts from followed orgs
+        postsQuery = postsQuery.is('organization_id', null);
+      }
+
+      postsQuery = postsQuery.order('created_at', { ascending: false });
+
+      // Build campaigns query with organization context filtering
+      let campaignsQuery = supabase
+        .from('campaigns')
+        .select('*');
+
+      if (organizationId) {
+        // For organization context, show campaigns created by org members
+        campaignsQuery = campaignsQuery.or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`);
+      } else {
+        campaignsQuery = campaignsQuery.or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`);
+      }
+
+      campaignsQuery = campaignsQuery.order('created_at', { ascending: false });
+
       const [postsResult, campaignsResult] = await Promise.all([
-        supabase
-          .from('posts')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('campaigns')
-          .select('*')
-          .or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`)
-          .order('created_at', { ascending: false })
+        postsQuery,
+        campaignsQuery
       ]);
 
       if (postsResult.error) {
@@ -76,41 +100,65 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       const postsData = postsResult.data || [];
       const campaignsData = campaignsResult.data || [];
 
-      // Get unique author IDs from both posts and campaigns
+      // Get unique author IDs and organization IDs
       const postAuthorIds = postsData.map(post => post.author_id);
       const campaignAuthorIds = campaignsData.map(campaign => campaign.creator_id);
       const authorIds = [...new Set([...postAuthorIds, ...campaignAuthorIds])];
+      
+      const orgIds = [...new Set(postsData.map(post => post.organization_id).filter(Boolean))];
 
-      // Fetch profiles for these authors
-      let profilesData = [];
-      if (authorIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, first_name, last_name, avatar_url')
-          .in('id', authorIds);
+      // Fetch profiles and organizations in parallel
+      const [profilesData, orgsData] = await Promise.all([
+        authorIds.length > 0
+          ? supabase
+              .from('profiles')
+              .select('id, first_name, last_name, avatar_url')
+              .in('id', authorIds)
+              .then(({ data, error }) => {
+                if (error && import.meta.env.DEV) {
+                  console.error('useRealSocialFeed - Profiles query error:', error);
+                }
+                return data || [];
+              })
+          : Promise.resolve([]),
+        orgIds.length > 0
+          ? supabase
+              .from('organizations')
+              .select('id, name, avatar_url')
+              .in('id', orgIds)
+              .then(({ data, error }) => {
+                if (error && import.meta.env.DEV) {
+                  console.error('useRealSocialFeed - Organizations query error:', error);
+                }
+                return data || [];
+              })
+          : Promise.resolve([])
+      ]);
 
-        if (profilesError) {
-          if (import.meta.env.DEV) {
-            console.error('useRealSocialFeed - Profiles query error:', profilesError);
-          }
-        } else {
-          profilesData = profiles || [];
-        }
-      }
-
-      // Create a profiles map for quick lookup
+      // Create maps for quick lookup
       const profilesMap = new Map();
       profilesData.forEach(profile => {
         profilesMap.set(profile.id, profile);
       });
 
+      const orgsMap = new Map();
+      orgsData.forEach(org => {
+        orgsMap.set(org.id, org);
+      });
+
       // Transform posts
       const transformedPosts: SocialPost[] = postsData.map(post => {
         const profile = profilesMap.get(post.author_id);
+        const org = post.organization_id ? orgsMap.get(post.organization_id) : null;
+        
         let authorName = 'Anonymous';
         let avatarUrl = '';
 
-        if (profile) {
+        // If post is by organization, use org details; otherwise use profile
+        if (org) {
+          authorName = org.name || 'Organization';
+          avatarUrl = org.avatar_url || '';
+        } else if (profile) {
           authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
           avatarUrl = profile.avatar_url || '';
         }
@@ -122,6 +170,9 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           author_id: post.author_id,
           author_name: authorName,
           author_avatar: avatarUrl,
+          organization_id: post.organization_id || null,
+          organization_name: org?.name,
+          organization_logo: org?.avatar_url,
           category: post.category,
           urgency: post.urgency,
           location: post.location,
@@ -134,7 +185,6 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           shares_count: 0,
           is_liked: false,
           is_bookmarked: false,
-          // Import fields - cast from Json to proper type
           import_source: post.import_source || null,
           external_id: post.external_id || null,
           import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
@@ -237,7 +287,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [toast, user]);
+  }, [toast, user, organizationId]);
 
   const refreshFeed = useCallback(() => {
     setRefreshing(true);
