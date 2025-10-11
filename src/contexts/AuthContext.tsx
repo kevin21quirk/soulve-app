@@ -34,44 +34,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       async (event, newSession) => {
         console.log('Auth state change:', event, newSession?.user?.id);
         
-        // Handle token refresh events
+        if (!mounted) return;
+        
+        // Handle token refresh success
         if (event === 'TOKEN_REFRESHED') {
           console.log('✅ Token refreshed successfully');
         }
         
-        // Handle sign out and user deletion
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-          console.log('🔓 User signed out or deleted');
-          if (mounted) {
-            setSession(null);
-            setUser(null);
-            setLoading(false);
-          }
+        // If session becomes null (sign out, expired, or invalid)
+        if (!newSession) {
+          console.log('🔓 Session cleared - user signed out or session expired');
+          setSession(null);
+          setUser(null);
+          setLoading(false);
           return;
         }
         
-        // Handle token refresh failure - critical for fixing infinite loop
-        if (event === 'TOKEN_REFRESH_FAILED') {
-          console.error('🔴 Token refresh failed - invalid or expired session, signing out');
-          // Clear invalid session and force sign out
-          await supabase.auth.signOut();
-          if (mounted) {
-            setSession(null);
-            setUser(null);
-            setLoading(false);
-          }
-          return;
-        }
+        // Update state with new session
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        // Update state for all other events
-        if (mounted) {
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          
-          // Only set loading to false after initialization
-          if (initialized) {
-            setLoading(false);
-          }
+        // Only set loading to false after initialization
+        if (initialized) {
+          setLoading(false);
         }
       }
     );
