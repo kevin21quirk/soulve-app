@@ -29,13 +29,14 @@ const ProfileRegistration = () => {
           return;
         }
 
-        // Check if user is admin FIRST - admins bypass all checks
+        // Check if user is admin - admins can always access this page for testing
         const { data: isAdminUser } = await supabase.rpc('is_admin', { 
           user_uuid: user.id 
         });
 
         if (isAdminUser) {
-          navigate('/dashboard', { replace: true });
+          // Admin can access the page - skip all other checks
+          setIsCheckingWaitlist(false);
           return;
         }
 
