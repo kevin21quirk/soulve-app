@@ -15,6 +15,7 @@ const Auth = () => {
   const modeParam = searchParams.get('mode');
   const [isLogin, setIsLogin] = useState(modeParam !== 'signup');
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,13 +52,16 @@ const Auth = () => {
             .maybeSingle();
           
           if (questionnaireData) {
-            navigate("/dashboard");
+            navigate("/dashboard", { replace: true });
           } else {
-            navigate("/profile-registration");
+            navigate("/profile-registration", { replace: true });
           }
+        } else {
+          setIsCheckingSession(false);
         }
       } catch (error) {
         // Session check failed, user stays on auth page
+        setIsCheckingSession(false);
       }
     };
     checkUser();
@@ -99,6 +103,17 @@ const Auth = () => {
       console.error('Error in handleAuthSuccess:', error);
     }
   };
+
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking your session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
