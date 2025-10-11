@@ -39,14 +39,21 @@ export const usePostInteractions = () => {
       // Extract actual post ID if it's a campaign
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
-      // Check if user already liked this post
-      const { data: existingLike, error: checkError } = await supabase
+      // Check if already liked (either by user or organization)
+      let query = supabase
         .from('post_interactions')
         .select('id')
         .eq('post_id', actualPostId)
-        .eq('user_id', user.id)
-        .eq('interaction_type', 'like')
-        .maybeSingle();
+        .eq('interaction_type', 'like');
+      
+      // Check based on context
+      if (organizationId) {
+        query = query.eq('organization_id', organizationId);
+      } else {
+        query = query.eq('user_id', user.id).is('organization_id', null);
+      }
+      
+      const { data: existingLike, error: checkError } = await query.maybeSingle();
 
       if (checkError) {
         console.error('Error checking existing like:', checkError);
@@ -122,14 +129,21 @@ export const usePostInteractions = () => {
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
-      // Check if user already bookmarked this post
-      const { data: existingBookmark, error: checkError } = await supabase
+      // Check if already bookmarked (either by user or organization)
+      let query = supabase
         .from('post_interactions')
         .select('id')
         .eq('post_id', actualPostId)
-        .eq('user_id', user.id)
-        .eq('interaction_type', 'bookmark')
-        .maybeSingle();
+        .eq('interaction_type', 'bookmark');
+      
+      // Check based on context
+      if (organizationId) {
+        query = query.eq('organization_id', organizationId);
+      } else {
+        query = query.eq('user_id', user.id).is('organization_id', null);
+      }
+      
+      const { data: existingBookmark, error: checkError } = await query.maybeSingle();
 
       if (checkError) {
         console.error('Error checking existing bookmark:', checkError);
