@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAccount } from '@/contexts/AccountContext';
 import { useToast } from '@/hooks/use-toast';
 
 export const useCommentInteractions = () => {
   const { user } = useAuth();
+  const { organizationId } = useAccount();
   const { toast } = useToast();
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
@@ -87,7 +89,8 @@ export const useCommentInteractions = () => {
           user_id: user.id,
           interaction_type: 'comment',
           content: content.trim(),
-          parent_comment_id: parentCommentId
+          parent_comment_id: parentCommentId,
+          ...(organizationId && { organization_id: organizationId })
         });
 
       if (error) throw error;

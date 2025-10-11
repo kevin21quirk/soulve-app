@@ -6744,7 +6744,9 @@ export type Database = {
           edited_at: string
           id: string
           is_deleted: boolean
+          is_organization: boolean
           likes_count: number
+          organization_id: string
           parent_comment_id: string
           post_id: string
           user_has_liked: boolean

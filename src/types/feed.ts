@@ -43,6 +43,7 @@ export interface Comment {
   id: string;
   author: string;
   authorId: string;
+  organizationId?: string;
   avatar: string;
   content: string;
   timestamp: string;
