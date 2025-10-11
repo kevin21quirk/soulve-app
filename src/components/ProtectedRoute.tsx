@@ -25,6 +25,16 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       try {
+        // Check if user is admin FIRST - admins bypass all checks
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
+
+        if (isAdminUser) {
+          setChecking(false);
+          return;
+        }
+
         // Check waitlist status first
         const { data: profileData } = await supabase
           .from('profiles')
@@ -45,6 +55,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           .from('questionnaire_responses')
           .select('id')
           .eq('user_id', user.id)
+          .limit(1)
           .maybeSingle();
         
         const completed = !!onboardingData;

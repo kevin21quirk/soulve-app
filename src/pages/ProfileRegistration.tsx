@@ -29,26 +29,17 @@ const ProfileRegistration = () => {
           return;
         }
 
-        // Check if user already completed questionnaire
-        const { data: questionnaireData, error: questionnaireError } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        console.log('[ProfileRegistration] Questionnaire check:', {
-          hasQuestionnaire: !!questionnaireData,
-          questionnaireError,
-          userId: user.id
+        // Check if user is admin FIRST - admins bypass all checks
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
         });
 
-        if (questionnaireData) {
-          // User already completed onboarding, redirect to dashboard
-          console.log('[ProfileRegistration] User has questionnaire, redirecting to dashboard');
+        if (isAdminUser) {
           navigate('/dashboard', { replace: true });
           return;
         }
 
+        // Check waitlist status
         const { data: profileData } = await supabase
           .from('profiles')
           .select('waitlist_status')
@@ -60,6 +51,20 @@ const ProfileRegistration = () => {
         // Only approved users can access profile registration
         if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
           navigate('/waitlist', { replace: true });
+          return;
+        }
+
+        // Check if user already completed questionnaire
+        const { data: questionnaireData } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (questionnaireData) {
+          // User already completed onboarding, redirect to dashboard
+          navigate('/dashboard', { replace: true });
           return;
         }
 

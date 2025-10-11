@@ -44,11 +44,22 @@ const Auth = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+          // Check if user is admin FIRST - admins bypass all checks
+          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+            user_uuid: session.user.id 
+          });
+
+          if (isAdminUser) {
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+
           // Check if user has completed onboarding
           const { data: questionnaireData } = await supabase
             .from('questionnaire_responses')
             .select('id')
             .eq('user_id', session.user.id)
+            .limit(1)
             .maybeSingle();
           
           if (questionnaireData) {
@@ -81,11 +92,22 @@ const Auth = () => {
         return;
       }
 
+      // Check if user is admin FIRST - admins bypass all checks
+      const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+        user_uuid: user.id 
+      });
+
+      if (isAdminUser) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
       // Check for questionnaire completion
       const { data: questionnaireData, error: questionnaireError } = await supabase
         .from('questionnaire_responses')
         .select('id')
         .eq('user_id', user.id)
+        .limit(1)
         .maybeSingle();
       
       if (questionnaireError) {
