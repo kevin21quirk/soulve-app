@@ -6814,14 +6814,6 @@ export type Database = {
         Args: { campaign_uuid: string; user_uuid: string }
         Returns: boolean
       }
-      is_conversation_participant: {
-        Args: { conversation_uuid: string; user_uuid: string }
-        Returns: boolean
-      }
-      is_group_member: {
-        Args: { group_uuid: string; user_uuid: string }
-        Returns: boolean
-      }
       is_org_admin: {
         Args: { org_uuid: string; user_uuid: string }
         Returns: boolean
