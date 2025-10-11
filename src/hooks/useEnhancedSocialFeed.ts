@@ -29,37 +29,30 @@ export const useEnhancedSocialFeed = () => {
   const handleLike = useCallback(async (postId: string) => {
     try {
       const success = await interactionHandleLike(postId);
-      if (success !== undefined) {
-        // Refresh feed to get updated counts
-        setTimeout(() => refreshFeed(), 500);
-      }
+      // Real-time subscriptions will handle the refresh automatically
       return success;
     } catch (error) {
       console.error('Enhanced like handler error:', error);
       return false;
     }
-  }, [interactionHandleLike, refreshFeed]);
+  }, [interactionHandleLike]);
 
   const handleBookmark = useCallback(async (postId: string) => {
     try {
       const success = await interactionHandleBookmark(postId);
-      if (success !== undefined) {
-        // Refresh feed to get updated bookmark status
-        setTimeout(() => refreshFeed(), 500);
-      }
+      // Real-time subscriptions will handle the refresh automatically
       return success;
     } catch (error) {
       console.error('Enhanced bookmark handler error:', error);
       return false;
     }
-  }, [interactionHandleBookmark, refreshFeed]);
+  }, [interactionHandleBookmark]);
 
   const handleAddComment = useCallback(async (postId: string, content: string) => {
     try {
       const success = await interactionHandleAddComment(postId, content);
       if (success) {
-        // Refresh feed to get updated comment counts
-        setTimeout(() => refreshFeed(), 500);
+        // Real-time subscriptions will handle the refresh automatically
         toast({
           title: "Comment posted!",
           description: "Your comment has been added to the conversation."
@@ -70,21 +63,18 @@ export const useEnhancedSocialFeed = () => {
       console.error('Enhanced comment handler error:', error);
       return false;
     }
-  }, [interactionHandleAddComment, refreshFeed, toast]);
+  }, [interactionHandleAddComment, toast]);
 
   const handleShare = useCallback(async (postId: string) => {
     try {
       const success = await interactionHandleShare(postId);
-      if (success) {
-        // Refresh feed to get updated share counts
-        setTimeout(() => refreshFeed(), 500);
-      }
+      // Real-time subscriptions will handle the refresh automatically
       return success;
     } catch (error) {
       console.error('Enhanced share handler error:', error);
       return false;
     }
-  }, [interactionHandleShare, refreshFeed]);
+  }, [interactionHandleShare]);
 
   return {
     posts,
