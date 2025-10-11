@@ -3,10 +3,12 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useAccount } from '@/contexts/AccountContext';
 
 export const usePostInteractions = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { organizationId } = useAccount();
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
   const setLoading = useCallback((postId: string, action: string, loading: boolean) => {
@@ -67,13 +69,20 @@ export const usePostInteractions = () => {
         return false; // Now unliked
       } else {
         // Like - add new like
+        const interactionData: any = {
+          post_id: actualPostId,
+          interaction_type: 'like'
+        };
+        
+        if (organizationId) {
+          interactionData.organization_id = organizationId;
+        } else {
+          interactionData.user_id = user.id;
+        }
+
         const { error: insertError } = await supabase
           .from('post_interactions')
-          .insert({
-            post_id: actualPostId,
-            user_id: user.id,
-            interaction_type: 'like'
-          });
+          .insert(interactionData);
 
         if (insertError) throw insertError;
         
@@ -143,13 +152,20 @@ export const usePostInteractions = () => {
         return false;
       } else {
         // Add bookmark
+        const interactionData: any = {
+          post_id: actualPostId,
+          interaction_type: 'bookmark'
+        };
+        
+        if (organizationId) {
+          interactionData.organization_id = organizationId;
+        } else {
+          interactionData.user_id = user.id;
+        }
+
         const { error: insertError } = await supabase
           .from('post_interactions')
-          .insert({
-            post_id: actualPostId,
-            user_id: user.id,
-            interaction_type: 'bookmark'
-          });
+          .insert(interactionData);
 
         if (insertError) throw insertError;
         
@@ -189,14 +205,21 @@ export const usePostInteractions = () => {
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
+      const interactionData: any = {
+        post_id: actualPostId,
+        interaction_type: 'comment',
+        content: content.trim()
+      };
+      
+      if (organizationId) {
+        interactionData.organization_id = organizationId;
+      } else {
+        interactionData.user_id = user.id;
+      }
+
       const { error } = await supabase
         .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'comment',
-          content: content.trim()
-        });
+        .insert(interactionData);
 
       if (error) throw error;
 
@@ -235,13 +258,20 @@ export const usePostInteractions = () => {
 
       const actualPostId = postId.startsWith('campaign_') ? postId.replace('campaign_', '') : postId;
 
+      const interactionData: any = {
+        post_id: actualPostId,
+        interaction_type: 'share'
+      };
+      
+      if (organizationId) {
+        interactionData.organization_id = organizationId;
+      } else {
+        interactionData.user_id = user.id;
+      }
+
       const { error } = await supabase
         .from('post_interactions')
-        .insert({
-          post_id: actualPostId,
-          user_id: user.id,
-          interaction_type: 'share'
-        });
+        .insert(interactionData);
 
       if (error) throw error;
 

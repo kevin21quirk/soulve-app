@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AccountProvider } from "@/contexts/AccountContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -46,9 +47,10 @@ function App() {
     <ErrorBoundary>
       <ErrorProvider>
         <AuthProvider>
-          <Suspense fallback={<LoadingState message="Loading application..." />}>
-            <GoogleAnalytics />
-            <Routes>
+          <AccountProvider>
+            <Suspense fallback={<LoadingState message="Loading application..." />}>
+              <GoogleAnalytics />
+              <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -134,6 +136,7 @@ function App() {
           <FloatingFeedbackButton />
           <CookieConsent />
           <Toaster />
+        </AccountProvider>
         </AuthProvider>
       </ErrorProvider>
     </ErrorBoundary>

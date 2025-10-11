@@ -5,11 +5,13 @@ import { createUnifiedPost } from '@/services/unifiedPostService';
 import { ContentModerationService } from '@/services/contentModerationService';
 import { uploadMediaFiles } from '@/services/mediaUploadService';
 import { useToast } from '@/hooks/use-toast';
+import { useAccount } from '@/contexts/AccountContext';
 
 export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
   const [isCreating, setIsCreating] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { organizationId } = useAccount();
 
   const createPost = async (postData: any) => {
     setIsCreating(true);
@@ -60,7 +62,8 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         tags: postData.tags || [],
         visibility: postData.visibility || 'public',
         media_urls: mediaUrls,
-        importedContent: postData.importedContent
+        importedContent: postData.importedContent,
+        organizationId: organizationId || undefined
       });
 
       // Show success message

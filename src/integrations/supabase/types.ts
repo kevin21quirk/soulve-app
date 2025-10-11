@@ -4115,6 +4115,7 @@ export type Database = {
           link_preview_url: string | null
           location: string | null
           media_urls: string[] | null
+          organization_id: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -4136,6 +4137,7 @@ export type Database = {
           link_preview_url?: string | null
           location?: string | null
           media_urls?: string[] | null
+          organization_id?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -4157,13 +4159,22 @@ export type Database = {
           link_preview_url?: string | null
           location?: string | null
           media_urls?: string[] | null
+          organization_id?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
           urgency?: string
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

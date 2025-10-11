@@ -13,6 +13,7 @@ interface CreatePostData {
   visibility?: string;
   media_urls?: string[];
   importedContent?: ImportedContent;
+  organizationId?: string; // For posting as organization
 }
 
 export const createUnifiedPost = async (postData: CreatePostData) => {
@@ -49,7 +50,6 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
 
   // Create the post with imported content metadata
   const postToInsert: any = {
-    author_id: user.id,
     title: postData.title || '',
     content: postData.content,
     category: postData.category,
@@ -60,6 +60,13 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     media_urls: postData.media_urls || [],
     is_active: true
   };
+
+  // Set either author_id OR organization_id, not both
+  if (postData.organizationId) {
+    postToInsert.organization_id = postData.organizationId;
+  } else {
+    postToInsert.author_id = user.id;
+  }
 
   // Add imported content fields if present (Phase 2)
   if ('importedContent' in postData && postData.importedContent) {
