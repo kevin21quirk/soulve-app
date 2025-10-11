@@ -112,7 +112,7 @@ export const useCommentInteractions = () => {
     } finally {
       setLoading(parentCommentId, 'reply', false);
     }
-  }, [user, toast, isLoading, setLoading]);
+  }, [user, organizationId, toast, isLoading, setLoading]);
 
   const editComment = useCallback(async (commentId: string, newContent: string) => {
     if (!user || !newContent.trim()) {
