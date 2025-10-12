@@ -145,14 +145,36 @@ const CampaignFormFields = ({ formData, onFormDataChange }: CampaignFormFieldsPr
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="end_date">End Date</Label>
-        <Input
-          id="end_date"
-          type="datetime-local"
-          value={formData.end_date}
-          onChange={(e) => handleInputChange('end_date', e.target.value)}
-        />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="end_date">Campaign End Date</Label>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="ongoing"
+              checked={!formData.end_date}
+              onCheckedChange={(checked) => {
+                handleInputChange('end_date', checked ? undefined : new Date().toISOString().split('T')[0]);
+              }}
+            />
+            <Label htmlFor="ongoing" className="text-sm font-normal cursor-pointer">
+              Ongoing campaign (no end date)
+            </Label>
+          </div>
+        </div>
+        {formData.end_date && (
+          <Input
+            id="end_date"
+            type="datetime-local"
+            value={formData.end_date}
+            onChange={(e) => handleInputChange('end_date', e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+          />
+        )}
+        {!formData.end_date && (
+          <p className="text-sm text-muted-foreground">
+            This campaign will run continuously until you manually close it
+          </p>
+        )}
       </div>
 
       {/* Media Upload Section */}
