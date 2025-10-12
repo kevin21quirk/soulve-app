@@ -1,0 +1,241 @@
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Share2 } from 'lucide-react';
+import { CampaignProgressBar } from '@/components/campaign/CampaignProgressBar';
+import { CampaignStats } from '@/components/campaign/CampaignStats';
+import { CampaignBadges } from '@/components/campaign/CampaignBadges';
+import { DonorAvatarList } from '@/components/campaign/DonorAvatarList';
+import { CampaignImpactPreview } from '@/components/campaign/CampaignImpactPreview';
+import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions';
+import { useCampaignStats } from '@/hooks/useCampaignStats';
+import { useToast } from '@/hooks/use-toast';
+import { LoadingState } from '@/components/ui/loading-state';
+
+const CampaignDetail = () => {
+  const { campaignId } = useParams<{ campaignId: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { data: campaign, isLoading } = useQuery({
+    queryKey: ['campaign', campaignId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!campaignId
+  });
+
+  const { stats } = useCampaignStats(
+    campaignId || '',
+    campaign?.goal_amount || 0,
+    campaign?.current_amount || 0,
+    campaign?.end_date
+  );
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: campaign?.title,
+          text: campaign?.description,
+          url: url,
+        });
+      } catch (error) {
+        // User cancelled share
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link copied!",
+        description: "Campaign link copied to clipboard"
+      });
+    }
+  };
+
+  if (isLoading) {
+    return <LoadingState message="Loading campaign..." />;
+  }
+
+  if (!campaign) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Campaign not found</h2>
+          <Button onClick={() => navigate('/dashboard')}>
+            Return to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Fetch creator profile separately
+  const { data: creator } = useQuery({
+    queryKey: ['creator', campaign?.creator_id],
+    queryFn: async () => {
+      if (!campaign?.creator_id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .eq('id', campaign.creator_id)
+        .single();
+      return data;
+    },
+    enabled: !!campaign?.creator_id
+  });
+
+  const creatorName = creator
+    ? `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || 'Anonymous'
+    : 'Anonymous';
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleShare}
+            className="flex items-center gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Campaign Header */}
+        <div className="mb-6">
+          <CampaignBadges
+            category={campaign.category}
+            urgency={campaign.urgency as 'low' | 'medium' | 'high'}
+            status={campaign.status}
+            isOngoing={!campaign.end_date}
+            daysRemaining={stats?.daysRemaining || null}
+            isTrending={false}
+          />
+          <h1 className="text-4xl font-bold mt-4 mb-2">{campaign.title}</h1>
+          <p className="text-muted-foreground">By {creatorName}</p>
+        </div>
+
+        {/* Featured Image */}
+        {campaign.featured_image && (
+          <div className="mb-8 rounded-lg overflow-hidden">
+            <img
+              src={campaign.featured_image}
+              alt={campaign.title}
+              className="w-full h-96 object-cover"
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Campaign Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Description */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">About this campaign</h2>
+              <p className="text-foreground whitespace-pre-wrap">{campaign.description}</p>
+            </div>
+
+            {/* Story */}
+            {campaign.story && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">The Story</h2>
+                <p className="text-foreground whitespace-pre-wrap">{campaign.story}</p>
+              </div>
+            )}
+
+            {/* Impact */}
+            <CampaignImpactPreview
+              description={campaign.description}
+              category={campaign.category}
+            />
+
+            {/* Gallery */}
+            {campaign.gallery_images && Array.isArray(campaign.gallery_images) && campaign.gallery_images.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">Gallery</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {(campaign.gallery_images as string[]).map((image: string, index: number) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Gallery ${index + 1}`}
+                      className="rounded-lg w-full h-48 object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Donation Card */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              {/* Progress */}
+              <div className="bg-card border rounded-lg p-6">
+                <CampaignProgressBar
+                  currentAmount={campaign.current_amount || 0}
+                  goalAmount={campaign.goal_amount || 0}
+                  progressPercentage={stats?.progressPercentage || 0}
+                  currency={campaign.currency}
+                />
+
+                <div className="mt-4">
+                  <CampaignStats
+                    donorCount={stats?.donorCount || 0}
+                    recentDonations24h={stats?.recentDonations24h || 0}
+                    daysRemaining={stats?.daysRemaining || null}
+                    isOngoing={stats?.isOngoing || false}
+                    urgency={campaign.urgency as 'low' | 'medium' | 'high'}
+                  />
+                </div>
+
+                {/* Quick Actions */}
+                <div className="mt-6">
+                  <CampaignQuickActions
+                    campaignId={campaign.id}
+                    currency={campaign.currency}
+                  />
+                </div>
+
+                {/* Donors */}
+                {stats && stats.recentDonors.length > 0 && (
+                  <div className="mt-6">
+                    <DonorAvatarList
+                      donors={stats.recentDonors}
+                      totalCount={stats.donorCount}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CampaignDetail;

@@ -25,6 +25,7 @@ const PasswordResetHandler = lazy(() => import("@/components/auth/PasswordResetH
 const ProfileRegistration = lazy(() => import("@/pages/ProfileRegistration"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const CampaignBuilderPage = lazy(() => import("@/pages/CampaignBuilder"));
+const CampaignDetail = lazy(() => import("@/pages/CampaignDetail"));
 const EnhancedCampaignAnalyticsDashboard = lazy(() => import("@/components/campaign-analytics/EnhancedCampaignAnalyticsDashboard"));
 const DonationPage = lazy(() => import("@/pages/DonationPage"));
 const SafeSpaceHelperApplication = lazy(() => import("@/pages/SafeSpaceHelperApplication"));
@@ -88,6 +89,10 @@ function App() {
                   <CampaignBuilderPage />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/campaigns/:campaignId" 
+              element={<CampaignDetail />} 
             />
             <Route 
               path="/campaigns/:campaignId/analytics" 

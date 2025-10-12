@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { CampaignDonationService } from '@/services/campaignDonationService';
 
 export interface CampaignStats {
   donorCount: number;
@@ -18,10 +20,26 @@ export interface CampaignStats {
   isOngoing: boolean;
 }
 
-export const useCampaignStats = (campaignId: string, goalAmount: number, currentAmount: number, endDate: string | null) => {
-  return useQuery({
+export const useCampaignStats = (
+  campaignId: string, 
+  goalAmount: number,
+  currentAmount: number,
+  endDate?: string | null
+) => {
+  const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ['campaign-stats', campaignId],
     queryFn: async (): Promise<CampaignStats> => {
+      if (!campaignId) {
+        return {
+          donorCount: 0,
+          recentDonations24h: 0,
+          recentDonors: [],
+          averageDonation: 0,
+          progressPercentage: 0,
+          daysRemaining: null,
+          isOngoing: false
+        };
+      }
       // Fetch donations
       const { data: donations } = await supabase
         .from('campaign_donations')
@@ -81,4 +99,27 @@ export const useCampaignStats = (campaignId: string, goalAmount: number, current
     enabled: !!campaignId,
     staleTime: 30000, // 30 seconds
   });
+
+  // Subscribe to real-time donation updates
+  useEffect(() => {
+    if (!campaignId) return;
+
+    let channel: any;
+    
+    const setupSubscription = async () => {
+      channel = await CampaignDonationService.subscribeToDonations(campaignId, () => {
+        refetch();
+      });
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (channel) {
+        channel.unsubscribe();
+      }
+    };
+  }, [campaignId, refetch]);
+
+  return { stats, isLoading };
 };

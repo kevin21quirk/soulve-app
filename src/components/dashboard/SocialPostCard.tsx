@@ -29,6 +29,13 @@ import { useContentTranslation } from '@/hooks/useContentTranslation';
 import { useUserLanguagePreference } from '@/hooks/useUserLanguagePreference';
 import { TranslationButton } from '@/components/translation/TranslationButton';
 import { TranslatedContent } from '@/components/translation/TranslatedContent';
+import { CampaignProgressBar } from '@/components/campaign/CampaignProgressBar';
+import { CampaignStats } from '@/components/campaign/CampaignStats';
+import { CampaignBadges } from '@/components/campaign/CampaignBadges';
+import { DonorAvatarList } from '@/components/campaign/DonorAvatarList';
+import { CampaignImpactPreview } from '@/components/campaign/CampaignImpactPreview';
+import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions';
+import { useCampaignStats } from '@/hooks/useCampaignStats';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -241,6 +248,181 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   // Quick reaction buttons (most common ones)
   const quickReactions = ['👍', '❤️', '😂', '🔥'];
 
+  // Check if this is a campaign post
+  const isCampaign = post.id.startsWith('campaign_');
+  const campaignId = isCampaign ? post.id.replace('campaign_', '') : null;
+  
+  // Get campaign stats if this is a campaign
+  const { stats } = useCampaignStats(
+    campaignId || '',
+    (post as any).goalAmount || 0,
+    (post as any).currentAmount || 0,
+    (post as any).endDate
+  );
+
+  // If this is a campaign, render enhanced campaign layout
+  if (isCampaign) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          {/* Campaign Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3 flex-1">
+              <Avatar 
+                className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                onClick={handleProfileClick}
+              >
+                <AvatarImage src={post.avatar} />
+                <AvatarFallback>
+                  {post.author.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1">
+                <h3 
+                  className="font-semibold text-foreground cursor-pointer hover:underline"
+                  onClick={handleProfileClick}
+                >
+                  {post.author}
+                </h3>
+                
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{post.timestamp}</span>
+                  </div>
+                  {post.location && (
+                    <div className="flex items-center space-x-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>{post.location}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <PostActions
+              postId={post.id}
+              authorId={post.authorId || post.id}
+              onPostDeleted={onPostDeleted}
+              onReportPost={() => {}}
+              onBookmark={onBookmark}
+              isBookmarked={post.isBookmarked}
+            />
+          </div>
+
+          {/* Campaign Badges */}
+          <div className="mb-4">
+            <CampaignBadges
+              category={(post as any).campaignCategory || 'fundraising'}
+              urgency={(post.urgency as 'low' | 'medium' | 'high') || 'medium'}
+              status={(post as any).status || 'active'}
+              isOngoing={!(post as any).endDate}
+              daysRemaining={stats?.daysRemaining || null}
+              isTrending={false}
+            />
+          </div>
+
+          {/* Campaign Title & Description */}
+          <div className="mb-4">
+            <h2 
+              className="text-xl font-bold text-foreground mb-2 cursor-pointer hover:underline"
+              onClick={() => navigate(`/campaigns/${campaignId}`)}
+            >
+              {post.title}
+            </h2>
+            <p className="text-foreground line-clamp-3">{post.description}</p>
+          </div>
+
+          {/* Campaign Progress */}
+          <div className="mb-4 p-4 bg-accent/50 rounded-lg">
+            <CampaignProgressBar
+              currentAmount={(post as any).currentAmount || 0}
+              goalAmount={(post as any).goalAmount || 0}
+              progressPercentage={stats?.progressPercentage || 0}
+              currency={(post as any).currency}
+            />
+            
+            <div className="mt-3">
+              <CampaignStats
+                donorCount={stats?.donorCount || 0}
+                recentDonations24h={stats?.recentDonations24h || 0}
+                daysRemaining={stats?.daysRemaining || null}
+                isOngoing={stats?.isOngoing || false}
+                urgency={(post.urgency as 'low' | 'medium' | 'high') || 'medium'}
+              />
+            </div>
+          </div>
+
+          {/* Impact Preview */}
+          <div className="mb-4">
+            <CampaignImpactPreview
+              description={post.description}
+              category={(post as any).campaignCategory || 'fundraising'}
+            />
+          </div>
+
+          {/* Featured Image */}
+          {post.media && post.media.length > 0 && (
+            <div className="mb-4 rounded-lg overflow-hidden">
+              <img
+                src={post.media[0].url}
+                alt={post.title}
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+
+          {/* Donor Avatars */}
+          {stats && stats.recentDonors.length > 0 && (
+            <div className="mb-4">
+              <DonorAvatarList
+                donors={stats.recentDonors}
+                totalCount={stats.donorCount}
+              />
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          <div className="mb-4">
+            <CampaignQuickActions
+              campaignId={campaignId || ''}
+              currency={(post as any).currency}
+              onDonate={() => {}}
+              onShare={handleShare}
+            />
+          </div>
+
+          {/* Standard Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t">
+            <div className="flex items-center flex-wrap gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCommentClick}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{comments.length}</span>
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShare}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
+              >
+                <Share2 className="h-4 w-4" />
+                <span>Share</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Regular post layout
   return (
     <Card className="w-full">
       <CardContent className="p-6">

@@ -196,3 +196,35 @@ export const sendCampaignInvitation = async (campaignId: string, email: string, 
 
   return data;
 };
+
+// Donation-related functions
+export const getCampaignDonations = async (campaignId: string) => {
+  const { data, error } = await supabase
+    .from('campaign_donations')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching donations:', error);
+    throw error;
+  }
+
+  return data;
+};
+
+export const updateCampaignAmount = async (campaignId: string, amount: number) => {
+  const { data, error } = await supabase
+    .from('campaigns')
+    .update({ current_amount: amount })
+    .eq('id', campaignId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating campaign amount:', error);
+    throw error;
+  }
+
+  return data;
+};

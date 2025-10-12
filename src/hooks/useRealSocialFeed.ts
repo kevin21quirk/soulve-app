@@ -201,7 +201,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         return transformed;
       });
 
-      // Transform campaigns to look like posts with enhanced status handling
+      // Transform campaigns to look like posts with enhanced status handling and campaign data
       const transformedCampaigns: SocialPost[] = campaignsData.map(campaign => {
         const profile = profilesMap.get(campaign.creator_id);
         let authorName = 'Anonymous';
@@ -260,8 +260,15 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
           shares_count: 0,
           is_liked: false,
           is_bookmarked: false,
-          status: campaign.status
-        };
+          status: campaign.status,
+          // Campaign-specific data for enhanced display
+          campaignId: campaign.id,
+          goalAmount: campaign.goal_amount,
+          currentAmount: campaign.current_amount,
+          endDate: campaign.end_date,
+          campaignCategory: campaign.category,
+          currency: campaign.currency || 'USD',
+        } as any;
       });
 
       // Combine and sort by creation date
