@@ -113,6 +113,77 @@ const EnhancedCampaignBuilder = () => {
     setIsSubmitting(true);
 
     try {
+      // Upload gallery images to Supabase Storage if they are blob URLs
+      let uploadedGalleryImages = formData.gallery_images;
+      if (formData.gallery_images && formData.gallery_images.length > 0) {
+        const imagesToUpload: File[] = [];
+        
+        // Check if images are blob URLs and need to be uploaded
+        for (const imageUrl of formData.gallery_images) {
+          if (typeof imageUrl === 'string' && imageUrl.startsWith('blob:')) {
+            try {
+              const response = await fetch(imageUrl);
+              const blob = await response.blob();
+              const file = new File([blob], `campaign-image-${Date.now()}.jpg`, { type: blob.type });
+              imagesToUpload.push(file);
+            } catch (err) {
+              console.error('Failed to process blob URL:', err);
+            }
+          }
+        }
+        
+        // Upload all blob images to storage
+        if (imagesToUpload.length > 0) {
+          const uploadPromises = imagesToUpload.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${crypto.randomUUID()}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('campaign-images')
+              .upload(filePath, file);
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: { publicUrl } } = supabase.storage
+              .from('campaign-images')
+              .getPublicUrl(filePath);
+            
+            return publicUrl;
+          });
+          
+          uploadedGalleryImages = await Promise.all(uploadPromises);
+        }
+      }
+
+      // Upload featured image if it's a blob URL
+      let uploadedFeaturedImage = formData.featured_image;
+      if (formData.featured_image && formData.featured_image.startsWith('blob:')) {
+        try {
+          const response = await fetch(formData.featured_image);
+          const blob = await response.blob();
+          const file = new File([blob], `featured-image-${Date.now()}.jpg`, { type: blob.type });
+          
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${crypto.randomUUID()}.${fileExt}`;
+          const filePath = `${user.id}/${fileName}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('campaign-images')
+            .upload(filePath, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('campaign-images')
+            .getPublicUrl(filePath);
+          
+          uploadedFeaturedImage = publicUrl;
+        } catch (err) {
+          console.error('Failed to upload featured image:', err);
+        }
+      }
+
       // Insert campaign into database with explicit active status
       const { data: campaign, error } = await supabase
         .from('campaigns')
@@ -132,8 +203,8 @@ const EnhancedCampaignBuilder = () => {
           allow_anonymous_donations: formData.allow_anonymous_donations,
           enable_comments: formData.enable_comments,
           enable_updates: formData.enable_updates,
-          featured_image: formData.featured_image,
-          gallery_images: formData.gallery_images,
+          featured_image: uploadedFeaturedImage,
+          gallery_images: uploadedGalleryImages,
           tags: formData.tags,
           social_links: formData.social_links,
           custom_fields: formData.custom_fields,

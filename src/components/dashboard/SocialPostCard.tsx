@@ -363,24 +363,33 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
           </div>
 
           {/* Featured Image */}
-          {((post as any).media_urls && (post as any).media_urls.length > 0) && (
-            <div className="mb-4 rounded-lg overflow-hidden">
-              <img
-                src={(post as any).media_urls[0]}
-                alt={post.title}
-                className="w-full h-64 object-cover"
-              />
-            </div>
-          )}
-          {(!((post as any).media_urls) && post.media && post.media.length > 0) && (
-            <div className="mb-4 rounded-lg overflow-hidden">
-              <img
-                src={post.media[0].url}
-                alt={post.title}
-                className="w-full h-64 object-cover"
-              />
-            </div>
-          )}
+          {(() => {
+            // Unified media URL extraction
+            const getMediaUrl = (): string | null => {
+              if ((post as any).media_urls && Array.isArray((post as any).media_urls) && (post as any).media_urls.length > 0) {
+                return (post as any).media_urls[0];
+              }
+              if (post.media && Array.isArray(post.media) && post.media.length > 0) {
+                return post.media[0].url;
+              }
+              return null;
+            };
+            
+            const mediaUrl = getMediaUrl();
+            return mediaUrl ? (
+              <div className="mb-4 rounded-lg overflow-hidden">
+                <img
+                  src={mediaUrl}
+                  alt={post.title}
+                  className="w-full h-64 object-cover"
+                  onError={(e) => {
+                    console.error('Failed to load campaign image:', mediaUrl);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            ) : null;
+          })()}
 
           {/* Donor Avatars */}
           {stats && stats.recentDonors.length > 0 && (
