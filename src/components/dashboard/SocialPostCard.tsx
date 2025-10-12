@@ -393,28 +393,63 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
             />
           </div>
 
-          {/* Standard Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t">
-            <div className="flex items-center flex-wrap gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCommentClick}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{comments.length}</span>
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleShare}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
-              >
-                <Share2 className="h-4 w-4" />
-                <span>Share</span>
-              </Button>
+          {/* Social Engagement Section */}
+          <div className="pt-4 border-t space-y-3">
+            {/* Reactions Display */}
+            {reactions && Object.keys(reactions).length > 0 && (
+              <ReactionDisplay 
+                reactions={reactions} 
+                onReactionClick={handleReactionSelect}
+              />
+            )}
+
+            {/* Actions Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center flex-wrap gap-2">
+                {/* Quick Reaction Buttons */}
+                <div className="flex items-center gap-1">
+                  {quickReactions.map((emoji) => (
+                    <Button
+                      key={emoji}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleReactionSelect(emoji)}
+                      className="text-lg px-2 hover:scale-110 transition-transform"
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                  <ModernReactionPicker onReactionSelect={handleReactionSelect}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center space-x-1 text-muted-foreground hover:text-primary"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </ModernReactionPicker>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCommentClick}
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{comments.length}</span>
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleShare}
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>Share</span>
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
