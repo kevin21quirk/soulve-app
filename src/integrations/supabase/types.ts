@@ -1276,6 +1276,45 @@ export type Database = {
         }
         Relationships: []
       }
+      content_translations: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          original_language: string
+          original_text: string
+          target_language: string
+          translated_text: string
+          translator: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          original_language: string
+          original_text: string
+          target_language: string
+          translated_text: string
+          translator?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          original_language?: string
+          original_text?: string
+          target_language?: string
+          translated_text?: string
+          translator?: string | null
+        }
+        Relationships: []
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
@@ -2985,6 +3024,27 @@ export type Database = {
           user_id?: string
           volunteer_hours?: number | null
           xp_points?: number | null
+        }
+        Relationships: []
+      }
+      language_detection_cache: {
+        Row: {
+          confidence: number
+          content_hash: string
+          created_at: string | null
+          detected_language: string
+        }
+        Insert: {
+          confidence: number
+          content_hash: string
+          created_at?: string | null
+          detected_language: string
+        }
+        Update: {
+          confidence?: number
+          content_hash?: string
+          created_at?: string | null
+          detected_language?: string
         }
         Relationships: []
       }
@@ -6229,6 +6289,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_language_preferences: {
+        Row: {
+          auto_translate: boolean | null
+          created_at: string | null
+          id: string
+          preferred_language: string
+          show_translation_button: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_translate?: boolean | null
+          created_at?: string | null
+          id?: string
+          preferred_language?: string
+          show_translation_button?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_translate?: boolean | null
+          created_at?: string | null
+          id?: string
+          preferred_language?: string
+          show_translation_button?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
