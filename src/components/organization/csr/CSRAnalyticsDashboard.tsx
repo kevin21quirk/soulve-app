@@ -1,17 +1,69 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { 
   TrendingUp, 
   Users, 
   DollarSign, 
   Heart,
   Award,
-  Newspaper,
-  Globe,
-  Target
+  Target,
+  Loader2
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { fetchCSRAnalytics } from "@/services/csrService";
 
 const CSRAnalyticsDashboard = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.organization_id) {
+      loadAnalytics();
+    }
+  }, [user?.organization_id]);
+
+  const loadAnalytics = async () => {
+    if (!user?.organization_id) return;
+
+    try {
+      setLoading(true);
+      const data = await fetchCSRAnalytics(user.organization_id);
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load CSR analytics",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <Card>
+        <CardContent className="text-center py-12">
+          <p className="text-muted-foreground">No CSR data available yet. Start by creating campaigns or supporting community needs.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -32,8 +84,7 @@ const CSRAnalyticsDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Lives Impacted</p>
-                <p className="text-2xl font-bold text-foreground">1,247</p>
-                <p className="text-xs text-green-600">+23% this month</p>
+                <p className="text-2xl font-bold text-foreground">{analytics.livesImpacted.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -47,8 +98,7 @@ const CSRAnalyticsDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">CSR Investment</p>
-                <p className="text-2xl font-bold text-foreground">£156K</p>
-                <p className="text-xs text-blue-600">£42K this quarter</p>
+                <p className="text-2xl font-bold text-foreground">£{analytics.totalInvestment.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -62,8 +112,7 @@ const CSRAnalyticsDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Active Partnerships</p>
-                <p className="text-2xl font-bold text-foreground">12</p>
-                <p className="text-xs text-purple-600">3 new this month</p>
+                <p className="text-2xl font-bold text-foreground">{analytics.activePartnerships}</p>
               </div>
             </div>
           </CardContent>
@@ -76,144 +125,39 @@ const CSRAnalyticsDashboard = () => {
                 <Award className="h-5 w-5 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Employee Hours</p>
-                <p className="text-2xl font-bold text-foreground">842</p>
-                <p className="text-xs text-orange-600">volunteer hours</p>
+                <p className="text-sm text-muted-foreground">CSR Opportunities</p>
+                <p className="text-2xl font-bold text-foreground">{analytics.opportunities.completed}</p>
+                <p className="text-xs text-orange-600">{analytics.opportunities.committed} in progress</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Impact Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Impact by Category
-            </h4>
-            <div className="space-y-4">
-              {[
-                { category: 'Education', amount: 45000, impact: '320 students', percentage: 29 },
-                { category: 'Environment', amount: 38000, impact: '12 projects', percentage: 24 },
-                { category: 'Healthcare', amount: 35000, impact: '450 people', percentage: 22 },
-                { category: 'Emergency Relief', amount: 38000, impact: '285 families', percentage: 25 }
-              ].map((item, idx) => (
-                <div key={idx} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-foreground">{item.category}</span>
-                    <span className="text-sm text-muted-foreground">£{item.amount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] h-2 rounded-full"
-                        style={{ width: `${item.percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground w-20">{item.impact}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Newspaper className="h-5 w-5" />
-              Media Coverage & Reach
-            </h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Press Mentions</p>
-                  <p className="text-xs text-muted-foreground">National & Local Media</p>
-                </div>
-                <p className="text-2xl font-bold text-foreground">18</p>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Social Media Reach</p>
-                  <p className="text-xs text-muted-foreground">Across All Platforms</p>
-                </div>
-                <p className="text-2xl font-bold text-foreground">2.3M</p>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Engagement Rate</p>
-                  <p className="text-xs text-muted-foreground">Likes, Shares, Comments</p>
-                </div>
-                <p className="text-2xl font-bold text-foreground">8.4%</p>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Media Value</p>
-                  <p className="text-xs text-muted-foreground">Estimated PR Value</p>
-                </div>
-                <p className="text-2xl font-bold text-green-600">£485K</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Success Stories */}
+      {/* Opportunities Breakdown */}
       <Card>
         <CardContent className="p-6">
           <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Recent Success Stories
+            <Target className="h-5 w-5" />
+            CSR Pipeline
           </h4>
-          <div className="space-y-4">
-            {[
-              {
-                title: 'Tech Training Programme Graduation',
-                description: '45 young adults completed our coding bootcamp, 38 secured employment',
-                date: '2 days ago',
-                impact: 'high',
-                media: 'Featured in Tech Times'
-              },
-              {
-                title: 'Community Garden Network Launch',
-                description: '5 new community gardens opened, serving 400+ families with fresh produce',
-                date: '1 week ago',
-                impact: 'medium',
-                media: 'Local BBC coverage'
-              },
-              {
-                title: 'Winter Relief Campaign Success',
-                description: 'Provided warm clothing and shelter to 180 families during harsh winter',
-                date: '2 weeks ago',
-                impact: 'high',
-                media: 'Guardian article'
-              }
-            ].map((story, idx) => (
-              <div key={idx} className="flex items-start gap-4 p-4 bg-muted rounded-lg">
-                <div className="p-2 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-lg">
-                  <Award className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-1">
-                    <h5 className="font-semibold text-foreground">{story.title}</h5>
-                    <Badge variant={story.impact === 'high' ? 'default' : 'outline'} className="text-xs">
-                      {story.impact} impact
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">{story.description}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{story.date}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Newspaper className="h-3 w-3" />
-                      {story.media}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <p className="text-2xl font-bold text-foreground">{analytics.opportunities.interested}</p>
+              <p className="text-xs text-muted-foreground">Interested</p>
+            </div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <p className="text-2xl font-bold text-foreground">{analytics.opportunities.contacted}</p>
+              <p className="text-xs text-muted-foreground">Contacted</p>
+            </div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <p className="text-2xl font-bold text-foreground">{analytics.opportunities.committed}</p>
+              <p className="text-xs text-muted-foreground">Committed</p>
+            </div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <p className="text-2xl font-bold text-green-600">{analytics.opportunities.completed}</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -221,25 +165,29 @@ const CSRAnalyticsDashboard = () => {
       {/* ESG Integration */}
       <Card className="border-2 border-primary">
         <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h4 className="font-semibold text-foreground mb-2">ESG Reporting Integration</h4>
-              <p className="text-sm text-muted-foreground mb-4">
-                Your CSR activities automatically contribute to your ESG reporting metrics
-              </p>
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Social Impact Score</p>
-                  <p className="text-2xl font-bold text-foreground">87</p>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Governance Score</p>
-                  <p className="text-2xl font-bold text-foreground">92</p>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Community Score</p>
-                  <p className="text-2xl font-bold text-foreground">95</p>
-                </div>
+          <div>
+            <h4 className="font-semibold text-foreground mb-2">ESG Reporting Integration</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your CSR activities automatically contribute to your ESG reporting metrics
+            </p>
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Social Impact</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analytics.livesImpacted > 0 ? Math.min(95, 50 + Math.floor(analytics.livesImpacted / 10)) : 50}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Investment</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analytics.totalInvestment > 0 ? Math.min(95, 50 + Math.floor(analytics.totalInvestment / 1000)) : 50}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Community Score</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analytics.activePartnerships > 0 ? Math.min(98, 60 + (analytics.activePartnerships * 3)) : 60}
+                </p>
               </div>
             </div>
           </div>

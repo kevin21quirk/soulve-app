@@ -856,6 +856,66 @@ export type Database = {
           },
         ]
       }
+      campaign_sponsorships: {
+        Row: {
+          activated_at: string | null
+          amount_paid: number
+          amount_pledged: number
+          benefits: string[] | null
+          campaign_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          sponsorship_tier: string
+          status: string
+          updated_at: string
+          visibility_type: string[] | null
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_paid?: number
+          amount_pledged?: number
+          benefits?: string[] | null
+          campaign_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          sponsorship_tier: string
+          status?: string
+          updated_at?: string
+          visibility_type?: string[] | null
+        }
+        Update: {
+          activated_at?: string | null
+          amount_paid?: number
+          amount_pledged?: number
+          benefits?: string[] | null
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          sponsorship_tier?: string
+          status?: string
+          updated_at?: string
+          visibility_type?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_sponsorships_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_sponsorships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_updates: {
         Row: {
           author_id: string
@@ -1393,6 +1453,122 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      csr_lead_tracking: {
+        Row: {
+          action_type: string
+          campaign_id: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          organization_id: string
+          post_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csr_lead_tracking_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "csr_lead_tracking_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "csr_lead_tracking_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "csr_lead_tracking_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      csr_opportunities: {
+        Row: {
+          actual_value: number | null
+          completed_at: string | null
+          created_at: string
+          estimated_value: number | null
+          id: string
+          notes: string | null
+          organization_id: string
+          post_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_value?: number | null
+          completed_at?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          post_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_value?: number | null
+          completed_at?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          post_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csr_opportunities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "csr_opportunities_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
