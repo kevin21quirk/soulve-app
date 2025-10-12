@@ -14,6 +14,7 @@ interface CreatePostData {
   media_urls?: string[];
   importedContent?: ImportedContent;
   organizationId?: string; // For posting as organization
+  tagged_user_ids?: string[]; // Tagged users in the post
 }
 
 export const createUnifiedPost = async (postData: CreatePostData) => {
@@ -100,5 +101,66 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
   }
 
   console.log('createUnifiedPost - Post created successfully:', post.id);
+  
+  // Store tagged users if any
+  if (postData.tagged_user_ids && postData.tagged_user_ids.length > 0) {
+    console.log('createUnifiedPost - Storing tagged users:', postData.tagged_user_ids);
+    
+    const tagInteractions = postData.tagged_user_ids.map(userId => ({
+      post_id: post.id,
+      user_id: userId,
+      interaction_type: 'user_tag',
+      content: null
+    }));
+
+    const { error: tagError } = await supabase
+      .from('post_interactions')
+      .insert(tagInteractions);
+
+    if (tagError) {
+      console.error('createUnifiedPost - Failed to store tags:', tagError);
+    } else {
+      // Create notifications for tagged users
+      await createTagNotifications(postData.tagged_user_ids, post.id, user.id);
+    }
+  }
+  
   return post.id;
 };
+
+// Notification service for tagged users
+async function createTagNotifications(taggedUserIds: string[], postId: string, taggerId: string) {
+  try {
+    const { data: taggerProfile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name')
+      .eq('id', taggerId)
+      .single();
+
+    const taggerName = taggerProfile 
+      ? `${taggerProfile.first_name} ${taggerProfile.last_name}`.trim()
+      : 'Someone';
+
+    const notifications = taggedUserIds.map(userId => ({
+      recipient_id: userId,
+      type: 'post_tag',
+      title: 'You were tagged',
+      message: `${taggerName} tagged you in a post`,
+      action_url: `/posts/${postId}`,
+      action_type: 'view',
+      priority: 'normal',
+      metadata: {
+        post_id: postId,
+        tagger_id: taggerId
+      }
+    }));
+
+    await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    console.log('createUnifiedPost - Tag notifications sent to:', taggedUserIds);
+  } catch (error) {
+    console.error('createUnifiedPost - Failed to create tag notifications:', error);
+  }
+}

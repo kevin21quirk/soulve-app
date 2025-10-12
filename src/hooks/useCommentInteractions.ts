@@ -62,7 +62,8 @@ export const useCommentInteractions = () => {
   const replyToComment = useCallback(async (
     postId: string, 
     parentCommentId: string, 
-    content: string
+    content: string,
+    taggedUserIds: string[] = []
   ) => {
     if (!user || !content.trim()) {
       toast({
@@ -82,7 +83,7 @@ export const useCommentInteractions = () => {
         ? postId.replace('campaign_', '') 
         : postId;
 
-      const { error } = await supabase
+      const { data: reply, error } = await supabase
         .from('post_interactions')
         .insert({
           post_id: actualPostId,
@@ -91,9 +92,56 @@ export const useCommentInteractions = () => {
           content: content.trim(),
           parent_comment_id: parentCommentId,
           ...(organizationId && { organization_id: organizationId })
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Store tagged users if any
+      if (taggedUserIds.length > 0 && reply) {
+        const tagInteractions = taggedUserIds.map(userId => ({
+          post_id: actualPostId,
+          user_id: userId,
+          interaction_type: 'user_tag',
+          parent_comment_id: reply.id,
+          content: null
+        }));
+
+        await supabase
+          .from('post_interactions')
+          .insert(tagInteractions);
+
+        // Create notifications for tagged users
+        const { data: taggerProfile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+
+        const taggerName = taggerProfile 
+          ? `${taggerProfile.first_name} ${taggerProfile.last_name}`.trim()
+          : 'Someone';
+
+        const notifications = taggedUserIds.map(userId => ({
+          recipient_id: userId,
+          type: 'comment_tag',
+          title: 'You were tagged',
+          message: `${taggerName} tagged you in a comment`,
+          action_url: `/posts/${actualPostId}#comment-${reply.id}`,
+          action_type: 'view',
+          priority: 'normal',
+          metadata: {
+            post_id: actualPostId,
+            comment_id: reply.id,
+            tagger_id: user.id
+          }
+        }));
+
+        await supabase
+          .from('notifications')
+          .insert(notifications);
+      }
 
       toast({
         title: "Reply posted!",

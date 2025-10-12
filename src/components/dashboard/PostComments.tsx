@@ -8,6 +8,9 @@ import { usePostComments } from "@/hooks/usePostComments";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import UserTagging from "./tagging/UserTagging";
+import TaggedText from "./tagging/TaggedText";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +38,7 @@ const CommentItem = ({
   const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [replyTaggedUserIds, setReplyTaggedUserIds] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
 
@@ -44,9 +48,10 @@ const CommentItem = ({
 
   const handleReply = async () => {
     if (replyText.trim()) {
-      const success = await replyToComment(postId, comment.id, replyText);
+      const success = await replyToComment(postId, comment.id, replyText, replyTaggedUserIds);
       if (success) {
         setReplyText("");
+        setReplyTaggedUserIds([]);
         setShowReplyInput(false);
       }
     }
@@ -63,6 +68,23 @@ const CommentItem = ({
 
   const handleDelete = async () => {
     await deleteComment(comment.id);
+  };
+
+  const handleUserTagClick = async (username: string) => {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .or(`first_name.ilike.%${username}%,last_name.ilike.%${username}%`)
+        .limit(1)
+        .single();
+      
+      if (data?.id) {
+        navigate(`/profile/${data.id}`);
+      }
+    } catch (error) {
+      console.error('Failed to resolve tagged user:', error);
+    }
   };
 
   const isOwnComment = user?.id === comment.authorId;
@@ -137,7 +159,11 @@ const CommentItem = ({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-700">{comment.content}</p>
+              <TaggedText 
+                text={comment.content} 
+                className="text-sm text-gray-700"
+                onUserClick={handleUserTagClick}
+              />
             )}
           </div>
           {!comment.isDeleted && (
@@ -167,11 +193,14 @@ const CommentItem = ({
           
           {showReplyInput && (
             <div className="mt-2 flex space-x-2">
-              <Textarea
-                placeholder="Write a reply..."
+              <UserTagging
+                placeholder="Write a reply... (Type @ to tag someone)"
                 value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                className="min-h-[60px] resize-none text-sm"
+                onChange={(value, users) => {
+                  setReplyText(value);
+                  setReplyTaggedUserIds(users.map(u => u.id));
+                }}
+                className="flex-1 min-h-[60px] resize-none text-sm"
               />
               <Button size="sm" onClick={handleReply} disabled={!replyText.trim()}>
                 <Send className="h-4 w-4" />
@@ -204,6 +233,7 @@ const PostComments = ({
   isExpanded 
 }: PostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
+  const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
   const { comments, loading } = usePostComments(post.id);
 
   const handleSubmitComment = () => {
@@ -243,10 +273,15 @@ const PostComments = ({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <Textarea
-              placeholder="Write a comment..."
+            <UserTagging
+              placeholder="Write a comment... (Type @ to tag someone)"
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={(value, users) => {
+                setNewComment(value);
+                setTaggedUserIds(users.map(u => u.id));
+              }}
+              multiline
+              rows={3}
               className="min-h-[80px] resize-none border-gray-200 focus:border-teal-500 focus:ring-teal-500"
             />
             <div className="flex justify-end mt-2">

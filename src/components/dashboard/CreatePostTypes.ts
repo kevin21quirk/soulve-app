@@ -74,7 +74,8 @@ export interface PostFormData {
   liveVideoData?: LiveVideoData;
   hasGif?: boolean;
   selectedGif?: GifData;
-  taggedUsers?: string[];
+  taggedUsers?: string[]; // Array of tagged user IDs
+  taggedUserIds?: string[]; // Array of tagged user IDs (alternative field name)
   hasPoll?: boolean;
   pollOptions?: string[];
   pollData?: PollData;

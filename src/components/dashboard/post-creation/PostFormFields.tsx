@@ -17,6 +17,7 @@ interface PostFormFieldsProps {
   onTitleChange: (value: string, users: TaggedUser[]) => void;
   onDescriptionChange: (value: string, users: TaggedUser[]) => void;
   onLocationSelect: (location: { address: string }) => void;
+  onTaggedUsersChange?: (users: TaggedUser[]) => void;
 }
 
 const PostFormFields = ({
@@ -25,7 +26,8 @@ const PostFormFields = ({
   taggedUsers,
   onTitleChange,
   onDescriptionChange,
-  onLocationSelect
+  onLocationSelect,
+  onTaggedUsersChange
 }: PostFormFieldsProps) => {
   return (
     <div className="space-y-6">
@@ -46,7 +48,12 @@ const PostFormFields = ({
         </label>
         <UserTagging
           value={formData.description}
-          onChange={onDescriptionChange}
+          onChange={(value, users) => {
+            onDescriptionChange(value, users);
+            if (onTaggedUsersChange) {
+              onTaggedUsersChange(users);
+            }
+          }}
           placeholder="Describe what you need or want to offer... (Type @ to tag someone)"
           multiline
           rows={3}

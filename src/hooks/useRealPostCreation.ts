@@ -12,6 +12,7 @@ export interface PostCreationData {
   tags?: string[];
   visibility?: string;
   media_urls?: string[];
+  tagged_user_ids?: string[];
 }
 
 export const useRealPostCreation = () => {

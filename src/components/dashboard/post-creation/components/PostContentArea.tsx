@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { PostFormData } from '../../CreatePostTypes';
 import { URLPreviewService } from '@/services/urlPreviewService';
 import { LinkPreview } from '../LinkPreview';
 import { useDebounce } from '@/hooks/useDebounce';
+import UserTagging from '../../tagging/UserTagging';
 
 interface PostContentAreaProps {
   formData: PostFormData;
@@ -49,12 +49,19 @@ const PostContentArea = ({ formData, onUpdateFormData }: PostContentAreaProps) =
         className="border-0 shadow-none text-sm placeholder-gray-400 focus-visible:ring-0"
       />
 
-      <Textarea
-        placeholder="What's happening in your community?"
+      <UserTagging
+        placeholder="What's happening in your community? (Type @ to tag someone)"
         value={formData.description}
-        onChange={(e) => onUpdateFormData(prev => ({ ...prev, description: e.target.value }))}
-        className="border-0 shadow-none resize-none focus-visible:ring-0 text-base placeholder-gray-500 min-h-[80px]"
+        onChange={(value, users) => {
+          onUpdateFormData(prev => ({ 
+            ...prev, 
+            description: value,
+            taggedUserIds: users.map(u => u.id)
+          }));
+        }}
+        multiline
         rows={3}
+        className="border-0 shadow-none resize-none focus-visible:ring-0 text-base placeholder-gray-500 min-h-[80px]"
       />
 
       {isLoadingPreview && (

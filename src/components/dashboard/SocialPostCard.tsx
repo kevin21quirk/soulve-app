@@ -22,6 +22,8 @@ import PostDetailModal from './PostDetailModal';
 import { usePostComments } from '@/hooks/usePostComments';
 import YouTubeEmbed from './YouTubeEmbed';
 import { logger } from '@/utils/logger';
+import TaggedText from './tagging/TaggedText';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -107,6 +109,24 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
       navigate(`/profile/${post.authorId}`);
     } else {
       logger.warn('SocialPostCard cannot navigate - missing authorId');
+    }
+  };
+
+  const handleUserTagClick = async (username: string) => {
+    try {
+      // Resolve username to user ID
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .or(`first_name.ilike.%${username}%,last_name.ilike.%${username}%`)
+        .limit(1)
+        .single();
+      
+      if (data?.id) {
+        navigate(`/profile/${data.id}`);
+      }
+    } catch (error) {
+      logger.error('Failed to resolve tagged user', error);
     }
   };
 
@@ -291,9 +311,15 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
         {/* Content */}
         <div className="mb-4">
           {post.title && (
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              <TaggedText text={post.title} onUserClick={handleUserTagClick} />
+            </h2>
           )}
-          <p className="text-gray-700 whitespace-pre-wrap">{post.description}</p>
+          <TaggedText 
+            text={post.description} 
+            className="text-gray-700 whitespace-pre-wrap"
+            onUserClick={handleUserTagClick}
+          />
         </div>
 
         {/* Tags */}

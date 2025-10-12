@@ -63,7 +63,8 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         visibility: postData.visibility || 'public',
         media_urls: mediaUrls,
         importedContent: postData.importedContent,
-        organizationId: organizationId || undefined
+        organizationId: organizationId || undefined,
+        tagged_user_ids: postData.taggedUserIds || []
       });
 
       // Show success message

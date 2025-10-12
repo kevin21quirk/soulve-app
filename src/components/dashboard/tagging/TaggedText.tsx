@@ -41,7 +41,7 @@ const TaggedText = ({ text, className = "", onUserClick }: TaggedTextProps) => {
       elements.push(
         <span 
           key={`mention-${index}`}
-          className="text-blue-600 font-medium bg-blue-50 px-1 rounded cursor-pointer hover:bg-blue-100 transition-colors"
+          className="text-primary font-medium bg-primary/10 px-1 rounded cursor-pointer hover:bg-primary/20 transition-colors"
           onClick={() => onUserClick?.(mention.username)}
         >
           @{mention.username}
