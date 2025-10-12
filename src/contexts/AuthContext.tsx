@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  organizationId: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -54,12 +56,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
+        // Fetch organization membership
+        if (newSession?.user) {
+          fetchOrganizationId(newSession.user.id);
+        } else {
+          setOrganizationId(null);
+        }
+        
         // Only set loading to false after initialization
         if (initialized) {
           setLoading(false);
         }
       }
     );
+
+    // Fetch organization ID for user
+    const fetchOrganizationId = async (userId: string) => {
+      try {
+        const { data } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', userId)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (mounted) {
+          setOrganizationId(data?.organization_id ?? null);
+        }
+      } catch (error) {
+        console.error('Error fetching organization ID:', error);
+        if (mounted) {
+          setOrganizationId(null);
+        }
+      }
+    };
 
     // THEN initialize auth state
     const initializeAuth = async () => {
@@ -76,10 +108,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               await supabase.auth.signOut();
               setSession(null);
               setUser(null);
+              setOrganizationId(null);
             }
           } else {
             setSession(initialSession);
             setUser(initialSession?.user ?? null);
+            
+            // Fetch organization membership
+            if (initialSession?.user) {
+              await fetchOrganizationId(initialSession.user.id);
+            }
           }
           
           setLoading(false);
@@ -113,6 +151,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (mounted) {
           setSession(null);
           setUser(null);
+          setOrganizationId(null);
           setLoading(false);
           setInitialized(true);
         }
@@ -143,6 +182,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     session,
     loading,
+    organizationId,
     signOut,
   };
 

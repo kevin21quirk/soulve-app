@@ -14,23 +14,23 @@ import { useToast } from "@/hooks/use-toast";
 import { fetchCSRAnalytics } from "@/services/csrService";
 
 const CSRAnalyticsDashboard = () => {
-  const { user } = useAuth();
+  const { organizationId } = useAuth();
   const { toast } = useToast();
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.organization_id) {
+    if (organizationId) {
       loadAnalytics();
     }
-  }, [user?.organization_id]);
+  }, [organizationId]);
 
   const loadAnalytics = async () => {
-    if (!user?.organization_id) return;
+    if (!organizationId) return;
 
     try {
       setLoading(true);
-      const data = await fetchCSRAnalytics(user.organization_id);
+      const data = await fetchCSRAnalytics(organizationId);
       setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);

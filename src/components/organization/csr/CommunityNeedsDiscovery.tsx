@@ -35,7 +35,7 @@ const CommunityNeedsDiscovery = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { organizationId } = useAuth();
 
   // Fetch community needs
   useEffect(() => {
@@ -76,7 +76,7 @@ const CommunityNeedsDiscovery = () => {
   };
 
   const handleSupport = async (need: CommunityNeed) => {
-    if (!user?.organization_id) {
+    if (!organizationId) {
       toast({
         title: "Organization Required",
         description: "You need to be part of an organization to support community needs",
@@ -86,7 +86,7 @@ const CommunityNeedsDiscovery = () => {
     }
 
     try {
-      await createCSROpportunity(user.organization_id, need.id);
+      await createCSROpportunity(organizationId, need.id);
       toast({
         title: "Interest Registered!",
         description: "We've notified the community member. You can now contact them directly.",
@@ -102,8 +102,8 @@ const CommunityNeedsDiscovery = () => {
   };
 
   const trackView = (need: CommunityNeed) => {
-    if (user?.organization_id) {
-      trackCSRLead(user.organization_id, 'view', need.id);
+    if (organizationId) {
+      trackCSRLead(organizationId, 'view', need.id);
     }
   };
 

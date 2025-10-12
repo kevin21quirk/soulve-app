@@ -28,7 +28,7 @@ const CampaignPartnershipHub = () => {
   const [loading, setLoading] = useState(true);
   const [sponsoring, setSponsoring] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { organizationId } = useAuth();
 
   useEffect(() => {
     loadCampaigns();
@@ -52,7 +52,7 @@ const CampaignPartnershipHub = () => {
   };
 
   const handleSponsor = async (campaignId: string, tier: string, amount: number) => {
-    if (!user?.organization_id) {
+    if (!organizationId) {
       toast({
         title: "Organization Required",
         description: "You need to be part of an organization to sponsor campaigns",
@@ -64,7 +64,7 @@ const CampaignPartnershipHub = () => {
     try {
       setSponsoring(true);
       await createCampaignSponsorship(
-        user.organization_id,
+        organizationId,
         campaignId,
         tier as any,
         amount
@@ -87,8 +87,8 @@ const CampaignPartnershipHub = () => {
   };
 
   const trackCampaignView = (campaignId: string) => {
-    if (user?.organization_id) {
-      trackCSRLead(user.organization_id, 'view', undefined, campaignId);
+    if (organizationId) {
+      trackCSRLead(organizationId, 'view', undefined, campaignId);
     }
   };
 

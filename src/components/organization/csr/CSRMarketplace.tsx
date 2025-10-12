@@ -23,14 +23,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CSRMarketplace = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, organizationId } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (!user?.organization_id) {
+    if (!organizationId) {
       toast({
         title: "Organization Required",
         description: "You need to be part of an organization to create CSR campaigns",
