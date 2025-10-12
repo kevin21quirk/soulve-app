@@ -54,7 +54,9 @@ export const CampaignStats = ({
             stat.urgency && "text-destructive font-medium"
           )}
         >
-          <stat.icon className="h-4 w-4" />
+          <div className="p-1.5 rounded-full bg-gradient-to-r from-[#0ce4af]/10 to-[#18a5fe]/10">
+            <stat.icon className="h-4 w-4" />
+          </div>
           <span className="font-semibold">{stat.value}</span>
           <span className="text-muted-foreground">{stat.label}</span>
         </motion.div>

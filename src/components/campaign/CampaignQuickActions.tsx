@@ -65,7 +65,7 @@ export const CampaignQuickActions = ({
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickDonate(amount)}
-                className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-300"
               >
                 {currency === 'GBP' ? '£' : '$'}{amount}
               </Button>
@@ -80,7 +80,7 @@ export const CampaignQuickActions = ({
               variant="outline"
               size="sm"
               onClick={onDonate}
-              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent transition-all duration-300"
             >
               Custom
             </Button>

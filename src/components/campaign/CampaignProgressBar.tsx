@@ -33,12 +33,12 @@ export const CampaignProgressBar = ({
       {/* Progress Bar */}
       <div className="relative h-3 bg-muted rounded-full overflow-hidden">
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary via-primary to-accent"
+          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe]"
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(progressPercentage, 100)}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
           style={{
-            boxShadow: '0 0 10px hsla(var(--primary), 0.5)'
+            boxShadow: '0 0 15px rgba(12, 228, 175, 0.6), 0 0 25px rgba(24, 165, 254, 0.4)'
           }}
         />
         
@@ -71,7 +71,9 @@ export const CampaignProgressBar = ({
         <motion.div 
           className={cn(
             "text-3xl font-bold",
-            progressPercentage >= 100 ? "text-success" : "text-primary"
+            progressPercentage >= 100 
+              ? "text-success" 
+              : "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent"
           )}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}

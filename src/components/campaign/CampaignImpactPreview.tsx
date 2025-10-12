@@ -36,11 +36,16 @@ export const CampaignImpactPreview = ({ description, category }: CampaignImpactP
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.4 }}
-      className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10"
+      className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-[#0ce4af]/5 to-[#18a5fe]/5 border-2 border-transparent bg-origin-border"
+      style={{
+        backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, rgba(12, 228, 175, 0.2), rgba(24, 165, 254, 0.2))',
+        backgroundOrigin: 'border-box',
+        backgroundClip: 'padding-box, border-box'
+      }}
     >
       <div className="flex-shrink-0 mt-0.5">
-        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Icon className="h-4 w-4 text-primary" />
+        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-[#0ce4af]/20 to-[#18a5fe]/20 flex items-center justify-center">
+          <Icon className="h-4 w-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent" />
         </div>
       </div>
       <div className="flex-1 min-w-0">

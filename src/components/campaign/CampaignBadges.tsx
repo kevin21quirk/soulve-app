@@ -51,7 +51,7 @@ export const CampaignBadges = ({
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.1 }}
         >
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+          <Badge variant="outline" className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-transparent">
             <motion.span
               animate={{ opacity: [1, 0.5, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -113,9 +113,11 @@ export const CampaignBadges = ({
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.3 }}
         >
-          <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-            <TrendingUp className="h-3 w-3 mr-1" />
-            Trending
+          <Badge variant="outline" className="bg-gradient-to-r from-[#0ce4af]/10 to-[#18a5fe]/10 border-[#0ce4af]/30">
+            <TrendingUp className="h-3 w-3 mr-1 text-[#0ce4af]" />
+            <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent font-semibold">
+              Trending
+            </span>
           </Badge>
         </motion.div>
       )}
