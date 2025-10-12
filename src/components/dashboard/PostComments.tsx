@@ -11,6 +11,11 @@ import { useNavigate } from "react-router-dom";
 import UserTagging from "./tagging/UserTagging";
 import TaggedText from "./tagging/TaggedText";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguageDetection } from "@/hooks/useLanguageDetection";
+import { useContentTranslation } from "@/hooks/useContentTranslation";
+import { useUserLanguagePreference } from "@/hooks/useUserLanguagePreference";
+import { TranslationButton } from "@/components/translation/TranslationButton";
+import { TranslatedContent } from "@/components/translation/TranslatedContent";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +46,25 @@ const CommentItem = ({
   const [replyTaggedUserIds, setReplyTaggedUserIds] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
+  
+  // Translation support
+  const { preference } = useUserLanguagePreference();
+  const { needsTranslation, detectedLanguage } = useLanguageDetection(
+    comment.content,
+    preference?.preferred_language || 'en',
+    preference?.show_translation_button !== false
+  );
+  const { 
+    isTranslated, 
+    translatedText, 
+    isLoading: isTranslating,
+    translate,
+    toggleTranslation 
+  } = useContentTranslation(comment.id, 'comment');
+
+  const handleTranslate = async () => {
+    await translate(comment.content, preference?.preferred_language || 'en', detectedLanguage);
+  };
 
   const handleLike = async () => {
     await likeComment(comment.id);
@@ -171,11 +195,35 @@ const CommentItem = ({
                 </div>
               </div>
             ) : (
-              <TaggedText 
-                text={comment.content} 
-                className="text-sm text-gray-700"
-                onUserClick={handleUserTagClick}
-              />
+              <>
+                {isTranslated ? (
+                  <TranslatedContent
+                    translatedText={translatedText}
+                    originalLanguage={detectedLanguage}
+                    onUserClick={handleUserTagClick}
+                    className="text-sm text-gray-700"
+                  />
+                ) : (
+                  <TaggedText 
+                    text={comment.content} 
+                    className="text-sm text-gray-700"
+                    onUserClick={handleUserTagClick}
+                  />
+                )}
+                
+                {needsTranslation && preference?.show_translation_button !== false && (
+                  <div className="mt-1">
+                    <TranslationButton
+                      isTranslated={isTranslated}
+                      isLoading={isTranslating}
+                      detectedLanguage={detectedLanguage}
+                      onTranslate={handleTranslate}
+                      onToggle={toggleTranslation}
+                      className="text-xs"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
           {!comment.isDeleted && (

@@ -24,6 +24,11 @@ import YouTubeEmbed from './YouTubeEmbed';
 import { logger } from '@/utils/logger';
 import TaggedText from './tagging/TaggedText';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguageDetection } from '@/hooks/useLanguageDetection';
+import { useContentTranslation } from '@/hooks/useContentTranslation';
+import { useUserLanguagePreference } from '@/hooks/useUserLanguagePreference';
+import { TranslationButton } from '@/components/translation/TranslationButton';
+import { TranslatedContent } from '@/components/translation/TranslatedContent';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -97,6 +102,25 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   };
 
   const { comments } = usePostComments(post.id);
+  
+  // Translation support
+  const { preference } = useUserLanguagePreference();
+  const { needsTranslation, detectedLanguage } = useLanguageDetection(
+    post.description,
+    preference?.preferred_language || 'en',
+    preference?.show_translation_button !== false
+  );
+  const { 
+    isTranslated, 
+    translatedText, 
+    isLoading: isTranslating,
+    translate,
+    toggleTranslation 
+  } = useContentTranslation(post.id, 'post');
+
+  const handleTranslate = async () => {
+    await translate(post.description, preference?.preferred_language || 'en', detectedLanguage);
+  };
 
   const handleProfileClick = () => {
     logger.debug('SocialPostCard profile click', {
@@ -326,11 +350,33 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               <TaggedText text={post.title} onUserClick={handleUserTagClick} />
             </h2>
           )}
-          <TaggedText 
-            text={post.description} 
-            className="text-gray-700 whitespace-pre-wrap"
-            onUserClick={handleUserTagClick}
-          />
+          
+          {isTranslated ? (
+            <TranslatedContent
+              translatedText={translatedText}
+              originalLanguage={detectedLanguage}
+              onUserClick={handleUserTagClick}
+              className="text-gray-700 whitespace-pre-wrap"
+            />
+          ) : (
+            <TaggedText 
+              text={post.description} 
+              className="text-gray-700 whitespace-pre-wrap"
+              onUserClick={handleUserTagClick}
+            />
+          )}
+          
+          {needsTranslation && preference?.show_translation_button !== false && (
+            <div className="mt-2">
+              <TranslationButton
+                isTranslated={isTranslated}
+                isLoading={isTranslating}
+                detectedLanguage={detectedLanguage}
+                onTranslate={handleTranslate}
+                onToggle={toggleTranslation}
+              />
+            </div>
+          )}
         </div>
 
         {/* Tags */}
