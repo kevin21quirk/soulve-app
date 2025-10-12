@@ -97,7 +97,7 @@ export const CampaignQuickActions = ({
         >
           <Button
             onClick={onDonate}
-            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity relative overflow-hidden group"
+            className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:opacity-90 transition-opacity relative overflow-hidden group"
           >
             <motion.div
               className="absolute inset-0 bg-white/20"
