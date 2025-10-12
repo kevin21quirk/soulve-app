@@ -363,7 +363,16 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
           </div>
 
           {/* Featured Image */}
-          {post.media && post.media.length > 0 && (
+          {((post as any).media_urls && (post as any).media_urls.length > 0) && (
+            <div className="mb-4 rounded-lg overflow-hidden">
+              <img
+                src={(post as any).media_urls[0]}
+                alt={post.title}
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+          {(!((post as any).media_urls) && post.media && post.media.length > 0) && (
             <div className="mb-4 rounded-lg overflow-hidden">
               <img
                 src={post.media[0].url}
