@@ -102,26 +102,67 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
 
   console.log('createUnifiedPost - Post created successfully:', post.id);
   
-  // Store tagged users if any
+  // Store tagged users and organizations if any
   if (postData.tagged_user_ids && postData.tagged_user_ids.length > 0) {
-    console.log('createUnifiedPost - Storing tagged users:', postData.tagged_user_ids);
+    console.log('createUnifiedPost - Storing tagged entities:', postData.tagged_user_ids);
     
-    const tagInteractions = postData.tagged_user_ids.map(userId => ({
-      post_id: post.id,
-      user_id: userId,
-      interaction_type: 'user_tag',
-      content: null
-    }));
+    // Separate users and organizations
+    const taggedUsers: string[] = [];
+    const taggedOrgs: string[] = [];
+    
+    for (const id of postData.tagged_user_ids) {
+      // Check if it's an organization
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('id', id)
+        .single();
+      
+      if (orgData) {
+        taggedOrgs.push(id);
+      } else {
+        taggedUsers.push(id);
+      }
+    }
 
-    const { error: tagError } = await supabase
-      .from('post_interactions')
-      .insert(tagInteractions);
+    // Insert user tags
+    if (taggedUsers.length > 0) {
+      const userTagInteractions = taggedUsers.map(userId => ({
+        post_id: post.id,
+        user_id: userId,
+        interaction_type: 'user_tag',
+        content: null
+      }));
 
-    if (tagError) {
-      console.error('createUnifiedPost - Failed to store tags:', tagError);
-    } else {
-      // Create notifications for tagged users
-      await createTagNotifications(postData.tagged_user_ids, post.id, user.id);
+      const { error: userTagError } = await supabase
+        .from('post_interactions')
+        .insert(userTagInteractions);
+
+      if (userTagError) {
+        console.error('createUnifiedPost - Failed to store user tags:', userTagError);
+      } else {
+        // Create notifications for tagged users
+        await createTagNotifications(taggedUsers, post.id, user.id);
+      }
+    }
+
+    // Insert organization tags (use current user_id as tagger)
+    if (taggedOrgs.length > 0) {
+      const orgTagInteractions = taggedOrgs.map(orgId => ({
+        post_id: post.id,
+        user_id: user.id, // Tagger's user ID
+        organization_id: orgId,
+        interaction_type: 'user_tag',
+        content: null
+      }));
+
+      const { error: orgTagError } = await supabase
+        .from('post_interactions')
+        .insert(orgTagInteractions);
+
+      if (orgTagError) {
+        console.error('createUnifiedPost - Failed to store org tags:', orgTagError);
+      }
     }
   }
   

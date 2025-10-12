@@ -114,19 +114,30 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
 
   const handleUserTagClick = async (username: string) => {
     try {
-      // Resolve username to user ID
-      const { data } = await supabase
+      // Try to find user first
+      const { data: userData } = await supabase
         .from('profiles')
         .select('id')
-        .or(`first_name.ilike.%${username}%,last_name.ilike.%${username}%`)
-        .limit(1)
+        .or(`first_name.ilike.%${username.split('_')[0]}%,last_name.ilike.%${username.split('_')[1] || username.split('_')[0]}%`)
         .single();
       
-      if (data?.id) {
-        navigate(`/profile/${data.id}`);
+      if (userData?.id) {
+        navigate(`/profile/${userData.id}`);
+        return;
+      }
+
+      // Try to find organization
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('id')
+        .ilike('name', `%${username.replace(/_/g, ' ')}%`)
+        .single();
+      
+      if (orgData?.id) {
+        navigate(`/organization/${orgData.id}`);
       }
     } catch (error) {
-      logger.error('Failed to resolve tagged user', error);
+      logger.error('Failed to resolve tagged entity', error);
     }
   };
 

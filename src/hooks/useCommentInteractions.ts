@@ -98,49 +98,86 @@ export const useCommentInteractions = () => {
 
       if (error) throw error;
 
-      // Store tagged users if any
+      // Store tagged users and organizations if any
       if (taggedUserIds.length > 0 && reply) {
-        const tagInteractions = taggedUserIds.map(userId => ({
-          post_id: actualPostId,
-          user_id: userId,
-          interaction_type: 'user_tag',
-          parent_comment_id: reply.id,
-          content: null
-        }));
-
-        await supabase
-          .from('post_interactions')
-          .insert(tagInteractions);
-
-        // Create notifications for tagged users
-        const { data: taggerProfile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', user.id)
-          .single();
-
-        const taggerName = taggerProfile 
-          ? `${taggerProfile.first_name} ${taggerProfile.last_name}`.trim()
-          : 'Someone';
-
-        const notifications = taggedUserIds.map(userId => ({
-          recipient_id: userId,
-          type: 'comment_tag',
-          title: 'You were tagged',
-          message: `${taggerName} tagged you in a comment`,
-          action_url: `/posts/${actualPostId}#comment-${reply.id}`,
-          action_type: 'view',
-          priority: 'normal',
-          metadata: {
-            post_id: actualPostId,
-            comment_id: reply.id,
-            tagger_id: user.id
+        // Separate users and organizations
+        const taggedUsers: string[] = [];
+        const taggedOrgs: string[] = [];
+        
+        for (const id of taggedUserIds) {
+          const { data: orgData } = await supabase
+            .from('organizations')
+            .select('id')
+            .eq('id', id)
+            .single();
+          
+          if (orgData) {
+            taggedOrgs.push(id);
+          } else {
+            taggedUsers.push(id);
           }
-        }));
+        }
 
-        await supabase
-          .from('notifications')
-          .insert(notifications);
+        // Insert user tags
+        if (taggedUsers.length > 0) {
+          const userTagInteractions = taggedUsers.map(userId => ({
+            post_id: actualPostId,
+            user_id: userId,
+            interaction_type: 'user_tag',
+            parent_comment_id: reply.id,
+            content: null
+          }));
+
+          await supabase
+            .from('post_interactions')
+            .insert(userTagInteractions);
+
+          // Create notifications for tagged users
+          const { data: taggerProfile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', user.id)
+            .single();
+
+          const taggerName = taggerProfile 
+            ? `${taggerProfile.first_name} ${taggerProfile.last_name}`.trim()
+            : 'Someone';
+
+          const notifications = taggedUsers.map(userId => ({
+            recipient_id: userId,
+            type: 'comment_tag',
+            title: 'You were tagged',
+            message: `${taggerName} tagged you in a comment`,
+            action_url: `/posts/${actualPostId}#comment-${reply.id}`,
+            action_type: 'view',
+            priority: 'normal',
+            metadata: {
+              post_id: actualPostId,
+              comment_id: reply.id,
+              tagger_id: user.id
+            }
+          }));
+
+          await supabase
+            .from('notifications')
+            .insert(notifications);
+        }
+
+        // Insert organization tags (use current user_id as tagger)
+        if (taggedOrgs.length > 0) {
+          const orgTagInteractions = taggedOrgs.map(orgId => ({
+            post_id: actualPostId,
+            user_id: user.id,
+            organization_id: orgId,
+            interaction_type: 'user_tag',
+            parent_comment_id: reply.id,
+            content: null
+          }));
+
+          await supabase
+            .from('post_interactions')
+            .insert(orgTagInteractions);
+        }
       }
 
       toast({

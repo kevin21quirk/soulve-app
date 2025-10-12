@@ -12,6 +12,7 @@ interface TaggedUser {
   username: string;
   displayName: string;
   avatar: string;
+  type: 'user' | 'organization';
 }
 
 interface UserTaggingProps {
@@ -38,7 +39,7 @@ const UserTagging = ({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
-  // Search for users in the database
+  // Search for users and organizations in the database
   const searchUsers = async (query: string) => {
     if (!query || query.length < 2) {
       setSuggestions([]);
@@ -47,24 +48,43 @@ const UserTagging = ({
 
     setIsLoading(true);
     try {
-      const { data: profiles, error } = await supabase
+      // Search users
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, avatar_url')
         .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
         .limit(5);
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
+
+      // Search organizations
+      const { data: orgs, error: orgsError } = await supabase
+        .from('organizations')
+        .select('id, name, avatar_url')
+        .ilike('name', `%${query}%`)
+        .limit(3);
+
+      if (orgsError) throw orgsError;
 
       const users: TaggedUser[] = (profiles || []).map(profile => ({
         id: profile.id,
         username: `${profile.first_name?.toLowerCase() || 'user'}_${profile.last_name?.toLowerCase() || ''}`.replace(/\s+/g, '_'),
         displayName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User',
-        avatar: profile.avatar_url || ''
+        avatar: profile.avatar_url || '',
+        type: 'user' as const
       }));
 
-      setSuggestions(users);
+      const organizations: TaggedUser[] = (orgs || []).map(org => ({
+        id: org.id,
+        username: org.name.toLowerCase().replace(/\s+/g, '_'),
+        displayName: org.name,
+        avatar: org.avatar_url || '',
+        type: 'organization' as const
+      }));
+
+      setSuggestions([...users, ...organizations]);
     } catch (error) {
-      console.error('Error searching users:', error);
+      console.error('Error searching users and organizations:', error);
       setSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -117,7 +137,8 @@ const UserTagging = ({
         id: mention.username, 
         username: mention.username, 
         displayName: mention.username, 
-        avatar: "" 
+        avatar: "",
+        type: 'user' as const
       };
     });
     
@@ -215,9 +236,14 @@ const UserTagging = ({
                       {user.displayName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="text-left">
+                  <div className="text-left flex-1">
                     <div className="text-sm font-medium">{user.displayName}</div>
-                    <div className="text-xs text-gray-500">@{user.username}</div>
+                    <div className="text-xs text-gray-500 flex items-center gap-2">
+                      @{user.username}
+                      {user.type === 'organization' && (
+                        <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">Org</span>
+                      )}
+                    </div>
                   </div>
                 </Button>
               ))
