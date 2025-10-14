@@ -1,6 +1,4 @@
-
 import RealSocialFeed from '../RealSocialFeed';
-import MyESGImpact from '../MyESGImpact';
 
 interface FeedTabProps {
   organizationId?: string | null;
@@ -8,8 +6,7 @@ interface FeedTabProps {
 
 const FeedTab = ({ organizationId }: FeedTabProps) => {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <MyESGImpact />
+    <div className="max-w-4xl mx-auto">
       <RealSocialFeed organizationId={organizationId} />
     </div>
   );

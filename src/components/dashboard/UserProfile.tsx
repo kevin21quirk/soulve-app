@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ProfileSwitcher } from "../profile/ProfileSwitcher";
+import CompactESGImpact from "./CompactESGImpact";
 
 const UserProfile = () => {
   const { toast } = useToast();
@@ -166,7 +167,7 @@ const UserProfile = () => {
             </div>
             
             <div className="space-y-6">
-              {/* Sidebar content can go here */}
+              <CompactESGImpact />
             </div>
           </div>
         </TabsContent>
