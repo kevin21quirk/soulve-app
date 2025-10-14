@@ -15,6 +15,7 @@ import { FloatingFeedbackButton } from "@/components/feedback/FloatingFeedbackBu
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 // Lazy load route components for better performance
+const ESGLeaders = lazy(() => import("@/pages/ESGLeaders"));
 const Index = lazy(() => import("@/pages/Index"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -118,15 +119,15 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/safe-space/helper/training" 
+            <Route path="/safe-space/helper/training" 
               element={
                 <ProtectedRoute>
                   <SafeSpaceHelperTraining />
                 </ProtectedRoute>
               } 
             />
-            <Route 
+            <Route path="/esg-leaders" element={<ESGLeaders />} />
+            <Route
               path="/admin/*" 
               element={
                 <AdminRoute>

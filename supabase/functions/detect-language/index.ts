@@ -84,8 +84,8 @@ serve(async (req) => {
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const result = data.choices[0].message.content.trim();
+    const aiData = await response.json();
+    const result = aiData.choices[0].message.content.trim();
     
     // Parse response (e.g., "en:0.95")
     const [language, confidenceStr] = result.split(':');

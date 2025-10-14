@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Globe, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import ESGPublicSection from './ESGPublicSection';
 
 interface OrganizationData {
+  id: string;
   description?: string;
   mission?: string;
   vision?: string;
@@ -43,6 +45,9 @@ const OrganizationProfileDetails = ({ organization }: OrganizationProfileDetails
 
   return (
     <div className="space-y-6">
+      {/* ESG Performance Section */}
+      <ESGPublicSection organizationId={organization.id} />
+      
       {/* About Section */}
       {organization.description && (
         <Card>
