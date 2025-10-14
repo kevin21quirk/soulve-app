@@ -17,15 +17,19 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface Report {
+interface ContentReport {
   id: string;
-  report_type: string;
+  content_type: string;
   reason: string;
+  details?: string;
   status: string;
   created_at: string;
-  reporter_id?: string;
-  reported_user_id?: string;
-  reported_post_id?: string;
+  reported_by: string;
+  content_id: string;
+  content_owner_id?: string;
+  reviewed_by?: string;
+  reviewed_at?: string;
+  resolution_notes?: string;
 }
 
 interface Appeal {
@@ -38,7 +42,7 @@ interface Appeal {
 }
 
 const AdminModerationDashboard = () => {
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<ContentReport[]>([]);
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -51,7 +55,7 @@ const AdminModerationDashboard = () => {
   const fetchReports = async () => {
     try {
       const { data, error } = await supabase
-        .from('reports')
+        .from('content_reports')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -85,11 +89,15 @@ const AdminModerationDashboard = () => {
 
   const handleReportAction = async (reportId: string, action: 'approve' | 'reject') => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
-        .from('reports')
+        .from('content_reports')
         .update({ 
           status: action === 'approve' ? 'resolved' : 'dismissed',
-          reviewed_at: new Date().toISOString()
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user?.id,
+          resolution_notes: action === 'approve' ? 'Content moderated' : 'Report dismissed'
         })
         .eq('id', reportId);
 
@@ -155,10 +163,12 @@ const AdminModerationDashboard = () => {
   };
 
   const getReportTypeIcon = (type: string) => {
-    switch (type) {
+    switch (type.toLowerCase()) {
       case 'spam':
+      case 'inappropriate_content':
         return <MessageSquare className="h-4 w-4" />;
       case 'harassment':
+      case 'fake_account':
         return <UserX className="h-4 w-4" />;
       case 'automated_filter':
         return <AlertTriangle className="h-4 w-4" />;
@@ -209,10 +219,15 @@ const AdminModerationDashboard = () => {
                   <div key={report.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        {getReportTypeIcon(report.report_type)}
-                        <span className="font-medium capitalize">
-                          {report.report_type.replace('_', ' ')}
-                        </span>
+                        {getReportTypeIcon(report.reason)}
+                        <div>
+                          <span className="font-medium capitalize">
+                            {report.reason.replace('_', ' ')}
+                          </span>
+                          <p className="text-xs text-muted-foreground">
+                            {report.content_type === 'post' ? 'Post Report' : 'User Report'}
+                          </p>
+                        </div>
                         {getStatusBadge(report.status)}
                       </div>
                       <span className="text-sm text-gray-500">
@@ -220,7 +235,9 @@ const AdminModerationDashboard = () => {
                       </span>
                     </div>
                     
-                    <p className="text-gray-700">{report.reason}</p>
+                    {report.details && (
+                      <p className="text-gray-700">{report.details}</p>
+                    )}
                     
                     {report.status === 'pending' && (
                       <div className="flex space-x-2">
@@ -230,7 +247,7 @@ const AdminModerationDashboard = () => {
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
+                          Take Action
                         </Button>
                         <Button
                           size="sm"
@@ -242,8 +259,15 @@ const AdminModerationDashboard = () => {
                         </Button>
                         <Button size="sm" variant="ghost">
                           <Eye className="h-4 w-4 mr-1" />
-                          View Content
+                          View {report.content_type === 'post' ? 'Post' : 'Profile'}
                         </Button>
+                      </div>
+                    )}
+                    
+                    {report.resolution_notes && (
+                      <div className="bg-muted p-2 rounded text-sm">
+                        <span className="font-medium">Resolution: </span>
+                        {report.resolution_notes}
                       </div>
                     )}
                   </div>

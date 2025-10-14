@@ -16,6 +16,7 @@ import CampaignModerationPanel from '@/components/admin/CampaignModerationPanel'
 import OrganizationVerificationPanel from '@/components/admin/OrganizationVerificationPanel';
 import { FeedbackManagementPanel } from '@/components/admin/FeedbackManagementPanel';
 import { IDVerificationReview } from '@/components/admin/IDVerificationReview';
+import UserBlocksPanel from '@/components/admin/UserBlocksPanel';
 import AdminSafeguardingAlerts from './AdminSafeguardingAlerts';
 import AdminSafeguardingSessions from './AdminSafeguardingSessions';
 import AdminSafeguardingDBS from './AdminSafeguardingDBS';
@@ -259,6 +260,7 @@ const AdminHub = () => {
             <Route path="points-config" element={<PointsConfigPanel />} />
             <Route path="campaigns" element={<CampaignModerationPanel />} />
             <Route path="organizations" element={<OrganizationVerificationPanel />} />
+            <Route path="blocks" element={<UserBlocksPanel />} />
             <Route path="safeguarding/alerts" element={<AdminSafeguardingAlerts />} />
             <Route path="safeguarding/sessions" element={<AdminSafeguardingSessions />} />
             <Route path="safeguarding/dbs" element={<AdminSafeguardingDBS />} />

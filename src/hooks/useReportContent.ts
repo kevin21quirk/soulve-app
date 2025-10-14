@@ -22,13 +22,15 @@ export const useReportContent = () => {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
-        .from('reports')
+        .from('content_reports')
         .insert({
-          reporter_id: user.id,
-          reported_user_id: reportedUserId || null,
-          reported_post_id: reportedPostId || null,
-          report_type: reportType,
-          reason,
+          reported_by: user.id,
+          content_id: reportedPostId || reportedUserId || '',
+          content_type: reportedPostId ? 'post' : 'user',
+          content_owner_id: reportedUserId || null,
+          reason: reportType,
+          details: reason,
+          status: 'pending'
         })
         .select()
         .single();

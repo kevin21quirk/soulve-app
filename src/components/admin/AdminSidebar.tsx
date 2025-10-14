@@ -16,7 +16,8 @@ import {
   ShieldAlert,
   Eye,
   FileText,
-  AlertCircle
+  AlertCircle,
+  UserX
 } from 'lucide-react';
 import {
   Sidebar,
@@ -40,6 +41,7 @@ const adminNavItems = [
   { title: 'Training Management', url: '/admin/training', icon: GraduationCap, showBadge: false },
   { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck, showBadge: false },
   { title: 'Content Moderation', url: '/admin/moderation', icon: Shield, showBadge: false },
+  { title: 'User Blocks', url: '/admin/blocks', icon: UserX, showBadge: false },
   { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare, showBadge: true },
   { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle, showBadge: false },
   { title: 'Badge Management', url: '/admin/badges', icon: Award, showBadge: false },
