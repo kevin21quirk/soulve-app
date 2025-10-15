@@ -2413,10 +2413,13 @@ export type Database = {
           generated_content: string | null
           id: string
           initiative_id: string | null
+          is_final: boolean | null
           organization_id: string
+          previous_version_id: string | null
           published_at: string | null
           report_name: string
           report_type: string
+          report_version: number | null
           reporting_period_end: string
           reporting_period_start: string
           status: string | null
@@ -2433,10 +2436,13 @@ export type Database = {
           generated_content?: string | null
           id?: string
           initiative_id?: string | null
+          is_final?: boolean | null
           organization_id: string
+          previous_version_id?: string | null
           published_at?: string | null
           report_name: string
           report_type: string
+          report_version?: number | null
           reporting_period_end: string
           reporting_period_start: string
           status?: string | null
@@ -2453,10 +2459,13 @@ export type Database = {
           generated_content?: string | null
           id?: string
           initiative_id?: string | null
+          is_final?: boolean | null
           organization_id?: string
+          previous_version_id?: string | null
           published_at?: string | null
           report_name?: string
           report_type?: string
+          report_version?: number | null
           reporting_period_end?: string
           reporting_period_start?: string
           status?: string | null
@@ -2469,6 +2478,13 @@ export type Database = {
             columns: ["initiative_id"]
             isOneToOne: false
             referencedRelation: "esg_initiatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_reports_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "esg_reports"
             referencedColumns: ["id"]
           },
         ]
@@ -5771,13 +5787,16 @@ export type Database = {
           contributor_user_id: string | null
           created_at: string | null
           data_request_id: string | null
+          draft_data: Json | null
           esg_data_id: string | null
           id: string
+          last_saved_at: string | null
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           revision_requested_notes: string | null
           submitted_at: string | null
+          supporting_documents: Json | null
           verification_notes: string | null
           verification_status: string | null
           verified_at: string | null
@@ -5789,13 +5808,16 @@ export type Database = {
           contributor_user_id?: string | null
           created_at?: string | null
           data_request_id?: string | null
+          draft_data?: Json | null
           esg_data_id?: string | null
           id?: string
+          last_saved_at?: string | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           revision_requested_notes?: string | null
           submitted_at?: string | null
+          supporting_documents?: Json | null
           verification_notes?: string | null
           verification_status?: string | null
           verified_at?: string | null
@@ -5807,13 +5829,16 @@ export type Database = {
           contributor_user_id?: string | null
           created_at?: string | null
           data_request_id?: string | null
+          draft_data?: Json | null
           esg_data_id?: string | null
           id?: string
+          last_saved_at?: string | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           revision_requested_notes?: string | null
           submitted_at?: string | null
+          supporting_documents?: Json | null
           verification_notes?: string | null
           verification_status?: string | null
           verified_at?: string | null
