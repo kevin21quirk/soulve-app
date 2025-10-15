@@ -1968,6 +1968,7 @@ export type Database = {
           framework_id: string | null
           id: string
           indicator_id: string | null
+          initiative_id: string | null
           organization_id: string
           priority: string | null
           reporting_period: string
@@ -1984,6 +1985,7 @@ export type Database = {
           framework_id?: string | null
           id?: string
           indicator_id?: string | null
+          initiative_id?: string | null
           organization_id: string
           priority?: string | null
           reporting_period: string
@@ -2000,6 +2002,7 @@ export type Database = {
           framework_id?: string | null
           id?: string
           indicator_id?: string | null
+          initiative_id?: string | null
           organization_id?: string
           priority?: string | null
           reporting_period?: string
@@ -2022,6 +2025,13 @@ export type Database = {
             columns: ["indicator_id"]
             isOneToOne: false
             referencedRelation: "esg_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_data_requests_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "esg_initiatives"
             referencedColumns: ["id"]
           },
           {
@@ -2204,6 +2214,128 @@ export type Database = {
           },
         ]
       }
+      esg_initiative_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          framework_id: string | null
+          id: string
+          is_active: boolean | null
+          milestone_templates: Json | null
+          name: string
+          required_indicators: Json | null
+          suggested_stakeholder_types: Json | null
+          typical_duration_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          framework_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          milestone_templates?: Json | null
+          name: string
+          required_indicators?: Json | null
+          suggested_stakeholder_types?: Json | null
+          typical_duration_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          framework_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          milestone_templates?: Json | null
+          name?: string
+          required_indicators?: Json | null
+          suggested_stakeholder_types?: Json | null
+          typical_duration_days?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_initiative_templates_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "esg_frameworks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      esg_initiatives: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          framework_id: string | null
+          id: string
+          initiative_name: string
+          initiative_type: string
+          organization_id: string
+          progress_percentage: number | null
+          reporting_period_end: string | null
+          reporting_period_start: string | null
+          status: string
+          target_stakeholder_groups: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          framework_id?: string | null
+          id?: string
+          initiative_name: string
+          initiative_type?: string
+          organization_id: string
+          progress_percentage?: number | null
+          reporting_period_end?: string | null
+          reporting_period_start?: string | null
+          status?: string
+          target_stakeholder_groups?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          framework_id?: string | null
+          id?: string
+          initiative_name?: string
+          initiative_type?: string
+          organization_id?: string
+          progress_percentage?: number | null
+          reporting_period_end?: string | null
+          reporting_period_start?: string | null
+          status?: string
+          target_stakeholder_groups?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_initiatives_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "esg_frameworks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "esg_initiatives_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       esg_recommendations: {
         Row: {
           confidence_score: number | null
@@ -2280,6 +2412,7 @@ export type Database = {
           framework_version: string | null
           generated_content: string | null
           id: string
+          initiative_id: string | null
           organization_id: string
           published_at: string | null
           report_name: string
@@ -2299,6 +2432,7 @@ export type Database = {
           framework_version?: string | null
           generated_content?: string | null
           id?: string
+          initiative_id?: string | null
           organization_id: string
           published_at?: string | null
           report_name: string
@@ -2318,6 +2452,7 @@ export type Database = {
           framework_version?: string | null
           generated_content?: string | null
           id?: string
+          initiative_id?: string | null
           organization_id?: string
           published_at?: string | null
           report_name?: string
@@ -2328,7 +2463,15 @@ export type Database = {
           template_data?: Json | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "esg_reports_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "esg_initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       esg_risks: {
         Row: {
