@@ -34,6 +34,8 @@ import ESGBenchmarkingCard from "./ESGBenchmarkingCard";
 import ESGReportBuilder from "./ESGReportBuilder";
 import AIInsightsDashboard from "./AIInsightsDashboard";
 import StakeholderPortal from "./StakeholderPortal";
+import InitiativeManagementPanel from "./InitiativeManagementPanel";
+import InitiativeProgressDashboard from "./InitiativeProgressDashboard";
 
 interface Organization {
   id: string;
@@ -147,12 +149,24 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
       />
 
       <Tabs defaultValue="overview" className="w-full">
-        <MobileAwareTabsList className="grid w-full grid-cols-8 bg-secondary/20 text-xs">
+        <MobileAwareTabsList className="grid w-full grid-cols-10 bg-secondary/20 text-xs">
           <TabsTrigger 
             value="overview"
             className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
           >
             Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="initiatives"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+          >
+            Initiatives
+          </TabsTrigger>
+          <TabsTrigger 
+            value="progress"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+          >
+            Progress
           </TabsTrigger>
           <TabsTrigger 
             value="materiality"
@@ -226,6 +240,13 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
           </div>
         </TabsContent>
 
+        <TabsContent value="initiatives" className="mt-6">
+          <InitiativeManagementPanel organizationId={selectedOrganizationId} />
+        </TabsContent>
+
+        <TabsContent value="progress" className="mt-6">
+          <InitiativeProgressDashboard organizationId={selectedOrganizationId} />
+        </TabsContent>
 
         <TabsContent value="materiality" className="mt-6">
           <MaterialityAssessmentMatrix />

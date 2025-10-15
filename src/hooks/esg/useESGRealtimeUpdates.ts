@@ -74,13 +74,56 @@ export const useESGRealtimeUpdates = ({
                 description: "A stakeholder has submitted new ESG data",
               });
             } else if (payload.eventType === 'UPDATE') {
-              const newStatus = (payload.new as any)?.status;
-              const oldStatus = (payload.old as any)?.status;
+              const newStatus = (payload.new as any)?.verification_status;
+              const oldStatus = (payload.old as any)?.verification_status;
               
               if (newStatus !== oldStatus && newStatus === 'approved') {
+                // Recalculate initiative progress
+                const initiativeId = (payload.new as any)?.initiative_id;
+                if (initiativeId) {
+                  queryClient.invalidateQueries({ 
+                    queryKey: ['esg-initiatives', organizationId] 
+                  });
+                }
+                
                 toast({
                   title: "Contribution Approved",
                   description: "A stakeholder contribution has been approved",
+                });
+              }
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'esg_initiatives',
+            filter: `organization_id=eq.${organizationId}`
+          },
+          (payload) => {
+            console.log('ESG initiative update:', payload);
+            
+            // Invalidate initiatives query
+            queryClient.invalidateQueries({ 
+              queryKey: ['esg-initiatives', organizationId] 
+            });
+
+            if (payload.eventType === 'INSERT') {
+              toast({
+                title: "Initiative Created",
+                description: "A new ESG initiative has been created",
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              const newProgress = (payload.new as any)?.progress_percentage;
+              const oldProgress = (payload.old as any)?.progress_percentage;
+              
+              if (newProgress !== oldProgress && newProgress > oldProgress) {
+                const initiativeName = (payload.new as any)?.initiative_name;
+                toast({
+                  title: "Progress Update",
+                  description: `Initiative "${initiativeName}" is now ${newProgress}% complete! 🎉`,
                 });
               }
             }
