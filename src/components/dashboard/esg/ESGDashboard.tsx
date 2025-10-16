@@ -138,10 +138,10 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </html>
       `;
       
-      await downloadReport.mutateAsync({
-        reportId: selectedOrganizationId,
-        reportName: `ESG_Report_${new Date().toISOString().split('T')[0]}`,
-        htmlContent
+      // Quick export removed - use ESG Reports panel to generate and download reports
+      toast({
+        title: "Use ESG Reports",
+        description: "Please use the ESG Reports section to generate and download reports",
       });
     } catch (error) {
       toast({
