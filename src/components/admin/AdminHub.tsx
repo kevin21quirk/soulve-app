@@ -92,21 +92,21 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
         <TabsContent value="users" className="mt-6">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">User Management</h3>
-            <p className="text-muted-foreground">User management features coming soon...</p>
+            <p className="text-muted-foreground">Advanced user management features are in development. Contact support for user administration needs.</p>
           </Card>
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Analytics Dashboard</h3>
-            <p className="text-muted-foreground">Analytics features coming soon...</p>
+            <p className="text-muted-foreground">Advanced analytics and reporting features are in development.</p>
           </Card>
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Organization Settings</h3>
-            <p className="text-muted-foreground">Settings management coming soon...</p>
+            <p className="text-muted-foreground">Organization-level settings configuration is in development.</p>
           </Card>
         </TabsContent>
       </Tabs>

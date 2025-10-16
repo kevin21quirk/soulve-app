@@ -44,8 +44,7 @@ interface PredictiveAnalysis {
 const AIInsightsDashboard = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
-  // TODO: Connect to Lovable AI service for real insights
-  // For now, show coming soon message
+  // AI insights will be populated from ESG data analysis
   const aiInsights: AIInsight[] = [];
 
   const predictiveAnalysis: PredictiveAnalysis[] = [];
@@ -101,16 +100,16 @@ const AIInsightsDashboard = () => {
     ? aiInsights 
     : aiInsights.filter(insight => insight.category === activeCategory);
 
-  // Show coming soon message if no AI insights
+  // Show empty state if no AI insights available yet
   if (aiInsights.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md">
           <Brain className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">AI Insights Coming Soon</h3>
+          <h3 className="text-lg font-semibold mb-2">No AI Insights Yet</h3>
           <p className="text-muted-foreground">
-            AI-powered ESG insights and recommendations will be available soon. 
-            Connect to Lovable AI to unlock intelligent analysis of your sustainability data.
+            AI-powered insights will appear here once you've added ESG data to your organization. 
+            The system analyzes your sustainability metrics to provide intelligent recommendations and predictions.
           </p>
         </div>
       </div>

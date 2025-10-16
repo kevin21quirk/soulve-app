@@ -73,7 +73,7 @@ const CustomCampaignBuilder = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-600">Content customization coming soon...</p>
+                <p className="text-gray-600">Advanced content customization is in development. Use the basic campaign form to get started.</p>
               </div>
             </CardContent>
           </Card>
@@ -86,7 +86,7 @@ const CustomCampaignBuilder = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-600">Audience targeting coming soon...</p>
+                <p className="text-gray-600">Advanced audience targeting is in development.</p>
               </div>
             </CardContent>
           </Card>
@@ -99,7 +99,7 @@ const CustomCampaignBuilder = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-600">Timeline planning coming soon...</p>
+                <p className="text-gray-600">Advanced timeline planning is in development.</p>
               </div>
             </CardContent>
           </Card>
@@ -112,7 +112,7 @@ const CustomCampaignBuilder = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-600">Advanced settings coming soon...</p>
+                <p className="text-gray-600">Advanced campaign settings are in development.</p>
               </div>
             </CardContent>
           </Card>

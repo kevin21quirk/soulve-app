@@ -71,8 +71,8 @@ export const DataExporter = () => {
       } else {
         // PDF export would require a library like jsPDF
         toast({
-          title: 'PDF Export',
-          description: 'PDF export coming soon',
+          title: 'PDF Export Not Available',
+          description: 'PDF export is in development. Please use CSV or JSON format.',
         });
         return;
       }
@@ -173,7 +173,7 @@ export const DataExporter = () => {
                 <SelectItem value="pdf">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    PDF (Coming Soon)
+                    PDF (In Development)
                   </div>
                 </SelectItem>
               </SelectContent>

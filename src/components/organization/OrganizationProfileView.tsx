@@ -225,8 +225,8 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
 
   const handleMessage = () => {
     toast({
-      title: "Coming Soon",
-      description: "Messaging feature is under development",
+      title: "Feature In Development",
+      description: "Direct messaging with organizations is in development",
     });
   };
 
@@ -240,8 +240,8 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
       return;
     }
     toast({
-      title: "Coming Soon",
-      description: "Join organization feature is under development",
+      title: "Feature In Development",
+      description: "Organization membership features are in development",
     });
   };
 
