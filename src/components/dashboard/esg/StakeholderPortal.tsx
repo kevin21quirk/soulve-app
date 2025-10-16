@@ -492,7 +492,10 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                   <div key={initiativeId} className="space-y-4">
                     {initiative && (
                       <InitiativeContextCard 
-                        initiative={initiative}
+                        initiative={{
+                          ...initiative,
+                          target_stakeholder_groups: (initiative.target_stakeholder_groups as any)?.filter((g: any) => typeof g === 'string') || []
+                        }}
                         userProgress={{
                           completed: contributions?.filter((c: any) => 
                             pendingRequests.some((r: any) => r.id === c.data_request_id)

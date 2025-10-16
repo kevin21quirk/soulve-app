@@ -229,3 +229,5 @@ export const ReportPreviewPanel = ({
     </div>
   );
 };
+
+export default ReportPreviewPanel;
