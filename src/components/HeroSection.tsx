@@ -1,16 +1,18 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, Users, ArrowRight, Sparkles, Crown, Zap } from "lucide-react";
+import { Heart, Users, ArrowRight, Sparkles, Crown, Zap, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { BookDemoModal } from "@/components/BookDemoModal";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   const [applicantCount, setApplicantCount] = useState<number>(0);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -129,6 +131,15 @@ const HeroSection = () => {
                 <Heart className="mr-3 h-6 w-6" />
                 Discover the Vision
               </Button>
+              
+              <Button 
+                size="lg" 
+                className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-[#18a5fe] transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl"
+                onClick={() => setShowDemoModal(true)}
+              >
+                <Calendar className="mr-3 h-6 w-6" />
+                Book a Demo
+              </Button>
             </div>
 
             {/* Founder's Circle Benefits */}
@@ -175,6 +186,8 @@ const HeroSection = () => {
 
       {/* Bottom Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white/10 to-transparent"></div>
+      
+      <BookDemoModal open={showDemoModal} onOpenChange={setShowDemoModal} />
     </div>
   );
 };

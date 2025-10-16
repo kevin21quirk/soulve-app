@@ -1612,6 +1612,143 @@ export type Database = {
           },
         ]
       }
+      demo_request_activity_log: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          created_at: string
+          demo_request_id: string
+          id: string
+          new_value: Json | null
+          notes: string | null
+          old_value: Json | null
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          created_at?: string
+          demo_request_id: string
+          id?: string
+          new_value?: Json | null
+          notes?: string | null
+          old_value?: Json | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          created_at?: string
+          demo_request_id?: string
+          id?: string
+          new_value?: Json | null
+          notes?: string | null
+          old_value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_request_activity_log_demo_request_id_fkey"
+            columns: ["demo_request_id"]
+            isOneToOne: false
+            referencedRelation: "demo_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_requests: {
+        Row: {
+          admin_notes: string | null
+          assigned_to: string | null
+          company_name: string | null
+          completed_at: string | null
+          created_at: string
+          email: string
+          follow_up_notes: string | null
+          full_name: string
+          id: string
+          interest_areas: string[] | null
+          ip_address: unknown | null
+          job_title: string | null
+          last_contacted_at: string | null
+          meeting_duration_minutes: number | null
+          meeting_link: string | null
+          message: string | null
+          organization_size: string | null
+          phone_number: string | null
+          preferred_date: string | null
+          preferred_time: string | null
+          priority: string | null
+          scheduled_meeting_time: string | null
+          source: string | null
+          status: string
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          company_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          follow_up_notes?: string | null
+          full_name: string
+          id?: string
+          interest_areas?: string[] | null
+          ip_address?: unknown | null
+          job_title?: string | null
+          last_contacted_at?: string | null
+          meeting_duration_minutes?: number | null
+          meeting_link?: string | null
+          message?: string | null
+          organization_size?: string | null
+          phone_number?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          scheduled_meeting_time?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          company_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          follow_up_notes?: string | null
+          full_name?: string
+          id?: string
+          interest_areas?: string[] | null
+          ip_address?: unknown | null
+          job_title?: string | null
+          last_contacted_at?: string | null
+          meeting_duration_minutes?: number | null
+          meeting_link?: string | null
+          message?: string | null
+          organization_size?: string | null
+          phone_number?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          scheduled_meeting_time?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       donors: {
         Row: {
           address: Json | null
