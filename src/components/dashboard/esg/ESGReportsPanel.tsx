@@ -48,11 +48,13 @@ const ESGReportsPanel = ({ organizationId }: ESGReportsPanelProps) => {
     }
   };
 
-  const handleDownload = (report: any) => {
+  const handleDownload = (report: any, format: 'html' | 'pdf' = 'html') => {
     downloadReport.mutate({
       reportId: report.id,
       reportName: report.report_name,
-      htmlContent: report.generated_content || '<html><body><h1>Report content not available</h1></body></html>'
+      htmlUrl: report.html_url,
+      pdfUrl: report.pdf_url,
+      format
     });
   };
 
@@ -109,20 +111,40 @@ const ESGReportsPanel = ({ organizationId }: ESGReportsPanelProps) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-centre justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 inline mr-1" />
-                    Generated: {format(new Date(report.created_at), 'PPP')}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 inline mr-1" />
+                      Generated: {format(new Date(report.created_at), 'PPP')}
+                    </div>
+                    {report.download_count > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        Downloaded {report.download_count} times
+                      </div>
+                    )}
                   </div>
-                  <Button
-                    variant="gradient"
-                    size="sm"
-                    onClick={() => handleDownload(report)}
-                    disabled={!report.generated_content || downloadReport.isPending}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Report
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload(report, 'html')}
+                      disabled={!report.html_url || downloadReport.isPending}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      HTML
+                    </Button>
+                    {report.pdf_url && (
+                      <Button
+                        variant="gradient"
+                        size="sm"
+                        onClick={() => handleDownload(report, 'pdf')}
+                        disabled={downloadReport.isPending}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        PDF
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

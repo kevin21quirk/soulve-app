@@ -39,7 +39,7 @@ serve(async (req) => {
 
     console.log('Generating ESG report:', { organizationId, reportType, reportName });
 
-    // Create report record with 'generating' status
+    // Create report record with 'draft' status
     const { data: report, error: reportError } = await supabaseClient
       .from('esg_reports')
       .insert({
@@ -52,7 +52,8 @@ serve(async (req) => {
         status: 'draft',
         executive_summary: executiveSummary,
         template_data: { selected_sections: selectedSections },
-        created_by: user.id
+        created_by: user.id,
+        report_format: 'html'
       })
       .select()
       .single();
@@ -94,7 +95,8 @@ serve(async (req) => {
         *,
         contributor_org:organizations!stakeholder_data_contributions_contributor_org_id_fkey(name)
       `)
-      .eq('contribution_status', 'approved');
+      .eq('contribution_status', 'submitted')
+      .eq('verification_status', 'verified');
 
     if (contribError) {
       console.error('Error fetching contributions:', contribError);
@@ -119,11 +121,36 @@ serve(async (req) => {
       contributions
     });
 
-    // Update report with generated content
+    // Upload HTML to storage
+    const htmlFileName = `${organizationId}/${report.id}.html`;
+    const htmlBlob = new Blob([reportContent], { type: 'text/html' });
+    
+    const { error: htmlUploadError } = await supabaseClient.storage
+      .from('esg-reports')
+      .upload(htmlFileName, htmlBlob, {
+        contentType: 'text/html',
+        upsert: true
+      });
+
+    if (htmlUploadError) {
+      console.error('Error uploading HTML:', htmlUploadError);
+      throw htmlUploadError;
+    }
+
+    // Get public URL for HTML
+    const { data: { publicUrl: htmlUrl } } = supabaseClient.storage
+      .from('esg-reports')
+      .getPublicUrl(htmlFileName);
+
+    console.log('✅ HTML uploaded to storage:', htmlUrl);
+
+    // Update report with generated content and URLs
     const { error: updateError } = await supabaseClient
       .from('esg_reports')
       .update({
         generated_content: reportContent,
+        html_url: htmlUrl,
+        file_size_bytes: new Blob([reportContent]).size,
         status: 'approved'
       })
       .eq('id', report.id);
@@ -139,6 +166,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         reportId: report.id,
+        htmlUrl,
         message: 'ESG report generated successfully'
       }),
       {
