@@ -82,7 +82,7 @@ const WaitlistPendingPage = () => {
         <div className="text-center space-y-4 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] text-white px-6 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
             <Crown className="h-4 w-4" />
-            <span>Welcome to the Founder's Circle!</span>
+            <span>Welcome to the Founding SouLVERs!</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
             You're On The Path to Impact
@@ -132,10 +132,10 @@ const WaitlistPendingPage = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-xl">
               <Target className="h-6 w-6 text-[#0ce4af]" />
-              <span>Your Founder's Journey</span>
+              <span>Your Founding SouLVER Journey</span>
             </CardTitle>
             <CardDescription>
-              Track your progress to becoming a founding member
+              Track your progress to becoming a Founding SouLVER
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -205,7 +205,7 @@ const WaitlistPendingPage = () => {
               <span className="text-sm font-normal text-gray-500">{checklistProgress} of {totalItems}</span>
             </CardTitle>
             <CardDescription>
-              Make the most of your wait time by preparing for your founding member journey
+              Make the most of your wait time by preparing for your Founding SouLVER journey
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -239,8 +239,8 @@ const WaitlistPendingPage = () => {
                 className="mt-1 h-5 w-5 text-[#0ce4af] rounded focus:ring-[#0ce4af]"
               />
               <div className="flex-1">
-                <p className="font-medium text-gray-800">Read the Founder's Handbook</p>
-                <p className="text-sm text-gray-600">Learn about your role and responsibilities as a founding member</p>
+                <p className="font-medium text-gray-800">Read the Founding SouLVER Handbook</p>
+                <p className="text-sm text-gray-600">Learn about your role and responsibilities as a Founding SouLVER</p>
                 <a href="#" className="text-xs text-[#18a5fe] hover:underline inline-flex items-center gap-1 mt-1">
                   Open Handbook <ExternalLink className="h-3 w-3" />
                 </a>
@@ -321,7 +321,7 @@ const WaitlistPendingPage = () => {
         {/* Footer Note */}
         <div className="text-center space-y-2 pt-4">
           <p className="text-sm text-gray-500">
-            Thank you for joining the Founder's Circle! 
+            Thank you for joining the Founding SouLVERs! 
           </p>
           <p className="text-xs text-gray-400">
             You're not just a user—you're a co-creator of something that will change lives.

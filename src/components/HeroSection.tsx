@@ -88,11 +88,11 @@ const HeroSection = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-white/30">
                 <Crown className="h-4 w-4 text-yellow-300" />
-                <span>Limited Access - Founder's Circle</span>
+                <span>Limited Access - Founding SouLVERs</span>
                 {applicantCount > 0 && (
                   <>
                     <span className="text-white/60">•</span>
-                    <span className="text-yellow-200">{applicantCount} Founding Members</span>
+                    <span className="text-yellow-200">{applicantCount} Founding SouLVERs</span>
                   </>
                 )}
               </div>
@@ -117,7 +117,7 @@ const HeroSection = () => {
                 onClick={handleJoinBeta}
               >
                 <Crown className="mr-3 h-6 w-6" />
-                Apply for Founder's Circle
+                Join the Founding SouLVERs
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
@@ -135,13 +135,13 @@ const HeroSection = () => {
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-xl mx-auto lg:mx-0 border border-white/20">
               <p className="text-sm text-cyan-100 mb-4 font-semibold flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                Your Founder's Circle Benefits:
+                Your Founding SouLVER Benefits:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex items-start space-x-2">
                   <Crown className="h-5 w-5 text-yellow-300 mt-0.5 flex-shrink-0" />
                   <div>
-                    <span className="text-sm text-white font-medium block">Founding Member Badge</span>
+                    <span className="text-sm text-white font-medium block">Founding SouLVER Badge</span>
                     <span className="text-xs text-cyan-200">Permanent recognition</span>
                   </div>
                 </div>
