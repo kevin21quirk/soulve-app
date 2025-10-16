@@ -9,6 +9,8 @@ export interface ContributionDraft {
   unit?: string;
   notes?: string;
   supporting_documents?: string[];
+  draft_data?: any;
+  contributor_user_id?: string;
 }
 
 export interface SubmitContributionData {

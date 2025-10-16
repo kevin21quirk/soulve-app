@@ -23,7 +23,7 @@ interface InitiativeContextCardProps {
   onViewDetails?: () => void;
 }
 
-export const InitiativeContextCard = ({
+const InitiativeContextCard = ({
   initiative,
   userProgress,
   onViewDetails
@@ -155,3 +155,5 @@ export const InitiativeContextCard = ({
     </Card>
   );
 };
+
+export default InitiativeContextCard;

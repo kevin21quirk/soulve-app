@@ -36,6 +36,8 @@ import AIInsightsDashboard from "./AIInsightsDashboard";
 import StakeholderPortal from "./StakeholderPortal";
 import InitiativeManagementPanel from "./InitiativeManagementPanel";
 import InitiativeProgressDashboard from "./InitiativeProgressDashboard";
+import NotificationBell from "./NotificationBell";
+import ReportPreviewPanel from "./ReportPreviewPanel";
 
 interface Organization {
   id: string;
@@ -56,6 +58,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
     organizations.length > 0 ? organizations[0].organizationId : "demo-org-id"
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
 
   // Real-time queries for ESG data
   const { data: esgScore, isLoading: scoreLoading, refetch: refetchScore } = useESGScore(selectedOrganizationId);
@@ -118,11 +121,17 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
               </SelectContent>
             </Select>
           )}
+          {user && (
+            <NotificationBell 
+              organizationId={selectedOrganizationId}
+              userId={user.id}
+            />
+          )}
           <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
             <BarChart3 className="h-3 w-3 mr-1" />
             Enterprise Grade
           </Badge>
-          <Button 
+          <Button
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
@@ -257,7 +266,17 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">
-          <ESGReportBuilder organizationId={selectedOrganizationId} />
+          <div className="space-y-6">
+            <ReportPreviewPanel
+              initiativeId={selectedOrganizationId}
+              reportData={reportData}
+              onGenerateReport={() => {
+                // Trigger report generation
+              }}
+              isGenerating={false}
+            />
+            <ESGReportBuilder organizationId={selectedOrganizationId} />
+          </div>
         </TabsContent>
 
         <TabsContent value="ai-insights" className="mt-6">

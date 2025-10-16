@@ -21,6 +21,7 @@ export const useESGRealtimeUpdates = ({
     if (!enabled || !organizationId) return;
 
     const setupRealtimeSubscription = () => {
+      console.log('Setting up ESG realtime subscriptions for org:', organizationId);
       // Clean up existing channel
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
@@ -184,6 +185,30 @@ export const useESGRealtimeUpdates = ({
                   description: "Your ESG report has been approved",
                 });
               }
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `recipient_id=eq.${organizationId}`
+          },
+          (payload) => {
+            console.log('Notification update:', payload);
+            
+            // Invalidate notifications query
+            queryClient.invalidateQueries({ 
+              queryKey: ['esg-notifications'] 
+            });
+
+            if (payload.eventType === 'INSERT' && (payload.new as any)?.priority === 'high') {
+              toast({
+                title: (payload.new as any)?.title || "New Notification",
+                description: (payload.new as any)?.message,
+              });
             }
           }
         )

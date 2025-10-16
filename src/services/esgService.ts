@@ -280,6 +280,22 @@ export const useESGAnnouncements = (organizationId: string) => {
   });
 };
 
+export const useESGInitiatives = (organizationId: string) => {
+  return useQuery({
+    queryKey: ['esg-initiatives', organizationId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('esg_initiatives')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organizationId,
+  });
+};
+
 export const useCreateESGAnnouncement = () => {
   const queryClient = useQueryClient();
   return useMutation({

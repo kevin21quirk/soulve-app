@@ -29,7 +29,7 @@ interface DynamicDataFormProps {
   isSubmitting?: boolean;
 }
 
-export const DynamicDataForm = ({
+const DynamicDataForm = ({
   indicator,
   requestId,
   existingData,
@@ -340,3 +340,5 @@ export const DynamicDataForm = ({
     </div>
   );
 };
+
+export default DynamicDataForm;

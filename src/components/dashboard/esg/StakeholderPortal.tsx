@@ -23,11 +23,14 @@ import {
   Clock,
   UserPlus
 } from "lucide-react";
-import { useESGDataRequests, useStakeholderContributions, useSubmitESGContribution, useESGAnnouncements } from "@/services/esgService";
+import { useESGDataRequests, useStakeholderContributions, useSubmitESGContribution, useESGAnnouncements, useESGInitiatives } from "@/services/esgService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import InviteStakeholderModal from "./InviteStakeholderModal";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
+import DynamicDataForm from "./DynamicDataForm";
+import InitiativeContextCard from "./InitiativeContextCard";
+import { saveDraft, getDraftByRequestId } from "@/services/esgContributionService";
 
 interface StakeholderGroup {
   id: string;
@@ -64,7 +67,16 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   const { data: dataRequests, isLoading: loadingRequests } = useESGDataRequests(organizationId);
   const { data: contributions, isLoading: loadingContributions } = useStakeholderContributions(organizationId);
   const { data: orgAnnouncements, isLoading: loadingAnnouncements } = useESGAnnouncements(organizationId);
+  const { data: initiatives, isLoading: loadingInitiatives } = useESGInitiatives(organizationId);
   const submitContribution = useSubmitESGContribution();
+  
+  // Group data requests by initiative
+  const requestsByInitiative = dataRequests?.reduce((acc: any, request: any) => {
+    const initiativeId = request.initiative_id || 'ungrouped';
+    if (!acc[initiativeId]) acc[initiativeId] = [];
+    acc[initiativeId].push(request);
+    return acc;
+  }, {}) || {};
   
   // Enable real-time updates
   useESGRealtimeUpdates({ organizationId, enabled: true });
@@ -466,74 +478,97 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
         </TabsContent>
 
         <TabsContent value="engagement" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Data Requests */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <FileText className="h-5 w-5 mr-2 text-primary" />
-                Data Requests
-              </h3>
-              {loadingRequests ? (
-                <p className="text-muted-foreground">Loading requests...</p>
-              ) : dataRequests && dataRequests.length > 0 ? (
-                <div className="space-y-4">
-                  {dataRequests.filter((req: any) => req.status === 'pending').map((request: any) => (
-                    <div key={request.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-medium">{request.indicator?.name || 'Data Request'}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">{request.indicator?.description}</p>
-                        </div>
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <p>Period: {request.reporting_period}</p>
-                        <p>Category: {request.indicator?.category}</p>
-                      </div>
-                      <Textarea
-                        placeholder="Enter your data contribution..."
-                        value={contributionData[request.id] || ''}
-                        onChange={(e) => setContributionData({ ...contributionData, [request.id]: e.target.value })}
-                        rows={3}
-                      />
-                      <Button
-                        variant="gradient"
-                        size="sm"
-                        onClick={() => {
-                          if (!contributionData[request.id]) {
-                            toast({ title: "Please enter data", variant: "destructive" });
-                            return;
-                          }
-                          submitContribution.mutate({
-                            data_request_id: request.id,
-                            contributor_id: currentUser?.id,
-                            data_value: contributionData[request.id],
-                            data_source: 'manual_entry',
-                            verification_status: 'pending'
-                          }, {
-                            onSuccess: () => {
-                              toast({ title: "Contribution submitted successfully" });
-                              setContributionData({ ...contributionData, [request.id]: '' });
-                            }
-                          });
+          {loadingRequests || loadingInitiatives ? (
+            <p className="text-muted-foreground">Loading...</p>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(requestsByInitiative).map(([initiativeId, requests]: [string, any]) => {
+                const initiative = initiatives?.find((i: any) => i.id === initiativeId);
+                const pendingRequests = requests.filter((req: any) => req.status === 'pending');
+                
+                if (pendingRequests.length === 0) return null;
+                
+                return (
+                  <div key={initiativeId} className="space-y-4">
+                    {initiative && (
+                      <InitiativeContextCard 
+                        initiative={initiative}
+                        userProgress={{
+                          completed: contributions?.filter((c: any) => 
+                            pendingRequests.some((r: any) => r.id === c.data_request_id)
+                          ).length || 0,
+                          total: pendingRequests.length
                         }}
-                        disabled={submitContribution.isPending}
-                      >
-                        {submitContribution.isPending ? 'Submitting...' : 'Submit Data'}
-                      </Button>
+                      />
+                    )}
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {pendingRequests.map((request: any) => (
+                        <Card key={request.id} className="p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h4 className="font-medium">{request.indicator?.name || 'Data Request'}</h4>
+                              <p className="text-sm text-muted-foreground mt-1">{request.indicator?.description}</p>
+                            </div>
+                            <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Pending
+                            </Badge>
+                          </div>
+                          
+                          <div className="text-sm text-muted-foreground mb-4">
+                            <p>Period: {request.reporting_period}</p>
+                            <p>Category: {request.indicator?.category}</p>
+                          </div>
+                          
+                          <DynamicDataForm
+                            indicator={request.indicator || {
+                              id: request.indicator_id,
+                              name: 'Data Request',
+                              data_type: 'text'
+                            }}
+                            requestId={request.id}
+                            onSubmit={async (data) => {
+                              submitContribution.mutate({
+                                data_request_id: request.id,
+                                contributor_id: currentUser?.id,
+                                data_value: JSON.stringify(data.value),
+                                data_source: 'manual_entry',
+                                verification_status: 'pending',
+                                supporting_documents: data.files || []
+                              }, {
+                                onSuccess: () => {
+                                  toast({ title: "Contribution submitted successfully" });
+                                }
+                              });
+                            }}
+                            onSaveDraft={async (data) => {
+                              if (!currentUser) return;
+                              await saveDraft(request.id, {
+                                request_id: request.id,
+                                indicator_id: request.indicator_id,
+                                draft_data: data,
+                                contributor_user_id: currentUser.id
+                              });
+                              toast({ title: "Draft saved" });
+                            }}
+                            isSubmitting={submitContribution.isPending}
+                          />
+                        </Card>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No pending data requests</p>
+                  </div>
+                );
+              })}
+              
+              {dataRequests && dataRequests.length === 0 && (
+                <p className="text-muted-foreground text-center py-8">No pending data requests</p>
               )}
-            </Card>
-
-            {/* Your Contributions */}
-            <Card className="p-6">
+            </div>
+          )}
+          
+          {/* Your Contributions */}
+          <Card className="p-6 mt-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
                 Your Contributions
@@ -571,7 +606,6 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                 <p className="text-muted-foreground">No contributions yet</p>
               )}
             </Card>
-          </div>
         </TabsContent>
         
         <TabsContent value="announcements" className="mt-6">
