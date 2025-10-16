@@ -18,7 +18,7 @@ const ProfileRegistration = () => {
   const [isCheckingWaitlist, setIsCheckingWaitlist] = useState(true);
   const totalSteps = 4;
 
-  // Check waitlist status on mount - redirect if not approved
+  // Check waitlist status on mount - only redirect if already completed questionnaire
   useEffect(() => {
     const checkWaitlistStatus = async () => {
       try {
@@ -40,21 +40,6 @@ const ProfileRegistration = () => {
           return;
         }
 
-        // Check waitlist status
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('waitlist_status')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        const waitlistStatus = profileData?.waitlist_status;
-
-        // Only approved users can access profile registration
-        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
-          navigate('/waitlist', { replace: true });
-          return;
-        }
-
         // Check if user already completed questionnaire
         const { data: questionnaireData } = await supabase
           .from('questionnaire_responses')
@@ -64,11 +49,24 @@ const ProfileRegistration = () => {
           .maybeSingle();
 
         if (questionnaireData) {
-          // User already completed onboarding, redirect to dashboard
-          navigate('/dashboard', { replace: true });
+          // User already completed onboarding - check where to redirect them
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('waitlist_status')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          const waitlistStatus = profileData?.waitlist_status;
+
+          if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+            navigate('/waitlist', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
           return;
         }
 
+        // User hasn't completed questionnaire - let them proceed regardless of waitlist status
         setIsCheckingWaitlist(false);
       } catch (error) {
         console.error('Error checking waitlist status:', error);
@@ -132,10 +130,25 @@ const ProfileRegistration = () => {
         agree_to_terms: completeData.agreeToTerms || true
       });
 
-      // Check waitlist status after profile completion
+      // Check waitlist status and user status after profile completion
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Check if admin
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
+
+        if (isAdminUser) {
+          toast({
+            title: "Welcome to SouLVE! 🎉",
+            description: "Your profile has been successfully created. Let's start building community together!",
+          });
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+
+        // Check waitlist status for non-admin users
         const { data: profileData } = await supabase
           .from('profiles')
           .select('waitlist_status')

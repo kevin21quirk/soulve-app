@@ -226,8 +226,8 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
         if (data.user) {
           toast({
-            title: "Welcome to the Testing Community! 🎉",
-            description: "We'll review your application shortly. Check your email to verify your account, then you'll receive updates on your approval status."
+            title: "Account Created! 🎉",
+            description: "Please complete your profile setup. Your application will be reviewed by our team after completion."
           });
           
           // Redirect to profile registration after successful signup

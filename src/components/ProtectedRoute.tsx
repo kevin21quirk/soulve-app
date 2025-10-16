@@ -18,62 +18,70 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       // Wait for auth to be ready
       if (authLoading) return;
 
-      // No user, redirect to auth
+      setChecking(true);
+
+      // If no user, redirect to auth page
       if (!user) {
         navigate('/auth', { replace: true });
+        setChecking(false);
         return;
       }
 
       try {
-        // Check if user is admin FIRST - admins bypass all checks
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
+        // Check if user is an admin - admins bypass all checks
+        const { data: adminRole } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-        if (isAdminUser) {
+        const isAdmin = !!adminRole;
+
+        // If admin, allow access
+        if (isAdmin) {
           setChecking(false);
           return;
         }
 
-        // Check waitlist status first
+        // Check if user has completed the questionnaire
+        const { data: questionnaireData } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!questionnaireData) {
+          // User hasn't completed onboarding
+          navigate('/profile-registration', { replace: true });
+          return;
+        }
+
+        // For non-admin users who completed questionnaire, check waitlist status
         const { data: profileData } = await supabase
           .from('profiles')
           .select('waitlist_status')
           .eq('id', user.id)
           .maybeSingle();
-
+        
         const waitlistStatus = profileData?.waitlist_status;
-
-        // If user is pending or denied, redirect to waitlist page
+        
         if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+          // User is not approved, redirect to waitlist
           navigate('/waitlist', { replace: true });
           return;
         }
 
-        // Check if user has completed onboarding
-        const { data: onboardingData } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle();
-        
-        const completed = !!onboardingData;
-        
-        if (!completed) {
-          navigate('/profile-registration', { replace: true });
-          return;
-        }
+        // User has completed onboarding and is approved, allow access
+        setChecking(false);
       } catch (error) {
-        // If error checking, allow access (fail open for better UX)
         console.error('Error checking access:', error);
+        // On error, still allow access but log it
+        setChecking(false);
       }
-
-      setChecking(false);
     };
 
     checkAccess();
-  }, [user, authLoading, navigate]);
+  }, [user, navigate, authLoading]);
 
   // Show loading while checking auth status
   if (authLoading || checking) {

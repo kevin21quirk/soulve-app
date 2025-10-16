@@ -115,8 +115,22 @@ const Auth = () => {
       }
       
       if (questionnaireData) {
-        // User has completed onboarding, go to dashboard
-        navigate("/dashboard", { replace: true });
+        // User has completed onboarding - check waitlist status
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('waitlist_status')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        const waitlistStatus = profileData?.waitlist_status;
+        
+        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+          // User is not approved, redirect to waitlist
+          navigate("/waitlist", { replace: true });
+        } else {
+          // User is approved, go to dashboard
+          navigate("/dashboard", { replace: true });
+        }
       } else {
         // New user, needs to complete profile
         navigate("/profile-registration", { replace: true });
