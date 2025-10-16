@@ -4,25 +4,25 @@ import { Card, CardContent } from "@/components/ui/card";
 const ImpactStoriesSection = () => {
   const stories = [
     {
-      problem: "Single parent struggling with childcare",
-      solution: "Community matched them with verified local volunteers",
-      impact: "Parent secured full-time employment, volunteers built lasting friendships",
+      problem: "78-year-old widow, 3 days without human contact, considering residential care",
+      solution: "Matched with local volunteers for weekly visits and digital companionship",
+      impact: "Depression reduced by 60%, remained independent at home, volunteer found purpose after retirement",
       icon: Heart,
       gradient: "from-rose-500 to-pink-500"
     },
     {
-      problem: "Local business wanted to give back but didn't know how",
-      solution: "CSR dashboard showed urgent community needs in their area",
-      impact: "£15K donated, 50+ volunteer hours logged, measurable ESG impact tracked",
+      problem: "Young professional battling anxiety, NHS wait time 18 months, feeling hopeless",
+      solution: "Connected with peer support group and trained mental health volunteer",
+      impact: "Back at work within 3 months, now mentoring others, 12 people helped through same journey",
       icon: Sparkles,
-      gradient: "from-blue-500 to-cyan-500"
+      gradient: "from-purple-500 to-indigo-500"
     },
     {
-      problem: "Charity overwhelmed with volunteers but no coordination",
-      solution: "Smart matching connected right skills to right opportunities",
-      impact: "300% efficiency increase, helped 5x more families in same timeframe",
+      problem: "Food bank struggling with declining donations, couldn't reach new supporters",
+      solution: "Corporate partners matched through CSR dashboard, social media campaign amplified",
+      impact: "Donations increased 200%, 8 businesses now regular partners, feeding 500 more families monthly",
       icon: Users,
-      gradient: "from-purple-500 to-indigo-500"
+      gradient: "from-blue-500 to-cyan-500"
     }
   ];
 
