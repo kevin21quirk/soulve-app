@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Download, Eye, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { FileText, Download, Eye, AlertTriangle, CheckCircle2, Clock, Loader2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/loading-state";
 
 interface ReportPreviewPanelProps {
   initiativeId: string;
@@ -33,6 +35,7 @@ export const ReportPreviewPanel = ({
   isGenerating
 }: ReportPreviewPanelProps) => {
   const [previewMode, setPreviewMode] = useState<'summary' | 'detailed'>('summary');
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
 
   const getCompletenessColor = (percentage: number) => {
     if (percentage >= 80) return "text-green-600";
@@ -49,10 +52,10 @@ export const ReportPreviewPanel = ({
   if (!reportData) {
     return (
       <Card className="p-6">
-        <div className="text-center text-muted-foreground">
-          <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-          <p>No report data available yet</p>
-        </div>
+        <LoadingState 
+          message="Loading report data..." 
+          size="md"
+        />
       </Card>
     );
   }
@@ -100,10 +103,22 @@ export const ReportPreviewPanel = ({
             onClick={onGenerateReport}
             disabled={isGenerating || reportData.completeness.overall < 80}
           >
-            <Download className="h-4 w-4 mr-2" />
-            {isGenerating ? "Generating..." : "Generate Final Report"}
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Generate Final Report
+              </>
+            )}
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => setPreviewDialogOpen(true)}
+          >
             <Eye className="h-4 w-4 mr-2" />
             Preview Draft
           </Button>
@@ -226,6 +241,84 @@ export const ReportPreviewPanel = ({
           </TabsContent>
         </Tabs>
       </Card>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Report Draft Preview</DialogTitle>
+            <DialogDescription>
+              Review your ESG report draft before generating the final version
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 mt-4">
+            {/* Executive Summary */}
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Executive Summary</h3>
+              <div className="prose prose-sm max-w-none">
+                <p className="text-muted-foreground">
+                  This ESG report demonstrates our commitment to sustainable and responsible business practices.
+                  Current data collection shows <strong>{reportData.completeness.overall}%</strong> completion across all ESG categories.
+                </p>
+                <div className="grid grid-cols-3 gap-4 mt-4 not-prose">
+                  <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-3xl font-bold text-green-700">{reportData.completeness.environmental}%</div>
+                    <div className="text-sm text-green-600 mt-1">Environmental</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-3xl font-bold text-blue-700">{reportData.completeness.social}%</div>
+                    <div className="text-sm text-blue-600 mt-1">Social</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-3xl font-bold text-purple-700">{reportData.completeness.governance}%</div>
+                    <div className="text-sm text-purple-600 mt-1">Governance</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Highlights */}
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Key Highlights</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Carbon emissions data complete with verified third-party audit</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Employee diversity metrics tracked across all departments</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Board composition aligns with governance best practices</span>
+                </li>
+                {reportData.missingData.length > 0 && (
+                  <li className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <span>{reportData.missingData.length} data points pending stakeholder input</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* Action Required */}
+            {reportData.completeness.overall < 100 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Action Required
+                </h4>
+                <p className="text-sm text-yellow-800">
+                  Complete remaining {100 - reportData.completeness.overall}% of data collection to finalize your report.
+                  Review the "Missing Data" section for specific items requiring attention.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -18,8 +18,11 @@ import {
   useESGComplianceStatus, 
   useCarbonFootprint, 
   useStakeholderEngagement,
-  getMockESGData 
+  getMockESGData,
+  useGenerateESGReport
 } from "@/services/esgService";
+import { toast } from "@/hooks/use-toast";
+import { useDownloadESGReport } from "@/hooks/esg/useDownloadESGReport";
 
 import ESGOverviewCard from "./ESGOverviewCard";
 import ComplianceStatusCard from "./ComplianceStatusCard";
@@ -59,6 +62,10 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   );
   const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
+  
+  // Report generation hooks
+  const generateReport = useGenerateESGReport();
+  const downloadReport = useDownloadESGReport();
 
   // Real-time queries for ESG data
   const { data: esgScore, isLoading: scoreLoading, refetch: refetchScore } = useESGScore(selectedOrganizationId);
@@ -89,8 +96,57 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
     }
   };
 
-  const handleExportReport = () => {
-    // Export functionality will be implemented with full report builder
+  const handleGenerateReport = async () => {
+    try {
+      await generateReport.mutateAsync({
+        organizationId: selectedOrganizationId,
+        reportType: 'esg_comprehensive'
+      });
+      toast({
+        title: "Report Generated",
+        description: "Your ESG report has been successfully generated",
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleExportReport = async () => {
+    try {
+      // Generate HTML content from report data
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>ESG Report - ${selectedOrganizationId}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 40px; }
+              h1 { color: #0ce4af; }
+            </style>
+          </head>
+          <body>
+            <h1>ESG Report</h1>
+            <p>Generated on ${new Date().toLocaleDateString()}</p>
+          </body>
+        </html>
+      `;
+      
+      await downloadReport.mutateAsync({
+        reportId: selectedOrganizationId,
+        reportName: `ESG_Report_${new Date().toISOString().split('T')[0]}`,
+        htmlContent
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export report. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -270,10 +326,8 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
             <ReportPreviewPanel
               initiativeId={selectedOrganizationId}
               reportData={reportData}
-              onGenerateReport={() => {
-                // Trigger report generation
-              }}
-              isGenerating={false}
+              onGenerateReport={handleGenerateReport}
+              isGenerating={generateReport.isPending}
             />
             <ESGReportBuilder organizationId={selectedOrganizationId} />
           </div>
