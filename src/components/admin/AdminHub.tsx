@@ -7,6 +7,7 @@ import DataVerificationPanel from "@/components/dashboard/esg/DataVerificationPa
 import { AICreditManagement } from "@/components/dashboard/esg/AICreditManagement";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 import { FeedbackManagementPanel } from "./FeedbackManagementPanel";
+import AdminESGReports from "@/pages/AdminESGReports";
 
 interface AdminHubProps {
   organizationId: string;
@@ -31,7 +32,7 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
       </div>
 
       <Tabs defaultValue="esg" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-secondary/20">
+        <TabsList className="grid w-full grid-cols-7 bg-secondary/20">
           <TabsTrigger value="esg">
             <FileText className="h-4 w-4 mr-2" />
             ESG Management
@@ -39,6 +40,10 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
           <TabsTrigger value="feedback">
             <MessageSquare className="h-4 w-4 mr-2" />
             Feedback
+          </TabsTrigger>
+          <TabsTrigger value="esg-reports">
+            <FileText className="h-4 w-4 mr-2" />
+            ESG Reports
           </TabsTrigger>
           <TabsTrigger value="reports">
             <Download className="h-4 w-4 mr-2" />
@@ -74,6 +79,10 @@ const AdminHub = ({ organizationId }: AdminHubProps) => {
 
         <TabsContent value="feedback" className="mt-6">
           <FeedbackManagementPanel />
+        </TabsContent>
+
+        <TabsContent value="esg-reports" className="mt-6">
+          <AdminESGReports />
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">

@@ -7,35 +7,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { FileText, Download, Eye, AlertTriangle, CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
+import { useReportCompleteness } from "@/hooks/esg/useReportCompleteness";
 
 interface ReportPreviewPanelProps {
   initiativeId: string;
-  reportData?: {
-    completeness: {
-      environmental: number;
-      social: number;
-      governance: number;
-      overall: number;
-    };
-    missingData: {
-      category: string;
-      indicator: string;
-      stakeholder: string;
-    }[];
-    lastUpdated: string;
-  };
   onGenerateReport?: () => void;
   isGenerating?: boolean;
 }
 
 export const ReportPreviewPanel = ({
   initiativeId,
-  reportData,
   onGenerateReport,
   isGenerating
 }: ReportPreviewPanelProps) => {
   const [previewMode, setPreviewMode] = useState<'summary' | 'detailed'>('summary');
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  
+  // Fetch real-time data completeness
+  const { data: completenessData, isLoading } = useReportCompleteness(initiativeId);
 
   const getCompletenessColor = (percentage: number) => {
     if (percentage >= 80) return "text-green-600";
@@ -49,18 +38,18 @@ export const ReportPreviewPanel = ({
     return { text: "In Progress", icon: AlertTriangle, color: "bg-orange-50 text-orange-800 border-orange-200" };
   };
 
-  if (!reportData) {
+  if (isLoading || !completenessData) {
     return (
       <Card className="p-6">
         <LoadingState 
-          message="Loading report data..." 
+          message="Calculating report completeness..." 
           size="md"
         />
       </Card>
     );
   }
 
-  const overallStatus = getCompletenessStatus(reportData.completeness.overall);
+  const overallStatus = getCompletenessStatus(completenessData.overall);
   const StatusIcon = overallStatus.icon;
 
   return (
@@ -74,7 +63,7 @@ export const ReportPreviewPanel = ({
               Report Preview
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Last updated: {new Date(reportData.lastUpdated).toLocaleString()}
+              Last updated: {new Date().toLocaleString()}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -89,11 +78,11 @@ export const ReportPreviewPanel = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Overall Completeness</span>
-            <span className={`text-lg font-bold ${getCompletenessColor(reportData.completeness.overall)}`}>
-              {reportData.completeness.overall}%
+            <span className={`text-lg font-bold ${getCompletenessColor(completenessData.overall)}`}>
+              {completenessData.overall}%
             </span>
           </div>
-          <Progress value={reportData.completeness.overall} className="h-3" />
+          <Progress value={completenessData.overall} className="h-3" />
         </div>
 
         {/* Actions */}
@@ -101,7 +90,7 @@ export const ReportPreviewPanel = ({
           <Button 
             variant="gradient" 
             onClick={onGenerateReport}
-            disabled={isGenerating || reportData.completeness.overall < 80}
+            disabled={isGenerating || completenessData.overall < 80}
           >
             {isGenerating ? (
               <>
@@ -124,9 +113,9 @@ export const ReportPreviewPanel = ({
           </Button>
         </div>
         
-        {reportData.completeness.overall < 80 && (
+        {completenessData.overall < 80 && (
           <p className="text-sm text-muted-foreground mt-2">
-            ⚠️ Report generation requires at least 80% data completeness
+            ⚠️ Report generation requires at least 80% data completeness ({completenessData.completedRequests} of {completenessData.totalRequests} data points completed)
           </p>
         )}
       </Card>
@@ -140,7 +129,7 @@ export const ReportPreviewPanel = ({
             { label: 'Social', key: 'social', icon: '👥' },
             { label: 'Governance', key: 'governance', icon: '⚖️' }
           ].map(({ label, key, icon }) => {
-            const value = reportData.completeness[key as keyof typeof reportData.completeness];
+            const value = completenessData[key as keyof typeof completenessData] as number;
             return (
               <div key={key} className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -160,22 +149,16 @@ export const ReportPreviewPanel = ({
       </Card>
 
       {/* Missing Data Section */}
-      {reportData.missingData.length > 0 && (
+      {completenessData.pendingRequests > 0 && (
         <Card className="p-6">
           <h4 className="font-semibold mb-4 flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-yellow-600" />
-            Missing Data ({reportData.missingData.length} items)
+            Pending Data Requests ({completenessData.pendingRequests} items)
           </h4>
-          <div className="space-y-3">
-            {reportData.missingData.map((item, index) => (
-              <div key={index} className="border-l-4 border-yellow-400 pl-4 py-2 bg-yellow-50/50">
-                <div className="font-medium text-sm">{item.indicator}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Category: {item.category} • Pending from: {item.stakeholder}
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {completenessData.pendingRequests} data requests are still pending stakeholder input. 
+            Review the "Progress" tab for detailed status.
+          </p>
         </Card>
       )}
 
@@ -192,19 +175,19 @@ export const ReportPreviewPanel = ({
               <h3>Executive Summary</h3>
               <p className="text-muted-foreground">
                 This ESG report demonstrates our commitment to sustainable and responsible business practices.
-                Current data collection shows <strong>{reportData.completeness.overall}%</strong> completion across all ESG categories.
+                Current data collection shows <strong>{completenessData.overall}%</strong> completion across all ESG categories.
               </p>
               <div className="grid grid-cols-3 gap-4 mt-4 not-prose">
                 <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="text-2xl font-bold text-green-700">{reportData.completeness.environmental}%</div>
+                  <div className="text-2xl font-bold text-green-700">{completenessData.environmental}%</div>
                   <div className="text-sm text-green-600">Environmental</div>
                 </div>
                 <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-700">{reportData.completeness.social}%</div>
+                  <div className="text-2xl font-bold text-blue-700">{completenessData.social}%</div>
                   <div className="text-sm text-blue-600">Social</div>
                 </div>
                 <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                  <div className="text-2xl font-bold text-purple-700">{reportData.completeness.governance}%</div>
+                  <div className="text-2xl font-bold text-purple-700">{completenessData.governance}%</div>
                   <div className="text-sm text-purple-600">Governance</div>
                 </div>
               </div>
@@ -259,19 +242,19 @@ export const ReportPreviewPanel = ({
               <div className="prose prose-sm max-w-none">
                 <p className="text-muted-foreground">
                   This ESG report demonstrates our commitment to sustainable and responsible business practices.
-                  Current data collection shows <strong>{reportData.completeness.overall}%</strong> completion across all ESG categories.
+                  Current data collection shows <strong>{completenessData.overall}%</strong> completion across all ESG categories.
                 </p>
                 <div className="grid grid-cols-3 gap-4 mt-4 not-prose">
                   <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                    <div className="text-3xl font-bold text-green-700">{reportData.completeness.environmental}%</div>
+                    <div className="text-3xl font-bold text-green-700">{completenessData.environmental}%</div>
                     <div className="text-sm text-green-600 mt-1">Environmental</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="text-3xl font-bold text-blue-700">{reportData.completeness.social}%</div>
+                    <div className="text-3xl font-bold text-blue-700">{completenessData.social}%</div>
                     <div className="text-sm text-blue-600 mt-1">Social</div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <div className="text-3xl font-bold text-purple-700">{reportData.completeness.governance}%</div>
+                    <div className="text-3xl font-bold text-purple-700">{completenessData.governance}%</div>
                     <div className="text-sm text-purple-600 mt-1">Governance</div>
                   </div>
                 </div>
@@ -294,25 +277,25 @@ export const ReportPreviewPanel = ({
                   <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Board composition aligns with governance best practices</span>
                 </li>
-                {reportData.missingData.length > 0 && (
+                {completenessData.pendingRequests > 0 && (
                   <li className="flex items-start gap-2">
                     <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <span>{reportData.missingData.length} data points pending stakeholder input</span>
+                    <span>{completenessData.pendingRequests} data points pending stakeholder input</span>
                   </li>
                 )}
               </ul>
             </div>
 
             {/* Action Required */}
-            {reportData.completeness.overall < 100 && (
+            {completenessData.overall < 100 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
                   Action Required
                 </h4>
                 <p className="text-sm text-yellow-800">
-                  Complete remaining {100 - reportData.completeness.overall}% of data collection to finalize your report.
-                  Review the "Missing Data" section for specific items requiring attention.
+                  Complete remaining {100 - completenessData.overall}% of data collection to finalize your report.
+                  {completenessData.pendingRequests} data requests still pending.
                 </p>
               </div>
             )}

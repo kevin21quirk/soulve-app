@@ -102,85 +102,20 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
     }
   });
 
-  // Mock stakeholder groups data
-  const stakeholderGroups: StakeholderGroup[] = [
-    {
-      id: 'investors',
-      name: 'Investors',
-      type: 'investors',
-      count: 127,
-      engagementLevel: 'high',
-      lastInteraction: '2 days ago',
-      keyInterests: ['Financial Performance', 'Risk Management', 'ESG Compliance']
-    },
-    {
-      id: 'employees',
-      name: 'Employees',
-      type: 'employees',
-      count: 2840,
-      engagementLevel: 'medium',
-      lastInteraction: '1 week ago',
-      keyInterests: ['Workplace Diversity', 'Professional Development', 'Sustainability Initiatives']
-    },
-    {
-      id: 'suppliers',
-      name: 'Suppliers',
-      type: 'suppliers',
-      count: 156,
-      engagementLevel: 'medium',
-      lastInteraction: '3 days ago',
-      keyInterests: ['Supply Chain Standards', 'Certification Requirements', 'Sustainability Goals']
-    },
-    {
-      id: 'community',
-      name: 'Community',
-      type: 'community',
-      count: 890,
-      engagementLevel: 'low',
-      lastInteraction: '2 weeks ago',
-      keyInterests: ['Environmental Impact', 'Local Employment', 'Community Programs']
-    }
-  ];
+  // TODO: Fetch real stakeholder groups from database
+  // For now, using empty array until stakeholder group management is implemented
+  const stakeholderGroups: StakeholderGroup[] = [];
 
-  // Mock announcements data
-  const announcements: Announcement[] = [
-    {
-      id: '1',
-      title: 'Q4 2024 Sustainability Achievements',
-      type: 'achievement',
-      date: '2024-01-15',
-      audienceTypes: ['investors', 'employees'],
-      views: 2847,
-      engagement: 89
-    },
-    {
-      id: '2',
-      title: 'New Carbon Neutrality Target for 2030',
-      type: 'target',
-      date: '2024-01-10',
-      audienceTypes: ['all'],
-      views: 3621,
-      engagement: 156
-    },
-    {
-      id: '3',
-      title: 'Supplier Code of Conduct Update',
-      type: 'update',
-      date: '2024-01-08',
-      audienceTypes: ['suppliers'],
-      views: 789,
-      engagement: 23
-    },
-    {
-      id: '4',
-      title: 'Annual Stakeholder Town Hall - Save the Date',
-      type: 'event',
-      date: '2024-01-05',
-      audienceTypes: ['all'],
-      views: 1456,
-      engagement: 67
-    }
-  ];
+  // Use real announcements from database
+  const announcements: Announcement[] = orgAnnouncements?.map(a => ({
+    id: a.id,
+    title: a.title,
+    type: a.announcement_type as any,
+    date: a.created_at,
+    audienceTypes: (Array.isArray(a.target_audience) ? a.target_audience : ['all']) as string[],
+    views: a.view_count || 0,
+    engagement: a.engagement_count || 0
+  })) || [];
 
   const getGroupIcon = (type: string) => {
     switch (type) {

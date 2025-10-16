@@ -73,14 +73,17 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   const { data: carbonData, isLoading: carbonLoading, refetch: refetchCarbon } = useCarbonFootprint(selectedOrganizationId);
   const { data: engagementData, isLoading: engagementLoading, refetch: refetchEngagement } = useStakeholderEngagement(selectedOrganizationId);
 
-  // Use mock data as fallback
-  const mockData = getMockESGData();
-  
-  // Use real data if available, otherwise fall back to mock data
-  const displayScore = esgScore || mockData.esgScore;
-  const displayCompliance = complianceData || mockData.complianceStatus;
-  const displayCarbon = carbonData || mockData.carbonFootprint;
-  const displayEngagement = engagementData || mockData.stakeholderEngagement;
+  // Use real data only - no mock fallbacks
+  const displayScore = esgScore || { overall: 0, environmental: 0, social: 0, governance: 0, trend: 'stable' as const };
+  const displayCompliance = complianceData || [];
+  const displayCarbon = carbonData || { total: 0, scope1: 0, scope2: 0, scope3: 0, trend: 'stable' as const };
+  const displayEngagement = engagementData || { 
+    totalStakeholders: 0, 
+    activeEngagements: 0, 
+    responseRate: 0,
+    stakeholderBreakdown: {},
+    overallEngagement: 0
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -288,18 +291,18 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
               isLoading={engagementLoading}
             />
             <ESGGoalsCard 
-              goals={mockData.goals}
+              goals={[]}
               isLoading={false}
             />
             <ESGRecommendationsCard 
               organizationId={selectedOrganizationId}
-              recommendations={mockData.recommendations}
+              recommendations={[]}
               isLoading={false}
             />
           </div>
           <div className="mt-6">
             <ESGRiskAssessmentCard 
-              risks={mockData.risks}
+              risks={[]}
               isLoading={false}
             />
           </div>
@@ -318,14 +321,21 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="benchmarks" className="mt-6">
-          <ESGBenchmarkingCard />
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center max-w-md">
+              <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Benchmarking Coming Soon</h3>
+              <p className="text-muted-foreground">
+                Industry benchmark comparisons will be available once we integrate with benchmark data providers.
+              </p>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="reports" className="mt-6">
           <div className="space-y-6">
             <ReportPreviewPanel
               initiativeId={selectedOrganizationId}
-              reportData={reportData}
               onGenerateReport={handleGenerateReport}
               isGenerating={generateReport.isPending}
             />

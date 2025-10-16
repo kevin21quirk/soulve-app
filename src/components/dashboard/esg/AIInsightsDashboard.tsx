@@ -44,91 +44,11 @@ interface PredictiveAnalysis {
 const AIInsightsDashboard = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
-  // Mock AI insights data
-  const aiInsights: AIInsight[] = [
-    {
-      id: '1',
-      type: 'anomaly',
-      title: 'Unusual Energy Consumption Spike',
-      description: 'Energy consumption increased by 23% in the last month, significantly above the seasonal average. This could indicate equipment inefficiency or operational changes.',
-      confidence: 87,
-      impact: 'high',
-      category: 'environmental',
-      priority: 1,
-      actionable: true,
-      estimatedTime: '1-2 weeks'
-    },
-    {
-      id: '2',
-      type: 'recommendation',
-      title: 'Optimise Supply Chain Sustainability',
-      description: 'Analysis suggests switching to 3 alternative suppliers could reduce carbon footprint by 15% while maintaining cost efficiency.',
-      confidence: 92,
-      impact: 'high',
-      category: 'environmental',
-      priority: 2,
-      actionable: true,
-      estimatedTime: '2-3 months'
-    },
-    {
-      id: '3',
-      type: 'trend',
-      title: 'Improving Employee Diversity Metrics',
-      description: 'Gender diversity in leadership positions has shown consistent improvement over the last 6 months, exceeding industry benchmarks.',
-      confidence: 94,
-      impact: 'medium',
-      category: 'social',
-      priority: 3,
-      actionable: false,
-      estimatedTime: 'Ongoing'
-    },
-    {
-      id: '4',
-      type: 'prediction',
-      title: 'ESG Score Trajectory',
-      description: 'Based on current initiatives, your overall ESG score is predicted to reach 85/100 within 12 months, placing you in the top quartile.',
-      confidence: 78,
-      impact: 'high',
-      category: 'governance',
-      priority: 4,
-      actionable: false,
-      estimatedTime: '12 months'
-    }
-  ];
+  // TODO: Connect to Lovable AI service for real insights
+  // For now, show coming soon message
+  const aiInsights: AIInsight[] = [];
 
-  // Mock predictive analysis data
-  const predictiveAnalysis: PredictiveAnalysis[] = [
-    {
-      metric: 'Carbon Intensity',
-      currentValue: 2.1,
-      predicted3Month: 1.9,
-      predicted6Month: 1.7,
-      predicted12Month: 1.5,
-      confidence: 85,
-      trend: 'improving',
-      unit: 'tCO2e/M revenue'
-    },
-    {
-      metric: 'Employee Satisfaction',
-      currentValue: 78,
-      predicted3Month: 80,
-      predicted6Month: 82,
-      predicted12Month: 84,
-      confidence: 73,
-      trend: 'improving',
-      unit: '%'
-    },
-    {
-      metric: 'Board Independence',
-      currentValue: 75,
-      predicted3Month: 75,
-      predicted6Month: 80,
-      predicted12Month: 85,
-      confidence: 91,
-      trend: 'improving',
-      unit: '%'
-    }
-  ];
+  const predictiveAnalysis: PredictiveAnalysis[] = [];
 
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -180,6 +100,22 @@ const AIInsightsDashboard = () => {
   const filteredInsights = activeCategory === 'all' 
     ? aiInsights 
     : aiInsights.filter(insight => insight.category === activeCategory);
+
+  // Show coming soon message if no AI insights
+  if (aiInsights.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <Brain className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">AI Insights Coming Soon</h3>
+          <p className="text-muted-foreground">
+            AI-powered ESG insights and recommendations will be available soon. 
+            Connect to Lovable AI to unlock intelligent analysis of your sustainability data.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

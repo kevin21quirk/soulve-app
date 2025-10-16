@@ -2402,21 +2402,68 @@ export type Database = {
         }
         Relationships: []
       }
+      esg_report_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          html_url: string | null
+          id: string
+          pdf_url: string | null
+          report_id: string | null
+          snapshot_data: Json | null
+          version_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          html_url?: string | null
+          id?: string
+          pdf_url?: string | null
+          report_id?: string | null
+          snapshot_data?: Json | null
+          version_number: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          html_url?: string | null
+          id?: string
+          pdf_url?: string | null
+          report_id?: string | null
+          snapshot_data?: Json | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esg_report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "esg_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       esg_reports: {
         Row: {
           approved_by: string | null
+          archived_at: string | null
           cover_image: string | null
           created_at: string
           created_by: string | null
+          download_count: number | null
           executive_summary: string | null
+          file_size_bytes: number | null
           framework_version: string | null
           generated_content: string | null
+          html_url: string | null
           id: string
           initiative_id: string | null
           is_final: boolean | null
           organization_id: string
+          pdf_url: string | null
           previous_version_id: string | null
           published_at: string | null
+          report_format: string | null
           report_name: string
           report_type: string
           report_version: number | null
@@ -2428,18 +2475,24 @@ export type Database = {
         }
         Insert: {
           approved_by?: string | null
+          archived_at?: string | null
           cover_image?: string | null
           created_at?: string
           created_by?: string | null
+          download_count?: number | null
           executive_summary?: string | null
+          file_size_bytes?: number | null
           framework_version?: string | null
           generated_content?: string | null
+          html_url?: string | null
           id?: string
           initiative_id?: string | null
           is_final?: boolean | null
           organization_id: string
+          pdf_url?: string | null
           previous_version_id?: string | null
           published_at?: string | null
+          report_format?: string | null
           report_name: string
           report_type: string
           report_version?: number | null
@@ -2451,18 +2504,24 @@ export type Database = {
         }
         Update: {
           approved_by?: string | null
+          archived_at?: string | null
           cover_image?: string | null
           created_at?: string
           created_by?: string | null
+          download_count?: number | null
           executive_summary?: string | null
+          file_size_bytes?: number | null
           framework_version?: string | null
           generated_content?: string | null
+          html_url?: string | null
           id?: string
           initiative_id?: string | null
           is_final?: boolean | null
           organization_id?: string
+          pdf_url?: string | null
           previous_version_id?: string | null
           published_at?: string | null
+          report_format?: string | null
           report_name?: string
           report_type?: string
           report_version?: number | null
@@ -6932,6 +6991,10 @@ export type Database = {
       }
       approve_waitlist_user: {
         Args: { approving_admin_id: string; target_user_id: string }
+        Returns: undefined
+      }
+      archive_old_reports: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       award_impact_points: {

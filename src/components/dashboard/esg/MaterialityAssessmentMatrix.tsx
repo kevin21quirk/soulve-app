@@ -22,51 +22,23 @@ interface MaterialityItem {
 const MaterialityAssessmentMatrix = () => {
   const [selectedItem, setSelectedItem] = useState<MaterialityItem | null>(null);
 
-  // Mock data - in real app, this would come from the service
-  const materialityItems: MaterialityItem[] = [
-    {
-      id: '1',
-      name: 'Climate Change Mitigation',
-      stakeholderImportance: 85,
-      businessImpact: 90,
-      category: 'environmental'
-    },
-    {
-      id: '2',
-      name: 'Employee Diversity & Inclusion',
-      stakeholderImportance: 75,
-      businessImpact: 70,
-      category: 'social'
-    },
-    {
-      id: '3',
-      name: 'Data Privacy & Security',
-      stakeholderImportance: 80,
-      businessImpact: 95,
-      category: 'governance'
-    },
-    {
-      id: '4',
-      name: 'Supply Chain Sustainability',
-      stakeholderImportance: 70,
-      businessImpact: 75,
-      category: 'environmental'
-    },
-    {
-      id: '5',
-      name: 'Community Impact',
-      stakeholderImportance: 60,
-      businessImpact: 50,
-      category: 'social'
-    },
-    {
-      id: '6',
-      name: 'Corporate Governance',
-      stakeholderImportance: 65,
-      businessImpact: 85,
-      category: 'governance'
-    }
-  ];
+  // TODO: Fetch real materiality assessments from database
+  // For now, using empty array until data is available
+  const materialityItems: MaterialityItem[] = [];
+
+  if (materialityItems.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Materiality Assessments</h3>
+          <p className="text-muted-foreground max-w-md">
+            Create your first materiality assessment to identify key ESG topics for your organization
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
