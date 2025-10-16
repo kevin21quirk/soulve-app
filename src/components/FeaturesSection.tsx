@@ -6,37 +6,37 @@ const FeaturesSection = () => {
   const features = [
     {
       title: "Trust Score & Verification",
-      description: "Build trust through our comprehensive verification system and earn trust scores based on community impact.",
+      description: "No more uncertainty. Our verification system builds authentic trust through real actions and community impact, so you know exactly who you're connecting with.",
       icon: Shield,
       gradient: "from-emerald-500 to-teal-500"
     },
     {
       title: "AI-Powered Matching",
-      description: "Our intelligent system connects 'Soulvers' with community needs, ensuring the right help reaches the right people.",
+      description: "Stop wasting time searching. Our intelligent system instantly connects the right help with the right need, every single time.",
       icon: Target,
       gradient: "from-blue-500 to-indigo-500"
     },
     {
       title: "Real-Time Impact Tracking",
-      description: "See the immediate and long-term impact of your actions with our comprehensive tracking dashboard.",
+      description: "See exactly how your actions change lives. Track every contribution, measure every outcome, celebrate every success story.",
       icon: TrendingUp,
       gradient: "from-purple-500 to-pink-500"
     },
     {
       title: "Gamified Engagement",
-      description: "Earn recognition, unlock achievements, and level up your community impact through our engaging reward system.",
+      description: "Making a difference should feel rewarding. Earn recognition, unlock achievements, and watch your impact level up with every action.",
       icon: Star,
       gradient: "from-yellow-500 to-orange-500"
     },
     {
       title: "Community Feed",
-      description: "Transform your social feed into a powerful tool for social good - see needs, offer help, celebrate impact.",
+      description: "Your social media feed, reimagined for good. Discover needs, offer help, and celebrate impact—all in one place that actually matters.",
       icon: MessageCircle,
       gradient: "from-green-500 to-emerald-500"
     },
     {
-      title: "Unified Platform",
-      description: "One platform for social media, crowdfunding, volunteering, and donations - everything you need to make a difference.",
+      title: "All-In-One Platform",
+      description: "Stop juggling multiple apps. Social connection, crowdfunding, volunteering, and donations—unified in one powerful platform.",
       icon: Zap,
       gradient: "from-red-500 to-rose-500"
     }
@@ -45,9 +45,9 @@ const FeaturesSection = () => {
   return (
     <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-white">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">The Missing Link in Community Connection</h2>
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">Powerful Features, Effortless Impact</h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          SouLVE combines the best of social media, crowdfunding, volunteering, and donations into one powerful platform that actually creates change.
+          Everything you need to transform good intentions into measurable change—all in one platform designed for the way communities actually work.
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, Users, ArrowRight } from "lucide-react";
+import { Heart, Users, ArrowRight, Sparkles, Crown, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+  const [applicantCount, setApplicantCount] = useState<number>(0);
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -35,6 +36,22 @@ const HeroSection = () => {
 
     checkOnboardingStatus();
   }, [user]);
+
+  useEffect(() => {
+    const fetchApplicantCount = async () => {
+      try {
+        const { count } = await supabase
+          .from('questionnaire_responses')
+          .select('*', { count: 'exact', head: true });
+        
+        setApplicantCount(count || 0);
+      } catch (error) {
+        console.error('Error fetching applicant count:', error);
+      }
+    };
+
+    fetchApplicantCount();
+  }, []);
 
   const handleJoinBeta = () => {
     if (user) {
@@ -69,19 +86,26 @@ const HeroSection = () => {
           {/* Left Column - Content */}
           <div className="text-center lg:text-left space-y-8 animate-fade-in">
             <div className="space-y-6">
-              <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                🚀 Join Our Exclusive Beta Testing Community
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-white/30">
+                <Crown className="h-4 w-4 text-yellow-300" />
+                <span>Limited Access - Founder's Circle</span>
+                {applicantCount > 0 && (
+                  <>
+                    <span className="text-white/60">•</span>
+                    <span className="text-yellow-200">{applicantCount} Founding Members</span>
+                  </>
+                )}
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Connect.
+                Be Part of
                 <br />
-                <span className="text-cyan-200">Support.</span>
+                <span className="text-cyan-200">Something</span>
                 <br />
-                SouLVE.
+                Revolutionary.
               </h1>
               
               <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Be among the first to experience the community platform where help meets hope. Join our testing community and help shape the future of meaningful connections.
+                Join the select group of changemakers building the future of community connection. As a Founding Member, you'll shape the platform, unlock exclusive benefits, and leave your mark on a movement.
               </p>
             </div>
             
@@ -92,8 +116,8 @@ const HeroSection = () => {
                 className="bg-white text-[#18a5fe] hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 text-lg px-8 py-4 font-semibold shadow-xl rounded-xl group border-none"
                 onClick={handleJoinBeta}
               >
-                <Users className="mr-3 h-6 w-6" />
-                Join Beta Testing
+                <Crown className="mr-3 h-6 w-6" />
+                Apply for Founder's Circle
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
@@ -103,25 +127,44 @@ const HeroSection = () => {
                 onClick={handleLearnMore}
               >
                 <Heart className="mr-3 h-6 w-6" />
-                Learn More
+                Discover the Vision
               </Button>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-xl mx-auto lg:mx-0">
-              <p className="text-sm text-cyan-100 mb-3 font-semibold">What You Get as a Beta Tester:</p>
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-cyan-100">Early Access</span>
+            {/* Founder's Circle Benefits */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-xl mx-auto lg:mx-0 border border-white/20">
+              <p className="text-sm text-cyan-100 mb-4 font-semibold flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Your Founder's Circle Benefits:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-start space-x-2">
+                  <Crown className="h-5 w-5 text-yellow-300 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <span className="text-sm text-white font-medium block">Founding Member Badge</span>
+                    <span className="text-xs text-cyan-200">Permanent recognition</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-cyan-100">Shape Features</span>
+                <div className="flex items-start space-x-2">
+                  <Users className="h-5 w-5 text-blue-300 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <span className="text-sm text-white font-medium block">Direct Team Access</span>
+                    <span className="text-xs text-cyan-200">Shape the platform</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-cyan-100">Priority Support</span>
+                <div className="flex items-start space-x-2">
+                  <Sparkles className="h-5 w-5 text-purple-300 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <span className="text-sm text-white font-medium block">Lifetime Benefits</span>
+                    <span className="text-xs text-cyan-200">Premium features free</span>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <Zap className="h-5 w-5 text-green-300 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <span className="text-sm text-white font-medium block">First Access</span>
+                    <span className="text-xs text-cyan-200">Every new feature</span>
+                  </div>
                 </div>
               </div>
             </div>

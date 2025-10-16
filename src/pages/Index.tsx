@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSection from "@/components/HeroSection";
+import ImpactStoriesSection from "@/components/ImpactStoriesSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import UserTypesSection from "@/components/UserTypesSection";
 import Footer from "@/components/Footer";
@@ -69,6 +70,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <HomeHeader />
       <HeroSection />
+      <ImpactStoriesSection />
       <FeaturesSection />
       <UserTypesSection />
       <Footer />
