@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, CheckCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Loader2, KeyRound } from "lucide-react";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -243,9 +243,22 @@ const ResetPassword = () => {
                   Updating password...
                 </>
               ) : (
-                "Update password"
+                <>
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  Reset Password
+                </>
               )}
             </Button>
+            
+            <div className="text-center mt-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/auth')}
+                type="button"
+              >
+                Cancel and return to login
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

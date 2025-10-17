@@ -1,8 +1,13 @@
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import HomeHeader from "@/components/HomeHeader";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const TermsOfService = () => {
+  const navigate = useNavigate();
+  
   return (
     <>
       <Helmet>
@@ -14,6 +19,21 @@ const TermsOfService = () => {
         <HomeHeader />
         
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/');
+              }
+            }}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          
           <h1 className="text-4xl font-bold text-gray-900 mb-8">Terms of Service</h1>
           
           <div className="prose prose-lg max-w-none">

@@ -167,6 +167,18 @@ const StakeholderRegistration = () => {
           )}
         </Button>
 
+        <Button
+          variant="outline"
+          className="w-full mt-2"
+          onClick={() => {
+            if (confirm('Are you sure you want to decline this invitation?')) {
+              navigate('/');
+            }
+          }}
+        >
+          Decline Invitation
+        </Button>
+
         <p className="text-xs text-muted-foreground text-center mt-4">
           By accepting, you agree to provide ESG data as requested by the organization
         </p>
