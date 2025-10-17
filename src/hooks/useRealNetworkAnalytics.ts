@@ -31,121 +31,102 @@ export interface NetworkAnalytics {
   };
 }
 
-type Connection = {
-  id: string;
-  requester_id: string;
-  addressee_id: string;
-  status: string;
-  created_at: string;
-};
-
-type Profile = {
-  id: string;
-  location: string | null;
-};
-
-type GroupMember = {
-  group_id: string;
-  joined_at: string;
-};
-
-type SocialProofData = {
-  endorsements: number;
-  introductions: number;
-  helpedPeople: number;
-};
-
 export const useRealNetworkAnalytics = () => {
   const { user } = useAuth();
+  const userId = user?.id;
 
   // Fetch all connections with basic info
-  const { data: connections } = useQuery<Connection[]>({
-    queryKey: ['network-connections', user?.id],
+  const connectionsQuery = useQuery({
+    queryKey: ['network-connections', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data } = await supabase
         .from('connections')
         .select('id, requester_id, addressee_id, status, created_at')
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
         .eq('status', 'accepted');
       
-      return (data || []) as Connection[];
+      return data || [];
     },
-    enabled: !!user?.id
+    enabled: !!userId
   });
 
-  // Fetch connection profiles separately for locations
-  const connectionIds = useMemo<string[]>(() => {
-    if (!connections || !user?.id) return [];
+  const connections = connectionsQuery.data;
+
+  // Calculate connection IDs
+  const connectionIds = useMemo(() => {
+    if (!connections || !userId) return [];
     return connections.map(conn => 
-      conn.requester_id === user.id ? conn.addressee_id : conn.requester_id
+      conn.requester_id === userId ? conn.addressee_id : conn.requester_id
     );
-  }, [connections, user?.id]);
+  }, [connections, userId]);
 
-  const connectionIdsKey = connectionIds.join(',');
-
-  const { data: connectionProfiles } = useQuery<Profile[]>({
-    queryKey: ['connection-profiles', user?.id, connectionIdsKey],
+  // Fetch connection profiles
+  const profilesQuery = useQuery({
+    queryKey: ['connection-profiles', userId, connections?.length],
     queryFn: async () => {
-      if (!user?.id || connectionIds.length === 0) return [];
+      if (!userId || connectionIds.length === 0) return [];
 
       const { data } = await supabase
         .from('profiles')
         .select('id, location')
         .in('id', connectionIds);
 
-      return (data || []) as Profile[];
+      return data || [];
     },
-    enabled: !!user?.id && connectionIds.length > 0
+    enabled: !!userId && connectionIds.length > 0
   });
 
+  const connectionProfiles = profilesQuery.data;
+
   // Fetch user's groups
-  const { data: groups } = useQuery<GroupMember[]>({
-    queryKey: ['user-groups', user?.id],
+  const groupsQuery = useQuery({
+    queryKey: ['user-groups', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data } = await supabase
         .from('group_members')
         .select('group_id, joined_at')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('status', 'active');
       
-      return (data || []) as GroupMember[];
+      return data || [];
     },
-    enabled: !!user?.id
+    enabled: !!userId
   });
 
-  // Calculate mutual connections - simplified to avoid deep queries
+  const groups = groupsQuery.data;
+
+  // Calculate mutual connections
   const mutualConnectionsCount = useMemo(() => {
     if (!connections || connections.length < 2) return 0;
-    // Estimate based on network size (square root approximation)
     return Math.floor(Math.sqrt(connections.length));
   }, [connections]);
 
   // Fetch social proof metrics
-  const { data: socialProof } = useQuery<SocialProofData>({
-    queryKey: ['social-proof', user?.id],
+  const socialProofQuery = useQuery({
+    queryKey: ['social-proof', userId],
     queryFn: async () => {
-      if (!user?.id) return { endorsements: 0, introductions: 0, helpedPeople: 0 };
+      if (!userId) return { endorsements: 0, introductions: 0, helpedPeople: 0 };
 
       const { data: metrics } = await supabase
         .from('impact_metrics')
         .select('help_provided_count')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       const { count: endorsements } = await supabase
         .from('impact_activities')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('activity_type', 'positive_feedback');
 
       const { count: introductions } = await supabase
         .from('impact_activities')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('activity_type', 'user_referral');
 
       return {
@@ -154,8 +135,10 @@ export const useRealNetworkAnalytics = () => {
         helpedPeople: metrics?.help_provided_count || 0
       };
     },
-    enabled: !!user?.id
+    enabled: !!userId
   });
+
+  const socialProof = socialProofQuery.data;
 
   const analytics = useMemo<NetworkAnalytics>(() => {
     const defaultAnalytics: NetworkAnalytics = {
@@ -195,17 +178,14 @@ export const useRealNetworkAnalytics = () => {
     const day30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const day90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    // Calculate connection growth
     const connections_7d = connections.filter(c => new Date(c.created_at) >= day7).length;
     const connections_30d = connections.filter(c => new Date(c.created_at) >= day30).length;
     const connections_90d = connections.filter(c => new Date(c.created_at) >= day90).length;
 
-    // Calculate group growth
     const groups_7d = groups.filter(g => new Date(g.joined_at) >= day7).length;
     const groups_30d = groups.filter(g => new Date(g.joined_at) >= day30).length;
     const groups_90d = groups.filter(g => new Date(g.joined_at) >= day90).length;
 
-    // Calculate geographic spread
     const locations = new Set<string>();
     connectionProfiles?.forEach(profile => {
       if (profile.location) {
@@ -217,7 +197,7 @@ export const useRealNetworkAnalytics = () => {
     const uniqueCountries = new Set(locationArray.map(loc => loc.split(',').pop()?.trim())).size;
     const uniqueCities = locationArray.length;
 
-    const result: NetworkAnalytics = {
+    return {
       growthTrends: {
         connections_7d,
         connections_30d,
@@ -244,8 +224,6 @@ export const useRealNetworkAnalytics = () => {
         helpedPeople: 0
       }
     };
-
-    return result;
   }, [connections, groups, mutualConnectionsCount, socialProof, connectionProfiles]);
 
   return {
