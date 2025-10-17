@@ -8,10 +8,13 @@ import QuickStatsGrid from "./QuickStatsGrid";
 import AchievementsList from "./AchievementsList";
 import LeaderboardCard from "./LeaderboardCard";
 import SeasonalChallengesCard from "./SeasonalChallengesCard";
+import TrustScoreBreakdown from "./TrustScoreBreakdown";
+import PointsDecayVisibility from "./PointsDecayVisibility";
 import PointsTransactionHistory from "./PointsTransactionHistory";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useSeasonalChallenges } from "@/hooks/useSeasonalChallenges";
-import { mockPointBreakdown, mockLeaderboard } from "@/data/mockPointsData";
+import { usePointsBreakdown } from "@/hooks/usePointsBreakdown";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +26,8 @@ const GamificationPanel = () => {
   const { metrics, recentActivities, awardPoints, loading: pointsLoading } = useEnhancedPoints();
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const { challenges, loading: challengesLoading } = useSeasonalChallenges();
+  const { breakdown, loading: breakdownLoading } = usePointsBreakdown();
+  const { leaderboard, loading: leaderboardLoading } = useLeaderboard('all-time');
   const [activeTab, setActiveTab] = useState("overview");
 
   // Calculate user stats from real data
@@ -96,7 +101,7 @@ const GamificationPanel = () => {
     );
   };
 
-  if (pointsLoading || achievementsLoading || challengesLoading) {
+  if (pointsLoading || achievementsLoading || challengesLoading || breakdownLoading || leaderboardLoading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -160,11 +165,15 @@ const GamificationPanel = () => {
         <TabsContent value="overview" className="space-y-6">
           <EnhancedUserStatsCard userStats={userStats} />
           <div className="grid md:grid-cols-2 gap-6">
-            <PointsBreakdownCard breakdown={mockPointBreakdown} totalPoints={userStats.totalPoints} />
+            <PointsBreakdownCard breakdown={breakdown} totalPoints={userStats.totalPoints} />
             <QuickStatsGrid userStats={userStats} achievements={achievements} />
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <LeaderboardCard leaderboard={mockLeaderboard} timeframe="all-time" />
+            <TrustScoreBreakdown />
+            <PointsDecayVisibility />
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <LeaderboardCard leaderboard={leaderboard} timeframe="all-time" />
             <SeasonalChallengesCard challenges={challenges} />
           </div>
         </TabsContent>
