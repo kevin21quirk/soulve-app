@@ -31,11 +31,35 @@ export interface NetworkAnalytics {
   };
 }
 
+type Connection = {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  status: string;
+  created_at: string;
+};
+
+type Profile = {
+  id: string;
+  location: string | null;
+};
+
+type GroupMember = {
+  group_id: string;
+  joined_at: string;
+};
+
+type SocialProofData = {
+  endorsements: number;
+  introductions: number;
+  helpedPeople: number;
+};
+
 export const useRealNetworkAnalytics = () => {
   const { user } = useAuth();
 
   // Fetch all connections with basic info
-  const { data: connections } = useQuery({
+  const { data: connections } = useQuery<Connection[]>({
     queryKey: ['network-connections', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -46,21 +70,23 @@ export const useRealNetworkAnalytics = () => {
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
         .eq('status', 'accepted');
       
-      return data || [];
+      return (data || []) as Connection[];
     },
     enabled: !!user?.id
   });
 
   // Fetch connection profiles separately for locations
-  const connectionIds = useMemo(() => {
+  const connectionIds = useMemo<string[]>(() => {
     if (!connections || !user?.id) return [];
     return connections.map(conn => 
       conn.requester_id === user.id ? conn.addressee_id : conn.requester_id
     );
   }, [connections, user?.id]);
 
-  const { data: connectionProfiles } = useQuery({
-    queryKey: ['connection-profiles', user?.id, connectionIds],
+  const connectionIdsKey = connectionIds.join(',');
+
+  const { data: connectionProfiles } = useQuery<Profile[]>({
+    queryKey: ['connection-profiles', user?.id, connectionIdsKey],
     queryFn: async () => {
       if (!user?.id || connectionIds.length === 0) return [];
 
@@ -69,13 +95,13 @@ export const useRealNetworkAnalytics = () => {
         .select('id, location')
         .in('id', connectionIds);
 
-      return data || [];
+      return (data || []) as Profile[];
     },
     enabled: !!user?.id && connectionIds.length > 0
   });
 
   // Fetch user's groups
-  const { data: groups } = useQuery({
+  const { data: groups } = useQuery<GroupMember[]>({
     queryKey: ['user-groups', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -86,7 +112,7 @@ export const useRealNetworkAnalytics = () => {
         .eq('user_id', user.id)
         .eq('status', 'active');
       
-      return data || [];
+      return (data || []) as GroupMember[];
     },
     enabled: !!user?.id
   });
@@ -99,7 +125,7 @@ export const useRealNetworkAnalytics = () => {
   }, [connections]);
 
   // Fetch social proof metrics
-  const { data: socialProof } = useQuery({
+  const { data: socialProof } = useQuery<SocialProofData>({
     queryKey: ['social-proof', user?.id],
     queryFn: async () => {
       if (!user?.id) return { endorsements: 0, introductions: 0, helpedPeople: 0 };
@@ -131,35 +157,37 @@ export const useRealNetworkAnalytics = () => {
     enabled: !!user?.id
   });
 
-  const analytics: NetworkAnalytics = useMemo(() => {
+  const analytics = useMemo<NetworkAnalytics>(() => {
+    const defaultAnalytics: NetworkAnalytics = {
+      growthTrends: {
+        connections_7d: 0,
+        connections_30d: 0,
+        connections_90d: 0,
+        groups_7d: 0,
+        groups_30d: 0,
+        groups_90d: 0
+      },
+      geographicSpread: {
+        locations: [],
+        countries: 0,
+        cities: 0,
+        topLocations: [],
+        diversity: 0
+      },
+      influence: {
+        mutualConnections: 0,
+        networkReach: 0,
+        weeklyActivity: 0
+      },
+      socialProof: {
+        endorsements: 0,
+        introductions: 0,
+        helpedPeople: 0
+      }
+    };
+
     if (!connections || !groups) {
-      return {
-        growthTrends: {
-          connections_7d: 0,
-          connections_30d: 0,
-          connections_90d: 0,
-          groups_7d: 0,
-          groups_30d: 0,
-          groups_90d: 0
-        },
-        geographicSpread: {
-          locations: [],
-          countries: 0,
-          cities: 0,
-          topLocations: [],
-          diversity: 0
-        },
-        influence: {
-          mutualConnections: 0,
-          networkReach: 0,
-          weeklyActivity: 0
-        },
-        socialProof: {
-          endorsements: 0,
-          introductions: 0,
-          helpedPeople: 0
-        }
-      };
+      return defaultAnalytics;
     }
 
     const now = new Date();
@@ -189,7 +217,7 @@ export const useRealNetworkAnalytics = () => {
     const uniqueCountries = new Set(locationArray.map(loc => loc.split(',').pop()?.trim())).size;
     const uniqueCities = locationArray.length;
 
-    return {
+    const result: NetworkAnalytics = {
       growthTrends: {
         connections_7d,
         connections_30d,
@@ -216,10 +244,11 @@ export const useRealNetworkAnalytics = () => {
         helpedPeople: 0
       }
     };
-  }, [connections, groups, user?.id, mutualConnectionsCount, socialProof, connectionProfiles]);
+
+    return result;
+  }, [connections, groups, mutualConnectionsCount, socialProof, connectionProfiles]);
 
   return {
     analytics
   };
 };
-
