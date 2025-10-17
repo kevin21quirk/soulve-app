@@ -7,8 +7,11 @@ import ComparativeMetricsCard from "./analytics/ComparativeMetricsCard";
 import VisualAnalyticsDashboard from "./analytics/VisualAnalyticsDashboard";
 import AchievementProgressCard from "./analytics/AchievementProgressCard";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useRealNetworkAnalytics } from "@/hooks/useRealNetworkAnalytics";
+import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, MessageCircle, Share, Eye, Trophy, Star, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const EnhancedAnalyticsDashboard = React.memo(() => {
   const {
@@ -21,6 +24,8 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
     refetch,
   } = useAnalyticsData();
 
+  const { analytics: networkAnalytics } = useRealNetworkAnalytics();
+  const { achievements } = useUserAchievements();
   const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -40,45 +45,48 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
     }
   };
 
-  // Mock enhanced data - in real app this would come from API
+  // Map real data from hooks - extract metrics safely
+  const metrics = Array.isArray(impactMetrics) ? impactMetrics[0] : impactMetrics;
+  const engagement = Array.isArray(engagementData) ? engagementData[0] : engagementData;
+  
   const personalImpactData = {
-    userRank: 23,
-    totalUsers: 15847,
-    impactScore: 87,
-    weeklyGrowth: 12,
-    monthlyGrowth: 34,
-    topPercentile: 5
+    userRank: (metrics as any)?.userRank || 0,
+    totalUsers: (metrics as any)?.totalUsers || 0,
+    impactScore: (metrics as any)?.impactScore || 0,
+    weeklyGrowth: (metrics as any)?.weeklyGrowth || 0,
+    monthlyGrowth: (metrics as any)?.monthlyGrowth || 0,
+    topPercentile: (metrics as any)?.percentile || 0
   };
 
   const engagementMetrics = [
     {
       label: "Likes Received",
-      value: 1247,
-      growth: 23,
+      value: (engagement as any)?.likes || 0,
+      growth: (engagement as any)?.likesGrowth || 0,
       comparison: 145,
       icon: Heart,
       color: "text-red-500"
     },
     {
       label: "Comments",
-      value: 432,
-      growth: 18,
+      value: (engagement as any)?.comments || 0,
+      growth: (engagement as any)?.commentsGrowth || 0,
       comparison: 127,
       icon: MessageCircle,
       color: "text-blue-500"
     },
     {
       label: "Shares",
-      value: 89,
-      growth: -5,
+      value: (engagement as any)?.shares || 0,
+      growth: (engagement as any)?.sharesGrowth || 0,
       comparison: 98,
       icon: Share,
       color: "text-green-500"
     },
     {
       label: "Profile Views",
-      value: 2341,
-      growth: 45,
+      value: (engagement as any)?.views || 0,
+      growth: (engagement as any)?.viewsGrowth || 0,
       comparison: 189,
       icon: Eye,
       color: "text-purple-500"
@@ -86,43 +94,36 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
   ];
 
   const networkData = {
-    connectionGrowthData: [
-      { month: "Jan", connections: 45, reach: 1200 },
-      { month: "Feb", connections: 67, reach: 1850 },
-      { month: "Mar", connections: 89, reach: 2400 },
-      { month: "Apr", connections: 112, reach: 3100 },
-      { month: "May", connections: 134, reach: 3900 },
-      { month: "Jun", connections: 158, reach: 4750 }
-    ],
-    totalConnections: 158,
-    networkReach: 4750,
-    connectionVelocity: 28,
-    influenceScore: 94,
-    geographicSpread: 23
+    connectionGrowthData: [],
+    totalConnections: networkAnalytics.growthTrends?.connections_30d || 0,
+    networkReach: networkAnalytics.influence?.networkReach || 0,
+    connectionVelocity: networkAnalytics.growthTrends?.connections_7d || 0,
+    influenceScore: 0,
+    geographicSpread: networkAnalytics.geographicSpread?.cities || 0
   };
 
   const comparativeMetrics = [
     {
       label: "Help Requests Completed",
-      userValue: 47,
+      userValue: (metrics as any)?.helpProvidedCount || 0,
       avgValue: 12,
       topValue: 89,
-      userPercentile: 85
+      userPercentile: (metrics as any)?.percentile || 0
     },
     {
       label: "Response Time (hours)",
-      userValue: 2.3,
+      userValue: (metrics as any)?.responseTimeHours || 0,
       avgValue: 8.7,
       topValue: 1.2,
-      userPercentile: 92,
+      userPercentile: (metrics as any)?.percentile || 0,
       unit: "h"
     },
     {
       label: "Community Engagement",
-      userValue: 312,
+      userValue: (engagement as any)?.totalEngagement || 0,
       avgValue: 89,
       topValue: 567,
-      userPercentile: 78
+      userPercentile: (metrics as any)?.percentile || 0
     }
   ];
 
@@ -157,46 +158,20 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
   };
 
   const achievementData = {
-    achievements: [
-      {
-        id: "1",
-        title: "Community Champion",
-        description: "Help 50 people",
-        progress: 47,
-        maxProgress: 50,
-        points: 500,
-        rarity: "epic" as const,
-        unlocked: false,
-        icon: Trophy,
-        category: "Helping"
-      },
-      {
-        id: "2",
-        title: "Social Butterfly",
-        description: "Make 100 connections",
-        progress: 100,
-        maxProgress: 100,
-        points: 200,
-        rarity: "rare" as const,
-        unlocked: true,
-        icon: Star,
-        category: "Networking"
-      },
-      {
-        id: "3",
-        title: "Speed Helper",
-        description: "Respond in under 1 hour",
-        progress: 89,
-        maxProgress: 100,
-        points: 300,
-        rarity: "epic" as const,
-        unlocked: false,
-        icon: Zap,
-        category: "Response Time"
-      }
-    ],
-    totalPoints: 1847,
-    unlockedCount: 12,
+    achievements: achievements.slice(0, 3).map(a => ({
+      id: a.id,
+      title: a.title,
+      description: a.description,
+      progress: a.progress,
+      maxProgress: a.maxProgress,
+      points: a.pointsReward,
+      rarity: a.rarity,
+      unlocked: a.unlocked,
+      icon: Trophy,
+      category: "Achievement"
+    })),
+    totalPoints: (metrics as any)?.impactScore || 0,
+    unlockedCount: achievements.filter(a => a.unlocked).length,
     nextMilestone: { title: "Trusted Leader", pointsNeeded: 153 }
   };
 
@@ -233,9 +208,15 @@ const EnhancedAnalyticsDashboard = React.memo(() => {
   return (
     <div className="space-y-8" role="main" aria-label="Enhanced Analytics Dashboard">
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Your Impact Analytics
-        </h1>
+        <div className="flex items-center justify-center gap-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Your Impact Analytics
+          </h1>
+          <Badge className="bg-green-500 text-white flex items-center space-x-1">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            <span>Live</span>
+          </Badge>
+        </div>
         <p className="text-xl text-gray-600">
           Discover your influence and growth in our community
         </p>

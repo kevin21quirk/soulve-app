@@ -152,76 +152,146 @@ export const useRealNetworkAnalytics = () => {
     introductions: 0,
     helpedPeople: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch all data
+  const fetchData = async () => {
+    if (!userId) return;
+
+    setIsLoading(true);
+    // Fetch connections
+    const connectionsResult: any = await supabase
+      .from('connections')
+      .select('id, requester_id, addressee_id, status, created_at')
+      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+      .eq('status', 'accepted');
+
+    const connectionsData: ConnectionData[] = connectionsResult.data || [];
+    setConnections(connectionsData);
+
+    // Calculate connection IDs
+    const connectionIds = connectionsData.map(conn => 
+      conn.requester_id === userId ? conn.addressee_id : conn.requester_id
+    );
+
+    // Fetch connection profiles
+    if (connectionIds.length > 0) {
+      const profilesResult: any = await supabase
+        .from('profiles')
+        .select('id, location')
+        .in('id', connectionIds);
+
+      const profilesData: ProfileData[] = profilesResult.data || [];
+      setConnectionProfiles(profilesData);
+    }
+
+    // Fetch groups
+    // @ts-ignore - Bypass type depth limit
+    const groupsResult: any = await supabase
+      .from('group_members')
+      .select('group_id, joined_at')
+      .eq('user_id', userId)
+      .eq('status', 'active');
+
+    const groupsData: GroupData[] = groupsResult.data || [];
+    setGroups(groupsData);
+
+    // Fetch social proof
+    const metricsResult: any = await supabase
+      .from('impact_metrics')
+      .select('help_provided_count')
+      .eq('user_id', userId)
+      .single();
+
+    const endorsementsResult: any = await supabase
+      .from('impact_activities')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_type', 'positive_feedback');
+
+    const introductionsResult: any = await supabase
+      .from('impact_activities')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_type', 'user_referral');
+
+    setSocialProof({
+      endorsements: endorsementsResult.count || 0,
+      introductions: introductionsResult.count || 0,
+      helpedPeople: metricsResult.data?.help_provided_count || 0
+    });
+    
+    setIsLoading(false);
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, [userId]);
+
+  // Real-time subscriptions
   useEffect(() => {
     if (!userId) return;
 
-    const fetchData = async () => {
-      // Fetch connections
-      const connectionsResult: any = await supabase
-        .from('connections')
-        .select('id, requester_id, addressee_id, status, created_at')
-        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
-        .eq('status', 'accepted');
+    // Subscribe to connections changes
+    const connectionsChannel = supabase
+      .channel('network-connections-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+          filter: `requester_id=eq.${userId},addressee_id=eq.${userId}`
+        },
+        () => {
+          console.log('Connection change detected, refreshing network analytics');
+          fetchData();
+        }
+      )
+      .subscribe();
 
-      const connectionsData: ConnectionData[] = connectionsResult.data || [];
-      setConnections(connectionsData);
+    // Subscribe to organization_members changes
+    const orgMembersChannel = supabase
+      .channel('network-org-members-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'organization_members',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          console.log('Organization membership change detected');
+          fetchData();
+        }
+      )
+      .subscribe();
 
-      // Calculate connection IDs
-      const connectionIds = connectionsData.map(conn => 
-        conn.requester_id === userId ? conn.addressee_id : conn.requester_id
-      );
+    // Subscribe to impact_activities for social proof
+    const activitiesChannel = supabase
+      .channel('network-activities-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'impact_activities',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          console.log('Impact activity detected');
+          fetchData();
+        }
+      )
+      .subscribe();
 
-      // Fetch connection profiles
-      if (connectionIds.length > 0) {
-        const profilesResult: any = await supabase
-          .from('profiles')
-          .select('id, location')
-          .in('id', connectionIds);
-
-        const profilesData: ProfileData[] = profilesResult.data || [];
-        setConnectionProfiles(profilesData);
-      }
-
-      // Fetch groups
-      // @ts-ignore - Bypass type depth limit
-      const groupsResult: any = await supabase
-        .from('group_members')
-        .select('group_id, joined_at')
-        .eq('user_id', userId)
-        .eq('status', 'active');
-
-      const groupsData: GroupData[] = groupsResult.data || [];
-      setGroups(groupsData);
-
-      // Fetch social proof
-      const metricsResult: any = await supabase
-        .from('impact_metrics')
-        .select('help_provided_count')
-        .eq('user_id', userId)
-        .single();
-
-      const endorsementsResult: any = await supabase
-        .from('impact_activities')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('activity_type', 'positive_feedback');
-
-      const introductionsResult: any = await supabase
-        .from('impact_activities')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('activity_type', 'user_referral');
-
-      setSocialProof({
-        endorsements: endorsementsResult.count || 0,
-        introductions: introductionsResult.count || 0,
-        helpedPeople: metricsResult.data?.help_provided_count || 0
-      });
+    return () => {
+      supabase.removeChannel(connectionsChannel);
+      supabase.removeChannel(orgMembersChannel);
+      supabase.removeChannel(activitiesChannel);
     };
-
-    fetchData();
   }, [userId]);
 
   const analytics = useMemo(() => {

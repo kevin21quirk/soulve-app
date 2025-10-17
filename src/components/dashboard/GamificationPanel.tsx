@@ -53,54 +53,6 @@ const GamificationPanel = () => {
     }
   };
 
-  const handleDemoPoints = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to earn points!",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const demoActions = [
-      { 
-        activityType: 'help_completed', 
-        points: 25, 
-        description: 'Demo: Helped community member with groceries',
-        effortLevel: 4
-      },
-      { 
-        activityType: 'donation', 
-        points: 10, 
-        description: 'Demo: Made a £10 donation',
-        effortLevel: 3
-      },
-      { 
-        activityType: 'positive_feedback', 
-        points: 5, 
-        description: 'Demo: Received 5-star rating',
-        effortLevel: 3
-      },
-      { 
-        activityType: 'volunteer_hour', 
-        points: 15, 
-        description: 'Demo: Completed 5 hours volunteer work',
-        effortLevel: 4
-      }
-    ];
-    
-    const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
-    
-    await awardPoints(
-      randomAction.activityType,
-      randomAction.points,
-      randomAction.description,
-      { demo: true, timestamp: new Date().toISOString() },
-      randomAction.effortLevel
-    );
-  };
-
   if (pointsLoading || achievementsLoading || challengesLoading || breakdownLoading || leaderboardLoading) {
     return (
       <div className="space-y-6">
@@ -118,28 +70,6 @@ const GamificationPanel = () => {
 
   return (
     <div className="space-y-6">
-      {/* Demo Controls Card */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-lg text-blue-800">Demo Controls</CardTitle>
-          <CardDescription className="text-blue-600">
-            Test the points and achievement system with real database interactions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button 
-            onClick={handleDemoPoints}
-            disabled={pointsLoading || !user}
-            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90 transition-all duration-200"
-          >
-            {pointsLoading ? "Awarding..." : "Demo: Earn Real Points"}
-          </Button>
-          {!user && (
-            <p className="text-sm text-blue-600 mt-2">Please log in to test points system</p>
-          )}
-        </CardContent>
-      </Card>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger 

@@ -55,6 +55,71 @@ const InteractiveImpactDashboard = () => {
     }
   }, [user?.id]);
 
+  // Real-time subscriptions for live data updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Subscribe to impact_activities changes
+    const activitiesChannel = supabase
+      .channel('impact-activities-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'impact_activities',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Impact activity change detected:', payload);
+          loadImpactData(); // Refresh data on any change
+        }
+      )
+      .subscribe();
+
+    // Subscribe to impact_metrics changes
+    const metricsChannel = supabase
+      .channel('impact-metrics-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'impact_metrics',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Impact metrics updated:', payload);
+          loadImpactData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to impact_goals changes
+    const goalsChannel = supabase
+      .channel('impact-goals-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'impact_goals',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Impact goals changed:', payload);
+          loadImpactData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(activitiesChannel);
+      supabase.removeChannel(metricsChannel);
+      supabase.removeChannel(goalsChannel);
+    };
+  }, [user?.id]);
+
   const loadImpactData = async () => {
     if (!user?.id) return;
     
@@ -134,6 +199,10 @@ const InteractiveImpactDashboard = () => {
         <div className="flex items-center justify-center space-x-3">
           <Award className="h-8 w-8 text-yellow-600" />
           <h1 className="text-3xl font-bold">Your Impact Journey</h1>
+          <Badge className="bg-green-500 text-white flex items-center space-x-1 ml-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            <span>Live</span>
+          </Badge>
           <Button
             variant="outline"
             size="sm"
