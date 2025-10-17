@@ -31,6 +31,30 @@ export interface NetworkAnalytics {
   };
 }
 
+interface ConnectionData {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  status: string;
+  created_at: string;
+}
+
+interface ProfileData {
+  id: string;
+  location: string | null;
+}
+
+interface GroupData {
+  group_id: string;
+  joined_at: string;
+}
+
+interface SocialProofData {
+  endorsements: number;
+  introductions: number;
+  helpedPeople: number;
+}
+
 export const useRealNetworkAnalytics = () => {
   const { user } = useAuth();
   const userId = user?.id;
@@ -41,18 +65,17 @@ export const useRealNetworkAnalytics = () => {
     queryFn: async () => {
       if (!userId) return [];
       
-      const { data } = await supabase
+      const { data }: any = await supabase
         .from('connections')
         .select('id, requester_id, addressee_id, status, created_at')
         .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
         .eq('status', 'accepted');
       
-      return data || [];
+      return (data as ConnectionData[]) || [];
     },
     enabled: !!userId
   });
-
-  const connections = connectionsQuery.data;
+  const connections: ConnectionData[] = connectionsQuery.data || [];
 
   // Calculate connection IDs
   const connectionIds = useMemo(() => {
@@ -64,21 +87,20 @@ export const useRealNetworkAnalytics = () => {
 
   // Fetch connection profiles
   const profilesQuery = useQuery({
-    queryKey: ['connection-profiles', userId, connections?.length],
+    queryKey: ['connection-profiles', userId, connections.length],
     queryFn: async () => {
       if (!userId || connectionIds.length === 0) return [];
 
-      const { data } = await supabase
+      const { data }: any = await supabase
         .from('profiles')
         .select('id, location')
         .in('id', connectionIds);
 
-      return data || [];
+      return (data as ProfileData[]) || [];
     },
     enabled: !!userId && connectionIds.length > 0
   });
-
-  const connectionProfiles = profilesQuery.data;
+  const connectionProfiles: ProfileData[] = profilesQuery.data || [];
 
   // Fetch user's groups
   const groupsQuery = useQuery({
@@ -86,18 +108,17 @@ export const useRealNetworkAnalytics = () => {
     queryFn: async () => {
       if (!userId) return [];
       
-      const { data } = await supabase
+      const { data }: any = await supabase
         .from('group_members')
         .select('group_id, joined_at')
         .eq('user_id', userId)
         .eq('status', 'active');
       
-      return data || [];
+      return (data as GroupData[]) || [];
     },
     enabled: !!userId
   });
-
-  const groups = groupsQuery.data;
+  const groups: GroupData[] = groupsQuery.data || [];
 
   // Calculate mutual connections
   const mutualConnectionsCount = useMemo(() => {
@@ -111,19 +132,19 @@ export const useRealNetworkAnalytics = () => {
     queryFn: async () => {
       if (!userId) return { endorsements: 0, introductions: 0, helpedPeople: 0 };
 
-      const { data: metrics } = await supabase
+      const { data: metrics }: any = await supabase
         .from('impact_metrics')
         .select('help_provided_count')
         .eq('user_id', userId)
         .single();
 
-      const { count: endorsements } = await supabase
+      const { count: endorsements }: any = await supabase
         .from('impact_activities')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('activity_type', 'positive_feedback');
 
-      const { count: introductions } = await supabase
+      const { count: introductions }: any = await supabase
         .from('impact_activities')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -137,10 +158,9 @@ export const useRealNetworkAnalytics = () => {
     },
     enabled: !!userId
   });
+  const socialProof: SocialProofData | undefined = socialProofQuery.data;
 
-  const socialProof = socialProofQuery.data;
-
-  const analytics = useMemo<NetworkAnalytics>(() => {
+  const analytics: NetworkAnalytics = useMemo(() => {
     const defaultAnalytics: NetworkAnalytics = {
       growthTrends: {
         connections_7d: 0,
@@ -187,7 +207,7 @@ export const useRealNetworkAnalytics = () => {
     const groups_90d = groups.filter(g => new Date(g.joined_at) >= day90).length;
 
     const locations = new Set<string>();
-    connectionProfiles?.forEach(profile => {
+    connectionProfiles.forEach(profile => {
       if (profile.location) {
         locations.add(profile.location);
       }
