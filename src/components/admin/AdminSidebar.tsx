@@ -17,7 +17,11 @@ import {
   Eye,
   FileText,
   AlertCircle,
-  UserX
+  UserX,
+  Calendar,
+  DollarSign,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import {
   Sidebar,
@@ -36,19 +40,23 @@ const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard, exact: true, showBadge: false },
   { title: 'User Management', url: '/admin/users', icon: Users, showBadge: false },
   { title: 'Waitlist', url: '/admin/waitlist', icon: ClipboardList, showBadge: false },
+  { title: 'Demo Requests', url: '/admin/demo-requests', icon: Calendar, showBadge: true, badgeKey: 'demoRequests' },
   { title: 'ID Verification', url: '/admin/id-verifications', icon: Shield, showBadge: false },
   { title: 'Helper Verification', url: '/admin/helpers', icon: HeartHandshake, showBadge: false },
   { title: 'Training Management', url: '/admin/training', icon: GraduationCap, showBadge: false },
   { title: 'Evidence Review', url: '/admin/evidence', icon: FileCheck, showBadge: false },
   { title: 'Content Moderation', url: '/admin/moderation', icon: Shield, showBadge: false },
   { title: 'User Blocks', url: '/admin/blocks', icon: UserX, showBadge: false },
-  { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare, showBadge: true },
+  { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare, showBadge: true, badgeKey: 'feedback' },
   { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle, showBadge: false },
   { title: 'Badge Management', url: '/admin/badges', icon: Award, showBadge: false },
   { title: 'Points Config', url: '/admin/points-config', icon: Sliders, showBadge: false },
   { title: 'Campaigns', url: '/admin/campaigns', icon: Award, showBadge: false },
   { title: 'Organizations', url: '/admin/organizations', icon: Users, showBadge: false },
-  { title: 'Settings', url: '/admin/settings', icon: Settings, showBadge: false },
+  { title: 'Donations', url: '/admin/donations', icon: DollarSign, showBadge: false },
+  { title: 'Analytics', url: '/admin/analytics', icon: TrendingUp, showBadge: false },
+  { title: 'System Health', url: '/admin/system-health', icon: Activity, showBadge: false },
+  { title: 'Org Settings', url: '/admin/org-settings', icon: Settings, showBadge: false },
 ];
 
 const safeguardingNavItems = [
@@ -140,9 +148,9 @@ const AdminSidebar = () => {
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span className="text-sm">{item.title}</span>
-                      {item.showBadge && (
+                      {item.showBadge && item.badgeKey && (
                         <NotificationBadge 
-                          count={counts.feedback} 
+                          count={counts[item.badgeKey as keyof typeof counts] as number} 
                           className="relative top-0 right-0 ml-auto"
                         />
                       )}

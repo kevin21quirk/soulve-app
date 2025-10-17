@@ -10,6 +10,7 @@ interface NotificationCounts {
   donations: number;
   esg: number;
   safeguardingAlerts: number;
+  demoRequests: number;
   total: number;
 }
 
@@ -27,13 +28,14 @@ export const useNotificationCounts = () => {
     donations: 0,
     esg: 0,
     safeguardingAlerts: 0,
+    demoRequests: 0,
     total: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) {
-      setCounts({ messages: 0, feedback: 0, connections: 0, social: 0, donations: 0, esg: 0, safeguardingAlerts: 0, total: 0 });
+      setCounts({ messages: 0, feedback: 0, connections: 0, social: 0, donations: 0, esg: 0, safeguardingAlerts: 0, demoRequests: 0, total: 0 });
       setLoading(false);
       return;
     }
@@ -153,6 +155,22 @@ export const useNotificationCounts = () => {
       )
       .subscribe();
 
+    // Demo requests real-time (for admins)
+    const demoRequestsChannel = supabase
+      .channel('notification-demo-requests')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'demo_requests',
+        },
+        () => {
+          loadCounts();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(feedbackChannel);
@@ -161,6 +179,7 @@ export const useNotificationCounts = () => {
       supabase.removeChannel(postReactionsChannel);
       supabase.removeChannel(userActivitiesChannel);
       supabase.removeChannel(esgContributionsChannel);
+      supabase.removeChannel(demoRequestsChannel);
     };
   }, [user?.id]);
 
@@ -255,6 +274,7 @@ export const useNotificationCounts = () => {
       // Get unread feedback count (for admins only)
       let feedbackCount = 0;
       let safeguardingAlertsCount = 0;
+      let demoRequestsCount = 0;
       
       const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin', {
         user_uuid: user.id,
@@ -287,6 +307,18 @@ export const useNotificationCounts = () => {
         } else {
           safeguardingAlertsCount = alertsCount || 0;
         }
+
+        // Get pending demo requests count
+        const { count: demoCount, error: demoError } = await supabase
+          .from('demo_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        if (demoError) {
+          console.error('Error loading demo requests:', demoError);
+        } else {
+          demoRequestsCount = demoCount || 0;
+        }
       }
 
       const newCounts = {
@@ -297,7 +329,8 @@ export const useNotificationCounts = () => {
         donations: donationsCount || 0,
         esg: esgCount,
         safeguardingAlerts: safeguardingAlertsCount,
-        total: (messagesCount || 0) + feedbackCount + (connectionsCount || 0) + socialCount + (donationsCount || 0) + esgCount + safeguardingAlertsCount,
+        demoRequests: demoRequestsCount,
+        total: (messagesCount || 0) + feedbackCount + (connectionsCount || 0) + socialCount + (donationsCount || 0) + esgCount + safeguardingAlertsCount + demoRequestsCount,
       };
 
       console.log('Setting notification counts:', newCounts);

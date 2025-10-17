@@ -21,6 +21,11 @@ import AdminSafeguardingAlerts from './AdminSafeguardingAlerts';
 import AdminSafeguardingSessions from './AdminSafeguardingSessions';
 import AdminSafeguardingDBS from './AdminSafeguardingDBS';
 import AdminSafeguardingKeywords from './AdminSafeguardingKeywords';
+import { DemoRequestsPanel } from '@/components/admin/DemoRequestsPanel';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { OrganizationSettingsPanel } from '@/components/admin/OrganizationSettingsPanel';
+import { DonationManagementPanel } from '@/components/admin/DonationManagementPanel';
+import { SystemHealthPanel } from '@/components/admin/SystemHealthPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,7 +39,11 @@ const AdminOverview = () => {
     pendingTraining: 0,
     pendingEvidence: 0,
     totalPosts: 0,
-    activeCampaigns: 0
+    activeCampaigns: 0,
+    pendingDemoRequests: 0,
+    totalOrganizations: 0,
+    activeDonations: 0,
+    safeguardingAlerts: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -63,23 +72,60 @@ const AdminOverview = () => {
       })
       .subscribe();
 
+    const demoRequestsChannel = supabase
+      .channel('admin-demo-requests-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'demo_requests' }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
+    const donationsChannel = supabase
+      .channel('admin-donations-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'campaign_donations' }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(profilesChannel);
       supabase.removeChannel(reportsChannel);
       supabase.removeChannel(trainingChannel);
+      supabase.removeChannel(demoRequestsChannel);
+      supabase.removeChannel(donationsChannel);
     };
   }, []);
 
   const fetchStats = async () => {
     try {
-      const [profilesData, reportsData, trainingData, evidenceData, postsData, campaignsData] = await Promise.all([
+      const [
+        profilesData, 
+        reportsData, 
+        trainingData, 
+        evidenceData, 
+        postsData, 
+        campaignsData,
+        demoRequestsData,
+        organizationsData,
+        donationsData,
+        alertsData
+      ] = await Promise.all([
         supabase.from('profiles').select('id, waitlist_status', { count: 'exact' }),
         supabase.from('reports').select('id, status', { count: 'exact' }),
         supabase.from('safe_space_helper_training_progress').select('id, status', { count: 'exact' }),
         supabase.from('evidence_submissions').select('id, verification_status', { count: 'exact' }),
         supabase.from('posts').select('id, is_active', { count: 'exact' }),
-        supabase.from('campaigns').select('id, status', { count: 'exact' })
+        supabase.from('campaigns').select('id, status', { count: 'exact' }),
+        supabase.from('demo_requests').select('id, status', { count: 'exact' }),
+        supabase.from('organizations').select('id', { count: 'exact' }),
+        supabase.from('campaign_donations').select('id, created_at', { count: 'exact' }),
+        supabase.from('safe_space_emergency_alerts').select('id, status', { count: 'exact' })
       ]);
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const recentDonations = donationsData.data?.filter(d => 
+        new Date(d.created_at) >= sevenDaysAgo
+      ).length || 0;
 
       setStats({
         totalUsers: profilesData.count || 0,
@@ -89,7 +135,11 @@ const AdminOverview = () => {
         pendingTraining: trainingData.data?.filter(t => t.status === 'in_progress' || t.status === 'not_started').length || 0,
         pendingEvidence: evidenceData.data?.filter(e => e.verification_status === 'pending').length || 0,
         totalPosts: postsData.data?.filter(p => p.is_active).length || 0,
-        activeCampaigns: campaignsData.data?.filter(c => c.status === 'active').length || 0
+        activeCampaigns: campaignsData.data?.filter(c => c.status === 'active').length || 0,
+        pendingDemoRequests: demoRequestsData.data?.filter(d => d.status === 'pending').length || 0,
+        totalOrganizations: organizationsData.count || 0,
+        activeDonations: recentDonations,
+        safeguardingAlerts: alertsData.data?.filter(a => ['pending', 'acknowledged', 'reviewing'].includes(a.status)).length || 0
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -131,39 +181,39 @@ const AdminOverview = () => {
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Reports</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-sm font-medium">Demo Requests</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeReports}</div>
+            <div className="text-2xl font-bold">{stats.pendingDemoRequests}</div>
             <p className="text-xs text-muted-foreground">
-              Content moderation needed
+              Pending bookings
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Training Reviews</CardTitle>
-            <GraduationCap className="h-4 w-4 text-blue-500" />
+            <CardTitle className="text-sm font-medium">Organizations</CardTitle>
+            <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingTraining}</div>
+            <div className="text-2xl font-bold">{stats.totalOrganizations}</div>
             <p className="text-xs text-muted-foreground">
-              Helper training in progress
+              Registered organizations
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Evidence Queue</CardTitle>
-            <Shield className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-medium">Safeguarding</CardTitle>
+            <Shield className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingEvidence}</div>
+            <div className="text-2xl font-bold">{stats.safeguardingAlerts}</div>
             <p className="text-xs text-muted-foreground">
-              Pending verification
+              Active alerts
             </p>
           </CardContent>
         </Card>
@@ -185,8 +235,12 @@ const AdminOverview = () => {
               <span className="text-2xl font-bold">{stats.activeCampaigns}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Approved Users</span>
-              <span className="text-2xl font-bold">{stats.approvedUsers}</span>
+              <span className="text-sm font-medium">Recent Donations</span>
+              <span className="text-2xl font-bold">{stats.activeDonations}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Active Reports</span>
+              <span className="text-2xl font-bold">{stats.activeReports}</span>
             </div>
           </CardContent>
         </Card>
@@ -248,6 +302,7 @@ const AdminHub = () => {
             <Route index element={<AdminOverview />} />
             <Route path="users" element={<EnhancedUserAccessPanel />} />
             <Route path="waitlist" element={<AdminWaitlistDashboard />} />
+            <Route path="demo-requests" element={<DemoRequestsPanel />} />
             <Route path="id-verifications" element={<IDVerificationReview />} />
             <Route path="helpers" element={<SafeSpaceHelperVerification />} />
             <Route path="training" element={<TrainingManagementPanel />} />
@@ -261,6 +316,10 @@ const AdminHub = () => {
             <Route path="campaigns" element={<CampaignModerationPanel />} />
             <Route path="organizations" element={<OrganizationVerificationPanel />} />
             <Route path="blocks" element={<UserBlocksPanel />} />
+            <Route path="donations" element={<DonationManagementPanel />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="org-settings" element={<OrganizationSettingsPanel />} />
+            <Route path="system-health" element={<SystemHealthPanel />} />
             <Route path="safeguarding/alerts" element={<AdminSafeguardingAlerts />} />
             <Route path="safeguarding/sessions" element={<AdminSafeguardingSessions />} />
             <Route path="safeguarding/dbs" element={<AdminSafeguardingDBS />} />
