@@ -281,10 +281,10 @@ export const DemoRequestsPanel = () => {
                     </div>
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>{request.email} {request.company_name && `• ${request.company_name}`}</p>
-                      {request.scheduled_date && (
+                      {request.scheduled_meeting_time && (
                         <p className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          Scheduled: {format(new Date(request.scheduled_date), 'PPP p')}
+                          Scheduled: {format(new Date(request.scheduled_meeting_time), 'PPP p')}
                         </p>
                       )}
                     </div>

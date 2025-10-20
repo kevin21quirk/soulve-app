@@ -22,7 +22,7 @@ interface DemoRequestDetailsDialogProps {
 export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: DemoRequestDetailsDialogProps) => {
   const [status, setStatus] = useState(request.status);
   const [priority, setPriority] = useState(request.priority);
-  const [scheduledDate, setScheduledDate] = useState(request.scheduled_date || '');
+  const [scheduledDate, setScheduledDate] = useState(request.scheduled_meeting_time || '');
   const [meetingLink, setMeetingLink] = useState(request.meeting_link || '');
   const [adminNotes, setAdminNotes] = useState(request.admin_notes || '');
   const [activityLog, setActivityLog] = useState<any[]>([]);
@@ -80,17 +80,22 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
       const updates: any = {
         status,
         priority,
-        scheduled_date: scheduledDate || null,
+        scheduled_meeting_time: scheduledDate || null,
         meeting_link: meetingLink || null,
         admin_notes: adminNotes || null
       };
+
+      console.log('Updating demo request with:', updates);
 
       const { error } = await supabase
         .from('demo_requests')
         .update(updates)
         .eq('id', request.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
       // Log the activity
       await supabase.from('demo_request_activity_log').insert({
