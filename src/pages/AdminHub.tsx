@@ -9,6 +9,7 @@ import AdminWaitlistDashboard from '@/components/waitlist/AdminWaitlistDashboard
 import EvidenceReviewPanel from '@/components/admin/EvidenceReviewPanel';
 import SafeSpaceHelperVerification from '@/components/admin/SafeSpaceHelperVerification';
 import BadgeManagementPanel from '@/components/admin/BadgeManagementPanel';
+import BadgeVerificationPanel from '@/components/admin/BadgeVerificationPanel';
 import RedFlagsPanel from '@/components/admin/RedFlagsPanel';
 import AdminCustomizationPanel from '@/components/dashboard/AdminCustomizationPanel';
 import PointsConfigPanel from '@/components/admin/PointsConfigPanel';
@@ -312,6 +313,7 @@ const AdminHub = () => {
             <Route path="feedback" element={<FeedbackManagementPanel />} />
             <Route path="red-flags" element={<RedFlagsPanel />} />
             <Route path="badges" element={<BadgeManagementPanel />} />
+            <Route path="badge-verifications" element={<BadgeVerificationPanel />} />
             <Route path="customization" element={<AdminCustomizationPanel />} />
             <Route path="points-config" element={<PointsConfigPanel />} />
             <Route path="campaigns" element={<CampaignModerationPanel />} />

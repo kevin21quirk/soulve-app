@@ -50,6 +50,7 @@ const adminNavItems = [
   { title: 'Feedback', url: '/admin/feedback', icon: MessageSquare, showBadge: true, badgeKey: 'feedback' },
   { title: 'Red Flags', url: '/admin/red-flags', icon: AlertTriangle, showBadge: false },
   { title: 'Badge Management', url: '/admin/badges', icon: Award, showBadge: false },
+  { title: 'Badge Verification', url: '/admin/badge-verifications', icon: Shield, showBadge: true, badgeKey: 'badgeVerifications' },
   { title: 'Points Config', url: '/admin/points-config', icon: Sliders, showBadge: false },
   { title: 'Campaigns', url: '/admin/campaigns', icon: Award, showBadge: false },
   { title: 'Organizations', url: '/admin/organizations', icon: Users, showBadge: false },

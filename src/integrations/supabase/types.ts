@@ -95,47 +95,157 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_award_log: {
+        Row: {
+          activity_ids: string[] | null
+          awarded_at: string
+          awarded_by: string | null
+          badge_id: string
+          campaign_id: string | null
+          contribution_details: Json | null
+          evidence_submitted: Json | null
+          id: string
+          metadata: Json | null
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          activity_ids?: string[] | null
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id: string
+          campaign_id?: string | null
+          contribution_details?: Json | null
+          evidence_submitted?: Json | null
+          id?: string
+          metadata?: Json | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          activity_ids?: string[] | null
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id?: string
+          campaign_id?: string | null
+          contribution_details?: Json | null
+          evidence_submitted?: Json | null
+          id?: string
+          metadata?: Json | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badge_award_log_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badge_award_log_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
+          availability_window_end: string | null
+          availability_window_start: string | null
+          badge_category: string | null
+          campaign_id: string | null
           color: string
+          cooldown_hours: number | null
           created_at: string | null
+          current_award_count: number | null
           description: string
+          event_identifier: string | null
+          evidence_requirements: Json | null
           icon: string
           id: string
           is_active: boolean | null
+          limited_edition: boolean | null
+          max_awards: number | null
+          max_per_user: number | null
           name: string
           rarity: string
           requirement_type: string
           requirement_value: number
           updated_at: string | null
+          verification_required: boolean | null
         }
         Insert: {
+          availability_window_end?: string | null
+          availability_window_start?: string | null
+          badge_category?: string | null
+          campaign_id?: string | null
           color: string
+          cooldown_hours?: number | null
           created_at?: string | null
+          current_award_count?: number | null
           description: string
+          event_identifier?: string | null
+          evidence_requirements?: Json | null
           icon: string
           id?: string
           is_active?: boolean | null
+          limited_edition?: boolean | null
+          max_awards?: number | null
+          max_per_user?: number | null
           name: string
           rarity: string
           requirement_type: string
           requirement_value: number
           updated_at?: string | null
+          verification_required?: boolean | null
         }
         Update: {
+          availability_window_end?: string | null
+          availability_window_start?: string | null
+          badge_category?: string | null
+          campaign_id?: string | null
           color?: string
+          cooldown_hours?: number | null
           created_at?: string | null
+          current_award_count?: number | null
           description?: string
+          event_identifier?: string | null
+          evidence_requirements?: Json | null
           icon?: string
           id?: string
           is_active?: boolean | null
+          limited_edition?: boolean | null
+          max_awards?: number | null
+          max_per_user?: number | null
           name?: string
           rarity?: string
           requirement_type?: string
           requirement_value?: number
           updated_at?: string | null
+          verification_required?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "badges_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       business_partnerships: {
         Row: {
@@ -963,6 +1073,7 @@ export type Database = {
       campaigns: {
         Row: {
           allow_anonymous_donations: boolean | null
+          badge_criteria: Json | null
           category: string
           created_at: string
           creator_id: string
@@ -973,6 +1084,7 @@ export type Database = {
           enable_comments: boolean | null
           enable_updates: boolean | null
           end_date: string | null
+          exclusive_badge_id: string | null
           featured_image: string | null
           gallery_images: Json | null
           goal_amount: number | null
@@ -996,6 +1108,7 @@ export type Database = {
         }
         Insert: {
           allow_anonymous_donations?: boolean | null
+          badge_criteria?: Json | null
           category: string
           created_at?: string
           creator_id: string
@@ -1006,6 +1119,7 @@ export type Database = {
           enable_comments?: boolean | null
           enable_updates?: boolean | null
           end_date?: string | null
+          exclusive_badge_id?: string | null
           featured_image?: string | null
           gallery_images?: Json | null
           goal_amount?: number | null
@@ -1029,6 +1143,7 @@ export type Database = {
         }
         Update: {
           allow_anonymous_donations?: boolean | null
+          badge_criteria?: Json | null
           category?: string
           created_at?: string
           creator_id?: string
@@ -1039,6 +1154,7 @@ export type Database = {
           enable_comments?: boolean | null
           enable_updates?: boolean | null
           end_date?: string | null
+          exclusive_badge_id?: string | null
           featured_image?: string | null
           gallery_images?: Json | null
           goal_amount?: number | null
@@ -1060,7 +1176,15 @@ export type Database = {
           urgency?: string
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_exclusive_badge_id_fkey"
+            columns: ["exclusive_badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       carbon_footprint_data: {
         Row: {
@@ -7213,6 +7337,10 @@ export type Database = {
       can_access_message: {
         Args: { message_recipient_id: string; message_sender_id: string }
         Returns: boolean
+      }
+      can_award_badge: {
+        Args: { p_badge_id: string; p_user_id: string }
+        Returns: Json
       }
       can_view_profile: {
         Args: { profile_user_id: string; viewer_id: string }

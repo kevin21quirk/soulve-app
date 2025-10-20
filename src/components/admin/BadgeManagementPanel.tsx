@@ -26,6 +26,16 @@ interface BadgeConfig {
   requirement_type: string;
   requirement_value: number;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  badge_category?: 'achievement' | 'campaign' | 'event' | 'milestone' | 'recognition';
+  event_identifier?: string;
+  campaign_id?: string;
+  limited_edition?: boolean;
+  max_awards?: number;
+  current_award_count?: number;
+  verification_required?: boolean;
+  availability_window_start?: string;
+  availability_window_end?: string;
+  evidence_requirements?: any;
 }
 
 const BadgeManagementPanel = () => {
@@ -43,6 +53,9 @@ const BadgeManagementPanel = () => {
     requirement_type: 'points',
     requirement_value: 0,
     rarity: 'common',
+    badge_category: 'achievement',
+    limited_edition: false,
+    verification_required: false,
   });
 
   useEffect(() => {
@@ -92,6 +105,9 @@ const BadgeManagementPanel = () => {
       requirement_type: 'points',
       requirement_value: 0,
       rarity: 'common',
+      badge_category: 'achievement',
+      limited_edition: false,
+      verification_required: false,
     });
   };
 
@@ -121,7 +137,15 @@ const BadgeManagementPanel = () => {
             color: formData.color || 'blue',
             requirement_type: formData.requirement_type || 'points',
             requirement_value: formData.requirement_value || 0,
-            rarity: formData.rarity || 'common'
+            rarity: formData.rarity || 'common',
+            badge_category: formData.badge_category || 'achievement',
+            event_identifier: formData.event_identifier || null,
+            limited_edition: formData.limited_edition || false,
+            max_awards: formData.max_awards || null,
+            verification_required: formData.verification_required || false,
+            availability_window_start: formData.availability_window_start || null,
+            availability_window_end: formData.availability_window_end || null,
+            evidence_requirements: formData.evidence_requirements || {}
           });
 
         if (error) throw error;
@@ -139,7 +163,15 @@ const BadgeManagementPanel = () => {
             color: formData.color,
             requirement_type: formData.requirement_type,
             requirement_value: formData.requirement_value,
-            rarity: formData.rarity
+            rarity: formData.rarity,
+            badge_category: formData.badge_category,
+            event_identifier: formData.event_identifier || null,
+            limited_edition: formData.limited_edition,
+            max_awards: formData.max_awards || null,
+            verification_required: formData.verification_required,
+            availability_window_start: formData.availability_window_start || null,
+            availability_window_end: formData.availability_window_end || null,
+            evidence_requirements: formData.evidence_requirements || {}
           })
           .eq('id', editingBadge.id);
 
@@ -233,12 +265,34 @@ const BadgeManagementPanel = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Badge className={getRarityColor(badge.rarity)} variant="secondary">
-                      {badge.rarity}
-                    </Badge>
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge className={getRarityColor(badge.rarity)} variant="secondary">
+                        {badge.rarity}
+                      </Badge>
+                      {badge.limited_edition && (
+                        <Badge variant="destructive" className="text-xs">
+                          Limited Edition
+                        </Badge>
+                      )}
+                      {badge.badge_category !== 'achievement' && (
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {badge.badge_category}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Requirement: {badge.requirement_type === 'points' ? `${badge.requirement_value} points` : `${badge.requirement_value} activities`}
                     </p>
+                    {badge.max_awards && (
+                      <p className="text-xs text-muted-foreground">
+                        Awarded: {badge.current_award_count || 0}/{badge.max_awards}
+                      </p>
+                    )}
+                    {badge.event_identifier && (
+                      <p className="text-xs font-medium text-primary">
+                        Event: {badge.event_identifier}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-2 mt-4">
@@ -335,7 +389,7 @@ const BadgeManagementPanel = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Rarity</Label>
                 <select
@@ -350,6 +404,20 @@ const BadgeManagementPanel = () => {
                 </select>
               </div>
               <div>
+                <Label>Category</Label>
+                <select
+                  value={formData.badge_category || 'achievement'}
+                  onChange={(e) => setFormData({ ...formData, badge_category: e.target.value as any })}
+                  className="w-full border rounded-md px-3 py-2"
+                >
+                  <option value="achievement">Achievement</option>
+                  <option value="campaign">Campaign</option>
+                  <option value="event">Event</option>
+                  <option value="milestone">Milestone</option>
+                  <option value="recognition">Recognition</option>
+                </select>
+              </div>
+              <div>
                 <Label>Color</Label>
                 <Input
                   value={formData.color || 'blue'}
@@ -358,6 +426,73 @@ const BadgeManagementPanel = () => {
                 />
               </div>
             </div>
+
+            {(formData.badge_category === 'event' || formData.badge_category === 'campaign') && (
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                <h4 className="font-semibold text-sm">Event/Campaign Configuration</h4>
+                
+                <div>
+                  <Label>Event Identifier (e.g., grenfell_2017, 7_7_2005)</Label>
+                  <Input
+                    value={formData.event_identifier || ''}
+                    onChange={(e) => setFormData({ ...formData, event_identifier: e.target.value })}
+                    placeholder="event_name_year"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Availability Start</Label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.availability_window_start || ''}
+                      onChange={(e) => setFormData({ ...formData, availability_window_start: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Availability End</Label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.availability_window_end || ''}
+                      onChange={(e) => setFormData({ ...formData, availability_window_end: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="limited"
+                      checked={formData.limited_edition || false}
+                      onChange={(e) => setFormData({ ...formData, limited_edition: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="limited">Limited Edition</Label>
+                  </div>
+                  <div>
+                    <Label>Max Awards (optional)</Label>
+                    <Input
+                      type="number"
+                      value={formData.max_awards || ''}
+                      onChange={(e) => setFormData({ ...formData, max_awards: parseInt(e.target.value) || undefined })}
+                      placeholder="Leave empty for unlimited"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="verification"
+                    checked={formData.verification_required || false}
+                    onChange={(e) => setFormData({ ...formData, verification_required: e.target.checked })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="verification">Requires Admin Verification</Label>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>

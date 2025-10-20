@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UserProfileData } from "./UserProfileTypes";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import EventBadgesDisplay from "@/components/profile/EventBadgesDisplay";
 
 interface UserProfilePointsDetailsProps {
   profileData: UserProfileData;
@@ -28,13 +29,21 @@ interface ImpactActivity {
 
 interface UserBadge {
   id: string;
+  badge_id: string;
   earned_at: string;
   progress: number;
   badge: {
     name: string;
     description: string;
     icon: string;
+    rarity: string;
+    badge_category: string;
+    event_identifier?: string;
+    limited_edition: boolean;
+    current_award_count?: number;
+    max_awards?: number;
   };
+  contribution_details?: any;
 }
 
 interface ImpactMetrics {
@@ -77,21 +86,37 @@ const UserProfilePointsDetails = ({
         .order('created_at', { ascending: false })
         .limit(10);
 
-      // Fetch earned badges
+      // Fetch earned badges with full details
       const { data: badgesData } = await supabase
-        .from('user_badges')
+        .from('badge_award_log')
         .select(`
           id,
-          earned_at,
-          progress,
+          badge_id,
+          awarded_at,
+          contribution_details,
           badge:badges (
             name,
             description,
-            icon
+            icon,
+            rarity,
+            badge_category,
+            event_identifier,
+            limited_edition,
+            current_award_count,
+            max_awards
           )
         `)
         .eq('user_id', profileData.id)
-        .order('earned_at', { ascending: false });
+        .in('verification_status', ['verified', 'auto_verified'])
+        .is('revoked_at', null)
+        .order('awarded_at', { ascending: false });
+
+      // Transform data to match UserBadge interface
+      const transformedBadges = badgesData?.map(b => ({
+        ...b,
+        earned_at: b.awarded_at,
+        progress: 100 // Badges from award log are completed
+      })) || [];
 
       // Fetch impact metrics
       const { data: metricsData } = await supabase
@@ -101,7 +126,7 @@ const UserProfilePointsDetails = ({
         .single();
 
       setActivities(activitiesData || []);
-      setBadges(badgesData || []);
+      setBadges(transformedBadges as UserBadge[]);
       setMetrics(metricsData);
     } catch (error) {
       console.error('Error fetching points details:', error);
@@ -260,6 +285,8 @@ const UserProfilePointsDetails = ({
             </TabsContent>
 
             <TabsContent value="badges" className="space-y-4">
+              <EventBadgesDisplay badges={badges} />
+              
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Earned Badges & Achievements</CardTitle>
