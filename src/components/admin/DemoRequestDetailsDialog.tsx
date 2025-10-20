@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Mail, Phone, Building, Users, Link as LinkIcon, Trash2, Copy } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Calendar, Clock, Mail, Phone, Building, Users, Link as LinkIcon, Trash2, Copy, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -48,8 +49,33 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
     }
   };
 
+  const sendNotificationEmail = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('send-demo-notification', {
+        body: {
+          email: request.email,
+          fullName: request.full_name,
+          companyName: request.company_name,
+          status,
+          meetingLink: meetingLink || undefined,
+          scheduledDate: scheduledDate || undefined,
+          adminNotes: adminNotes || undefined
+        }
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error sending notification email:', error);
+      // Don't show error to admin - just log it
+      console.warn('Email notification failed but request was saved');
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
+    const statusChanged = status !== request.status;
+    const shouldSendEmail = statusChanged && ['scheduled', 'completed', 'cancelled', 'no_show'].includes(status);
+    
     try {
       const updates: any = {
         status,
@@ -71,10 +97,21 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
         demo_request_id: request.id,
         action_type: 'updated',
         new_value: updates,
-        notes: 'Admin updated request details'
+        notes: `Admin updated request details${shouldSendEmail ? ' - Email notification sent' : ''}`
       });
 
-      toast({ title: 'Success', description: 'Demo request updated successfully' });
+      // Send email notification if status changed
+      if (shouldSendEmail) {
+        await sendNotificationEmail();
+      }
+
+      toast({ 
+        title: 'Success', 
+        description: shouldSendEmail 
+          ? 'Demo request updated and email notification sent' 
+          : 'Demo request updated successfully' 
+      });
+      
       onUpdate();
       onClose();
     } catch (error) {
@@ -203,6 +240,23 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
           {/* Admin Actions */}
           <div className="space-y-4 border-t pt-4">
             <h3 className="font-semibold text-lg">Admin Actions</h3>
+            
+            {/* Email notification preview */}
+            {status !== request.status && ['scheduled', 'completed', 'cancelled', 'no_show'].includes(status) && (
+              <Alert>
+                <Send className="h-4 w-4" />
+                <AlertTitle>Email Notification</AlertTitle>
+                <AlertDescription>
+                  When you save, <strong>{request.email}</strong> will receive an email notification about this status change.
+                  {status === 'scheduled' && meetingLink && scheduledDate && (
+                    <span className="block mt-1 text-sm">
+                      The email will include the meeting link and scheduled date.
+                    </span>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Status</Label>

@@ -1,5 +1,8 @@
 project_id = "anuvztvypsihzlbkewci"
 
+[functions.send-demo-notification]
+verify_jwt = true
+
 [functions.monitor-safe-space-message]
 verify_jwt = false
 
