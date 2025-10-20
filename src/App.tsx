@@ -18,6 +18,11 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 const ESGLeaders = lazy(() => import("@/pages/ESGLeaders"));
 const Index = lazy(() => import("@/pages/Index"));
 const Auth = lazy(() => import("@/pages/Auth"));
+const CampaignDiscovery = lazy(() => import("@/pages/CampaignDiscovery"));
+const BadgeDiscovery = lazy(() => import("@/pages/BadgeDiscovery"));
+const OrganizationDirectory = lazy(() => import("@/pages/OrganizationDirectory"));
+const ImpactStories = lazy(() => import("@/pages/ImpactStories"));
+const Press = lazy(() => import("@/pages/Press"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const WaitlistDashboard = lazy(() => import("@/pages/WaitlistDashboard"));
 const AdminHub = lazy(() => import("@/pages/AdminHub"));
@@ -127,8 +132,13 @@ function App() {
               } 
             />
             <Route path="/esg-leaders" element={<ESGLeaders />} />
+            <Route path="/campaigns" element={<CampaignDiscovery />} />
+            <Route path="/badges" element={<BadgeDiscovery />} />
+            <Route path="/organizations" element={<OrganizationDirectory />} />
+            <Route path="/stories" element={<ImpactStories />} />
+            <Route path="/press" element={<Press />} />
             <Route
-              path="/admin/*" 
+              path="/admin/*"
               element={
                 <AdminRoute>
                   <AdminHub />

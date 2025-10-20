@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import HomeHeader from "@/components/HomeHeader";
 import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
+import FAQSchema from "@/components/seo/FAQSchema";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -85,6 +86,22 @@ const Index = () => {
           logo: "https://join-soulve.com/og-image.png",
           sameAs: []
         }}
+      />
+      <FAQSchema
+        faqs={[
+          {
+            question: "What is SouLVE?",
+            answer: "SouLVE is a comprehensive social impact platform that connects individuals, organizations, and communities to create lasting positive change through fundraising campaigns, volunteer coordination, and ESG tracking."
+          },
+          {
+            question: "How can I support campaigns?",
+            answer: "You can support campaigns by donating, volunteering your time and skills, sharing campaigns with your network, or offering in-kind support."
+          },
+          {
+            question: "What are impact badges?",
+            answer: "Impact badges are recognition awards you earn for your social impact contributions, ranging from common achievements to legendary limited editions."
+          }
+        ]}
       />
       <HomeHeader />
       <HeroSection />
