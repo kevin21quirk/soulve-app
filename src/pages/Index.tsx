@@ -7,6 +7,8 @@ import FeaturesSection from "@/components/FeaturesSection";
 import UserTypesSection from "@/components/UserTypesSection";
 import Footer from "@/components/Footer";
 import HomeHeader from "@/components/HomeHeader";
+import SEOHead from "@/components/seo/SEOHead";
+import StructuredData from "@/components/seo/StructuredData";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -68,6 +70,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+      <SEOHead
+        title="SouLVE - Connect, Contribute, Create Impact"
+        description="Join SouLVE to track your ESG contributions, support social impact campaigns, volunteer, and make a lasting difference in your community and beyond."
+        keywords={["social impact platform", "ESG tracking", "charity campaigns", "volunteering", "donations", "community impact", "fundraising", "social enterprise"]}
+        url="https://join-soulve.com"
+      />
+      <StructuredData
+        type="Organization"
+        data={{
+          name: "SouLVE",
+          description: "Social impact platform connecting people, organizations, and campaigns for lasting change",
+          url: "https://join-soulve.com",
+          logo: "https://join-soulve.com/og-image.png",
+          sameAs: []
+        }}
+      />
       <HomeHeader />
       <HeroSection />
       <ImpactStoriesSection />

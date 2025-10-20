@@ -12,6 +12,8 @@ import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions
 import { useCampaignStats } from '@/hooks/useCampaignStats';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingState } from '@/components/ui/loading-state';
+import SEOHead from '@/components/seo/SEOHead';
+import StructuredData from '@/components/seo/StructuredData';
 
 const CampaignDetail = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -100,6 +102,45 @@ const CampaignDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${campaign.title} - Support This Campaign`}
+        description={campaign.description.substring(0, 155)}
+        keywords={[
+          'campaign',
+          campaign.category,
+          'social impact',
+          'fundraising',
+          'charity',
+          'donation',
+          campaign.urgency === 'high' ? 'urgent' : 'community'
+        ]}
+        image={campaign.featured_image || 'https://join-soulve.com/og-image.png'}
+        url={`https://join-soulve.com/campaigns/${campaignId}`}
+        type="article"
+        author={creatorName}
+        publishedTime={campaign.created_at}
+        modifiedTime={campaign.updated_at}
+      />
+      <StructuredData
+        type="Campaign"
+        data={{
+          name: campaign.title,
+          description: campaign.description,
+          url: `https://join-soulve.com/campaigns/${campaignId}`,
+          image: campaign.featured_image || 'https://join-soulve.com/og-image.png',
+          startDate: campaign.created_at,
+          endDate: campaign.end_date,
+          location: campaign.location,
+          organizer: {
+            name: creatorName,
+            url: `https://join-soulve.com/profile/${campaign.creator_id}`
+          },
+          offers: {
+            price: 0,
+            priceCurrency: campaign.currency
+          }
+        }}
+      />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">

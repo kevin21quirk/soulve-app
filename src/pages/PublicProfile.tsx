@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import EnhancedLoadingState from "@/components/ui/EnhancedLoadingState";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import ProfileDisplayMode from "@/components/dashboard/ProfileDisplayMode";
+import SEOHead from "@/components/seo/SEOHead";
+import StructuredData from "@/components/seo/StructuredData";
 
 const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -67,8 +69,39 @@ const PublicProfile = () => {
     );
   }
 
+  const fullName = profileData.name || 'SouLVE User';
+  const profileDescription = profileData.bio || `${fullName} is making an impact on SouLVE - Connect with them to support social impact campaigns together.`;
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${fullName} - SouLVE Profile`}
+        description={profileDescription.substring(0, 155)}
+        keywords={[
+          'social impact',
+          'volunteer',
+          'community member',
+          ...(profileData.skills || []),
+          ...(profileData.interests || [])
+        ]}
+        image={profileData.avatar || 'https://join-soulve.com/og-image.png'}
+        url={`https://join-soulve.com/profile/${userId}`}
+        type="profile"
+      />
+      <StructuredData
+        type="Person"
+        data={{
+          name: fullName,
+          url: `https://join-soulve.com/profile/${userId}`,
+          image: profileData.avatar || 'https://join-soulve.com/og-image.png',
+          description: profileDescription,
+          sameAs: [
+            profileData.socialLinks?.website,
+            profileData.socialLinks?.linkedin,
+            profileData.socialLinks?.twitter
+          ].filter(Boolean)
+        }}
+      />
       <div className="max-w-7xl mx-auto p-6">
         {/* Back Button */}
         <Button

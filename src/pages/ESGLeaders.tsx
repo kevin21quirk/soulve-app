@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, TrendingUp, Award, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SEOHead from "@/components/seo/SEOHead";
 
 export default function ESGLeaders() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,6 +89,21 @@ export default function ESGLeaders() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <SEOHead
+        title="ESG Leaders - Top Organizations for Social Impact"
+        description="Discover organizations leading the way in Environmental, Social, and Governance performance. Compare ESG scores, transparency ratings, and trust metrics."
+        keywords={[
+          'ESG leaders',
+          'top ESG organizations',
+          'environmental social governance',
+          'ESG scores',
+          'sustainability leaders',
+          'corporate social responsibility',
+          'ESG ratings',
+          'impact organizations'
+        ]}
+        url="https://join-soulve.com/esg-leaders"
+      />
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Award className="h-8 w-8 text-primary" />
