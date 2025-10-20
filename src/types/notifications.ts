@@ -4,6 +4,22 @@ export type NotificationPriority = 'urgent' | 'high' | 'normal' | 'low';
 export type NotificationActionType = 'accept' | 'decline' | 'reply' | 'view' | 'like' | 'share';
 export type DeliveryStatus = 'pending' | 'delivered' | 'read' | 'failed';
 
+export type NotificationType = 
+  | 'connection_request'
+  | 'connection_accepted'
+  | 'message'
+  | 'post_interaction'
+  | 'group_invitation'
+  | 'campaign_update'
+  | 'demo_request'
+  | 'esg_milestone'
+  | 'esg_verification'
+  | 'esg_report_ready'
+  | 'help_completion_request'
+  | 'help_approved'
+  | 'help_rejected'
+  | 'feedback_status_update';
+
 export interface BaseNotification {
   id: string;
   type: string;
