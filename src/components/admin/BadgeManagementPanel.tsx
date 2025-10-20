@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Award, Plus, Edit2, Trash2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import QuickBadgeAwardTool from './QuickBadgeAwardTool';
 import {
   Dialog,
   DialogContent,
@@ -233,6 +234,9 @@ const BadgeManagementPanel = () => {
 
   return (
     <div className="space-y-6">
+      {/* Quick Badge Award Tool */}
+      <QuickBadgeAwardTool />
+      
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
