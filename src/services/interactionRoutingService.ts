@@ -128,7 +128,7 @@ export const fetchComments = async (id: string, userId?: string) => {
 
       return {
         id: comment.id,
-        post_id: target.actualId,
+        post_id: id,
         user_id: comment.user_id,
         organization_id: comment.organization_id,
         parent_comment_id: comment.parent_id,
