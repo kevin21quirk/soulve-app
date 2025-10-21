@@ -12,8 +12,8 @@ const Footer = () => {
             <Link to="/about" className="block text-xs text-muted-foreground hover:underline">About SouLVE</Link>
             <Link to="/how-it-works" className="block text-xs text-muted-foreground hover:underline">How It Works</Link>
             <Link to="/careers" className="block text-xs text-muted-foreground hover:underline">Careers</Link>
-            <Link to="/blog" className="block text-xs text-muted-foreground hover:underline">Press & Media</Link>
-            <a href="mailto:info@join-soulve.com" className="block text-xs text-muted-foreground hover:underline">Team</a>
+            <Link to="/press" className="block text-xs text-muted-foreground hover:underline">Press & Media</Link>
+            <Link to="/team" className="block text-xs text-muted-foreground hover:underline">Team</Link>
             <Link to="/blog" className="block text-xs text-muted-foreground hover:underline">Blog</Link>
           </div>
 
@@ -23,7 +23,7 @@ const Footer = () => {
             <Link to="/groups" className="block text-xs text-muted-foreground hover:underline">Find Groups</Link>
             <Link to="/campaigns" className="block text-xs text-muted-foreground hover:underline">Join Campaigns</Link>
             <Link to="/events" className="block text-xs text-muted-foreground hover:underline">Create Events</Link>
-            <Link to="/blog" className="block text-xs text-muted-foreground hover:underline">Impact Stories</Link>
+            <Link to="/stories" className="block text-xs text-muted-foreground hover:underline">Impact Stories</Link>
             <Link to="/helpers" className="block text-xs text-muted-foreground hover:underline">Safe Space Helpers</Link>
           </div>
 
@@ -42,7 +42,7 @@ const Footer = () => {
             <Link to="/terms-of-service" className="block text-xs text-muted-foreground hover:underline">Terms of Service</Link>
             <Link to="/privacy-policy" className="block text-xs text-muted-foreground hover:underline">Privacy Policy</Link>
             <Link to="/cookie-policy" className="block text-xs text-muted-foreground hover:underline">Cookie Policy</Link>
-            <a href="mailto:info@join-soulve.com" className="block text-xs text-muted-foreground hover:underline">Contact Us</a>
+            <Link to="/contact" className="block text-xs text-muted-foreground hover:underline">Contact Us</Link>
             <Link to="/report" className="block text-xs text-muted-foreground hover:underline">Report Issue</Link>
             <Link to="/accessibility" className="block text-xs text-muted-foreground hover:underline">Accessibility</Link>
           </div>

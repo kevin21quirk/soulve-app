@@ -49,6 +49,29 @@ const Careers = lazy(() => import("@/pages/Careers"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const Team = lazy(() => import("@/pages/Team"));
+const Discover = lazy(() => import("@/pages/Discover"));
+const Groups = lazy(() => import("@/pages/Groups"));
+const Events = lazy(() => import("@/pages/Events"));
+const Helpers = lazy(() => import("@/pages/Helpers"));
+const Guidelines = lazy(() => import("@/pages/Guidelines"));
+const TrustSafety = lazy(() => import("@/pages/TrustSafety"));
+const Impact = lazy(() => import("@/pages/Impact"));
+const DeveloperAPI = lazy(() => import("@/pages/DeveloperAPI"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const ReportIssue = lazy(() => import("@/pages/ReportIssue"));
+const Accessibility = lazy(() => import("@/pages/Accessibility"));
+const Volunteer = lazy(() => import("@/pages/Volunteer"));
+const Partner = lazy(() => import("@/pages/Partner"));
+const Newsletter = lazy(() => import("@/pages/Newsletter"));
+const Resources = lazy(() => import("@/pages/Resources"));
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const MobileApp = lazy(() => import("@/pages/MobileApp"));
+const Features = lazy(() => import("@/pages/Features"));
+const Pricing = lazy(() => import("@/pages/Pricing"));
+const Enterprise = lazy(() => import("@/pages/Enterprise"));
+const Security = lazy(() => import("@/pages/Security"));
+const SystemStatus = lazy(() => import("@/pages/SystemStatus"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function App() {
@@ -142,7 +165,30 @@ function App() {
             <Route path="/badges" element={<BadgeDiscovery />} />
             <Route path="/organizations" element={<OrganizationDirectory />} />
             <Route path="/stories" element={<ImpactStories />} />
-            <Route path="/press" element={<Press />} />
+              <Route path="/press" element={<Press />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/groups" element={<Groups />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/helpers" element={<Helpers />} />
+              <Route path="/guidelines" element={<Guidelines />} />
+              <Route path="/trust-safety" element={<TrustSafety />} />
+              <Route path="/impact" element={<Impact />} />
+              <Route path="/api" element={<DeveloperAPI />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/report" element={<ReportIssue />} />
+              <Route path="/accessibility" element={<Accessibility />} />
+              <Route path="/volunteer" element={<Volunteer />} />
+              <Route path="/partner" element={<Partner />} />
+              <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/mobile-app" element={<MobileApp />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/enterprise" element={<Enterprise />} />
+              <Route path="/security" element={<Security />} />
+              <Route path="/status" element={<SystemStatus />} />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/careers" element={<Careers />} />
