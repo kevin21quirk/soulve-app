@@ -10,15 +10,28 @@ import { DonorAvatarList } from '@/components/campaign/DonorAvatarList';
 import { CampaignImpactPreview } from '@/components/campaign/CampaignImpactPreview';
 import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions';
 import { useCampaignStats } from '@/hooks/useCampaignStats';
+import { useCampaignInteractions } from '@/hooks/useCampaignInteractions';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingState } from '@/components/ui/loading-state';
 import SEOHead from '@/components/seo/SEOHead';
 import StructuredData from '@/components/seo/StructuredData';
+import EnhancedPostReactions from '@/components/dashboard/EnhancedPostReactions';
+import PostComments from '@/components/dashboard/PostComments';
+import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
+import { FeedPost } from '@/types/feed';
+import { useState } from 'react';
 
 const CampaignDetail = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [commentsExpanded, setCommentsExpanded] = useState(true);
+  const { 
+    handleLike: feedHandleLike, 
+    handleShare: feedHandleShare, 
+    handleAddComment: feedHandleAddComment, 
+    handleBookmark: feedHandleBookmark 
+  } = useRealSocialFeed();
 
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['campaign', campaignId],
@@ -41,6 +54,8 @@ const CampaignDetail = () => {
     campaign?.current_amount || 0,
     campaign?.end_date
   );
+
+  const { interactions, refetch: refetchInteractions } = useCampaignInteractions(campaignId || '');
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -99,6 +114,60 @@ const CampaignDetail = () => {
   const creatorName = creator
     ? `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || 'Anonymous'
     : 'Anonymous';
+
+  // Transform campaign to FeedPost format for social interactions
+  const galleryImages = campaign?.gallery_images 
+    ? (Array.isArray(campaign.gallery_images) 
+        ? campaign.gallery_images 
+        : []) as string[]
+    : [];
+
+  const campaignAsFeedPost: FeedPost = campaign ? {
+    id: `campaign_${campaign.id}`,
+    author: creatorName,
+    authorId: campaign.creator_id,
+    avatar: creator?.avatar_url || '',
+    timestamp: campaign.created_at,
+    title: campaign.title,
+    description: campaign.description,
+    category: campaign.category,
+    urgency: campaign.urgency,
+    location: campaign.location,
+    tags: campaign.tags || [],
+    media: galleryImages.map((url: string, i: number) => ({
+      id: `${campaign.id}-${i}`,
+      type: 'image' as const,
+      url: url,
+      filename: `image-${i}`
+    })),
+    likes: interactions.likes,
+    responses: interactions.comments,
+    shares: interactions.shares,
+    isLiked: interactions.isLiked,
+    isBookmarked: interactions.isBookmarked,
+    isShared: false,
+    comments: []
+  } : {} as FeedPost;
+
+  const handleCampaignLike = async (postId: string) => {
+    await feedHandleLike(`campaign_${campaignId}`);
+    refetchInteractions();
+  };
+
+  const handleCampaignShare = async (postId: string) => {
+    await feedHandleShare(`campaign_${campaignId}`);
+    refetchInteractions();
+  };
+
+  const handleCampaignComment = async (postId: string, content: string) => {
+    await feedHandleAddComment(`campaign_${campaignId}`, content);
+    refetchInteractions();
+  };
+
+  const handleCampaignReaction = async (postId: string, reactionType: string) => {
+    await feedHandleLike(`campaign_${campaignId}`);
+    refetchInteractions();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -229,6 +298,25 @@ const CampaignDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Social Interactions Section */}
+            <div className="border-t pt-8">
+              <h2 className="text-2xl font-semibold mb-6">Engage with this Campaign</h2>
+              
+              <EnhancedPostReactions
+                post={campaignAsFeedPost}
+                onLike={handleCampaignLike}
+                onShare={handleCampaignShare}
+                onRespond={() => setCommentsExpanded(true)}
+                onReaction={handleCampaignReaction}
+              />
+
+              <PostComments
+                post={campaignAsFeedPost}
+                onAddComment={handleCampaignComment}
+                isExpanded={commentsExpanded}
+              />
+            </div>
           </div>
 
           {/* Right Column - Donation Card */}
