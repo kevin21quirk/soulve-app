@@ -19,13 +19,14 @@ import EnhancedPostReactions from '@/components/dashboard/EnhancedPostReactions'
 import PostComments from '@/components/dashboard/PostComments';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { FeedPost } from '@/types/feed';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const CampaignDetail = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [commentsExpanded, setCommentsExpanded] = useState(true);
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
+  const commentsRef = useRef<HTMLDivElement>(null);
   const { 
     handleLike: feedHandleLike, 
     handleShare: feedHandleShare, 
@@ -169,6 +170,20 @@ const CampaignDetail = () => {
     refetchInteractions();
   };
 
+  const handleCommentButtonClick = () => {
+    setCommentsExpanded(true);
+    // Scroll to comments section with smooth behavior
+    setTimeout(() => {
+      commentsRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+      // Focus on the comment textarea after scrolling
+      const textarea = commentsRef.current?.querySelector('textarea');
+      setTimeout(() => textarea?.focus(), 300);
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -307,15 +322,17 @@ const CampaignDetail = () => {
                 post={campaignAsFeedPost}
                 onLike={handleCampaignLike}
                 onShare={handleCampaignShare}
-                onRespond={() => setCommentsExpanded(true)}
+                onRespond={handleCommentButtonClick}
                 onReaction={handleCampaignReaction}
               />
 
-              <PostComments
-                post={campaignAsFeedPost}
-                onAddComment={handleCampaignComment}
-                isExpanded={commentsExpanded}
-              />
+              <div ref={commentsRef}>
+                <PostComments
+                  post={campaignAsFeedPost}
+                  onAddComment={handleCampaignComment}
+                  isExpanded={commentsExpanded}
+                />
+              </div>
             </div>
           </div>
 
