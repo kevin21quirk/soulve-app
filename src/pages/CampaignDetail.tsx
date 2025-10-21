@@ -20,17 +20,21 @@ import PostComments from '@/components/dashboard/PostComments';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { FeedPost } from '@/types/feed';
 import { useState, useRef } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { createInteraction } from '@/services/interactionRoutingService';
+import { usePostComments } from '@/hooks/usePostComments';
 
 const CampaignDetail = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, organizationId } = useAuth();
   const [commentsExpanded, setCommentsExpanded] = useState(false);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
   const { 
     handleLike: feedHandleLike, 
     handleShare: feedHandleShare, 
-    handleAddComment: feedHandleAddComment, 
     handleBookmark: feedHandleBookmark 
   } = useRealSocialFeed();
 
@@ -57,6 +61,7 @@ const CampaignDetail = () => {
   );
 
   const { interactions, refetch: refetchInteractions } = useCampaignInteractions(campaignId || '');
+  const { refetch: refetchComments } = usePostComments(`campaign_${campaignId}`);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -161,8 +166,49 @@ const CampaignDetail = () => {
   };
 
   const handleCampaignComment = async (postId: string, content: string) => {
-    await feedHandleAddComment(`campaign_${campaignId}`, content);
-    refetchInteractions();
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to comment on campaigns",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!content.trim()) {
+      return;
+    }
+
+    setIsSubmittingComment(true);
+    
+    try {
+      // Use the full ID with campaign_ prefix - interactionRoutingService will handle it
+      await createInteraction(
+        `campaign_${campaignId}`,
+        user.id,
+        'comment',
+        content,
+        organizationId
+      );
+
+      toast({
+        title: "Comment posted!",
+        description: "Your comment has been added to the campaign"
+      });
+
+      // Refetch both interactions count and comments
+      refetchInteractions();
+      refetchComments();
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      toast({
+        title: "Failed to post comment",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingComment(false);
+    }
   };
 
   const handleCampaignReaction = async (postId: string, reactionType: string) => {
