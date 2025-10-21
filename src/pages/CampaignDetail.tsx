@@ -182,9 +182,9 @@ const CampaignDetail = () => {
     setIsSubmittingComment(true);
     
     try {
-      // Use the full ID with campaign_ prefix - interactionRoutingService will handle it
+      // postId is already prefixed with campaign_ from PostComments component
       await createInteraction(
-        `campaign_${campaignId}`,
+        postId,
         user.id,
         'comment',
         content,
