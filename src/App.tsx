@@ -43,6 +43,12 @@ const CookiePolicy = lazy(() => import("@/pages/CookiePolicy"));
 const WelcomeWizard = lazy(() => import("@/components/onboarding/WelcomeWizard"));
 const ProfileSettings = lazy(() => import("@/components/profile/ProfileSettings"));
 const OrganizationRedirect = lazy(() => import("@/components/organization/OrganizationRedirect"));
+const About = lazy(() => import("@/pages/About"));
+const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
+const Careers = lazy(() => import("@/pages/Careers"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function App() {
@@ -137,6 +143,12 @@ function App() {
             <Route path="/organizations" element={<OrganizationDirectory />} />
             <Route path="/stories" element={<ImpactStories />} />
             <Route path="/press" element={<Press />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route
               path="/admin/*"
               element={
