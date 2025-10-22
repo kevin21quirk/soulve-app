@@ -42,9 +42,9 @@ const FAQ = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <section id="faq-section" className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-4">
+            <Accordion type="single" collapsible className="space-y-4 scroll-smooth">
               <AccordionItem value="item-1" className="border rounded-lg px-6">
                 <AccordionTrigger className="text-left">
                   What is SouLVE?
@@ -184,10 +184,10 @@ const FAQ = () => {
                 Can't find the answer you're looking for? We're here to help.
               </p>
               <Link 
-                to="/contact"
+                to="/register"
                 className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
-                Contact Support
+                Get Started
               </Link>
             </div>
           </div>

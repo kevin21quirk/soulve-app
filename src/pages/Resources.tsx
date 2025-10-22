@@ -5,7 +5,7 @@ const Resources = () => {
     <ComingSoonPage
       title="Resources Hub"
       description="Access guides, toolkits, and educational materials to maximize your social impact. Resource library coming soon."
-      estimatedLaunch="Q2 2025"
+      estimatedLaunch="Q2 2026"
     />
   );
 };

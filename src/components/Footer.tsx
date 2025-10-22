@@ -70,7 +70,7 @@ const Footer = () => {
 
         {/* Bottom Bar - Single line with copyright, social, language */}
         <div className="border-t border-border pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>&copy; 2024 SouLVE. All rights reserved.</p>
+          <p>&copy; 2025 SouLVE. All rights reserved.</p>
           
           <div className="flex items-center gap-4">
             {/* Social Icons - Small */}

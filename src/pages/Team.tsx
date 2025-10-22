@@ -5,7 +5,7 @@ const Team = () => {
     <ComingSoonPage
       title="Meet Our Team"
       description="We're building an amazing team dedicated to creating positive social change. Check back soon to meet the people behind SouLVE."
-      estimatedLaunch="Q2 2025"
+      estimatedLaunch="Q2 2026"
     />
   );
 };

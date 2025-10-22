@@ -5,7 +5,7 @@ const TrustSafety = () => {
     <ComingSoonPage
       title="Trust & Safety Centre"
       description="Learn about our comprehensive safety features, reporting tools, and safeguarding measures that protect our community."
-      estimatedLaunch="Q1 2025"
+      estimatedLaunch="Q1 2026"
     />
   );
 };

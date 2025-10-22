@@ -5,7 +5,7 @@ const Volunteer = () => {
     <ComingSoonPage
       title="Volunteer Opportunities"
       description="Make a difference by volunteering with SouLVE and our partner organizations. Opportunities database coming soon."
-      estimatedLaunch="Q2 2025"
+      estimatedLaunch="Q2 2026"
     />
   );
 };

@@ -5,7 +5,7 @@ const Accessibility = () => {
     <ComingSoonPage
       title="Accessibility Statement"
       description="SouLVE is committed to ensuring digital accessibility for all users. Our comprehensive accessibility statement coming soon."
-      estimatedLaunch="Q1 2025"
+      estimatedLaunch="Q1 2026"
     />
   );
 };

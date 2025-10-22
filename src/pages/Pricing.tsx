@@ -5,7 +5,7 @@ const Pricing = () => {
     <ComingSoonPage
       title="Pricing Plans"
       description="Flexible pricing for individuals, organizations, and enterprises. Detailed pricing information coming soon."
-      estimatedLaunch="Q2 2025"
+      estimatedLaunch="Q2 2026"
     />
   );
 };

@@ -5,7 +5,7 @@ const MobileApp = () => {
     <ComingSoonPage
       title="Mobile App"
       description="Take SouLVE with you wherever you go. Our iOS and Android apps are currently in development."
-      estimatedLaunch="Q3 2025"
+      estimatedLaunch="Q3 2026"
     />
   );
 };
