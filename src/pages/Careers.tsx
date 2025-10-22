@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { Briefcase, Heart, Users, Rocket } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Briefcase, Heart, Users, Rocket, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Careers = () => {
   return (
@@ -17,13 +19,19 @@ const Careers = () => {
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Join Our Mission
             </h1>
-            <p className="text-xl text-teal-100">
-              Help us build technology that brings communities together and creates meaningful human connections.
-            </p>
+              <p className="text-xl text-teal-100">
+                Help us build technology that brings communities together and creates meaningful human connections.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -166,6 +174,8 @@ const Careers = () => {
             </a>
           </div>
         </section>
+
+        <Footer />
       </main>
     </>
   );

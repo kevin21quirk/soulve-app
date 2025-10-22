@@ -1,10 +1,13 @@
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Footer from "@/components/Footer";
 
 const FAQ = () => {
   return (
@@ -22,13 +25,19 @@ const FAQ = () => {
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Frequently Asked Questions
             </h1>
-            <p className="text-xl text-teal-100">
-              Everything you need to know about SouLVE and how it works.
-            </p>
+              <p className="text-xl text-teal-100">
+                Everything you need to know about SouLVE and how it works.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -174,15 +183,17 @@ const FAQ = () => {
               <p className="text-muted-foreground mb-6">
                 Can't find the answer you're looking for? We're here to help.
               </p>
-              <a 
-                href="mailto:info@join-soulve.com"
+              <Link 
+                to="/contact"
                 className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
                 Contact Support
-              </a>
+              </Link>
             </div>
           </div>
         </section>
+
+        <Footer />
       </main>
     </>
   );

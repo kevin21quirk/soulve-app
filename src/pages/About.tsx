@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { Users, Heart, Shield, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Users, Heart, Shield, TrendingUp, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const About = () => {
   return (
@@ -18,14 +20,20 @@ const About = () => {
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Bridging the Human Gap
             </h1>
-            <p className="text-xl text-teal-100">
-              AI can connect information, but only humans can connect hearts. 
-              SouLVE creates the platform where authentic community relationships flourish.
-            </p>
+              <p className="text-xl text-teal-100">
+                AI can connect information, but only humans can connect hearts. 
+                SouLVE creates the platform where authentic community relationships flourish.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -123,14 +131,16 @@ const About = () => {
             <p className="text-xl text-teal-100 mb-8">
               Be part of building better communities through meaningful connections.
             </p>
-            <a 
-              href="mailto:info@join-soulve.com"
+            <Link 
+              to="/register"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
-              Get In Touch
-            </a>
+              Join SouLVE
+            </Link>
           </div>
         </section>
+
+        <Footer />
       </main>
     </>
   );

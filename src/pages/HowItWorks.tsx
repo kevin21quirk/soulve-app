@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { UserPlus, Shield, Users, Award, Heart, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { UserPlus, Shield, Users, Award, Heart, TrendingUp, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const HowItWorks = () => {
   return (
@@ -17,13 +19,19 @@ const HowItWorks = () => {
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
               How SouLVE Works
             </h1>
-            <p className="text-xl text-teal-100">
-              Building trust, fostering connections, and measuring impact - one interaction at a time.
-            </p>
+              <p className="text-xl text-teal-100">
+                Building trust, fostering connections, and measuring impact - one interaction at a time.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -175,14 +183,16 @@ const HowItWorks = () => {
             <p className="text-xl text-teal-100 mb-8">
               Join SouLVE today and start building meaningful connections in your community.
             </p>
-            <a 
-              href="mailto:info@join-soulve.com"
+            <Link 
+              to="/register"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
               Get Started
-            </a>
+            </Link>
           </div>
         </section>
+
+        <Footer />
       </main>
     </>
   );

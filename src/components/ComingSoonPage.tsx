@@ -22,8 +22,8 @@ const ComingSoonPage = ({ title, description, estimatedLaunch }: ComingSoonPageP
       <div className="min-h-screen flex flex-col">
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 p-8 w-fit mx-auto mb-8">
-              <Construction className="h-16 w-16 text-primary" />
+            <div className="rounded-full bg-gradient-to-r from-primary to-secondary p-8 w-fit mx-auto mb-8">
+              <Construction className="h-16 w-16 text-white" />
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -49,10 +49,10 @@ const ComingSoonPage = ({ title, description, estimatedLaunch }: ComingSoonPageP
               </Button>
               
               <Button asChild variant="outline">
-                <a href="mailto:info@join-soulve.com">
+                <Link to="/contact">
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Us
-                </a>
+                </Link>
               </Button>
             </div>
           </div>
