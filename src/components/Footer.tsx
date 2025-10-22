@@ -42,7 +42,7 @@ const Footer = () => {
             <Link to="/terms-of-service" className="block text-xs text-muted-foreground hover:underline">Terms of Service</Link>
             <Link to="/privacy-policy" className="block text-xs text-muted-foreground hover:underline">Privacy Policy</Link>
             <Link to="/cookie-policy" className="block text-xs text-muted-foreground hover:underline">Cookie Policy</Link>
-            <Link to="/contact" className="block text-xs text-muted-foreground hover:underline">Contact Us</Link>
+            <a href="mailto:info@join-soulve.com" className="block text-xs text-muted-foreground hover:underline">Contact Us</a>
             <Link to="/report" className="block text-xs text-muted-foreground hover:underline">Report Issue</Link>
             <Link to="/accessibility" className="block text-xs text-muted-foreground hover:underline">Accessibility</Link>
           </div>
