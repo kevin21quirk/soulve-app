@@ -1,7 +1,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const UserTypesSection = () => {
+  const navigate = useNavigate();
+  
   const userTypes = [
     {
       title: "Community Members",
@@ -49,6 +53,16 @@ const UserTypesSection = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Button 
+            size="lg"
+            onClick={() => navigate("/register")}
+            className="bg-gradient-to-r from-primary to-secondary text-white px-12 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
+          >
+            Get Started Today
+          </Button>
         </div>
       </div>
     </div>

@@ -3,19 +3,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       toast({
         title: "Welcome to the SouLVE Community!",
-        description: "You'll be the first to know when we launch. Get ready to bridge the human gap!",
+        description: "Redirecting you to complete your registration...",
       });
       setEmail("");
+      setTimeout(() => {
+        navigate("/register");
+      }, 1500);
     }
   };
 

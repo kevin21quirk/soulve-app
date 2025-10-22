@@ -1,8 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Shield, Target, TrendingUp, Star, MessageCircle, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const FeaturesSection = () => {
+  const navigate = useNavigate();
+  
   const features = [
     {
       title: "Trust Score & Verification",
@@ -69,6 +73,16 @@ const FeaturesSection = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="text-center mt-16">
+        <Button 
+          size="lg"
+          onClick={() => navigate("/register")}
+          className="bg-gradient-to-r from-primary to-secondary text-white px-12 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
+        >
+          Start Your Journey
+        </Button>
       </div>
     </section>
   );

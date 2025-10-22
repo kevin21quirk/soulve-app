@@ -1,7 +1,11 @@
 import { Heart, Users, Sparkles, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const ImpactStoriesSection = () => {
+  const navigate = useNavigate();
+  
   const stories = [
     {
       problem: "78-year-old widow, 3 days without human contact, considering residential care",
@@ -83,9 +87,16 @@ const ImpactStoriesSection = () => {
       </div>
 
       <div className="text-center">
-        <p className="text-lg text-gray-600 font-medium">
+        <p className="text-lg text-gray-600 font-medium mb-6">
           Here's how we make it happen ↓
         </p>
+        <Button 
+          size="lg"
+          onClick={() => navigate("/register")}
+          className="bg-gradient-to-r from-primary to-secondary text-white px-12 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
+        >
+          Join the Movement
+        </Button>
       </div>
     </section>
   );
