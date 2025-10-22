@@ -11,7 +11,7 @@ const Discover = () => {
     {
       icon: Search,
       title: "Smart Search",
-      description: "Find people, organizations, and campaigns using powerful search filters and AI-powered recommendations."
+      description: "Find people, organisations, and campaigns using powerful search filters and AI-powered recommendations."
     },
     {
       icon: Filter,
@@ -30,7 +30,7 @@ const Discover = () => {
     },
     {
       icon: Building2,
-      title: "Organizations",
+      title: "Organisations",
       description: "Discover charities, businesses, and community groups aligned with your values."
     },
     {
@@ -44,27 +44,27 @@ const Discover = () => {
     {
       title: "Individual Changemakers",
       description: "Connect with passionate individuals working on social impact projects",
-      gradient: "from-blue-500 to-cyan-500"
+      gradient: "from-[#0ce4af] to-[#18a5fe]"
     },
     {
       title: "Charities & Nonprofits",
-      description: "Partner with established organizations driving positive change",
-      gradient: "from-purple-500 to-pink-500"
+      description: "Partner with established organisations driving positive change",
+      gradient: "from-[#0ce4af] to-[#18a5fe]"
     },
     {
       title: "Social Enterprises",
       description: "Collaborate with businesses committed to social and environmental impact",
-      gradient: "from-green-500 to-emerald-500"
+      gradient: "from-[#0ce4af] to-[#18a5fe]"
     },
     {
       title: "Community Leaders",
-      description: "Learn from experienced leaders mobilizing communities for good",
-      gradient: "from-orange-500 to-red-500"
+      description: "Learn from experienced leaders mobilising communities for good",
+      gradient: "from-[#0ce4af] to-[#18a5fe]"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <Helmet>
         <title>Discover People & Organizations - SouLVE</title>
         <meta name="description" content="Find like-minded individuals, organizations, and campaigns that share your passion for social impact. Build meaningful connections with our discovery tools." />
@@ -73,23 +73,23 @@ const Discover = () => {
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] mb-6">
             <Search className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
             Discover Your Community
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Find like-minded changemakers, organizations, and campaigns that share your passion for social impact. 
             Build meaningful connections and collaborate on projects that matter.
           </p>
-          <Button 
-            size="lg"
-            onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
-          >
-            Start Discovering
-          </Button>
+            <Button 
+              size="lg"
+              onClick={() => navigate('/auth')}
+              className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
+            >
+              Start Discovering
+            </Button>
         </div>
       </section>
 
@@ -100,8 +100,8 @@ const Discover = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-100 to-blue-100 mb-4">
-                  <feature.icon className="h-6 w-6 text-cyan-600" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-100 to-blue-100 mb-4">
+                  <feature.icon className="h-6 w-6 text-[#0ce4af]" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
@@ -142,7 +142,7 @@ const Discover = () => {
               { step: "4", title: "Collaborate", description: "Work together on impactful projects" }
             ].map((item, index) => (
               <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-2xl font-bold mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] text-white text-2xl font-bold mb-4">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
@@ -156,7 +156,7 @@ const Discover = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] mb-6">
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-3xl font-bold mb-6">Your Impact Community Awaits</h2>
@@ -166,7 +166,7 @@ const Discover = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
+            className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
           >
             Join SouLVE Today
           </Button>

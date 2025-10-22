@@ -9,14 +9,14 @@ const Helpers = () => {
 
   const benefits = [
     {
+      icon: Shield,
+      title: "Anonymous & Safe",
+      description: "All support is completely anonymous - no judgement, just compassionate listening"
+    },
+    {
       icon: Heart,
       title: "Make a Real Difference",
       description: "Provide meaningful emotional support to those who need it most"
-    },
-    {
-      icon: Shield,
-      title: "Safe & Supported",
-      description: "Comprehensive training and ongoing support from our team"
     },
     {
       icon: Users,
@@ -32,7 +32,7 @@ const Helpers = () => {
 
   const requirements = [
     "Be 18 years or older",
-    "Complete our comprehensive helper training program",
+    "Complete our comprehensive helper training programme",
     "Pass background verification checks",
     "Commit to at least 2 hours per week",
     "Demonstrate empathy and active listening skills",
@@ -47,30 +47,29 @@ const Helpers = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <Helmet>
         <title>Safe Space Helpers - SouLVE</title>
-        <meta name="description" content="Learn about our Safe Space Helper program. Become a trained helper and provide peer support to community members facing mental health challenges." />
+        <meta name="description" content="Learn about our Safe Space Helper programme. Become a trained helper and provide anonymous peer support to community members facing mental health challenges." />
       </Helmet>
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] mb-6">
             <Heart className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
             Safe Space Helpers
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Our Safe Space Helper program connects trained volunteers with community members who need emotional support. 
-            Help create a safer, more supportive online community.
+            Our Safe Space Helper programme connects trained volunteers with community members who need emotional support - completely anonymously. Whether you need someone to talk to or want to help others, we provide a safe, confidential space for mental health support.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
             >
               Apply to Become a Helper
             </Button>
@@ -85,6 +84,43 @@ const Helpers = () => {
         </div>
       </section>
 
+      {/* Why Safe Space - Anonymity Focus */}
+      <section className="py-12 px-4 bg-white/80">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-8 border-2 border-[#0ce4af]/20">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe]">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-3">Completely Anonymous Support</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  We understand that reaching out for help can be difficult. That's why Safe Space is designed to be completely anonymous. You don't need to share your identity, and all conversations are private and confidential.
+                </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-[#0ce4af] mt-0.5 flex-shrink-0" />
+                    <span>No personal information required</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-[#0ce4af] mt-0.5 flex-shrink-0" />
+                    <span>All conversations are confidential</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-[#0ce4af] mt-0.5 flex-shrink-0" />
+                    <span>Trained helpers follow strict privacy guidelines</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-[#0ce4af] mt-0.5 flex-shrink-0" />
+                    <span>Ask for support without fear of judgement</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
       {/* Benefits Section */}
       <section className="py-16 px-4 bg-white/50">
         <div className="max-w-6xl mx-auto">
@@ -92,8 +128,8 @@ const Helpers = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
               <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 mb-4">
-                  <benefit.icon className="h-6 w-6 text-purple-600" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-teal-100 to-blue-100 mb-4">
+                  <benefit.icon className="h-6 w-6 text-[#0ce4af]" />
                 </div>
                 <h3 className="font-semibold mb-2">{benefit.title}</h3>
                 <p className="text-sm text-muted-foreground">{benefit.description}</p>
@@ -110,7 +146,7 @@ const Helpers = () => {
           <div className="grid md:grid-cols-4 gap-8">
             {howItWorks.map((item, index) => (
               <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white text-2xl font-bold mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] text-white text-2xl font-bold mb-4">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
@@ -126,7 +162,7 @@ const Helpers = () => {
         <div className="max-w-4xl mx-auto">
           <Card className="p-8">
             <div className="flex items-center gap-3 mb-6">
-              <BookOpen className="h-6 w-6 text-purple-600" />
+              <BookOpen className="h-6 w-6 text-[#0ce4af]" />
               <h2 className="text-2xl font-bold">Helper Requirements</h2>
             </div>
             <div className="space-y-3">
@@ -151,7 +187,7 @@ const Helpers = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
           >
             Get Started Today
           </Button>
