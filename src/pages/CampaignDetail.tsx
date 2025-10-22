@@ -404,13 +404,36 @@ const CampaignDetail = () => {
                   />
                 </div>
 
-                {/* Quick Actions */}
-                <div className="mt-6">
-                  <CampaignQuickActions
-                    campaignId={campaign.id}
-                    currency={campaign.currency}
-                  />
-                </div>
+                {/* Join Platform CTA for Non-Authenticated Users */}
+                {!user ? (
+                  <div className="mt-6 p-6 bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-2">Join SouLVE to Support This Campaign</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Create a free account to donate, track your impact, and connect with the community making a difference
+                    </p>
+                    <Button 
+                      className="w-full mb-2" 
+                      onClick={() => navigate(`/auth?returnTo=/campaigns/${campaignId}`)}
+                    >
+                      Sign Up Now
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full text-sm" 
+                      onClick={() => navigate(`/auth?returnTo=/campaigns/${campaignId}`)}
+                    >
+                      Already have an account? Sign In
+                    </Button>
+                  </div>
+                ) : (
+                  /* Quick Actions for Authenticated Users */
+                  <div className="mt-6">
+                    <CampaignQuickActions
+                      campaignId={campaign.id}
+                      currency={campaign.currency}
+                    />
+                  </div>
+                )}
 
                 {/* Donors */}
                 {stats && stats.recentDonors.length > 0 && (
