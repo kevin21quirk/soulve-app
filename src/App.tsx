@@ -15,6 +15,7 @@ import { FloatingFeedbackButton } from "@/components/feedback/FloatingFeedbackBu
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 // Lazy load route components for better performance
+const ESG = lazy(() => import("@/pages/ESG"));
 const ESGLeaders = lazy(() => import("@/pages/ESGLeaders"));
 const Index = lazy(() => import("@/pages/Index"));
 const Auth = lazy(() => import("@/pages/Auth"));
@@ -160,6 +161,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/esg" element={<ESG />} />
             <Route path="/esg-leaders" element={<ESGLeaders />} />
             <Route path="/campaigns" element={<CampaignDiscovery />} />
             <Route path="/badges" element={<BadgeDiscovery />} />

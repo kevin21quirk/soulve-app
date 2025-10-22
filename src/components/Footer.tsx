@@ -11,6 +11,7 @@ const Footer = () => {
           <div className="space-y-1">
             <Link to="/about" className="block text-xs text-muted-foreground hover:underline">About SouLVE</Link>
             <Link to="/how-it-works" className="block text-xs text-muted-foreground hover:underline">How It Works</Link>
+            <Link to="/esg" className="block text-xs text-muted-foreground hover:underline">ESG & Impact</Link>
             <Link to="/careers" className="block text-xs text-muted-foreground hover:underline">Careers</Link>
             <Link to="/press" className="block text-xs text-muted-foreground hover:underline">Press & Media</Link>
             <Link to="/team" className="block text-xs text-muted-foreground hover:underline">Team</Link>
