@@ -21,7 +21,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_user_id: string | null
         }
         Insert: {
@@ -30,7 +30,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
         }
         Update: {
@@ -39,7 +39,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
         }
         Relationships: []
@@ -67,6 +67,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      advertising_bookings: {
+        Row: {
+          ad_type: string
+          clicks: number | null
+          content: Json | null
+          created_at: string
+          end_date: string
+          id: string
+          impressions: number | null
+          organisation_id: string | null
+          payment_id: string | null
+          start_date: string
+          status: string
+        }
+        Insert: {
+          ad_type: string
+          clicks?: number | null
+          content?: Json | null
+          created_at?: string
+          end_date: string
+          id?: string
+          impressions?: number | null
+          organisation_id?: string | null
+          payment_id?: string | null
+          start_date: string
+          status?: string
+        }
+        Update: {
+          ad_type?: string
+          clicks?: number | null
+          content?: Json | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          impressions?: number | null
+          organisation_id?: string | null
+          payment_id?: string | null
+          start_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertising_bookings_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertising_bookings_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "platform_payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_endpoint_rate_limits: {
         Row: {
@@ -663,7 +720,7 @@ export type Database = {
           created_at: string
           device_type: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           location_city: string | null
           location_country: string | null
           referrer_url: string | null
@@ -678,7 +735,7 @@ export type Database = {
           created_at?: string
           device_type?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           location_city?: string | null
           location_country?: string | null
           referrer_url?: string | null
@@ -693,7 +750,7 @@ export type Database = {
           created_at?: string
           device_type?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           location_city?: string | null
           location_country?: string | null
           referrer_url?: string | null
@@ -1881,7 +1938,7 @@ export type Database = {
           full_name: string
           id: string
           interest_areas: string[] | null
-          ip_address: unknown | null
+          ip_address: unknown
           job_title: string | null
           last_contacted_at: string | null
           meeting_duration_minutes: number | null
@@ -1912,7 +1969,7 @@ export type Database = {
           full_name: string
           id?: string
           interest_areas?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           job_title?: string | null
           last_contacted_at?: string | null
           meeting_duration_minutes?: number | null
@@ -1943,7 +2000,7 @@ export type Database = {
           full_name?: string
           id?: string
           interest_areas?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           job_title?: string | null
           last_contacted_at?: string | null
           meeting_duration_minutes?: number | null
@@ -3691,7 +3748,7 @@ export type Database = {
           access_type: string
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           message_id: string
           user_agent: string | null
           user_id: string
@@ -3700,7 +3757,7 @@ export type Database = {
           access_type: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           message_id: string
           user_agent?: string | null
           user_id: string
@@ -3709,7 +3766,7 @@ export type Database = {
           access_type?: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           message_id?: string
           user_agent?: string | null
           user_id?: string
@@ -4684,6 +4741,50 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_references: {
+        Row: {
+          created_at: string
+          currency: string
+          expected_amount: number
+          expires_at: string | null
+          id: string
+          payment_id: string | null
+          reference_code: string
+          status: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          expected_amount: number
+          expires_at?: string | null
+          id?: string
+          payment_id?: string | null
+          reference_code: string
+          status?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          expected_amount?: number
+          expires_at?: string | null
+          id?: string
+          payment_id?: string | null
+          reference_code?: string
+          status?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_references_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "platform_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_feedback: {
         Row: {
           admin_notes: string | null
@@ -4737,6 +4838,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      platform_payments: {
+        Row: {
+          amount: number
+          bank_transfer_details: Json | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          organisation_id: string | null
+          payment_date: string | null
+          payment_method: string
+          payment_reference: string | null
+          payment_type: string
+          reconciled_at: string | null
+          status: string
+          user_id: string | null
+          yapily_consent_id: string | null
+          yapily_institution_id: string | null
+          yapily_payment_id: string | null
+        }
+        Insert: {
+          amount: number
+          bank_transfer_details?: Json | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          organisation_id?: string | null
+          payment_date?: string | null
+          payment_method: string
+          payment_reference?: string | null
+          payment_type: string
+          reconciled_at?: string | null
+          status?: string
+          user_id?: string | null
+          yapily_consent_id?: string | null
+          yapily_institution_id?: string | null
+          yapily_payment_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bank_transfer_details?: Json | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          organisation_id?: string | null
+          payment_date?: string | null
+          payment_method?: string
+          payment_reference?: string | null
+          payment_type?: string
+          reconciled_at?: string | null
+          status?: string
+          user_id?: string | null
+          yapily_consent_id?: string | null
+          yapily_institution_id?: string | null
+          yapily_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_payments_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       point_decay_log: {
         Row: {
@@ -5357,7 +5529,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string
           user_agent: string | null
@@ -5368,7 +5540,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type: string
           user_agent?: string | null
@@ -5379,7 +5551,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string
           user_agent?: string | null
@@ -6147,7 +6319,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string | null
           severity: string | null
@@ -6159,7 +6331,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           severity?: string | null
@@ -6171,7 +6343,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           severity?: string | null
@@ -6516,6 +6688,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          max_campaigns: number | null
+          max_team_members: number | null
+          name: string
+          price_annual: number | null
+          price_monthly: number | null
+          updated_at: string
+          white_label_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          max_campaigns?: number | null
+          max_team_members?: number | null
+          name: string
+          price_annual?: number | null
+          price_monthly?: number | null
+          updated_at?: string
+          white_label_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          max_campaigns?: number | null
+          max_team_members?: number | null
+          name?: string
+          price_annual?: number | null
+          price_monthly?: number | null
+          updated_at?: string
+          white_label_enabled?: boolean | null
+        }
+        Relationships: []
       }
       support_actions: {
         Row: {
@@ -6999,6 +7210,69 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          billing_cycle: string
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          next_payment_date: string | null
+          organisation_id: string | null
+          plan_id: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          yapily_consent_id: string | null
+        }
+        Insert: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          next_payment_date?: string | null
+          organisation_id?: string | null
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          yapily_consent_id?: string | null
+        }
+        Update: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          next_payment_date?: string | null
+          organisation_id?: string | null
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          yapily_consent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_verifications: {
         Row: {
           created_at: string
@@ -7057,7 +7331,7 @@ export type Database = {
           created_at: string
           document_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
         }
         Insert: {
@@ -7066,7 +7340,7 @@ export type Database = {
           created_at?: string
           document_id: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
         }
         Update: {
@@ -7075,7 +7349,7 @@ export type Database = {
           created_at?: string
           document_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
         }
         Relationships: [
@@ -7353,6 +7627,54 @@ export type Database = {
           },
         ]
       }
+      white_label_purchases: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          id: string
+          licence_end_date: string | null
+          licence_start_date: string | null
+          organisation_id: string | null
+          payment_id: string | null
+          status: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          licence_end_date?: string | null
+          licence_start_date?: string | null
+          organisation_id?: string | null
+          payment_id?: string | null
+          status?: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          licence_end_date?: string | null
+          licence_start_date?: string | null
+          organisation_id?: string | null
+          payment_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "white_label_purchases_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "white_label_purchases_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "platform_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -7362,18 +7684,12 @@ export type Database = {
         Args: { token_input: string }
         Returns: boolean
       }
-      apply_point_decay: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      apply_point_decay: { Args: never; Returns: undefined }
       approve_waitlist_user: {
         Args: { approving_admin_id: string; target_user_id: string }
         Returns: undefined
       }
-      archive_old_reports: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      archive_old_reports: { Args: never; Returns: undefined }
       award_impact_points: {
         Args: {
           activity_type: string
@@ -7426,10 +7742,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
-      calculate_trust_score: {
-        Args: { user_uuid: string }
-        Returns: number
-      }
+      calculate_trust_score: { Args: { user_uuid: string }; Returns: number }
       calculate_user_impact_metrics: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -7442,14 +7755,8 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: number
       }
-      can_access_dashboard: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
-      can_access_donor_details: {
-        Args: { org_id: string }
-        Returns: boolean
-      }
+      can_access_dashboard: { Args: { user_uuid: string }; Returns: boolean }
+      can_access_donor_details: { Args: { org_id: string }; Returns: boolean }
       can_access_message: {
         Args: { message_recipient_id: string; message_sender_id: string }
         Returns: boolean
@@ -7471,10 +7778,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      check_expired_dbs_certificates: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_expired_dbs_certificates: { Args: never; Returns: undefined }
       check_org_admin: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -7492,18 +7796,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_expired_safe_space_messages: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_message_logs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_safe_space_messages: { Args: never; Returns: undefined }
+      cleanup_old_message_logs: { Args: never; Returns: undefined }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       confirm_volunteer_work: {
         Args: {
           activity_id: string
@@ -7516,18 +7811,12 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      decrypt_message: {
-        Args: { encrypted_data: string }
-        Returns: string
-      }
+      decrypt_message: { Args: { encrypted_data: string }; Returns: string }
       detect_fraud_patterns: {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      encrypt_message: {
-        Args: { message_text: string }
-        Returns: string
-      }
+      encrypt_message: { Args: { message_text: string }; Returns: string }
       find_nearby_users: {
         Args: {
           limit_count?: number
@@ -7680,10 +7969,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_uuid: string }; Returns: boolean }
       is_campaign_creator: {
         Args: { campaign_uuid: string; user_uuid: string }
         Returns: boolean
@@ -7708,14 +7994,8 @@ export type Database = {
         Args: { org_id: string; user_uuid: string }
         Returns: boolean
       }
-      is_safeguarding_staff: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
-      is_user_admin: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+      is_safeguarding_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_user_admin: { Args: { user_uuid: string }; Returns: boolean }
       match_safe_space_helper: {
         Args: {
           p_issue_category: string
@@ -7724,10 +8004,7 @@ export type Database = {
         }
         Returns: string
       }
-      process_scheduled_notifications: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      process_scheduled_notifications: { Args: never; Returns: undefined }
       render_notification_template: {
         Args: { template_id_input: string; variables?: Json }
         Returns: {

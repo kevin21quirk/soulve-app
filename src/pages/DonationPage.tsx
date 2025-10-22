@@ -24,7 +24,7 @@ export default function DonationPage() {
   
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal' | 'bank_transfer'>('stripe');
+  const [paymentMethod, setPaymentMethod] = useState<'yapily' | 'bank_transfer'>('yapily');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -180,16 +180,12 @@ export default function DonationPage() {
                 <Label>Payment Method</Label>
                 <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as any)}>
                   <div className="flex items-center space-x-2 border rounded-lg p-3">
-                    <RadioGroupItem value="stripe" id="stripe" />
-                    <Label htmlFor="stripe" className="flex-1 cursor-pointer">Credit/Debit Card (Stripe)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 border rounded-lg p-3">
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="flex-1 cursor-pointer">PayPal</Label>
+                    <RadioGroupItem value="yapily" id="yapily" />
+                    <Label htmlFor="yapily" className="flex-1 cursor-pointer">Pay with Bank (Instant)</Label>
                   </div>
                   <div className="flex items-center space-x-2 border rounded-lg p-3">
                     <RadioGroupItem value="bank_transfer" id="bank" />
-                    <Label htmlFor="bank" className="flex-1 cursor-pointer">Bank Transfer</Label>
+                    <Label htmlFor="bank" className="flex-1 cursor-pointer">Manual Bank Transfer</Label>
                   </div>
                 </RadioGroup>
               </div>
