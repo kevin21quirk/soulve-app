@@ -58,7 +58,7 @@ const UserTypesSection = () => {
         <div className="text-center mt-12">
           <Button 
             size="lg"
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/auth")}
             className="bg-gradient-to-r from-primary to-secondary text-white px-12 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
           >
             Get Started Today

@@ -132,7 +132,7 @@ const About = () => {
               Be part of building better communities through meaningful connections.
             </p>
             <Link 
-              to="/register"
+              to="/auth"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
               Join SouLVE

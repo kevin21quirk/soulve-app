@@ -184,7 +184,7 @@ const FAQ = () => {
                 Can't find the answer you're looking for? We're here to help.
               </p>
               <Link 
-                to="/register"
+                to="/auth"
                 className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
                 Get Started

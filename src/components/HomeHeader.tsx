@@ -36,14 +36,14 @@ const HomeHeader = () => {
             ) : (
               <div className="flex items-center space-x-3">
                 <Button 
-                  onClick={() => navigate("/register")} 
+                  onClick={() => navigate("/auth")} 
                   variant="outline"
                   className="border-[#0ce4af] text-[#0ce4af] hover:bg-[#0ce4af]/10"
                 >
                   Sign In
                 </Button>
                 <Button 
-                  onClick={() => navigate("/register")} 
+                  onClick={() => navigate("/auth")} 
                   className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:from-[#0ce4af]/90 hover:via-[#18a5fe]/90 hover:to-[#4c3dfb]/90 text-white shadow-lg border-none"
                 >
                   Join Beta

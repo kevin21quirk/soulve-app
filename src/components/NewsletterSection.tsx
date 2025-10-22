@@ -19,7 +19,7 @@ const NewsletterSection = () => {
       });
       setEmail("");
       setTimeout(() => {
-        navigate("/register");
+        navigate("/auth");
       }, 1500);
     }
   };

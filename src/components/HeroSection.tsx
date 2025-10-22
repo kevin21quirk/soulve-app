@@ -64,8 +64,8 @@ const HeroSection = () => {
         navigate("/profile-registration");
       }
     } else {
-      // For non-logged-in users, go to register page
-      navigate("/register");
+      // For non-logged-in users, go to auth page
+      navigate("/auth");
     }
   };
 

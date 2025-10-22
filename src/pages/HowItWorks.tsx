@@ -184,7 +184,7 @@ const HowItWorks = () => {
               Join SouLVE today and start building meaningful connections in your community.
             </p>
             <Link 
-              to="/register"
+              to="/auth"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
               Get Started
