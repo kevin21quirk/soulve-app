@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Shield, Headphones, Plug, Lock, BarChart3, Check, X } from "lucide-react";
+import { Building2, Shield, Headphones, Plug, Lock, BarChart3, Check, X, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Enterprise = () => {
@@ -150,6 +151,13 @@ const Enterprise = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
+        {/* Back Link */}
+        <div className="container mx-auto px-4 pt-8">
+          <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+        </div>
 
         {/* Hero Section */}
         <section className="py-20 px-4 sm:px-6 lg:px-8">

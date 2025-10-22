@@ -46,19 +46,55 @@ export const trapFocus = (element: HTMLElement) => {
   };
 };
 
+// Helper to parse hex/rgb/hsl colors to RGB values
+const parseColor = (color: string): [number, number, number] | null => {
+  // Handle hex colors
+  if (color.startsWith('#')) {
+    const hex = color.replace('#', '');
+    if (hex.length === 3) {
+      const r = parseInt(hex[0] + hex[0], 16);
+      const g = parseInt(hex[1] + hex[1], 16);
+      const b = parseInt(hex[2] + hex[2], 16);
+      return [r, g, b];
+    } else if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return [r, g, b];
+    }
+  }
+  
+  // Handle rgb/rgba
+  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbMatch) {
+    return [parseInt(rgbMatch[1]), parseInt(rgbMatch[2]), parseInt(rgbMatch[3])];
+  }
+  
+  return null;
+};
+
 export const getContrastRatio = (foreground: string, background: string): number => {
-  // Simplified contrast ratio calculation
-  // In production, use a proper color contrast library
   const getLuminance = (color: string): number => {
-    // This is a simplified calculation
-    // Use a proper library like 'color' or 'chroma-js' in production
-    return 0.5; // Placeholder
+    const rgb = parseColor(color);
+    if (!rgb) return 0;
+    
+    const [r, g, b] = rgb.map(val => {
+      const sRGB = val / 255;
+      return sRGB <= 0.03928 
+        ? sRGB / 12.92 
+        : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+    });
+    
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   };
 
   const l1 = getLuminance(foreground);
   const l2 = getLuminance(background);
   
-  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  
+  return (lighter + 0.05) / (darker + 0.05);
 };
 
 export const meetsWCAGAA = (contrastRatio: number, fontSize: number): boolean => {
@@ -83,4 +119,38 @@ export const ensureKeyboardNavigation = (element: HTMLElement) => {
       element.click();
     }
   });
+};
+
+// Enhanced screen reader announcement with priority
+export const addAriaLive = (message: string, priority: 'polite' | 'assertive' = 'polite') => {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  
+  document.body.appendChild(announcement);
+  
+  setTimeout(() => {
+    if (announcement.parentNode) {
+      document.body.removeChild(announcement);
+    }
+  }, 1000);
+};
+
+// Add visible focus indicator to element
+export const addFocusStyles = (element: HTMLElement) => {
+  element.classList.add('focus-visible:ring-2', 'focus-visible:ring-primary', 'focus-visible:ring-offset-2');
+};
+
+// Check if element meets WCAG AA contrast requirements
+export const checkColorContrast = (element: HTMLElement): boolean => {
+  const styles = window.getComputedStyle(element);
+  const foreground = styles.color;
+  const background = styles.backgroundColor;
+  const fontSize = parseFloat(styles.fontSize);
+  
+  const ratio = getContrastRatio(foreground, background);
+  return meetsWCAGAA(ratio, fontSize);
 };

@@ -110,26 +110,6 @@ const Impact = () => {
             </div>
           </section>
 
-          {/* Sample Metrics */}
-          <section className="container mx-auto px-4 py-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Our Community Impact So Far
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {metrics.map((metric, index) => (
-                <Card key={index} className="border-border/50 hover:shadow-lg transition-shadow">
-                  <CardContent className="p-8 text-center">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
-                      <metric.icon className="h-7 w-7 text-primary" />
-                    </div>
-                    <div className="text-4xl font-bold text-foreground mb-2">{metric.value}</div>
-                    <p className="text-muted-foreground">{metric.label}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
           {/* What You'll See */}
           <section className="bg-muted/30 py-16">
             <div className="container mx-auto px-4">

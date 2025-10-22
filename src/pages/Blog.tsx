@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Blog = () => {
@@ -40,6 +40,14 @@ const Blog = () => {
       </Helmet>
 
       <main className="min-h-screen bg-background">
+        {/* Back Link */}
+        <div className="container mx-auto px-4 pt-8">
+          <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+        </div>
+
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

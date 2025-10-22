@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
-import { Search, Users, Filter, Heart, Building2, Target, MapPin, Sparkles } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Search, Users, Filter, Heart, Building2, Target, MapPin, Sparkles, ArrowLeft } from "lucide-react";
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -69,6 +69,14 @@ const Discover = () => {
         <title>Discover People & Organizations - SouLVE</title>
         <meta name="description" content="Find like-minded individuals, organizations, and campaigns that share your passion for social impact. Build meaningful connections with our discovery tools." />
       </Helmet>
+
+      {/* Back Link */}
+      <div className="container mx-auto px-4 pt-8">
+        <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back to Home
+        </Link>
+      </div>
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">

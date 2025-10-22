@@ -50,7 +50,7 @@ const Footer = () => {
           {/* Column 5 */}
           <div className="space-y-1">
             <Link to="/volunteer" className="block text-xs text-muted-foreground hover:underline">Volunteer</Link>
-            <Link to="/donate" className="block text-xs text-muted-foreground hover:underline">Donate</Link>
+            <Link to="/campaigns" className="block text-xs text-muted-foreground hover:underline">Donate</Link>
             <Link to="/partner" className="block text-xs text-muted-foreground hover:underline">Partner With Us</Link>
             <Link to="/newsletter" className="block text-xs text-muted-foreground hover:underline">Newsletter</Link>
             <Link to="/resources" className="block text-xs text-muted-foreground hover:underline">Resources</Link>
@@ -73,44 +73,13 @@ const Footer = () => {
           <p>&copy; 2025 SouLVE. All rights reserved.</p>
           
           <div className="flex items-center gap-4">
-            {/* Social Icons - Small */}
+            {/* Social Icons - Small - Coming Soon */}
             <div className="flex items-center gap-3">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
+              <span className="text-xs">Follow us (Coming Soon)</span>
+              <Facebook className="w-4 h-4 opacity-50" aria-label="Facebook - Coming Soon" />
+              <Twitter className="w-4 h-4 opacity-50" aria-label="Twitter - Coming Soon" />
+              <Linkedin className="w-4 h-4 opacity-50" aria-label="LinkedIn - Coming Soon" />
+              <Instagram className="w-4 h-4 opacity-50" aria-label="Instagram - Coming Soon" />
             </div>
 
             {/* Language Selector */}

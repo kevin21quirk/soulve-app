@@ -92,6 +92,36 @@ const Features = () => {
       gradient: "from-[#0ce4af] to-[#18a5fe]",
       available: false,
       comingSoon: "Q1 2026"
+    },
+    {
+      icon: Users,
+      title: "Community Crowdfunding",
+      description: "Enable community-led fundraising with flexible goals, transparent tracking, and milestone-based releases. Support grassroots initiatives and local projects.",
+      gradient: "from-[#0ce4af] to-[#18a5fe]",
+      available: true
+    },
+    {
+      icon: Heart,
+      title: "Secure Donations",
+      description: "Process one-time and recurring donations with bank-grade security. Multiple payment methods including instant bank payments and bank transfers.",
+      gradient: "from-[#0ce4af] to-[#18a5fe]",
+      available: true
+    },
+    {
+      icon: Users,
+      title: "Peer-to-Peer Fundraising",
+      description: "Empower supporters to create personal fundraising pages for causes they care about. Share campaigns and mobilise their networks.",
+      gradient: "from-[#0ce4af] to-[#18a5fe]",
+      available: false,
+      comingSoon: "Q3 2026"
+    },
+    {
+      icon: Calendar,
+      title: "Recurring Giving",
+      description: "Set up monthly or annual giving to sustain causes long-term. Automated payments with flexible scheduling and easy management.",
+      gradient: "from-[#0ce4af] to-[#18a5fe]",
+      available: false,
+      comingSoon: "Q2 2026"
     }
   ];
 
@@ -159,7 +189,7 @@ const Features = () => {
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent mb-2">
-                10+
+                14+
               </div>
               <p className="text-muted-foreground">Powerful Features</p>
             </div>
