@@ -1,21 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { type CampaignTemplate } from '@/services/campaignTemplateService';
 import { CampaignFormData } from '@/services/campaignService';
+import { useSubscription } from '@/hooks/useSubscription';
 import AutoCampaignPublisher from './AutoCampaignPublisher';
 import EnhancedCampaignBuilderHeader from './EnhancedCampaignBuilderHeader';
 import EnhancedCampaignBuilderTabs from './EnhancedCampaignBuilderTabs';
+import UpgradePrompt from '../subscription/UpgradePrompt';
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { subscription, loading: subscriptionLoading, planName, canCreateCampaign, getRemainingCampaigns } = useSubscription();
   const [activeTab, setActiveTab] = useState("templates");
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdCampaign, setCreatedCampaign] = useState(null);
+  const [currentCampaignCount, setCurrentCampaignCount] = useState(0);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   
   const [formData, setFormData] = useState<CampaignFormData>({
     title: '',
@@ -41,7 +46,37 @@ const EnhancedCampaignBuilder = () => {
     promotion_budget: 0
   });
 
+  // Fetch current campaign count on mount
+  useEffect(() => {
+    const fetchCampaignCount = async () => {
+      if (!user) return;
+      
+      const { count, error } = await supabase
+        .from('campaigns')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id)
+        .neq('status', 'deleted');
+      
+      if (!error && count !== null) {
+        setCurrentCampaignCount(count);
+      }
+    };
+
+    fetchCampaignCount();
+  }, [user]);
+
   const handleTemplateSelect = (template: CampaignTemplate) => {
+    // Check if user can create more campaigns
+    if (!canCreateCampaign(currentCampaignCount)) {
+      setShowUpgradePrompt(true);
+      toast({
+        title: "Campaign limit reached",
+        description: `You've reached your limit of ${currentCampaignCount} campaigns on the ${planName} plan.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSelectedTemplate(template);
     // Pre-fill form with template data, mapping organization types correctly
     const mappedOrgType = template.organization_type === 'community_group' ? 'community_group' : 
@@ -61,10 +96,22 @@ const EnhancedCampaignBuilder = () => {
       tags: template.template_data.tags || []
     });
     setShowForm(true);
+    setShowUpgradePrompt(false);
     setActiveTab("templates");
   };
 
   const handleCreateFromScratch = () => {
+    // Check if user can create more campaigns
+    if (!canCreateCampaign(currentCampaignCount)) {
+      setShowUpgradePrompt(true);
+      toast({
+        title: "Campaign limit reached",
+        description: `You've reached your limit of ${currentCampaignCount} campaigns on the ${planName} plan.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSelectedTemplate(null);
     // Reset form to defaults
     setFormData({
@@ -91,6 +138,7 @@ const EnhancedCampaignBuilder = () => {
       promotion_budget: 0
     });
     setShowForm(true);
+    setShowUpgradePrompt(false);
     setActiveTab("templates");
   };
 
@@ -238,6 +286,9 @@ const EnhancedCampaignBuilder = () => {
         description: `Your campaign "${campaign.title}" is now live and visible in the community feed.`,
       });
 
+      // Update campaign count
+      setCurrentCampaignCount(prev => prev + 1);
+
       // Trigger an immediate broadcast to notify other components
       window.dispatchEvent(new CustomEvent('campaignCreated', { 
         detail: { campaign: campaignUpdate } 
@@ -301,20 +352,46 @@ const EnhancedCampaignBuilder = () => {
         <div className="max-w-7xl mx-auto">
           <EnhancedCampaignBuilderHeader />
           
-          <EnhancedCampaignBuilderTabs
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            showForm={showForm}
-            selectedTemplate={selectedTemplate}
-            formData={formData}
-            isSubmitting={isSubmitting}
-            onTemplateSelect={handleTemplateSelect}
-            onCreateFromScratch={handleCreateFromScratch}
-            onFormDataChange={handleFormDataChange}
-            onSubmit={handleSubmit}
-            onBackToTemplates={handleBackToTemplates}
-            onQuickUpdate={handleQuickUpdate}
-          />
+          {showUpgradePrompt ? (
+            <div className="mt-6">
+              <UpgradePrompt
+                title="Upgrade to Create More Campaigns"
+                description="You've reached your campaign limit on the current plan."
+                feature="campaigns"
+                currentLimit={currentCampaignCount}
+                planName={planName}
+              />
+            </div>
+          ) : (
+            <EnhancedCampaignBuilderTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              showForm={showForm}
+              selectedTemplate={selectedTemplate}
+              formData={formData}
+              isSubmitting={isSubmitting}
+              onTemplateSelect={handleTemplateSelect}
+              onCreateFromScratch={handleCreateFromScratch}
+              onFormDataChange={handleFormDataChange}
+              onSubmit={handleSubmit}
+              onBackToTemplates={handleBackToTemplates}
+              onQuickUpdate={handleQuickUpdate}
+            />
+          )}
+
+          {!showUpgradePrompt && (
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              {subscriptionLoading ? (
+                "Loading subscription..."
+              ) : (
+                <>
+                  <strong>{getRemainingCampaigns(currentCampaignCount)}</strong> of{" "}
+                  <strong>{subscription ? subscription.plan.max_campaigns : 3}</strong> campaigns remaining
+                  {" on "}<strong>{planName}</strong> plan
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

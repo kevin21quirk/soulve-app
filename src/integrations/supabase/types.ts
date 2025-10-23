@@ -7778,6 +7778,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_campaign_limit: { Args: never; Returns: boolean }
       check_expired_dbs_certificates: { Args: never; Returns: undefined }
       check_org_admin: {
         Args: { _org_id: string; _user_id: string }
