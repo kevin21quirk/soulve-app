@@ -101,13 +101,13 @@ const HeroSection = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Social Media
                 <br />
-                <span className="text-cyan-200">That Solves</span>
+                <span className="text-cyan-200">That SouLVE's</span>
                 <br />
                 Problems.
               </h1>
               
               <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Join the social media platform where your posts, shares, and likes create real impact in your community. Connect like you always do—but for a purpose that matters.
+                Join the social media platform where your activity fixes your real life community. Connect like you always do, but this time with a purpose that matters.
               </p>
               
               <p className="text-lg text-cyan-200/90 leading-relaxed max-w-2xl mx-auto lg:mx-0 flex items-center justify-center lg:justify-start gap-4">
