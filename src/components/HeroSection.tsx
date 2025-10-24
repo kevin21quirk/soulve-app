@@ -99,15 +99,19 @@ const HeroSection = () => {
                 )}
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Be Part of
+                Social Media
                 <br />
-                <span className="text-cyan-200">Something</span>
+                <span className="text-cyan-200">That Solves</span>
                 <br />
-                Revolutionary.
+                Problems.
               </h1>
               
               <p className="text-xl md:text-2xl text-cyan-100 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Join the select group of changemakers building the future of community connection. As a Founding Member, you'll shape the platform, unlock exclusive benefits, and leave your mark on a movement.
+                Join the social media platform where your posts, shares, and likes create real impact in your community. Connect like you always do—but for a purpose that matters.
+              </p>
+              
+              <p className="text-lg text-cyan-200/90 leading-relaxed max-w-2xl mx-auto lg:mx-0 flex items-center justify-center lg:justify-start gap-4">
+                📱 Posts | 👥 Feed | ❤️ Impact | 🌍 Community
               </p>
             </div>
             
