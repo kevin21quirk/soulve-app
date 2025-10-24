@@ -7797,6 +7797,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_team_member_limit: { Args: { org_uuid: string }; Returns: boolean }
       cleanup_expired_safe_space_messages: { Args: never; Returns: undefined }
       cleanup_old_message_logs: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
@@ -7878,6 +7879,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_esg_access_level: { Args: { user_uuid: string }; Returns: string }
       get_esg_compliance_status: {
         Args: { org_id: string }
         Returns: {
@@ -7970,6 +7972,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_white_label_access: { Args: { user_uuid: string }; Returns: boolean }
       is_admin: { Args: { user_uuid: string }; Returns: boolean }
       is_campaign_creator: {
         Args: { campaign_uuid: string; user_uuid: string }

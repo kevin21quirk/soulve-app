@@ -70,6 +70,8 @@ const Testimonials = lazy(() => import("@/pages/Testimonials"));
 const MobileApp = lazy(() => import("@/pages/MobileApp"));
 const Features = lazy(() => import("@/pages/Features"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const Settings = lazy(() => import("@/pages/Settings"));
 const Enterprise = lazy(() => import("@/pages/Enterprise"));
 const Security = lazy(() => import("@/pages/Security"));
 const SystemStatus = lazy(() => import("@/pages/SystemStatus"));
@@ -106,12 +108,20 @@ function App() {
               path="/settings" 
               element={
                 <ProtectedRoute>
-                  <ProfileSettings />
+                  <Settings />
                 </ProtectedRoute>
               } 
             />
             <Route 
-              path="/dashboard" 
+              path="/checkout" 
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />

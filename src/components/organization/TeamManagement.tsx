@@ -16,10 +16,13 @@ import {
   Shield, 
   User,
   Calendar,
-  Clock
+  Clock,
+  AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { OrganizationManagementService, OrganizationTeamMember, OrganizationInvitation } from "@/services/organizationManagementService";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TeamManagementProps {
   organizationId: string;
@@ -27,6 +30,7 @@ interface TeamManagementProps {
 
 const TeamManagement = ({ organizationId }: TeamManagementProps) => {
   const { toast } = useToast();
+  const { subscription } = useSubscription();
   const [teamMembers, setTeamMembers] = useState<OrganizationTeamMember[]>([]);
   const [invitations, setInvitations] = useState<OrganizationInvitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +40,10 @@ const TeamManagement = ({ organizationId }: TeamManagementProps) => {
     role: 'member',
     title: ''
   });
+
+  const maxTeamMembers = subscription?.plan.max_team_members || 1;
+  const currentTeamCount = teamMembers.length;
+  const canInviteMore = currentTeamCount < maxTeamMembers;
 
   useEffect(() => {
     loadTeamData();
@@ -68,6 +76,15 @@ const TeamManagement = ({ organizationId }: TeamManagementProps) => {
       toast({
         title: "Error",
         description: "Email is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!canInviteMore) {
+      toast({
+        title: "Team member limit reached",
+        description: `Your current plan allows ${maxTeamMembers} team member${maxTeamMembers > 1 ? 's' : ''}. Upgrade to add more.`,
         variant: "destructive"
       });
       return;
@@ -144,16 +161,40 @@ const TeamManagement = ({ organizationId }: TeamManagementProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Team Limit Warning */}
+      {!canInviteMore && (
+        <Alert className="border-yellow-200 bg-yellow-50">
+          <AlertCircle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            You've reached your team member limit ({maxTeamMembers} member{maxTeamMembers > 1 ? 's' : ''}).{' '}
+            <Button
+              variant="link"
+              className="p-0 h-auto text-yellow-900 underline"
+              onClick={() => window.location.href = '/pricing'}
+            >
+              Upgrade your plan
+            </Button>{' '}
+            to add more team members.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-          <p className="text-gray-600">Manage your organization's team members and permissions</p>
+          <p className="text-gray-600">
+            Manage your organization's team members and permissions •{' '}
+            <span className="font-medium">{currentTeamCount} / {maxTeamMembers} members</span>
+          </p>
         </div>
         
         <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+            <Button 
+              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+              disabled={!canInviteMore}
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Invite Member
             </Button>
