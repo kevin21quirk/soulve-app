@@ -56,6 +56,7 @@ const adminNavItems = [
   { title: 'Organizations', url: '/admin/organizations', icon: Users, showBadge: false },
   { title: 'Donations', url: '/admin/donations', icon: DollarSign, showBadge: false },
   { title: 'Analytics', url: '/admin/analytics', icon: TrendingUp, showBadge: false },
+  { title: 'Subscriptions', url: '/admin/subscriptions', icon: Award, showBadge: false },
   { title: 'System Health', url: '/admin/system-health', icon: Activity, showBadge: false },
   { title: 'Org Settings', url: '/admin/org-settings', icon: Settings, showBadge: false },
 ];

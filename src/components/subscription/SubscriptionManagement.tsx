@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Crown, Users, Rocket, AlertTriangle, Calendar, CreditCard } from 'lucide-react';
+import { Crown, Users, Rocket, AlertTriangle, Calendar, CreditCard, Zap, CheckCircle2 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { YapilyService } from '@/services/yapilyService';
 import { format } from 'date-fns';
+import FoundingMemberBadge from './FoundingMemberBadge';
 
 interface SubscriptionManagementProps {
   currentCampaignCount?: number;
@@ -20,7 +21,7 @@ const SubscriptionManagement = ({
   currentCampaignCount = 0,
   currentTeamMemberCount = 1
 }: SubscriptionManagementProps) => {
-  const { subscription, loading, planName, refresh } = useSubscription();
+  const { subscription, loading, planName, isFoundingMember, refresh } = useSubscription();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [cancelling, setCancelling] = useState(false);
@@ -60,6 +61,79 @@ const SubscriptionManagement = ({
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-muted rounded w-1/3"></div>
             <div className="h-3 bg-muted rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show founding member status prominently
+  if (isFoundingMember) {
+    return (
+      <Card className="border-2 border-amber-500/20 bg-gradient-to-br from-amber-50/50 to-orange-50/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Crown className="h-8 w-8 text-amber-500" />
+              <div>
+                <CardTitle className="text-2xl">Founding Member</CardTitle>
+                <CardDescription className="text-base">
+                  Thank you for being an early supporter! 🎉
+                </CardDescription>
+              </div>
+            </div>
+            <FoundingMemberBadge size="lg" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-white/60 rounded-lg p-6 space-y-4">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <Zap className="h-5 w-5 text-amber-500" />
+              Your Exclusive Benefits
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ Unlimited campaigns</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ Unlimited team members</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ White label branding</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ Full ESG reporting</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ Advanced analytics</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>✨ All future features</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <p className="text-sm text-amber-900">
+              <strong>Lifetime Access:</strong> As a founding member, you have permanent access to all platform features at no cost. Thank you for believing in our mission from the beginning!
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Current Campaigns</span>
+              <span className="font-medium">{currentCampaignCount} / ∞</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Team Members</span>
+              <span className="font-medium">{currentTeamMemberCount} / ∞</span>
+            </div>
           </div>
         </CardContent>
       </Card>
