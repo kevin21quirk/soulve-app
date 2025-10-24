@@ -5190,9 +5190,12 @@ export type Database = {
           created_at: string | null
           facebook: string | null
           first_name: string | null
+          founding_member_granted_at: string | null
+          founding_member_granted_by: string | null
           id: string
           instagram: string | null
           interests: string[] | null
+          is_founding_member: boolean | null
           last_name: string | null
           latitude: number | null
           linkedin: string | null
@@ -5219,9 +5222,12 @@ export type Database = {
           created_at?: string | null
           facebook?: string | null
           first_name?: string | null
+          founding_member_granted_at?: string | null
+          founding_member_granted_by?: string | null
           id: string
           instagram?: string | null
           interests?: string[] | null
+          is_founding_member?: boolean | null
           last_name?: string | null
           latitude?: number | null
           linkedin?: string | null
@@ -5250,9 +5256,12 @@ export type Database = {
           created_at?: string | null
           facebook?: string | null
           first_name?: string | null
+          founding_member_granted_at?: string | null
+          founding_member_granted_by?: string | null
           id?: string
           instagram?: string | null
           interests?: string[] | null
+          is_founding_member?: boolean | null
           last_name?: string | null
           latitude?: number | null
           linkedin?: string | null
@@ -6689,6 +6698,36 @@ export type Database = {
           },
         ]
       }
+      subscription_admin_actions: {
+        Row: {
+          action_details: Json | null
+          action_type: string
+          admin_id: string
+          created_at: string | null
+          id: string
+          reason: string | null
+          target_user_id: string
+        }
+        Insert: {
+          action_details?: Json | null
+          action_type: string
+          admin_id: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          target_user_id: string
+        }
+        Update: {
+          action_details?: Json | null
+          action_type?: string
+          admin_id?: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -7684,6 +7723,32 @@ export type Database = {
         Args: { token_input: string }
         Returns: boolean
       }
+      admin_assign_subscription: {
+        Args: {
+          admin_user_id: string
+          billing_cycle_type: string
+          plan_uuid: string
+          reason_text?: string
+          target_user_id: string
+        }
+        Returns: string
+      }
+      admin_grant_founding_member: {
+        Args: {
+          admin_user_id: string
+          reason_text?: string
+          target_user_id: string
+        }
+        Returns: undefined
+      }
+      admin_revoke_founding_member: {
+        Args: {
+          admin_user_id: string
+          reason_text?: string
+          target_user_id: string
+        }
+        Returns: undefined
+      }
       apply_point_decay: { Args: never; Returns: undefined }
       approve_waitlist_user: {
         Args: { approving_admin_id: string; target_user_id: string }
@@ -7778,7 +7843,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      check_campaign_limit: { Args: never; Returns: boolean }
+      check_campaign_limit:
+        | { Args: never; Returns: boolean }
+        | { Args: { org_id: string; user_id: string }; Returns: boolean }
       check_expired_dbs_certificates: { Args: never; Returns: undefined }
       check_org_admin: {
         Args: { _org_id: string; _user_id: string }
@@ -7797,7 +7864,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      check_team_member_limit: { Args: { org_uuid: string }; Returns: boolean }
+      check_team_member_limit: { Args: { org_id: string }; Returns: boolean }
       cleanup_expired_safe_space_messages: { Args: never; Returns: undefined }
       cleanup_old_message_logs: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
@@ -7879,7 +7946,7 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_esg_access_level: { Args: { user_uuid: string }; Returns: string }
+      get_esg_access_level: { Args: { user_id: string }; Returns: string }
       get_esg_compliance_status: {
         Args: { org_id: string }
         Returns: {
@@ -7972,7 +8039,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      has_white_label_access: { Args: { user_uuid: string }; Returns: boolean }
+      has_white_label_access: { Args: { user_id: string }; Returns: boolean }
       is_admin: { Args: { user_uuid: string }; Returns: boolean }
       is_campaign_creator: {
         Args: { campaign_uuid: string; user_uuid: string }
