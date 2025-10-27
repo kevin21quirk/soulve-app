@@ -74,13 +74,36 @@ const Footer = () => {
           <p>&copy; 2025 SouLVE. All rights reserved.</p>
           
           <div className="flex items-center gap-4">
-            {/* Social Icons - Small - Coming Soon */}
+            {/* Social Icons */}
             <div className="flex items-center gap-3">
-              <span className="text-xs">Follow us (Coming Soon)</span>
-              <Facebook className="w-4 h-4 opacity-50" aria-label="Facebook - Coming Soon" />
-              <Twitter className="w-4 h-4 opacity-50" aria-label="Twitter - Coming Soon" />
-              <Linkedin className="w-4 h-4 opacity-50" aria-label="LinkedIn - Coming Soon" />
-              <Instagram className="w-4 h-4 opacity-50" aria-label="Instagram - Coming Soon" />
+              <span className="text-xs">Follow us</span>
+              <a 
+                href="https://www.facebook.com/profile.php?id=61571924339797" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+                aria-label="Visit our Facebook page"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/soulve-ltd/?viewAsMember=true" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+                aria-label="Visit our LinkedIn page"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://www.instagram.com/soulve_community_app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+                aria-label="Visit our Instagram page"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Language Selector */}
