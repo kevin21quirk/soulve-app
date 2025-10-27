@@ -46,6 +46,7 @@ const ProfileSettings = lazy(() => import("@/components/profile/ProfileSettings"
 const OrganizationRedirect = lazy(() => import("@/components/organization/OrganizationRedirect"));
 const About = lazy(() => import("@/pages/About"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
+const HelpCentre = lazy(() => import("@/pages/HelpCentre"));
 const Careers = lazy(() => import("@/pages/Careers"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Blog = lazy(() => import("@/pages/Blog"));
@@ -203,6 +204,7 @@ function App() {
               <Route path="/status" element={<SystemStatus />} />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/help-center" element={<HelpCentre />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/blog" element={<Blog />} />
