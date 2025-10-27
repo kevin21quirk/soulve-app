@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, TrendingUp, Users, Settings, BarChart3, Zap } from "lucide-react";
 import GamificationPanel from "./GamificationPanel";
 import SocialFeaturesPanel from "./SocialFeaturesPanel";
-import AdminCustomizationPanel from "./AdminCustomizationPanel";
 import { AdvancedAnalyticsService } from "@/services/advancedAnalyticsService";
 import { EnhancedAchievementsService } from "@/services/enhancedAchievementsService";
 import { BackendDataService } from "@/services/backendDataService";
@@ -24,25 +23,6 @@ const EnhancedGamificationPanel = () => {
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const [isLoading, setIsLoading] = useState(false);
   const [activeAnalytics, setActiveAnalytics] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user?.id) return;
-      
-      const { data } = await supabase
-        .from('admin_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      setIsAdmin(!!data);
-    };
-    
-    checkAdminStatus();
-  }, [user?.id]);
 
   // Calculate achievement stats from real data
   const achievementStats = {
@@ -342,11 +322,10 @@ const EnhancedGamificationPanel = () => {
 
       {/* Enhanced Tabbed Interface */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="social">Social Hub</TabsTrigger>
               <TabsTrigger value="achievements">Achievements</TabsTrigger>
-              {isAdmin && <TabsTrigger value="admin">Admin Panel</TabsTrigger>}
             </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -378,12 +357,6 @@ const EnhancedGamificationPanel = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
-        {isAdmin && (
-          <TabsContent value="admin" className="mt-6">
-            <AdminCustomizationPanel />
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );
