@@ -207,30 +207,6 @@ const HelpCentre = () => {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Community Impact</h2>
-            <div className="grid md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">10K+</div>
-                <p className="text-muted-foreground">People Helped</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">50K+</div>
-                <p className="text-muted-foreground">Hours Volunteered</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">500+</div>
-                <p className="text-muted-foreground">Active Campaigns</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">2K+</div>
-                <p className="text-muted-foreground">Verified Helpers</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* CTA Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-16 px-4 sm:px-6 lg:px-8">
