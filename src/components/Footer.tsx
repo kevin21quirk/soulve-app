@@ -30,7 +30,7 @@ const Footer = () => {
 
           {/* Column 3 */}
           <div className="space-y-1">
-            <Link to="/faq" className="block text-xs text-muted-foreground hover:underline">Help Centre</Link>
+            <Link to="/dashboard?tab=help-center" className="block text-xs text-muted-foreground hover:underline">Help Centre</Link>
             <Link to="/faq" className="block text-xs text-muted-foreground hover:underline">FAQs</Link>
             <Link to="/guidelines" className="block text-xs text-muted-foreground hover:underline">Community Guidelines</Link>
             <Link to="/trust-safety" className="block text-xs text-muted-foreground hover:underline">Trust & Safety</Link>
