@@ -183,6 +183,14 @@ function App() {
             <Route path="/crowdfunding-social-good" element={<CrowdfundingSocialGood />} />
             <Route path="/donation-platform" element={<DonationPlatform />} />
             <Route path="/corporate-social-responsibility" element={<CorporateSocialResponsibility />} />
+            <Route path="/for-charities" element={<ForCharities />} />
+            <Route path="/for-volunteers" element={<ForVolunteers />} />
+            <Route path="/for-businesses" element={<ForBusinesses />} />
+            <Route path="/for-donors" element={<ForDonors />} />
+            <Route path="/for-philanthropists" element={<ForPhilanthropists />} />
+            <Route path="/for-governance" element={<ForGovernance />} />
+            <Route path="/for-public" element={<ForPublic />} />
+            <Route path="/for-community-groups" element={<ForCommunityGroups />} />
             
             <Route path="/esg" element={<ESG />} />
             <Route path="/esg-leaders" element={<ESGLeaders />} />

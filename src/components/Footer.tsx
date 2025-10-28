@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Main Links Grid - Clean, no headers */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-2 mb-6">
           {/* Column 1 */}
           <div className="space-y-1">
             <Link to="/about" className="block text-xs text-muted-foreground hover:underline">About SouLVE</Link>
@@ -66,6 +66,18 @@ const Footer = () => {
             <Link to="/enterprise" className="block text-xs text-muted-foreground hover:underline">Enterprise</Link>
             <Link to="/security" className="block text-xs text-muted-foreground hover:underline">Security</Link>
             <Link to="/status" className="block text-xs text-muted-foreground hover:underline">System Status</Link>
+          </div>
+
+          {/* Column 7 - For Users */}
+          <div className="space-y-1">
+            <Link to="/for-charities" className="block text-xs text-muted-foreground hover:underline">For Charities</Link>
+            <Link to="/for-volunteers" className="block text-xs text-muted-foreground hover:underline">For Volunteers</Link>
+            <Link to="/for-businesses" className="block text-xs text-muted-foreground hover:underline">For Businesses</Link>
+            <Link to="/for-donors" className="block text-xs text-muted-foreground hover:underline">For Donors</Link>
+            <Link to="/for-philanthropists" className="block text-xs text-muted-foreground hover:underline">For Philanthropists</Link>
+            <Link to="/for-governance" className="block text-xs text-muted-foreground hover:underline">For Governance</Link>
+            <Link to="/for-public" className="block text-xs text-muted-foreground hover:underline">For Public</Link>
+            <Link to="/for-community-groups" className="block text-xs text-muted-foreground hover:underline">For Community Groups</Link>
           </div>
         </div>
 
