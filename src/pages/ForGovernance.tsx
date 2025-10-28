@@ -47,7 +47,7 @@ const ForGovernance = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
+      <div className="bg-gradient-to-r from-primary to-secondary text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
@@ -270,7 +270,7 @@ const ForGovernance = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-primary to-secondary text-white">
           <h2 className="text-3xl font-bold mb-4">Simplify Your Governance & Compliance</h2>
           <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Meet UK regulatory requirements with automated ESG reporting, risk management, and board-level oversight.
