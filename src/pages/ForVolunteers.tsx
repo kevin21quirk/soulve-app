@@ -65,7 +65,11 @@ const ForVolunteers = () => {
               <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
                 Start Volunteering
               </Button>
-              <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+              <Button 
+                size="lg"
+                onClick={() => navigate("/help-center")}
+                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+              >
                 Browse Opportunities
               </Button>
             </div>
@@ -218,7 +222,11 @@ const ForVolunteers = () => {
             <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
               Start Volunteering
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+            <Button 
+              size="lg"
+              onClick={() => navigate("/help-center")}
+              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+            >
               Browse Opportunities
             </Button>
           </div>

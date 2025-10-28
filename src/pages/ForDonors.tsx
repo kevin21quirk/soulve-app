@@ -65,7 +65,11 @@ const ForDonors = () => {
               <Button size="lg" variant="secondary" onClick={() => navigate("/campaigns")}>
                 Start Donating
               </Button>
-              <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+              <Button 
+                size="lg"
+                onClick={() => navigate("/campaigns")}
+                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+              >
                 Explore Charities
               </Button>
             </div>
@@ -212,7 +216,11 @@ const ForDonors = () => {
             <Button size="lg" variant="secondary" onClick={() => navigate("/campaigns")}>
               Start Donating
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white">
+            <Button 
+              size="lg"
+              onClick={() => navigate("/campaigns")}
+              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+            >
               Browse Charities
             </Button>
           </div>
