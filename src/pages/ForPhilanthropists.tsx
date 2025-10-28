@@ -47,9 +47,9 @@ const ForPhilanthropists = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white py-12">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-amber-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -58,7 +58,7 @@ const ForPhilanthropists = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Philanthropists</h1>
-            <p className="text-xl text-amber-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Strategic, data-driven philanthropy. Connect with high-impact charities, collaborate with fellow donors, and measure your legacy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -181,29 +181,14 @@ const ForPhilanthropists = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Trust Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Join Leading UK Philanthropists</h2>
-            <p className="text-muted-foreground mb-6">
-              Major donors, family foundations, and charitable trusts across the UK use SouLVE for strategic philanthropy.
-            </p>
-            <div className="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <div className="text-3xl font-bold text-amber-600">£50M+</div>
-                <div className="text-sm text-muted-foreground">Strategic Giving</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-orange-600">500+</div>
-                <div className="text-sm text-muted-foreground">Major Donors</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-red-600">1,000+</div>
-                <div className="text-sm text-muted-foreground">Charities Reviewed</div>
-              </div>
-            </div>
-          </div>
+        <Card className="p-8 text-center">
+          <h3 className="text-2xl font-bold mb-4">A Network for Strategic Philanthropists</h3>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Connect with like-minded philanthropists, access verified charity data, 
+            and deploy resources strategically for measurable social impact.
+          </p>
         </Card>
       </div>
 
@@ -224,9 +209,9 @@ const ForPhilanthropists = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-amber-600 to-orange-600 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
           <h2 className="text-3xl font-bold mb-4">Elevate Your Philanthropic Impact</h2>
-          <p className="text-xl text-amber-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Join a private network of strategic philanthropists using data and collaboration to maximise social impact.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -237,7 +222,7 @@ const ForPhilanthropists = () => {
               Schedule Consultation
             </Button>
           </div>
-          <p className="text-sm text-amber-100 mt-6">
+          <p className="text-sm text-teal-100 mt-6">
             ✓ Strategic insights &nbsp; ✓ Private network &nbsp; ✓ Due diligence support &nbsp; ✓ Impact measurement
           </p>
         </Card>

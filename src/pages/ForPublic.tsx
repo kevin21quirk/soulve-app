@@ -47,9 +47,9 @@ const ForPublic = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-teal-600 text-white py-12">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-green-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -58,7 +58,7 @@ const ForPublic = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Everyone</h1>
-            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Make a difference in your community. Discover causes, volunteer, share campaigns, and connect with people who care. Free forever.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -217,30 +217,15 @@ const ForPublic = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Trust Section */}
       <div className="bg-muted/50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="p-8 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950/20 dark:to-teal-950/20">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-2xl font-bold mb-4">Join 100,000+ Community Members</h2>
-              <p className="text-muted-foreground mb-6">
-                People across the UK are using SouLVE to make a positive difference in their communities.
-              </p>
-              <div className="grid grid-cols-3 gap-6 mb-6">
-                <div>
-                  <div className="text-3xl font-bold text-green-600">100K+</div>
-                  <div className="text-sm text-muted-foreground">Community Members</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-teal-600">10K+</div>
-                  <div className="text-sm text-muted-foreground">Active Campaigns</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">500K+</div>
-                  <div className="text-sm text-muted-foreground">Actions Taken</div>
-                </div>
-              </div>
-            </div>
+          <Card className="p-8 text-center">
+            <h3 className="text-2xl font-bold mb-4">Join Your Community on SouLVE</h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Thousands of people across the UK are using SouLVE to connect, collaborate, 
+              and create positive change in their local communities.
+            </p>
           </Card>
         </div>
       </div>
@@ -260,9 +245,9 @@ const ForPublic = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-green-600 to-teal-600 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Make a Difference?</h2>
-          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Join your community on SouLVE. Free forever. No commitment required. Just people helping people.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -273,7 +258,7 @@ const ForPublic = () => {
               Explore First
             </Button>
           </div>
-          <p className="text-sm text-green-100 mt-6">
+          <p className="text-sm text-teal-100 mt-6">
             ✓ Always free &nbsp; ✓ No donations required &nbsp; ✓ Participate your way &nbsp; ✓ Track your impact
           </p>
         </Card>

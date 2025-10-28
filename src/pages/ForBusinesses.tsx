@@ -47,9 +47,9 @@ const ForBusinesses = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-blue-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -58,7 +58,7 @@ const ForBusinesses = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Businesses</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Build a world-class CSR programme. Engage employees, demonstrate ESG impact, and meet UK compliance requirements—all in one platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -181,29 +181,14 @@ const ForBusinesses = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Trust Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Trusted by Leading UK Businesses</h2>
-            <p className="text-muted-foreground mb-6">
-              From SMEs to FTSE 100 companies, businesses across sectors trust SouLVE for their CSR and ESG reporting needs.
-            </p>
-            <div className="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <div className="text-3xl font-bold text-blue-600">500+</div>
-                <div className="text-sm text-muted-foreground">Companies</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-indigo-600">100K+</div>
-                <div className="text-sm text-muted-foreground">Employees Engaged</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-purple-600">£5M+</div>
-                <div className="text-sm text-muted-foreground">Corporate Giving</div>
-              </div>
-            </div>
-          </div>
+        <Card className="p-8 text-center">
+          <h3 className="text-2xl font-bold mb-4">Trusted by UK Businesses</h3>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Companies across the UK are using SouLVE to enhance their CSR programmes, 
+            engage employees in meaningful social impact, and build stronger communities.
+          </p>
         </Card>
       </div>
 
@@ -224,9 +209,9 @@ const ForBusinesses = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
           <h2 className="text-3xl font-bold mb-4">Transform Your Corporate Social Responsibility</h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Join forward-thinking businesses using SouLVE to engage employees, demonstrate ESG impact, and meet compliance requirements.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -237,7 +222,7 @@ const ForBusinesses = () => {
               Download ESG Guide
             </Button>
           </div>
-          <p className="text-sm text-blue-100 mt-6">
+          <p className="text-sm text-teal-100 mt-6">
             ✓ UK compliance ready &nbsp; ✓ Automated ESG reporting &nbsp; ✓ Employee engagement &nbsp; ✓ Dedicated support
           </p>
         </Card>

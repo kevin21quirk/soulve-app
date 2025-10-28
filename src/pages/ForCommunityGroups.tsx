@@ -47,9 +47,9 @@ const ForCommunityGroups = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-600 to-sky-600 text-white py-12">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-cyan-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -58,7 +58,7 @@ const ForCommunityGroups = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Community Groups</h1>
-            <p className="text-xl text-cyan-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Free tools for grassroots organisations. Fundraise, recruit volunteers, and amplify your community impact—no charity registration required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -220,30 +220,15 @@ const ForCommunityGroups = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Trust Section */}
       <div className="bg-muted/50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="p-8 bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-950/20 dark:to-sky-950/20">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-2xl font-bold mb-4">Join 5,000+ UK Community Groups</h2>
-              <p className="text-muted-foreground mb-6">
-                From village halls to urban projects, grassroots groups across the UK trust SouLVE.
-              </p>
-              <div className="grid grid-cols-3 gap-6 mb-6">
-                <div>
-                  <div className="text-3xl font-bold text-cyan-600">5,000+</div>
-                  <div className="text-sm text-muted-foreground">Community Groups</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-sky-600">£500K+</div>
-                  <div className="text-sm text-muted-foreground">Raised for Projects</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">100K+</div>
-                  <div className="text-sm text-muted-foreground">Volunteer Hours</div>
-                </div>
-              </div>
-            </div>
+          <Card className="p-8 text-center">
+            <h3 className="text-2xl font-bold mb-4">Trusted by UK Community Groups</h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              From residents' associations to youth clubs, community groups across the UK 
+              are using SouLVE to organise, fundraise, and amplify their impact.
+            </p>
           </Card>
         </div>
       </div>
@@ -263,9 +248,9 @@ const ForCommunityGroups = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-cyan-600 to-sky-600 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
           <h2 className="text-3xl font-bold mb-4">Amplify Your Community Impact Today</h2>
-          <p className="text-xl text-cyan-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Join thousands of grassroots groups using SouLVE to fundraise, recruit volunteers, and make their communities better.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -276,7 +261,7 @@ const ForCommunityGroups = () => {
               See Success Stories
             </Button>
           </div>
-          <p className="text-sm text-cyan-100 mt-6">
+          <p className="text-sm text-teal-100 mt-6">
             ✓ Free forever &nbsp; ✓ No registration needed &nbsp; ✓ Setup in minutes &nbsp; ✓ Expert support
           </p>
         </Card>

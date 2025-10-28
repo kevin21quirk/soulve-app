@@ -181,29 +181,14 @@ const ForCharities = () => {
         </div>
       </div>
 
-      {/* Success Story */}
+      {/* Trust Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-8 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-950/20 dark:to-blue-950/20">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Join 1,000+ UK Charities Already Making a Difference</h2>
-            <p className="text-muted-foreground mb-6">
-              From local community groups to national organisations, charities across the UK trust SouLVE to manage their fundraising, volunteers, and impact reporting.
-            </p>
-            <div className="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <div className="text-3xl font-bold text-teal-600">£2.5M+</div>
-                <div className="text-sm text-muted-foreground">Raised for Charities</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-blue-600">50K+</div>
-                <div className="text-sm text-muted-foreground">Volunteer Hours</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-purple-600">100%</div>
-                <div className="text-sm text-muted-foreground">To Your Cause</div>
-              </div>
-            </div>
-          </div>
+        <Card className="p-8 text-center">
+          <h3 className="text-2xl font-bold mb-4">Trusted by UK Charities</h3>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Charities across the UK are using SouLVE to connect with supporters, 
+            manage volunteers, and amplify their impact in local communities.
+          </p>
         </Card>
       </div>
 

@@ -47,9 +47,9 @@ const ForGovernance = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-700 to-gray-700 text-white py-12">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-slate-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -58,7 +58,7 @@ const ForGovernance = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Governance & Compliance</h1>
-            <p className="text-xl text-slate-200 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Automated ESG reporting, regulatory compliance, and board-level oversight. Meet UK requirements with confidence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
@@ -270,9 +270,9 @@ const ForGovernance = () => {
 
       {/* Final CTA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Card className="p-12 text-center bg-gradient-to-r from-slate-700 to-gray-700 text-white">
+        <Card className="p-12 text-center bg-gradient-to-r from-teal-600 to-blue-600 text-white">
           <h2 className="text-3xl font-bold mb-4">Simplify Your Governance & Compliance</h2>
-          <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
             Meet UK regulatory requirements with automated ESG reporting, risk management, and board-level oversight.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -283,7 +283,7 @@ const ForGovernance = () => {
               Speak to Compliance Expert
             </Button>
           </div>
-          <p className="text-sm text-slate-200 mt-6">
+          <p className="text-sm text-teal-100 mt-6">
             ✓ UK compliance ready &nbsp; ✓ Automated reporting &nbsp; ✓ Board dashboards &nbsp; ✓ Full audit trails
           </p>
         </Card>
