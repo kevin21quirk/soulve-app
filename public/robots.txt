@@ -5,6 +5,13 @@ Disallow: /dashboard
 Disallow: /admin
 Disallow: /settings
 Disallow: /api/
+Disallow: /auth
+Disallow: /checkout
+Disallow: /*?*utm_source=
+Disallow: /*?*session_id=
 
-# Sitemap location
-Sitemap: https://join-soulve.com/sitemap.xml
+# Crawl-delay for well-behaved bots
+Crawl-delay: 1
+
+# Sitemap locations
+Sitemap: https://join-soulve.com/sitemap-index.xml

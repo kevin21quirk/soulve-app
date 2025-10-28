@@ -18,6 +18,11 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 const ESG = lazy(() => import("@/pages/ESG"));
 const ESGLeaders = lazy(() => import("@/pages/ESGLeaders"));
 const Index = lazy(() => import("@/pages/Index"));
+const SocialImpactPlatform = lazy(() => import("@/pages/SocialImpactPlatform"));
+const ESGReportingSoftware = lazy(() => import("@/pages/ESGReportingSoftware"));
+const CrowdfundingSocialGood = lazy(() => import("@/pages/CrowdfundingSocialGood"));
+const DonationPlatform = lazy(() => import("@/pages/DonationPlatform"));
+const CorporateSocialResponsibility = lazy(() => import("@/pages/CorporateSocialResponsibility"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const CampaignDiscovery = lazy(() => import("@/pages/CampaignDiscovery"));
 const BadgeDiscovery = lazy(() => import("@/pages/BadgeDiscovery"));
@@ -172,6 +177,13 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            {/* SEO Landing Pages */}
+            <Route path="/social-impact-platform" element={<SocialImpactPlatform />} />
+            <Route path="/esg-reporting-software" element={<ESGReportingSoftware />} />
+            <Route path="/crowdfunding-social-good" element={<CrowdfundingSocialGood />} />
+            <Route path="/donation-platform" element={<DonationPlatform />} />
+            <Route path="/corporate-social-responsibility" element={<CorporateSocialResponsibility />} />
+            
             <Route path="/esg" element={<ESG />} />
             <Route path="/esg-leaders" element={<ESGLeaders />} />
             <Route path="/campaigns" element={<CampaignDiscovery />} />

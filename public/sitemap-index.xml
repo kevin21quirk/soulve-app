@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://join-soulve.com/sitemap-pages.xml</loc>
+    <lastmod>2025-01-28</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://join-soulve.com/api/sitemap-campaigns.xml</loc>
+    <lastmod>2025-01-28</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://join-soulve.com/api/sitemap-organizations.xml</loc>
+    <lastmod>2025-01-28</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://join-soulve.com/api/sitemap-profiles.xml</loc>
+    <lastmod>2025-01-28</lastmod>
+  </sitemap>
+</sitemapindex>
