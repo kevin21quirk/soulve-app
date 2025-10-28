@@ -190,7 +190,7 @@ const ForPublic = () => {
           <Card className="p-6 hover:shadow-lg transition-shadow">
             <h3 className="font-semibold text-lg mb-3">💰 Donate</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Support campaigns with one-off or monthly donations. 100% reaches the charity with automatic Gift Aid.
+              Support campaigns with one-off or monthly donations. 97.5% reaches the charity (2.5% processing fee) with automatic Gift Aid.
             </p>
             <Button variant="outline" size="sm" onClick={() => navigate("/campaigns")}>Browse Campaigns</Button>
           </Card>

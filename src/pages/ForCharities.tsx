@@ -12,7 +12,7 @@ const ForCharities = () => {
   const faqs = [
     {
       question: "Is SouLVE really free for charities?",
-      answer: "Yes, absolutely. 100% of donations reach your charity with no platform fees. We believe in maximising impact, not profit."
+      answer: "Yes, SouLVE is free for charities with no monthly subscription fees. We charge a transparent 2.5% processing fee on donations to cover payment processing and platform costs. 97.5% of every donation reaches your charity directly."
     },
     {
       question: "Do we need to be a registered charity?",
@@ -40,7 +40,7 @@ const ForCharities = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <SEOHead
         title="For Charities | Free Fundraising & Donor Management"
-        description="Free fundraising platform for UK charities. 100% of donations reach your cause. Manage donors, volunteers & impact reporting. No platform fees. Get started today."
+        description="Free fundraising platform for UK charities. 97.5% of donations reach your cause with just 2.5% for processing. Manage donors, volunteers & impact reporting. No monthly fees. Get started today."
         keywords={["charity fundraising platform UK", "charity donation management", "charity campaign software", "free fundraising tools", "charity volunteer management", "Gift Aid platform"]}
         url="https://join-soulve.com/for-charities"
       />
@@ -59,7 +59,7 @@ const ForCharities = () => {
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Charities</h1>
             <p className="text-xl text-teal-100 max-w-3xl mx-auto">
-              Maximise your impact with free fundraising tools. 100% of donations reach your cause—no platform fees, no hidden charges.
+              Maximise your impact with free fundraising tools. 97.5% of donations reach your cause with a transparent 2.5% processing fee—no monthly charges, no hidden costs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
@@ -93,7 +93,7 @@ const ForCharities = () => {
             </div>
             <h3 className="font-semibold text-lg mb-2">Zero Platform Fees</h3>
             <p className="text-sm text-muted-foreground">
-              100% of donations go directly to your charity. No hidden charges, no monthly fees. We believe every penny should fund your mission.
+              97.5% of donations go directly to your charity with just 2.5% for payment processing. No hidden charges, no monthly subscription fees. Maximum impact for your mission.
             </p>
           </Card>
 

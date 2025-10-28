@@ -11,8 +11,8 @@ const ForDonors = () => {
 
   const faqs = [
     {
-      question: "Does 100% of my donation really reach the charity?",
-      answer: "Yes, absolutely. SouLVE charges zero platform fees on donations. Every penny you give goes directly to the charity. We cover our costs through optional corporate subscriptions and premium features for businesses."
+      question: "How much of my donation reaches the charity?",
+      answer: "97.5% of your donation reaches the charity directly. We charge a transparent 2.5% processing fee to cover payment processing and platform costs. Unlike other platforms, we have no monthly fees for charities and no hidden charges for donors."
     },
     {
       question: "How does Gift Aid work on SouLVE?",
@@ -40,7 +40,7 @@ const ForDonors = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
       <SEOHead
         title="For Donors | Donate to Verified UK Charities | 100% Goes to Charity"
-        description="Donate to verified UK charities with 100% of your donation reaching the cause. Track your giving, enable Gift Aid automatically, and see your real impact. Start giving today."
+        description="Donate to verified UK charities with 97.5% of your donation reaching the cause (2.5% processing fee). Track your giving, enable Gift Aid automatically, and see your real impact. Start giving today."
         keywords={["donation platform UK", "charitable giving", "impact donation tracking", "Gift Aid donations", "donate to UK charities", "recurring donations"]}
         url="https://join-soulve.com/for-donors"
       />
@@ -59,7 +59,7 @@ const ForDonors = () => {
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">For Donors</h1>
             <p className="text-xl text-teal-100 max-w-3xl mx-auto">
-              Give with confidence. 100% of your donation reaches the charity. Track your impact. Make every penny count.
+              Give with confidence. 97.5% of your donation reaches the charity with a transparent 2.5% processing fee. Track your impact. Make every penny count.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Button size="lg" variant="secondary" onClick={() => navigate("/campaigns")}>
