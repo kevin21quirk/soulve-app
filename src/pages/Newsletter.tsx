@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Heart, TrendingUp, Users, CheckCircle2 } from "lucide-react";
+import { Mail, Heart, TrendingUp, Users, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const Newsletter = () => {
@@ -45,8 +46,17 @@ const Newsletter = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Database types need regeneration after migration
-      console.log('Newsletter subscription:', formData);
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{
+          email: formData.email,
+          first_name: formData.firstName,
+          interests: formData.interests,
+          frequency: formData.frequency,
+          gdpr_consent: true
+        }]);
+
+      if (error) throw error;
       
       setIsSubscribed(true);
       toast({
@@ -125,25 +135,30 @@ const Newsletter = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-
         {/* Hero Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <Mail className="h-16 w-16 text-primary mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Stay Connected
-            </h1>
-            <p className="text-xl text-muted-foreground mb-4">
-              Subscribe to the SouLVE Newsletter
-            </p>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Get monthly updates on platform features, impact stories, volunteer opportunities, and inspiring community achievements delivered to your inbox.
-            </p>
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <Mail className="h-16 w-16 mx-auto mb-6" />
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Stay Connected
+              </h1>
+              <p className="text-xl text-teal-100 mb-4">
+                Subscribe to the SouLVE Newsletter
+              </p>
+              <p className="text-lg text-teal-50 max-w-3xl mx-auto">
+                Get monthly updates on platform features, impact stories, volunteer opportunities, and inspiring community achievements delivered to your inbox.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* What You'll Receive */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">What You'll Receive</h2>
             <div className="grid md:grid-cols-3 gap-8">
@@ -249,7 +264,7 @@ const Newsletter = () => {
         </section>
 
         {/* Past Issues Preview */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Recent Newsletter Highlights</h2>
             <p className="text-muted-foreground mb-8">

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Search, MapPin, Calendar, Target } from "lucide-react";
+import { Search, MapPin, Calendar, Target, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import HomeHeader from "@/components/HomeHeader";
 import Footer from "@/components/Footer";
@@ -73,19 +73,26 @@ const CampaignDiscovery = () => {
       <div className="min-h-screen flex flex-col">
         <HomeHeader />
         
-        <main className="flex-1 bg-gradient-to-b from-background to-muted/20">
-          <div className="container mx-auto px-4 py-8">
-            <BreadcrumbNav items={breadcrumbItems} />
-
-            <div className="mt-6 mb-8">
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="bg-gradient-to-r from-primary to-secondary text-white py-16">
+            <div className="container mx-auto px-4">
+              <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                Back to Home
+              </Link>
               <h1 className="text-4xl font-bold mb-2">Discover Campaigns</h1>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-teal-100 text-lg">
                 Support active campaigns making real social impact in communities worldwide
               </p>
             </div>
+          </section>
+
+          <div className="container mx-auto px-4 py-8">
+            <BreadcrumbNav items={breadcrumbItems} />
 
             {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 mt-6">
               <div className="md:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />

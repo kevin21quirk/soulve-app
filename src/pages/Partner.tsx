@@ -27,8 +27,18 @@ const Partner = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Database types need regeneration after migration
-      console.log('Partnership enquiry:', formData);
+      const { error } = await supabase
+        .from('partnership_enquiries')
+        .insert([{
+          organisation_name: formData.organisationName,
+          contact_name: formData.contactName,
+          email: formData.email,
+          phone: formData.phone,
+          partnership_type: formData.partnershipType,
+          message: formData.message
+        }]);
+
+      if (error) throw error;
       
       toast({
         title: "Partnership enquiry submitted!",
@@ -95,31 +105,29 @@ const Partner = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        {/* Back Link */}
-        <div className="container mx-auto px-4 pt-8">
-          <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Home
-          </Link>
-        </div>
-
         {/* Hero Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Partner With SouLVE
-            </h1>
-            <p className="text-xl text-muted-foreground mb-4">
-              Amplify Your Social Impact Together
-            </p>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Join our network of purpose-driven organisations, businesses, and institutions creating measurable social change. Together, we can do more.
-            </p>
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Partner With SouLVE
+              </h1>
+              <p className="text-xl text-teal-100 mb-4">
+                Amplify Your Social Impact Together
+              </p>
+              <p className="text-lg text-teal-50 max-w-3xl mx-auto">
+                Join our network of purpose-driven organisations, businesses, and institutions creating measurable social change. Together, we can do more.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* Partnership Types */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">Partnership Opportunities</h2>
             <div className="grid md:grid-cols-2 gap-8">
@@ -159,7 +167,7 @@ const Partner = () => {
         </section>
 
         {/* Contact Form */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-4">Start a Conversation</h2>
             <p className="text-center text-muted-foreground mb-8">

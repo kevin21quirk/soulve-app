@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
-import { Heart, Shield, Users, Award, Clock, BookOpen, CheckCircle2 } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Heart, Shield, Users, Award, Clock, BookOpen, CheckCircle2, ArrowLeft } from "lucide-react";
 
 const Helpers = () => {
   const navigate = useNavigate();
@@ -47,45 +47,52 @@ const Helpers = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+    <div className="min-h-screen bg-background">
       <Helmet>
         <title>Safe Space Helpers - SouLVE</title>
         <meta name="description" content="Learn about our Safe Space Helper programme. Become a trained helper and provide anonymous peer support to community members facing mental health challenges." />
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] mb-6">
-            <Heart className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
-            Safe Space Helpers
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Our Safe Space Helper programme connects trained volunteers with community members who need emotional support - completely anonymously. Whether you need someone to talk to or want to help others, we provide a safe, confidential space for mental health support.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
-            >
-              Apply to Become a Helper
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => navigate('/auth')}
-            >
-              Request Support
-            </Button>
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 mb-6">
+              <Heart className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Safe Space Helpers
+            </h1>
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto mb-8">
+              Our Safe Space Helper programme connects trained volunteers with community members who need emotional support - completely anonymously. Whether you need someone to talk to or want to help others, we provide a safe, confidential space for mental health support.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                onClick={() => navigate('/auth')}
+                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50"
+              >
+                Apply to Become a Helper
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => navigate('/auth')}
+                className="border-white text-white hover:bg-white/10"
+              >
+                Request Support
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Why Safe Space - Anonymity Focus */}
-      <section className="py-12 px-4 bg-white/80">
+      <section className="py-12 px-4 bg-background">
         <div className="max-w-4xl mx-auto">
           <Card className="p-8 border-2 border-[#0ce4af]/20">
             <div className="flex items-start gap-4">
@@ -122,7 +129,7 @@ const Helpers = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="py-16 px-4 bg-muted/50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Why Become a Helper?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -158,7 +165,7 @@ const Helpers = () => {
       </section>
 
       {/* Requirements Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="py-16 px-4 bg-muted/50">
         <div className="max-w-4xl mx-auto">
           <Card className="p-8">
             <div className="flex items-center gap-3 mb-6">

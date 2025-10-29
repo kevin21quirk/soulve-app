@@ -1457,6 +1457,42 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          contact_type: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          contact_type?: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          contact_type?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_appeals: {
         Row: {
           appeal_reason: string
@@ -3851,6 +3887,45 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          frequency: string
+          gdpr_consent: boolean
+          id: string
+          interests: string[] | null
+          is_active: boolean
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          frequency?: string
+          gdpr_consent?: boolean
+          id?: string
+          interests?: string[] | null
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          frequency?: string
+          gdpr_consent?: boolean
+          id?: string
+          interests?: string[] | null
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       notification_analytics: {
         Row: {
           created_at: string | null
@@ -4738,6 +4813,45 @@ export type Database = {
           verification_status?: string | null
           vision?: string | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      partnership_enquiries: {
+        Row: {
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          organisation_name: string
+          partnership_type: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          organisation_name: string
+          partnership_type: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          organisation_name?: string
+          partnership_type?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
