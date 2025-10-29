@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Shield, Users, MessageCircle, Scale, AlertTriangle, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Guidelines = () => {
   const principles = [
@@ -80,30 +81,28 @@ const Guidelines = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="pb-16">
-          {/* Back Link */}
-          <div className="container mx-auto px-4 pt-8">
-            <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Home
             </Link>
-          </div>
-          {/* Hero Section */}
-          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-8">
-              <Shield className="h-10 w-10 text-primary" />
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Shield className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">Community Guidelines</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto">
+                Our guidelines ensure SouLVE remains a respectful, inclusive space for everyone working towards positive social change.
+              </p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
-              Community Guidelines
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-              Our guidelines ensure SouLVE remains a respectful, inclusive space for everyone working towards positive social change.
-            </p>
-          </section>
+          </div>
+        </section>
 
-          {/* Introduction */}
-          <section className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Introduction */}
+        <section className="container mx-auto px-4 py-16 max-w-4xl">
             <Card className="border-border/50">
               <CardContent className="p-8">
                 <p className="text-lg text-muted-foreground leading-relaxed">
@@ -113,8 +112,9 @@ const Guidelines = () => {
             </Card>
           </section>
 
-          {/* Core Principles */}
-          <section className="container mx-auto px-4 py-16">
+        {/* Core Principles */}
+        <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
               Our Core Principles
             </h2>
@@ -144,12 +144,13 @@ const Guidelines = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
+        </section>
 
-          {/* Prohibited Content */}
-          <section className="bg-muted/30 py-16">
+        {/* Prohibited Content */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto px-4 max-w-4xl">
               <div className="flex items-center gap-3 mb-8">
                 <AlertTriangle className="h-8 w-8 text-destructive" />
@@ -175,8 +176,9 @@ const Guidelines = () => {
             </div>
           </section>
 
-          {/* Reporting & Enforcement */}
-          <section className="container mx-auto px-4 py-16 max-w-4xl">
+        {/* Reporting & Enforcement */}
+        <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto max-w-4xl">
             <h2 className="text-3xl font-bold mb-8">Reporting & Enforcement</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="border-border/50">
@@ -201,12 +203,13 @@ const Guidelines = () => {
                     <Link to="/trust-safety">Learn About Safety</Link>
                   </Button>
                 </CardContent>
-              </Card>
+                </Card>
+              </div>
             </div>
-          </section>
+        </section>
 
-          {/* CTA */}
-          <section className="bg-primary/5 py-16">
+        {/* CTA */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-3xl font-bold mb-4">
                 Help Us Build a Better Community
@@ -221,10 +224,11 @@ const Guidelines = () => {
                 <Button size="lg" variant="outline" asChild>
                   <Link to="/contact">Contact Us</Link>
                 </Button>
-              </div>
             </div>
-          </section>
-        </main>
+          </div>
+        </section>
+
+        <Footer />
       </div>
     </>
   );

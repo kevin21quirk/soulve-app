@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, Users, Heart, Award, Target, BarChart3, Clock, DollarSign, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Impact = () => {
   const features = [
@@ -78,40 +79,37 @@ const Impact = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="pb-16">
-          {/* Back Link */}
-          <div className="container mx-auto px-4 pt-8">
-            <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Home
             </Link>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <TrendingUp className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">Impact Reports</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto mb-8">
+                Transparent, data-driven reports showing the real-world impact of our community. Track donations, volunteer hours, campaigns completed, and lives changed across every cause.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="gap-2 bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors" disabled>
+                  <BarChart3 className="h-5 w-5" />
+                  Coming Soon - Q2 2026
+                </Button>
+                <Button size="lg" variant="outline" asChild className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+                  <Link to="/contact">Get Notified</Link>
+                </Button>
+              </div>
+            </div>
           </div>
+        </section>
 
-          {/* Hero Section */}
-          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-8">
-              <TrendingUp className="h-10 w-10 text-primary" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
-              Impact Reports
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Transparent, data-driven reports showing the real-world impact of our community. Track donations, volunteer hours, campaigns completed, and lives changed across every cause.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="gap-2" disabled>
-                <BarChart3 className="h-5 w-5" />
-                Coming Soon - Q2 2026
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/contact">Get Notified</Link>
-              </Button>
-            </div>
-          </section>
-
-          {/* What You'll See */}
-          <section className="bg-muted/30 py-16">
+        {/* What You'll See */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto px-4">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
                 What You'll See in Impact Reports
@@ -130,8 +128,9 @@ const Impact = () => {
             </div>
           </section>
 
-          {/* Report Types */}
-          <section className="container mx-auto px-4 py-16">
+        {/* Report Types */}
+        <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
               Comprehensive Impact Tracking
             </h2>
@@ -150,12 +149,13 @@ const Impact = () => {
                     </ul>
                   </CardContent>
                 </Card>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
+        </section>
 
-          {/* Transparency Statement */}
-          <section className="bg-primary/5 py-16">
+        {/* Transparency Statement */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto px-4 max-w-4xl text-center">
               <h2 className="text-3xl font-bold mb-6">
                 Built on Transparency
@@ -176,8 +176,9 @@ const Impact = () => {
             </div>
           </section>
 
-          {/* CTA */}
-          <section className="container mx-auto px-4 py-16 text-center">
+        {/* CTA */}
+        <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">
               Want to Track Your Impact?
             </h2>
@@ -186,9 +187,11 @@ const Impact = () => {
             </p>
             <Button size="lg" asChild>
               <Link to="/contact">Get Early Access</Link>
-            </Button>
-          </section>
-        </main>
+              </Button>
+            </div>
+        </section>
+
+        <Footer />
       </div>
     </>
   );

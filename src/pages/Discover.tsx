@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
 import { Search, Users, Filter, Heart, Building2, Target, MapPin, Sparkles, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -64,45 +65,41 @@ const Discover = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+    <div className="min-h-screen bg-background">
       <Helmet>
         <title>Discover People & Organizations - SouLVE</title>
         <meta name="description" content="Find like-minded individuals, organizations, and campaigns that share your passion for social impact. Build meaningful connections with our discovery tools." />
       </Helmet>
 
-      {/* Back Link */}
-      <div className="container mx-auto px-4 pt-8">
-        <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Home
-        </Link>
-      </div>
-
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] mb-6">
-            <Search className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
-            Discover Your Community
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Find like-minded changemakers, organizations, and campaigns that share your passion for social impact. 
-            Build meaningful connections and collaborate on projects that matter.
-          </p>
+      {/* Hero Section with Gradient */}
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
+              <Search className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Discover Your Community</h1>
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto mb-8">
+              Find like-minded changemakers, organizations, and campaigns that share your passion for social impact. 
+              Build meaningful connections and collaborate on projects that matter.
+            </p>
             <Button 
               size="lg"
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
+              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
               Start Discovering
             </Button>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Powerful Discovery Tools</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -120,7 +117,7 @@ const Discover = () => {
       </section>
 
       {/* Connection Types Section */}
-      <section className="py-16 px-4">
+      <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4">Who You Can Connect With</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
@@ -139,7 +136,7 @@ const Discover = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">How Discovery Works</h2>
           <div className="grid md:grid-cols-4 gap-8">
@@ -162,10 +159,10 @@ const Discover = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="bg-muted/50 py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] mb-6">
-            <Sparkles className="h-6 w-6 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-6">
+            <Sparkles className="h-6 w-6 text-primary" />
           </div>
           <h2 className="text-3xl font-bold mb-6">Your Impact Community Awaits</h2>
           <p className="text-lg text-muted-foreground mb-8">
@@ -174,12 +171,13 @@ const Discover = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
           >
             Join SouLVE Today
           </Button>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

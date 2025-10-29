@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import Footer from "@/components/Footer";
 import { 
   Heart, 
   Target, 
@@ -14,7 +15,8 @@ import {
   Shield,
   Search,
   Calendar,
-  BookOpen
+  BookOpen,
+  ArrowLeft
 } from "lucide-react";
 
 const Features = () => {
@@ -126,37 +128,41 @@ const Features = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+    <div className="min-h-screen bg-background">
       <Helmet>
         <title>Platform Features - SouLVE</title>
         <meta name="description" content="Explore all the powerful features that make SouLVE the leading social impact platform. From Safe Space support to campaign building and impact analytics." />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] mb-6">
-            <Sparkles className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] bg-clip-text text-transparent">
-            Platform Features
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Everything you need to create meaningful social impact. Discover the comprehensive suite of tools 
-            designed to empower changemakers, organizations, and communities.
-          </p>
+      {/* Hero Section with Gradient */}
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Platform Features</h1>
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto mb-8">
+              Everything you need to create meaningful social impact. Discover the comprehensive suite of tools 
+              designed to empower changemakers, organizations, and communities.
+            </p>
             <Button 
               size="lg"
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
+              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
             >
               Get Started Free
             </Button>
+          </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mainFeatures.map((feature, index) => (
@@ -183,7 +189,7 @@ const Features = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Built for Impact</h2>
           <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -210,7 +216,7 @@ const Features = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Explore All Features?</h2>
           <p className="text-lg text-muted-foreground mb-8">
@@ -219,12 +225,13 @@ const Features = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-[#0ce4af] via-[#18a5fe] to-[#4c3dfb] hover:opacity-90"
           >
             Start Your Journey
           </Button>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

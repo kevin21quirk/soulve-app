@@ -3,8 +3,8 @@ import StructuredData from "@/components/seo/StructuredData";
 import BreadcrumbNav from "@/components/seo/BreadcrumbNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Mail, ExternalLink } from "lucide-react";
-import HomeHeader from "@/components/HomeHeader";
+import { Download, Mail, ExternalLink, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 
 const Press = () => {
@@ -43,26 +43,27 @@ const Press = () => {
         }}
       />
 
-      <div className="min-h-screen flex flex-col">
-        <HomeHeader />
-        
-        <main className="flex-1">
-          <div className="bg-gradient-to-b from-primary/10 to-background py-16">
-            <div className="container mx-auto px-4">
-              <BreadcrumbNav items={breadcrumbItems} />
-              
-              <div className="mt-8 max-w-3xl">
-                <h1 className="text-5xl font-bold mb-4">Press & Media Kit</h1>
-                <p className="text-xl text-muted-foreground">
-                  Welcome to the SouLVE press center. Find everything you need to cover our story.
-                </p>
-              </div>
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">Press & Media Kit</h1>
+              <p className="text-xl text-teal-100">
+                Welcome to the SouLVE press center. Find everything you need to cover our story.
+              </p>
             </div>
           </div>
+        </section>
 
-          <div className="container mx-auto px-4 py-12">
-            {/* About SouLVE */}
-            <section className="mb-16">
+        {/* Content Section */}
+        <div className="container mx-auto px-4 py-16">
+          {/* About SouLVE */}
+          <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">About SouLVE</h2>
               <Card>
                 <CardContent className="pt-6">
@@ -82,30 +83,32 @@ const Press = () => {
               </Card>
             </section>
 
-            {/* Key Statistics */}
-            <section className="mb-16">
-              <h2 className="text-3xl font-bold mb-6">Key Statistics</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, idx) => (
-                  <Card key={idx}>
-                    <CardHeader>
-                      <CardTitle className="text-4xl font-bold text-primary">
-                        {stat.value}
-                      </CardTitle>
-                      <CardDescription className="text-lg font-semibold">
-                        {stat.label}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{stat.description}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+          {/* Key Statistics */}
+          <section className="bg-muted/50 py-16 -mx-4 px-4 mb-16">
+            <div className="max-w-6xl mx-auto">
+                <h2 className="text-3xl font-bold mb-6">Key Statistics</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {stats.map((stat, idx) => (
+                    <Card key={idx}>
+                      <CardHeader>
+                        <CardTitle className="text-4xl font-bold text-primary">
+                          {stat.value}
+                        </CardTitle>
+                        <CardDescription className="text-lg font-semibold">
+                          {stat.label}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">{stat.description}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </section>
+          </section>
 
-            {/* Brand Assets */}
-            <section className="mb-16">
+          {/* Brand Assets */}
+          <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Brand Assets</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
@@ -170,8 +173,8 @@ const Press = () => {
               </div>
             </section>
 
-            {/* Press Releases */}
-            <section className="mb-16">
+          {/* Press Releases */}
+          <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Recent Press Releases</h2>
               <div className="space-y-4">
                 <Card>
@@ -192,8 +195,8 @@ const Press = () => {
               </div>
             </section>
 
-            {/* Media Contact */}
-            <section className="mb-16">
+          {/* Media Contact */}
+          <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Media Contact</h2>
               <Card>
                 <CardContent className="pt-6">
@@ -224,9 +227,8 @@ const Press = () => {
                   </div>
                 </CardContent>
               </Card>
-            </section>
-          </div>
-        </main>
+          </section>
+        </div>
 
         <Footer />
       </div>
