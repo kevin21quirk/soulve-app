@@ -1,13 +1,9 @@
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
-import HomeHeader from "@/components/HomeHeader";
+import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const TermsOfService = () => {
-  const navigate = useNavigate();
-  
   return (
     <>
       <Helmet>
@@ -15,26 +11,24 @@ const TermsOfService = () => {
         <meta name="description" content="Read SouLVE's Terms of Service to understand your rights and responsibilities when using our community platform." />
       </Helmet>
       
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
-        <HomeHeader />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
+              <p className="text-xl text-teal-100">
+                Community guidelines and terms for using SouLVE
+              </p>
+            </div>
+          </div>
+        </section>
         
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate('/');
-              }
-            }}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-8">Terms of Service</h1>
           
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">

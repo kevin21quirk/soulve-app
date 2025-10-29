@@ -92,22 +92,27 @@ const ReportIssue = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="container mx-auto px-4 py-12 max-w-4xl">
-          <Link to="/" className="inline-flex items-center text-foreground hover:text-primary mb-6 transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Home
-          </Link>
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-6">
-              <AlertCircle className="h-8 w-8 text-destructive" />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <AlertCircle className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">Report an Issue</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto">
+                Help keep SouLVE safe and welcoming. Your report will be reviewed by our moderation team within 24 hours.
+              </p>
             </div>
-            <h1 className="text-4xl font-bold mb-4 text-foreground">Report an Issue</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Help keep SouLVE safe and welcoming. Your report will be reviewed by our moderation team within 24 hours.
-            </p>
           </div>
+        </section>
+
+        <main className="container mx-auto px-4 py-12 max-w-4xl">
 
           <Card className="shadow-lg border-border/50">
             <CardContent className="p-8">
@@ -202,7 +207,9 @@ const ReportIssue = () => {
           </Card>
 
           {/* What Happens Next */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <section className="bg-muted/50 py-16 -mx-4 px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="border-border/50">
               <CardContent className="p-6 text-center">
                 <FileText className="h-10 w-10 text-primary mx-auto mb-4" />
@@ -232,7 +239,9 @@ const ReportIssue = () => {
                 </p>
               </CardContent>
             </Card>
-          </div>
+              </div>
+            </div>
+          </section>
 
           {/* Emergency Resources */}
           <Card className="mt-8 bg-destructive/5 border-destructive/20">

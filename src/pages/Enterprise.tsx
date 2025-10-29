@@ -151,29 +151,27 @@ const Enterprise = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        {/* Back Link */}
-        <div className="container mx-auto px-4 pt-8">
-          <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Home
-          </Link>
-        </div>
-
-        {/* Hero Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Enterprise Solutions
-            </h1>
-            <p className="text-xl text-muted-foreground mb-4">
-              Social Impact at Scale
-            </p>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
-              Purpose-built tools for large organisations managing complex social programmes, ESG initiatives, and community engagement at scale.
-            </p>
-            <Button size="lg" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
-              Schedule Enterprise Demo
-            </Button>
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Enterprise Solutions
+              </h1>
+              <p className="text-2xl text-teal-100 mb-4">
+                Social Impact at Scale
+              </p>
+              <p className="text-lg text-teal-200 max-w-3xl mx-auto mb-8">
+                Purpose-built tools for large organisations managing complex social programmes, ESG initiatives, and community engagement at scale.
+              </p>
+              <Button size="lg" className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
+                Schedule Enterprise Demo
+              </Button>
+            </div>
           </div>
         </section>
 

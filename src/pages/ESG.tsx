@@ -89,29 +89,31 @@ const ESG = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 pt-8">
-        <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors mb-8">
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Home
-        </Link>
-      </div>
+      {/* Hero Section with Gradient */}
+      <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </Link>
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4 text-sm bg-white/10 text-white border-white/20">
+              Environmental, Social & Governance
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              ESG Impact Measurement
+            </h1>
+            <p className="text-xl text-teal-100 max-w-4xl mx-auto mb-6">
+              The first social impact platform with built-in ESG scoring, real-time tracking, and comprehensive reporting for organizations and supporters.
+            </p>
+            <p className="text-lg text-teal-200 max-w-3xl mx-auto">
+              Transform how you measure, report, and communicate your environmental, social, and governance impact. Built for transparency, accountability, and growth.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <main className="container mx-auto px-4 pb-16">
-        {/* Hero Section */}
-        <section className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 text-sm">
-            Environmental, Social & Governance
-          </Badge>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            ESG Impact Measurement
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto mb-6">
-            The first social impact platform with built-in ESG scoring, real-time tracking, and comprehensive reporting for organizations and supporters.
-          </p>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Transform how you measure, report, and communicate your environmental, social, and governance impact. Built for transparency, accountability, and growth.
-          </p>
-        </section>
 
         {/* What is ESG Section */}
         <section className="mb-20">
@@ -150,7 +152,8 @@ const ESG = () => {
         </section>
 
         {/* Platform Features */}
-        <section className="mb-20">
+        <section className="bg-muted/50 py-16 -mx-4 px-4 mb-20">
+          <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Comprehensive ESG Platform</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -173,6 +176,7 @@ const ESG = () => {
               </Card>
             ))}
           </div>
+            </div>
         </section>
 
         {/* Benefits Section */}
@@ -209,7 +213,8 @@ const ESG = () => {
         </section>
 
         {/* How It Works Section */}
-        <section className="mb-20">
+        <section className="bg-muted/50 py-16 -mx-4 px-4 mb-20">
+          <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How ESG Scoring Works</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -309,6 +314,7 @@ const ESG = () => {
               </div>
             </CardContent>
           </Card>
+            </div>
         </section>
 
         {/* CTA Section */}

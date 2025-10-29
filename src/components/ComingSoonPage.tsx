@@ -19,44 +19,43 @@ const ComingSoonPage = ({ title, description, estimatedLaunch }: ComingSoonPageP
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="rounded-full bg-gradient-to-r from-primary to-secondary p-8 w-fit mx-auto mb-8">
-              <Construction className="h-16 w-16 text-white" />
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {title}
-            </h1>
-            
-            <p className="text-lg text-muted-foreground mb-2">
-              {description}
-            </p>
-            
-            {estimatedLaunch && (
-              <p className="text-sm text-muted-foreground mb-8">
-                Expected launch: {estimatedLaunch}
-              </p>
-            )}
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Button asChild variant="default">
-                <Link to="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Link>
-              </Button>
-              
-              <Button asChild variant="outline">
-                <Link to="/contact">
-                  <Mail className="mr-2 h-4 w-4" />
-                  Contact Us
-                </Link>
-              </Button>
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Construction className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">{title}</h1>
+              <p className="text-xl text-teal-100">{description}</p>
+              {estimatedLaunch && (
+                <p className="text-lg text-teal-200 mt-4">
+                  Expected launch: {estimatedLaunch}
+                </p>
+              )}
             </div>
           </div>
-        </main>
+        </section>
+
+        {/* Content Section */}
+        <section className="container mx-auto px-4 py-16 text-center">
+          <div className="max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-8">
+              We're working hard to bring this feature to you. In the meantime, feel free to explore other areas of SouLVE.
+            </p>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/contact">
+                <Mail className="mr-2 h-4 w-4" />
+                Contact Us for Updates
+              </Link>
+            </Button>
+          </div>
+        </section>
 
         <Footer />
       </div>

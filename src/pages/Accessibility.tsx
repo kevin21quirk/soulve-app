@@ -57,29 +57,30 @@ const AccessibilityStatement = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="pb-16">
-          {/* Back Link */}
-          <div className="container mx-auto px-4 pt-8">
-            <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Home
             </Link>
-          </div>
-
-          {/* Hero Section */}
-          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-8">
-              <Accessibility className="h-10 w-10 text-primary" />
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Accessibility className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                Accessibility Statement
+              </h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto">
+                SouLVE is committed to ensuring digital accessibility for all people, including those with disabilities. 
+                We are continually improving the user experience for everyone and applying relevant accessibility standards.
+              </p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
-              Accessibility Statement
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-              SouLVE is committed to ensuring digital accessibility for all people, including those with disabilities. 
-              We are continually improving the user experience for everyone and applying relevant accessibility standards.
-            </p>
-          </section>
+          </div>
+        </section>
+
+        <main className="pb-16">
 
           {/* Commitment Statement */}
           <section className="container mx-auto px-4 py-16 max-w-4xl">
@@ -105,7 +106,7 @@ const AccessibilityStatement = () => {
           </section>
 
           {/* Accessibility Features */}
-          <section className="bg-muted/30 py-16">
+          <section className="bg-muted/50 py-16">
             <div className="container mx-auto px-4">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
                 Accessibility Features
@@ -155,7 +156,7 @@ const AccessibilityStatement = () => {
           </section>
 
           {/* Assistive Technologies */}
-          <section className="bg-primary/5 py-16">
+          <section className="py-16">
             <div className="container mx-auto px-4 max-w-4xl">
               <h2 className="text-3xl font-bold text-center mb-6">
                 Supported Assistive Technologies
@@ -206,7 +207,7 @@ const AccessibilityStatement = () => {
           </section>
 
           {/* Technical Specifications */}
-          <section className="bg-muted/30 py-16">
+          <section className="bg-muted/50 py-16">
             <div className="container mx-auto px-4 max-w-4xl">
               <h2 className="text-3xl font-bold text-center mb-12">
                 Technical Specifications
@@ -240,7 +241,7 @@ const AccessibilityStatement = () => {
 
           {/* Feedback & Contact */}
           <section className="container mx-auto px-4 py-16 max-w-4xl">
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/20 bg-muted/30">
               <CardContent className="p-8 text-center">
                 <h2 className="text-3xl font-bold mb-4">
                   We Welcome Your Feedback

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Heart, Calendar, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import HomeHeader from "@/components/HomeHeader";
+import { ArrowLeft } from "lucide-react";
 import Footer from "@/components/Footer";
 
 const ImpactStories = () => {
@@ -68,22 +68,28 @@ const ImpactStories = () => {
         }}
       />
 
-      <div className="min-h-screen flex flex-col">
-        <HomeHeader />
-        
-        <main className="flex-1 bg-gradient-to-b from-background to-muted/20">
-          <div className="container mx-auto px-4 py-8">
-            <BreadcrumbNav items={breadcrumbItems} />
-
-            <div className="mt-6 mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <Heart className="h-10 w-10 text-primary" />
-                <h1 className="text-4xl font-bold">Impact Stories</h1>
+      <div className="min-h-screen flex flex-col bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back to Home
+            </Link>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Heart className="h-10 w-10 text-white" />
               </div>
-              <p className="text-muted-foreground text-lg">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">Impact Stories</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto">
                 Real stories of social impact, community help, and lives changed
               </p>
             </div>
+          </div>
+        </section>
+
+        <main className="flex-1">
+          <div className="container mx-auto px-4 py-8">
 
             {/* Search */}
             <div className="max-w-xl mb-8">

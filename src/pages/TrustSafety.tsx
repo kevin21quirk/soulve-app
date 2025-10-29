@@ -20,23 +20,27 @@ const TrustSafety = () => {
         <title>Trust & Safety Centre | SouLVE</title>
         <meta name="description" content="Your security is our priority. Learn about SouLVE's comprehensive trust and safety features." />
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="pb-16">
-          <div className="container mx-auto px-4 pt-8">
-            <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Home
             </Link>
-          </div>
-          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-8">
-              <Shield className="h-10 w-10 text-primary" />
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Shield className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">Trust & Safety Centre</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto">
+                Your security is our priority. Comprehensive safety measures to protect you and our community.
+              </p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">Trust & Safety Centre</h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-              Your security is our priority. Comprehensive safety measures to protect you and our community.
-            </p>
-          </section>
+          </div>
+        </section>
+
+        <main className="pb-16">
           <section className="container mx-auto px-4 py-16">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Our Safety Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -53,7 +57,7 @@ const TrustSafety = () => {
               ))}
             </div>
           </section>
-          <section className="bg-primary/5 py-16">
+          <section className="bg-muted/50 py-16">
             <div className="container mx-auto px-4 text-center">
               <Button size="lg" asChild><Link to="/report">Report a Safety Concern</Link></Button>
             </div>

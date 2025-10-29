@@ -63,28 +63,34 @@ const Volunteer = () => {
         <title>Volunteer Opportunities | SouLVE</title>
         <meta name="description" content="Transform lives through the power of your time. Find meaningful volunteer opportunities matched to your skills, schedule, and passions. Track your impact and earn recognition." />
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <main className="pb-16">
-          <div className="container mx-auto px-4 pt-8">
-            <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
+      <div className="min-h-screen bg-background">
+        {/* Hero Section with Gradient */}
+        <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Home
             </Link>
-          </div>
-          <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-8">
-              <Heart className="h-10 w-10 text-primary" />
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8">
+                <Heart className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">Volunteer Your Time</h1>
+              <p className="text-xl text-teal-100 max-w-3xl mx-auto mb-4">
+                Transform lives through the power of your time. Whether you have an hour or a month, your skills can create lasting change in your community.
+              </p>
+              <p className="text-lg text-teal-200 max-w-3xl mx-auto mb-8">
+                Connect with verified organisations, track your impact, and join a movement of changemakers turning compassion into action.
+              </p>
+              <Button size="lg" className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors" disabled>
+                <Sparkles className="h-5 w-5 mr-2" />Coming Soon - Q2 2026
+              </Button>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">Volunteer Your Time</h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4">
-              Transform lives through the power of your time. Whether you have an hour or a month, your skills can create lasting change in your community.
-            </p>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
-              Connect with verified organisations, track your impact, and join a movement of changemakers turning compassion into action.
-            </p>
-            <Button size="lg" disabled><Sparkles className="h-5 w-5 mr-2" />Coming Soon - Q2 2026</Button>
-          </section>
-          <section className="bg-primary/5 py-16">
+          </div>
+        </section>
+
+        <main className="pb-16">
+          <section className="bg-muted/50 py-16">
             <div className="container mx-auto px-4">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Why Volunteer?</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
@@ -113,7 +119,7 @@ const Volunteer = () => {
               ))}
             </div>
           </section>
-          <section className="bg-muted/30 py-16">
+          <section className="py-16">
             <div className="container mx-auto px-4">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How It Works</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
