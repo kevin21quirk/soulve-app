@@ -7000,6 +7000,33 @@ export type Database = {
           },
         ]
       }
+      tutorial_preferences: {
+        Row: {
+          created_at: string | null
+          dismissed_tutorials: string[] | null
+          id: string
+          show_tutorials: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dismissed_tutorials?: string[] | null
+          id?: string
+          show_tutorials?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dismissed_tutorials?: string[] | null
+          id?: string
+          show_tutorials?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       typing_indicators: {
         Row: {
           conversation_partner_id: string
@@ -7425,6 +7452,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_tutorial_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_step: number | null
+          dismissed: boolean | null
+          id: string
+          is_completed: boolean | null
+          last_step_at: string | null
+          started_at: string | null
+          steps_completed: Json | null
+          total_steps: number
+          tutorial_type: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: number | null
+          dismissed?: boolean | null
+          id?: string
+          is_completed?: boolean | null
+          last_step_at?: string | null
+          started_at?: string | null
+          steps_completed?: Json | null
+          total_steps: number
+          tutorial_type: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: number | null
+          dismissed?: boolean | null
+          id?: string
+          is_completed?: boolean | null
+          last_step_at?: string | null
+          started_at?: string | null
+          steps_completed?: Json | null
+          total_steps?: number
+          tutorial_type?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
       }
       user_verifications: {
         Row: {
