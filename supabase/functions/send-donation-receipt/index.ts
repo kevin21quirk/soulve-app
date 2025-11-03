@@ -48,7 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const emailResponse = await resend.emails.send({
-      from: "SouLVE Donations <donations@soulve.com>",
+      from: "SouLVE Donations <donations@join-soulve.com>",
       to: [email],
       subject: `Thank you for your donation - Receipt #${transactionId}`,
       html: `
@@ -139,7 +139,7 @@ const handler = async (req: Request): Promise<Response> => {
               <p>You can view all your donations and impact metrics in your <a href="https://bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com/dashboard" style="color: #0d9488;">SouLVE Dashboard</a>.</p>
               
               <div class="footer">
-                <p>Questions about your donation? Contact us at donations@soulve.com</p>
+                <p>Questions about your donation? Contact us at donations@join-soulve.com</p>
                 <p style="margin-top: 10px;">
                   <a href="https://bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com/privacy-policy" style="color: #666; text-decoration: none; margin: 0 10px;">Privacy Policy</a> |
                   <a href="https://bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com/terms-of-service" style="color: #666; text-decoration: none; margin: 0 10px;">Terms of Service</a>

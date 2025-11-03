@@ -79,7 +79,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'notifications@yourdomain.com',
+        from: 'SouLVE Notifications <notifications@join-soulve.com>',
         to: [user.email],
         subject,
         html: emailHtml,

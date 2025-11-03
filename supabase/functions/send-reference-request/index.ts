@@ -102,7 +102,7 @@ serve(async (req) => {
           `;
 
           const { error: emailError } = await resend.emails.send({
-            from: "Safe Space <onboarding@resend.dev>",
+            from: "SouLVE Safe Space <safespace@join-soulve.com>",
             to: [reference.email],
             subject: `Reference Request for ${applicantName} - Safe Space Helper Application`,
             html: emailHtml,

@@ -51,43 +51,45 @@ All are configured to use `RESEND_API_KEY` from environment variables.
 
 ## Email Types Implemented
 
-### 1. Welcome Email
+### 1. Welcome Email (`send-welcome-email`)
 - **Trigger**: New user signup
 - **From**: welcome@join-soulve.com
-- **Template**: Includes getting started guide
+- **Template**: Includes getting started guide, dashboard link
 
-### 2. Donation Receipt
+### 2. Donation Receipt (`send-donation-receipt`)
 - **Trigger**: Successful donation
 - **From**: donations@join-soulve.com
-- **Includes**: Tax receipt, donation details, campaign info
+- **Includes**: Tax receipt, donation details, campaign info, formatted amounts
 
-### 3. Campaign Update
-- **Trigger**: Campaign creator posts update
-- **From**: campaigns@join-soulve.com
-- **Recipients**: All campaign donors
+### 3. Waitlist Email (`send-waitlist-email`)
+- **Trigger**: Waitlist approval/denial
+- **From**: noreply@join-soulve.com
+- **Types**: Approval or denial with reason
 
-### 4. Connection Notification
-- **Trigger**: New connection request accepted
-- **From**: notifications@join-soulve.com
+### 4. Demo Notification (`send-demo-notification`)
+- **Trigger**: Demo request received
+- **From**: demo@join-soulve.com
+- **Recipients**: Demo requesters
 
-### 5. Help Request Notification
-- **Trigger**: Someone shows interest in helping
-- **From**: help@join-soulve.com
+### 5. ESG Notification (`send-esg-notification`)
+- **Trigger**: ESG data contributions, invitations, requests
+- **From**: esg@join-soulve.com
+- **Types**: contribution_submitted, contribution_verified, invitation_sent, data_request
 
-### 6. Password Reset
-- **Trigger**: User requests password reset
-- **From**: security@join-soulve.com
-- **Includes**: Secure reset link
-
-### 7. Emergency Alert
-- **Trigger**: Critical system alerts
+### 6. Emergency Alert (`send-emergency-alert`)
+- **Trigger**: Critical Safe Space alerts
 - **From**: alerts@join-soulve.com
-- **Recipients**: Admins only
+- **Recipients**: Safeguarding leads (currently matt@join-soulve.com)
 
-### 8. Weekly Digest
-- **Trigger**: Weekly cron job
-- **From**: digest@join-soulve.com
-- **Includes**: User activity summary, new campaigns
+### 7. Safe Space Reference (`send-reference-request`)
+- **Trigger**: Safe Space helper application reference checks
+- **From**: safespace@join-soulve.com
+- **Includes**: Verification link with 14-day expiry
+
+### 8. General Notifications (`send-notification-email`)
+- **Trigger**: In-app notifications via email
+- **From**: notifications@join-soulve.com
+- **Types**: Instant or daily digest
 
 ## Testing
 

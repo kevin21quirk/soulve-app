@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Sending ${type} email to ${to}`);
 
     const emailResponse = await resend.emails.send({
-      from: "ESG Platform <onboarding@resend.dev>",
+      from: "SouLVE ESG <esg@join-soulve.com>",
       to: [to],
       subject,
       html,
