@@ -25,7 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
     const fullName = lastName ? `${firstName} ${lastName}` : firstName;
 
     const emailResponse = await resend.emails.send({
-      from: "SouLVE <welcome@soulve.com>",
+      from: "SouLVE <welcome@join-soulve.com>",
       to: [email],
       subject: "Welcome to SouLVE - Make an Impact!",
       html: `
