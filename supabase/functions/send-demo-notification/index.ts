@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -8,15 +9,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface DemoNotificationRequest {
-  email: string;
-  fullName: string;
-  companyName?: string;
-  status: string;
-  meetingLink?: string;
-  scheduledDate?: string;
-  adminNotes?: string;
-}
+const demoNotificationSchema = z.object({
+  email: z.string().email("Invalid email format").max(255, "Email too long"),
+  fullName: z.string()
+    .min(1, "Full name is required")
+    .max(200, "Full name too long")
+    .regex(/^[a-zA-Z\s'-]+$/, "Full name contains invalid characters"),
+  companyName: z.string().max(200, "Company name too long").optional(),
+  status: z.enum(["scheduled", "completed", "cancelled", "no_show", "pending"], {
+    errorMap: () => ({ message: "Invalid status value" })
+  }),
+  meetingLink: z.string().url("Invalid meeting link URL").max(500, "Meeting link too long").optional(),
+  scheduledDate: z.string().datetime("Invalid date format").optional(),
+  adminNotes: z.string().max(1000, "Admin notes too long").optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -24,6 +30,22 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const requestBody = await req.json();
+    const validation = demoNotificationSchema.safeParse(requestBody);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Validation failed", 
+          details: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { 
       email, 
       fullName, 
@@ -32,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
       meetingLink, 
       scheduledDate,
       adminNotes 
-    }: DemoNotificationRequest = await req.json();
+    } = validation.data;
 
     console.log("Sending demo notification:", { email, status });
 

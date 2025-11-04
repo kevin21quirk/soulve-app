@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -8,16 +9,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface DonationReceiptRequest {
-  email: string;
-  donorName: string;
-  amount: number;
-  campaignName: string;
-  campaignId: string;
-  transactionId: string;
-  date: string;
-  organizationName?: string;
-}
+const donationReceiptSchema = z.object({
+  email: z.string().email("Invalid email format").max(255, "Email too long"),
+  donorName: z.string()
+    .min(1, "Donor name is required")
+    .max(200, "Donor name too long")
+    .regex(/^[a-zA-Z\s'-]+$/, "Donor name contains invalid characters"),
+  amount: z.number().positive("Amount must be positive").max(1000000, "Amount too large"),
+  campaignName: z.string().min(1, "Campaign name required").max(200, "Campaign name too long"),
+  campaignId: z.string().uuid("Invalid campaign ID format"),
+  transactionId: z.string().min(1, "Transaction ID required").max(100, "Transaction ID too long"),
+  date: z.string().datetime("Invalid date format"),
+  organizationName: z.string().max(200, "Organization name too long").optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -25,6 +29,22 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const requestBody = await req.json();
+    const validation = donationReceiptSchema.safeParse(requestBody);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Validation failed", 
+          details: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const {
       email,
       donorName,
@@ -34,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
       transactionId,
       date,
       organizationName,
-    }: DonationReceiptRequest = await req.json();
+    } = validation.data;
 
     const formattedAmount = new Intl.NumberFormat('en-GB', {
       style: 'currency',

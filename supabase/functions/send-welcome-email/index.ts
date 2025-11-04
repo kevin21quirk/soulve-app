@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -8,11 +9,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface WelcomeEmailRequest {
-  email: string;
-  firstName: string;
-  lastName?: string;
-}
+const welcomeEmailSchema = z.object({
+  email: z.string().email("Invalid email format").max(255, "Email too long"),
+  firstName: z.string()
+    .min(1, "First name is required")
+    .max(100, "First name too long")
+    .regex(/^[a-zA-Z\s'-]+$/, "First name contains invalid characters"),
+  lastName: z.string()
+    .max(100, "Last name too long")
+    .regex(/^[a-zA-Z\s'-]+$/, "Last name contains invalid characters")
+    .optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -20,8 +27,23 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, firstName, lastName }: WelcomeEmailRequest = await req.json();
+    const requestBody = await req.json();
+    const validation = welcomeEmailSchema.safeParse(requestBody);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Validation failed", 
+          details: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
+    const { email, firstName, lastName } = validation.data;
     const fullName = lastName ? `${firstName} ${lastName}` : firstName;
 
     const emailResponse = await resend.emails.send({
