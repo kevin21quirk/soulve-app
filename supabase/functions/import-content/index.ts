@@ -28,6 +28,11 @@ serve(async (req) => {
       throw new Error('Invalid URL provided');
     }
 
+    // Validate URL to prevent SSRF attacks
+    if (!isValidUrl(url)) {
+      throw new Error('Invalid or unsafe URL provided');
+    }
+
     console.log('Importing content from:', url);
     
     // Detect platform and extract content
@@ -228,4 +233,57 @@ function extractMetaTag(html: string, property: string): string | null {
 function extractTitle(html: string): string | null {
   const match = html.match(/<title[^>]*>([^<]+)<\/title>/i);
   return match ? match[1] : null;
+}
+
+function isValidUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    
+    // Only allow HTTP and HTTPS protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      console.log('Blocked non-HTTP(S) protocol:', urlObj.protocol);
+      return false;
+    }
+    
+    // Block private IP ranges
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    // Block localhost
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      console.log('Blocked localhost access');
+      return false;
+    }
+    
+    // Block private IPv4 ranges
+    const ipv4Patterns = [
+      /^10\./,                    // 10.0.0.0/8
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
+      /^192\.168\./,              // 192.168.0.0/16
+      /^169\.254\./,              // 169.254.0.0/16 (link-local)
+    ];
+    
+    for (const pattern of ipv4Patterns) {
+      if (pattern.test(hostname)) {
+        console.log('Blocked private IP range:', hostname);
+        return false;
+      }
+    }
+    
+    // Block cloud metadata endpoints
+    if (hostname === '169.254.169.254' || hostname === 'fd00:ec2::254') {
+      console.log('Blocked cloud metadata endpoint');
+      return false;
+    }
+    
+    // Block private IPv6 ranges
+    if (hostname.startsWith('fd') || hostname.startsWith('fc')) {
+      console.log('Blocked private IPv6 range');
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('URL validation error:', error);
+    return false;
+  }
 }
