@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createErrorResponse } from "../_shared/errorHandling.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -222,10 +223,6 @@ Return format:
     );
 
   } catch (error) {
-    console.error('Error in monitor-safe-space-message:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return createErrorResponse(error, 500, corsHeaders);
   }
 });

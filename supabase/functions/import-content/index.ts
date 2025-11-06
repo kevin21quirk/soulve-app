@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createErrorResponse } from "../_shared/errorHandling.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,14 +43,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error importing content:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return createErrorResponse(error, 500, corsHeaders);
   }
 });
 
