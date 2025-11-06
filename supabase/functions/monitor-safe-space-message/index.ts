@@ -13,9 +13,17 @@ serve(async (req) => {
   }
 
   try {
+    // Extract auth token from request header
+    const authHeader = req.headers.get('authorization');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: authHeader ? { Authorization: authHeader } : {}
+        }
+      }
     );
 
     const { messageId, content, sessionId } = await req.json();
@@ -183,8 +191,9 @@ Return format:
           .eq('is_active', true);
 
         if (safeguardingLeads && safeguardingLeads.length > 0) {
-          // Call send-emergency-alert function
+          // Call send-emergency-alert function with auth headers
           await supabaseClient.functions.invoke('send-emergency-alert', {
+            headers: authHeader ? { Authorization: authHeader } : {},
             body: {
               alertType: requiresImmediateEscalation ? 'crisis_keyword_detected' : 'high_risk_detected',
               severity: maxSeverity,

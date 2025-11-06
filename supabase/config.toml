@@ -4,10 +4,10 @@ project_id = "anuvztvypsihzlbkewci"
 verify_jwt = true
 
 [functions.monitor-safe-space-message]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-emergency-alert]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-reference-request]
 verify_jwt = true
