@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Clock, ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -140,7 +141,7 @@ const BlogPost = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div 
             className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
 
           {/* Tags */}
