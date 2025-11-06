@@ -134,32 +134,34 @@ const AdminSidebar = () => {
               <div className="h-px bg-slate-700 my-2" />
               
               {/* General Admin Items */}
-              {adminNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.exact}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
-                          isActive
-                            ? 'bg-blue-600 text-white font-semibold shadow-md'
-                            : 'text-slate-300 hover:bg-blue-900/30 hover:text-white'
-                        }`
-                      }
-                    >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      <span className="text-sm">{item.title}</span>
-                      {item.showBadge && item.badgeKey && (
-                        <NotificationBadge 
-                          count={counts[item.badgeKey as keyof typeof counts] as number} 
-                          className="relative top-0 right-0 ml-auto"
-                        />
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <div className="px-2 py-2">
+                {adminNavItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.exact}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
+                            isActive
+                              ? 'bg-blue-600 text-white font-semibold shadow-md'
+                              : 'text-slate-300 hover:bg-blue-900/30 hover:text-white'
+                          }`
+                        }
+                      >
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="text-sm">{item.title}</span>
+                        {item.showBadge && item.badgeKey && (
+                          <NotificationBadge 
+                            count={counts[item.badgeKey as keyof typeof counts] as number} 
+                            className="relative top-0 right-0 ml-auto"
+                          />
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </div>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
