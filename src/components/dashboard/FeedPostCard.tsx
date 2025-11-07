@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { usePostComments } from '@/hooks/usePostComments';
-import { logger } from '@/utils/logger';
+import { devLogger as logger } from '@/utils/logger';
 
 interface FeedPostCardProps {
   post: FeedPost;

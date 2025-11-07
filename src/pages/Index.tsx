@@ -16,6 +16,7 @@ const Index = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    // Non-blocking auth check - show content immediately, redirect in background
     const checkAuthAndRedirect = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -58,16 +59,10 @@ const Index = () => {
       }
     };
 
+    // Show content immediately, redirect happens in background
+    setIsChecking(false);
     checkAuthAndRedirect();
   }, [navigate]);
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createInteraction } from '@/services/interactionRoutingService';
-import { logger } from '@/utils/logger';
+import { devLogger as logger } from '@/utils/logger';
 
 export interface SocialPost {
   id: string;

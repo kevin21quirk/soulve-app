@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import PostDetailModal from './PostDetailModal';
 import { usePostComments } from '@/hooks/usePostComments';
 import YouTubeEmbed from './YouTubeEmbed';
-import { logger } from '@/utils/logger';
+import { devLogger as logger } from '@/utils/logger';
 import TaggedText from './tagging/TaggedText';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguageDetection } from '@/hooks/useLanguageDetection';

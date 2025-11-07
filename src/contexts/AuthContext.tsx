@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { devLogger as logger } from '@/utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -34,18 +35,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log('Auth state change:', event, newSession?.user?.id);
+        logger.log('Auth state change:', event, newSession?.user?.id);
         
         if (!mounted) return;
         
         // Handle token refresh success
         if (event === 'TOKEN_REFRESHED') {
-          console.log('✅ Token refreshed successfully');
+          logger.log('✅ Token refreshed successfully');
         }
         
         // If session becomes null (sign out, expired, or invalid)
         if (!newSession) {
-          console.log('🔓 Session cleared - user signed out or session expired');
+          logger.log('🔓 Session cleared - user signed out or session expired');
           setSession(null);
           setUser(null);
           setLoading(false);
@@ -63,10 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setOrganizationId(null);
         }
         
-        // Only set loading to false after initialization
-        if (initialized) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     );
 
@@ -86,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setOrganizationId(data?.organization_id ?? null);
         }
       } catch (error) {
-        console.error('Error fetching organization ID:', error);
+        logger.error('Error fetching organization ID:', error);
         if (mounted) {
           setOrganizationId(null);
         }
@@ -101,10 +99,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (mounted) {
           if (error) {
-            console.error('Error getting initial session:', error);
+            logger.error('Error getting initial session:', error);
             // If session is invalid, clear it
             if (error.message?.includes('session') || error.message?.includes('JWT')) {
-              console.error('🔴 Invalid session detected, clearing...');
+              logger.error('🔴 Invalid session detected, clearing...');
               await supabase.auth.signOut();
               setSession(null);
               setUser(null);
@@ -124,7 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setInitialized(true);
         }
       } catch (error: any) {
-        console.error('❌ Error in auth initialization:', error);
+        logger.error('❌ Error in auth initialization:', error);
         
         // Check if it's a connection error
         const isConnectionError = 
@@ -134,7 +132,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           error.name === 'NetworkError';
           
         if (isConnectionError) {
-          console.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues');
+          logger.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues');
         }
         
         // Check for session/token errors
@@ -144,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           error.message?.includes('token');
           
         if (isSessionError) {
-          console.error('🔴 Session error detected, clearing invalid session');
+          logger.error('🔴 Session error detected, clearing invalid session');
           await supabase.auth.signOut();
         }
         
@@ -165,16 +163,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [initialized]);
+  }, []);
 
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Error signing out:', error);
+        logger.error('Error signing out:', error);
       }
     } catch (error) {
-      console.error('Error in signOut:', error);
+      logger.error('Error in signOut:', error);
     }
   };
 

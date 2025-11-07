@@ -15,6 +15,7 @@ const HeroSection = () => {
   const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
+    // Non-blocking checks - render immediately, update in background
     const checkOnboardingStatus = async () => {
       if (!user) {
         setHasCompletedOnboarding(null);
@@ -26,20 +27,16 @@ const HeroSection = () => {
           .from('questionnaire_responses')
           .select('id')
           .eq('user_id', user.id)
+          .limit(1)
           .maybeSingle();
         
-        const completed = !!data;
-        setHasCompletedOnboarding(completed);
+        setHasCompletedOnboarding(!!data);
       } catch (error) {
         console.error('Error checking onboarding status:', error);
-        setHasCompletedOnboarding(true); // Default to true if there's an error
+        setHasCompletedOnboarding(false);
       }
     };
 
-    checkOnboardingStatus();
-  }, [user]);
-
-  useEffect(() => {
     const fetchApplicantCount = async () => {
       try {
         const { count } = await supabase
@@ -52,8 +49,10 @@ const HeroSection = () => {
       }
     };
 
+    // Run checks in parallel, non-blocking
+    checkOnboardingStatus();
     fetchApplicantCount();
-  }, []);
+  }, [user]);
 
   const handleJoinBeta = () => {
     if (user) {

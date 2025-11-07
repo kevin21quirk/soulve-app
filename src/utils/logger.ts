@@ -1,40 +1,27 @@
-/**
- * Production-safe logging utility
- * Only logs in development mode to reduce console noise
- */
-
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+// Production-safe logger utility
 
 const isDev = import.meta.env.DEV;
 
-class Logger {
-  private formatMessage(level: LogLevel, message: string, data?: any): string {
-    const timestamp = new Date().toISOString();
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
-  }
+export const devLogger = {
+  log: (...args: any[]) => {
+    if (isDev) console.log(...args);
+  },
+  
+  debug: (...args: any[]) => {
+    if (isDev) console.debug(...args);
+  },
+  
+  warn: (...args: any[]) => {
+    if (isDev) console.warn(...args);
+  },
+  
+  error: (...args: any[]) => {
+    // Always log errors, even in production
+    console.error(...args);
+  },
+  
+  info: (...args: any[]) => {
+    if (isDev) console.info(...args);
+  },
+};
 
-  debug(message: string, data?: any) {
-    if (isDev) {
-      console.log(this.formatMessage('debug', message), data || '');
-    }
-  }
-
-  info(message: string, data?: any) {
-    if (isDev) {
-      console.info(this.formatMessage('info', message), data || '');
-    }
-  }
-
-  warn(message: string, data?: any) {
-    if (isDev) {
-      console.warn(this.formatMessage('warn', message), data || '');
-    }
-  }
-
-  error(message: string, error?: any) {
-    // Always log errors, even in production (for monitoring)
-    console.error(this.formatMessage('error', message), error || '');
-  }
-}
-
-export const logger = new Logger();
