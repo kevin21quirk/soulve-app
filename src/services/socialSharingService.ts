@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 
 export interface SocialShareData {
   title: string;
@@ -102,6 +103,13 @@ export class SocialSharingService {
   }
 
   static generateCustomPreviewCard(data: CampaignShareData): string {
+    // Sanitize all user-controlled inputs to prevent XSS attacks
+    const safeImageUrl = data.imageUrl ? DOMPurify.sanitize(data.imageUrl) : '';
+    const safeTitle = DOMPurify.sanitize(data.title);
+    const safeDescription = DOMPurify.sanitize(data.description);
+    const safeOrganizer = DOMPurify.sanitize(data.organizer);
+    const safeCategory = DOMPurify.sanitize(data.category.replace('_', ' ').toUpperCase());
+    
     return `
       <div style="
         max-width: 500px; 
@@ -112,8 +120,8 @@ export class SocialSharingService {
         background: white;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       ">
-        ${data.imageUrl ? `
-          <img src="${data.imageUrl}" alt="${data.title}" style="
+        ${safeImageUrl ? `
+          <img src="${safeImageUrl}" alt="${safeTitle}" style="
             width: 100%; 
             height: 200px; 
             object-fit: cover;
@@ -121,10 +129,10 @@ export class SocialSharingService {
         ` : ''}
         <div style="padding: 20px;">
           <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111827;">
-            ${data.title}
+            ${safeTitle}
           </h3>
           <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
-            ${data.description}
+            ${safeDescription}
           </p>
           ${data.goalAmount ? `
             <div style="margin: 12px 0;">
@@ -153,10 +161,10 @@ export class SocialSharingService {
               font-size: 12px; 
               font-weight: 500;
             ">
-              ${data.category.replace('_', ' ').toUpperCase()}
+              ${safeCategory}
             </span>
             <span style="color: #6b7280; font-size: 12px;">
-              by ${data.organizer}
+              by ${safeOrganizer}
             </span>
           </div>
         </div>
