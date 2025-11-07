@@ -45,6 +45,10 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const POSTS_PER_PAGE = 20;
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -63,7 +67,10 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         postsQuery = postsQuery.is('organization_id', null);
       }
 
-      postsQuery = postsQuery.order('created_at', { ascending: false });
+      // Add pagination
+      postsQuery = postsQuery
+        .order('created_at', { ascending: false })
+        .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1);
 
       // Build campaigns query with organization context filtering
       let campaignsQuery = supabase
@@ -77,7 +84,10 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         campaignsQuery = campaignsQuery.or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`);
       }
 
-      campaignsQuery = campaignsQuery.order('created_at', { ascending: false });
+      // Add pagination to campaigns
+      campaignsQuery = campaignsQuery
+        .order('created_at', { ascending: false })
+        .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1);
 
       const [postsResult, campaignsResult] = await Promise.all([
         postsQuery,
@@ -276,7 +286,11 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
-      setPosts(allPosts);
+      // Check if we have more posts to load
+      setHasMore(allPosts.length === POSTS_PER_PAGE * 2);
+      
+      // Append to existing posts if loading more, otherwise replace
+      setPosts(prev => page === 0 ? allPosts : [...prev, ...allPosts]);
     } catch (error: any) {
       logger.error('useRealSocialFeed - Error fetching posts', error);
       toast({
@@ -292,8 +306,15 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
 
   const refreshFeed = useCallback(() => {
     setRefreshing(true);
+    setPage(0);
     fetchPosts();
   }, [fetchPosts]);
+
+  const loadMore = useCallback(() => {
+    if (!loading && !refreshing && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  }, [loading, refreshing, hasMore]);
 
   // Enhanced interaction handlers with better campaign ID handling
   const handleLike = useCallback(async (postId: string) => {
@@ -456,60 +477,48 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     }
   }, [user, toast, organizationId]);
 
-  // Enhanced real-time subscription with better campaign handling
+  // Consolidated real-time subscription - single multiplexed channel
   useEffect(() => {
     if (!user) return;
     
-    const postsChannel = supabase
-      .channel('posts-realtime-enhanced')
+    // Debounce refresh to prevent excessive refetches
+    let refreshTimeout: NodeJS.Timeout;
+    const debouncedRefresh = () => {
+      clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(() => {
+        setPage(0);
+        fetchPosts();
+      }, 500);
+    };
+    
+    // Single channel for all feed updates
+    const feedChannel = supabase
+      .channel('social-feed-realtime')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'posts'
-      }, () => {
-        fetchPosts();
-      })
-      .subscribe();
-
-    const campaignsChannel = supabase
-      .channel('campaigns-realtime-enhanced')
+      }, debouncedRefresh)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'campaigns'
-      }, () => {
-        fetchPosts();
-      })
-      .subscribe();
-
-    // Listen for interactions on both tables
-    const postInteractionsChannel = supabase
-      .channel('post-interactions-realtime')
+      }, debouncedRefresh)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'post_interactions'
-      }, () => {
-        fetchPosts();
-      })
-      .subscribe();
-
-    const campaignInteractionsChannel = supabase
-      .channel('campaign-interactions-realtime')
+      }, debouncedRefresh)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'campaign_interactions'
-      }, () => {
-        fetchPosts();
-      })
+      }, debouncedRefresh)
       .subscribe();
 
     return () => {
-      supabase.removeChannel(postsChannel);
-      supabase.removeChannel(campaignsChannel);
-      supabase.removeChannel(postInteractionsChannel);
-      supabase.removeChannel(campaignInteractionsChannel);
+      clearTimeout(refreshTimeout);
+      supabase.removeChannel(feedChannel);
     };
   }, [user, fetchPosts]);
 
@@ -520,6 +529,13 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     }
   }, [user, fetchPosts]);
 
+  // Fetch more when page changes
+  useEffect(() => {
+    if (user && page > 0) {
+      fetchPosts();
+    }
+  }, [page, user, fetchPosts]);
+
   return {
     posts,
     loading,
@@ -528,6 +544,8 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     handleLike,
     handleBookmark,
     handleShare,
-    handleAddComment
+    handleAddComment,
+    loadMore,
+    hasMore
   };
 };

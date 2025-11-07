@@ -42,144 +42,76 @@ export const useNotificationCounts = () => {
 
     loadCounts();
 
-    // Set up real-time subscriptions
-    const messagesChannel = supabase
-      .channel('notification-messages')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `recipient_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log('Message change detected:', payload);
-          loadCounts();
-        }
-      )
+    // Debounce count refresh to prevent excessive queries
+    let refreshTimeout: NodeJS.Timeout;
+    const debouncedLoadCounts = () => {
+      clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(loadCounts, 1000);
+    };
+
+    // Consolidated real-time subscriptions - 3 channels instead of 8
+    // Channel 1: User-specific notifications (messages, connections)
+    const userNotificationsChannel = supabase
+      .channel('user-notifications')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'messages',
+        filter: `recipient_id=eq.${user.id}`,
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'connections',
+        filter: `addressee_id=eq.${user.id}`,
+      }, debouncedLoadCounts)
       .subscribe();
 
-    const feedbackChannel = supabase
-      .channel('notification-feedback')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'platform_feedback',
-        },
-        () => {
-          loadCounts();
-        }
-      )
+    // Channel 2: Social interactions (posts, reactions, activities)
+    const socialChannel = supabase
+      .channel('social-notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'post_interactions',
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'post_reactions',
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'user_activities',
+      }, debouncedLoadCounts)
       .subscribe();
 
-    // Connection requests real-time
-    const connectionsChannel = supabase
-      .channel('notification-connections')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'connections',
-          filter: `addressee_id=eq.${user.id}`,
-        },
-        () => {
-          loadCounts();
-        }
-      )
-      .subscribe();
-
-    // Social interactions (comments, reactions) real-time
-    const postInteractionsChannel = supabase
-      .channel('notification-social')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'post_interactions',
-        },
-        () => {
-          loadCounts();
-        }
-      )
-      .subscribe();
-
-    const postReactionsChannel = supabase
-      .channel('notification-reactions')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'post_reactions',
-        },
-        () => {
-          loadCounts();
-        }
-      )
-      .subscribe();
-
-    // Donations real-time
-    const userActivitiesChannel = supabase
-      .channel('notification-donations')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'user_activities',
-        },
-        () => {
-          loadCounts();
-        }
-      )
-      .subscribe();
-
-    // ESG data contributions real-time (for business users)
-    const esgContributionsChannel = supabase
-      .channel('notification-esg')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'stakeholder_data_contributions',
-        },
-        () => {
-          loadCounts();
-        }
-      )
-      .subscribe();
-
-    // Demo requests real-time (for admins)
-    const demoRequestsChannel = supabase
-      .channel('notification-demo-requests')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'demo_requests',
-        },
-        () => {
-          loadCounts();
-        }
-      )
+    // Channel 3: Admin & business notifications
+    const adminChannel = supabase
+      .channel('admin-notifications')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'platform_feedback',
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'stakeholder_data_contributions',
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'demo_requests',
+      }, debouncedLoadCounts)
       .subscribe();
 
     return () => {
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(feedbackChannel);
-      supabase.removeChannel(connectionsChannel);
-      supabase.removeChannel(postInteractionsChannel);
-      supabase.removeChannel(postReactionsChannel);
-      supabase.removeChannel(userActivitiesChannel);
-      supabase.removeChannel(esgContributionsChannel);
-      supabase.removeChannel(demoRequestsChannel);
+      clearTimeout(refreshTimeout);
+      supabase.removeChannel(userNotificationsChannel);
+      supabase.removeChannel(socialChannel);
+      supabase.removeChannel(adminChannel);
     };
   }, [user?.id]);
 

@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Plus } from 'lucide-react';
+import { RefreshCw, Plus, Loader2 } from 'lucide-react';
 import CreatePost from './CreatePost';
 import SocialPostCard from './SocialPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
-import { supabase } from '@/integrations/supabase/client';
 
 interface RealSocialFeedProps {
   organizationId?: string | null;
@@ -24,75 +24,28 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
     handleLike, 
     handleBookmark, 
     handleShare, 
-    handleAddComment 
+    handleAddComment,
+    loadMore,
+    hasMore
   } = useRealSocialFeed(organizationId);
 
-  // Enhanced real-time updates for posts and campaigns
+  // Infinite scroll hook
+  const { isFetching } = useInfiniteScroll({
+    hasMore,
+    isLoading: loading || refreshing,
+    onLoadMore: loadMore,
+    threshold: 400
+  });
+
+  // Listen for campaign creation events (real-time subscriptions handled by useRealSocialFeed)
   useEffect(() => {
-    const postsChannel = supabase
-      .channel('posts-realtime-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'posts'
-        },
-        () => refreshFeed()
-      )
-      .subscribe();
-
-    const campaignsChannel = supabase
-      .channel('campaigns-realtime-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'campaigns'
-        },
-        () => refreshFeed()
-      )
-      .subscribe();
-
-    const interactionsChannel = supabase
-      .channel('interactions-realtime-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'post_interactions'
-        },
-        () => refreshFeed()
-      )
-      .subscribe();
-
-    const reactionsChannel = supabase
-      .channel('reactions-realtime-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'post_reactions'
-        },
-        () => refreshFeed()
-      )
-      .subscribe();
-
     const handleCampaignCreated = () => {
-      // Real-time subscriptions handle updates automatically
       refreshFeed();
     };
 
     window.addEventListener('campaignCreated', handleCampaignCreated as EventListener);
 
     return () => {
-      supabase.removeChannel(postsChannel);
-      supabase.removeChannel(campaignsChannel);
-      supabase.removeChannel(interactionsChannel);
-      supabase.removeChannel(reactionsChannel);
       window.removeEventListener('campaignCreated', handleCampaignCreated as EventListener);
     };
   }, [refreshFeed]);
@@ -201,22 +154,37 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {posts.map((post) => {
-            const transformedPost = transformSocialPostToFeedPost(post);
-            return (
-              <SocialPostCard
-                key={post.id}
-                post={transformedPost}
-              onLike={() => handleLike(post.id)}
-              onShare={() => handleShare(post.id)}
-              onBookmark={() => handleBookmark(post.id)}
-              onComment={(content) => handleAddComment(post.id, content)}
-              onReaction={handleReaction}
-            />
-            );
-          })}
-        </div>
+        <>
+          <div className="space-y-6">
+            {posts.map((post) => {
+              const transformedPost = transformSocialPostToFeedPost(post);
+              return (
+                <SocialPostCard
+                  key={post.id}
+                  post={transformedPost}
+                onLike={() => handleLike(post.id)}
+                onShare={() => handleShare(post.id)}
+                onBookmark={() => handleBookmark(post.id)}
+                onComment={(content) => handleAddComment(post.id, content)}
+                onReaction={handleReaction}
+              />
+              );
+            })}
+          </div>
+          
+          {/* Infinite scroll loading indicator */}
+          {isFetching && hasMore && (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+          
+          {!hasMore && posts.length > 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              You've reached the end of your feed
+            </div>
+          )}
+        </>
       )}
     </div>
   );
