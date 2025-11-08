@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,27 +17,11 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const context = searchParams.get('context') || 'personal';
   const orgId = searchParams.get('orgId');
-  const [activeTab, setActiveTab] = useState(() => {
+  const activeTab = useMemo(() => {
     return searchParams.get("tab") || "feed";
-  });
+  }, [searchParams]);
   const [currentOrgName, setCurrentOrgName] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
-
-  // Sync activeTab with URL parameter changes
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam && tabParam !== activeTab) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
-
-  // Ensure URL always has a tab parameter
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (!tabParam) {
-      setSearchParams({ tab: activeTab, context, ...(orgId ? { orgId } : {}) }, { replace: true });
-    }
-  }, []);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
@@ -101,7 +85,6 @@ const Dashboard = () => {
   }, [user, loading, toast, navigate]);
 
   const handleNavigateToTab = (tab: string) => {
-    setActiveTab(tab);
     setSearchParams({ tab, context, ...(orgId ? { orgId } : {}) });
     // Close any open overlays when navigating
     setShowSearch(false);
@@ -149,7 +132,6 @@ const Dashboard = () => {
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={(tab) => {
-            setActiveTab(tab);
             setSearchParams({ tab, context, ...(orgId ? { orgId } : {}) });
           }}
           organizationId={context === 'org' ? orgId : null}
