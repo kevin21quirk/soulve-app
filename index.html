@@ -43,6 +43,21 @@
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://join-soulve.com/" />
+    
+    <!-- Inline critical CSS for above-the-fold content to prevent render blocking -->
+    <style>
+      /* Critical CSS - prevents white flash and ensures fast initial render */
+      * { box-sizing: border-box; }
+      html { line-height: 1.5; -webkit-text-size-adjust: 100%; }
+      body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+      #root { min-height: 100vh; }
+    </style>
+    
+    <!-- Async CSS loading script to prevent render blocking -->
+    <script>
+      !function(e){"use strict";var t=function(t,n,r,o){var i,a=e.document,d=a.createElement("link");if(n)i=n;else{var s=(a.body||a.getElementsByTagName("head")[0]).childNodes;i=s[s.length-1]}var l=a.styleSheets;if(o)for(var f in o)o.hasOwnProperty(f)&&d.setAttribute(f,o[f]);d.rel="stylesheet",d.href=t,d.media="only x",function e(t){if(a.body)return t();setTimeout(function(){e(t)})}(function(){i.parentNode.insertBefore(d,n?i:i.nextSibling)});var u=function(e){for(var t=d.href,n=l.length;n--;)if(l[n].href===t)return e();setTimeout(function(){u(e)})};return d.addEventListener&&d.addEventListener("load",r),d.onloadcssdefined=u,u(r),d};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);
+      !function(e){if(e.loadCSS){var t=loadCSS.relpreload={};if(t.support=function(){try{return e.document.createElement("link").relList.supports("preload")}catch(e){return!1}},t.poly=function(){for(var t=e.document.getElementsByTagName("link"),n=0;n<t.length;n++){var r=t[n];"preload"===r.rel&&"style"===r.getAttribute("as")&&(e.loadCSS(r.href,r,r.getAttribute("media")),r.rel=null)}},!t.support()){t.poly();var n=e.setInterval(t.poly,300);e.addEventListener&&e.addEventListener("load",function(){t.poly(),e.clearInterval(n)})}}}(this);
+    </script>
   </head>
 
   <body>
