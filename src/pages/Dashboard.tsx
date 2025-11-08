@@ -94,6 +94,7 @@ const Dashboard = () => {
 
   const handleNavigateToTab = (tab: string) => {
     setActiveTab(tab);
+    setSearchParams({ tab, context, ...(orgId ? { orgId } : {}) });
     // Close any open overlays when navigating
     setShowSearch(false);
     setShowShortcuts(false);
@@ -139,7 +140,10 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-6">
         <DashboardTabs 
           activeTab={activeTab} 
-          onTabChange={setActiveTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setSearchParams({ tab, context, ...(orgId ? { orgId } : {}) });
+          }}
           organizationId={context === 'org' ? orgId : null}
         />
       </main>
