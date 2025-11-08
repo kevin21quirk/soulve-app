@@ -2,12 +2,12 @@
 // Service Worker for push notifications
 self.addEventListener('install', (event) => {
   console.log('Service Worker installed');
-  self.skipWaiting();
+  // Removed skipWaiting() to prevent forced reloads on tab focus
 });
 
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activated');
-  event.waitUntil(self.clients.claim());
+  // Removed clients.claim() to prevent forced reloads on tab focus
 });
 
 self.addEventListener('push', (event) => {
