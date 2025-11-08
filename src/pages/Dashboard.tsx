@@ -23,16 +23,13 @@ const Dashboard = () => {
   const [currentOrgName, setCurrentOrgName] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
 
-  // Sync activeTab with URL parameter changes and ensure default tab is in URL
+  // Sync activeTab with URL parameter changes
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (!tabParam && activeTab === "feed") {
-      // Set feed as default in URL if no tab parameter exists
-      setSearchParams({ tab: "feed", context, ...(orgId ? { orgId } : {}) });
-    } else if (tabParam && tabParam !== activeTab) {
+    if (tabParam && tabParam !== activeTab) {
       setActiveTab(tabParam);
     }
-  }, [searchParams, activeTab, context, orgId, setSearchParams]);
+  }, [searchParams]);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
