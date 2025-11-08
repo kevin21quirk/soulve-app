@@ -38,7 +38,7 @@ const MainTabsList = () => {
               <TooltipTrigger asChild>
                 <TabsTrigger 
                   value={tab.value}
-                  className="flex items-center justify-center rounded-md px-4 py-3 transition-all duration-200 flex-1 min-w-0 relative bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
+                  className="flex items-center justify-center rounded-md px-4 py-3 transition-all duration-200 flex-1 min-w-0 relative border bg-gray-100 border-gray-200 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent data-[state=active]:!bg-gradient-to-r data-[state=active]:!from-[#0ce4af] data-[state=active]:!to-[#18a5fe] data-[state=active]:!text-white data-[state=active]:!border-transparent"
                 >
                   <IconComponent className="h-5 w-5" />
                   <NotificationBadge count={tab.badgeCount} />
