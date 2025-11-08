@@ -29,10 +29,11 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
+              aria-current={isActive ? "page" : undefined}
               className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${
                 isActive
                   ? "bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white"
               }`}
             >
               <IconComponent className="h-4 w-4 mb-1" />
