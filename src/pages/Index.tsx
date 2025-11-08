@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import HeroSection from "@/components/HeroSection";
 import ImpactStoriesSection from "@/components/ImpactStoriesSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -13,56 +14,58 @@ import FAQSchema from "@/components/seo/FAQSchema";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isChecking, setIsChecking] = useState(true);
+  const { user, session, loading } = useAuth();
 
   useEffect(() => {
-    // Non-blocking auth check - show content immediately, redirect in background
+    let mounted = true;
+    
+    // Only redirect if we have an authenticated user
+    if (loading || !user || !session) return;
+
     const checkAuthAndRedirect = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-          // Check if user is admin FIRST - admins bypass all checks
-          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-            user_uuid: session.user.id 
-          });
+        // Check if user is admin FIRST - admins bypass all checks
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
 
-          if (isAdminUser) {
-            navigate("/dashboard", { replace: true });
-            return;
-          }
+        if (!mounted) return;
 
-          // User is authenticated, check if they've completed onboarding
-          const { data: questionnaireData } = await supabase
-            .from('questionnaire_responses')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .limit(1)
-            .maybeSingle();
-          
-          if (questionnaireData) {
-            // User is authenticated and has completed onboarding, redirect to dashboard
-            navigate("/dashboard", { replace: true });
-            return;
-          } else {
-            // User is authenticated but hasn't completed onboarding
-            navigate("/profile-registration", { replace: true });
-            return;
-          }
+        if (isAdminUser) {
+          navigate("/dashboard", { replace: true });
+          return;
         }
+
+        // User is authenticated, check if they've completed onboarding
+        const { data: questionnaireData } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle();
         
-        // User is not authenticated, show the marketing page
-        setIsChecking(false);
+        if (!mounted) return;
+
+        if (questionnaireData) {
+          // User is authenticated and has completed onboarding, redirect to dashboard
+          navigate("/dashboard", { replace: true });
+          return;
+        } else {
+          // User is authenticated but hasn't completed onboarding
+          navigate("/profile-registration", { replace: true });
+          return;
+        }
       } catch (error) {
         console.error('[Index] Error checking auth status:', error);
-        setIsChecking(false);
       }
     };
 
-    // Show content immediately, redirect happens in background
-    setIsChecking(false);
     checkAuthAndRedirect();
-  }, [navigate]);
+    
+    return () => {
+      mounted = false;
+    };
+  }, [user, session, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">

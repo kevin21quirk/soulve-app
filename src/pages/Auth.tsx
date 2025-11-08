@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import AuthHeader from "@/components/auth/AuthHeader";
 import EnhancedAuthForm from "@/components/auth/EnhancedAuthForm";
 import AuthToggle from "@/components/auth/AuthToggle";
@@ -15,69 +16,88 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const modeParam = searchParams.get('mode');
   const [isLogin, setIsLogin] = useState(modeParam !== 'signup');
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('online');
   const navigate = useNavigate();
+  const { user, session, loading } = useAuth();
 
+  // Only check backend connectivity once on mount
   useEffect(() => {
-    // Check backend connectivity
+    let mounted = true;
+    
     const checkBackend = async () => {
       try {
         const { error } = await supabase.auth.getSession();
-        if (error) {
-          if (error.message?.includes('upstream') || error.message?.includes('503')) {
-            setBackendStatus('offline');
+        if (mounted) {
+          if (error) {
+            if (error.message?.includes('upstream') || error.message?.includes('503')) {
+              setBackendStatus('offline');
+            } else {
+              setBackendStatus('online');
+            }
           } else {
             setBackendStatus('online');
           }
-        } else {
-          setBackendStatus('online');
         }
       } catch (error) {
-        setBackendStatus('offline');
+        if (mounted) {
+          setBackendStatus('offline');
+        }
       }
     };
 
     checkBackend();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-    // Check if user is already logged in and redirect appropriately
-    const checkUser = async () => {
+  // Handle redirect when auth state is ready and user is logged in
+  useEffect(() => {
+    let mounted = true;
+    
+    if (loading || !user || !session) return;
+
+    const redirectUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          // Check if user is admin FIRST - admins bypass all checks
-          const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-            user_uuid: session.user.id 
-          });
+        // Check if user is admin FIRST - admins bypass all checks
+        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
 
-          if (isAdminUser) {
-            navigate('/dashboard', { replace: true });
-            return;
-          }
+        if (!mounted) return;
 
-          // Check if user has completed onboarding
-          const { data: questionnaireData } = await supabase
-            .from('questionnaire_responses')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .limit(1)
-            .maybeSingle();
-          
-          if (questionnaireData) {
-            navigate("/dashboard", { replace: true });
-          } else {
-            navigate("/profile-registration", { replace: true });
-          }
+        if (isAdminUser) {
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+
+        // Check if user has completed onboarding
+        const { data: questionnaireData } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (!mounted) return;
+        
+        if (questionnaireData) {
+          navigate("/dashboard", { replace: true });
         } else {
-          setIsCheckingSession(false);
+          navigate("/profile-registration", { replace: true });
         }
       } catch (error) {
-        // Session check failed, user stays on auth page
-        setIsCheckingSession(false);
+        // Stay on auth page if check fails
       }
     };
-    checkUser();
-  }, [navigate]);
+
+    redirectUser();
+    
+    return () => {
+      mounted = false;
+    };
+  }, [user, session, loading, navigate]);
 
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
@@ -141,12 +161,12 @@ const Auth = () => {
     }
   };
 
-  if (isCheckingSession) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking your session...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
