@@ -20,11 +20,8 @@ export const useFeedInteractions = () => {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Simulate refresh delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshing(false);
-    // In a real app, this would trigger a data refetch
-    window.location.reload();
   }, []);
 
   const filterPosts = useCallback((posts: FeedPost[]) => {

@@ -11,27 +11,27 @@ const ConnectionsTabsList = ({ activeTab }: ConnectionsTabsListProps) => {
 
   return (
     <TabsList className="flex w-full bg-transparent border-none p-2 gap-2 rounded-lg h-auto">
-      <TabsTrigger value="overview" className={tabConfig}>
+      <TabsTrigger value="overview" className={tabConfig} aria-current={activeTab === "overview" ? "page" : undefined}>
         <TrendingUp className="h-4 w-4" />
         <span className="hidden sm:inline">Overview</span>
       </TabsTrigger>
-      <TabsTrigger value="connections" className={tabConfig}>
+      <TabsTrigger value="connections" className={tabConfig} aria-current={activeTab === "connections" ? "page" : undefined}>
         <Users className="h-4 w-4" />
         <span className="hidden sm:inline">Connections</span>
       </TabsTrigger>
-      <TabsTrigger value="groups" className={tabConfig}>
+      <TabsTrigger value="groups" className={tabConfig} aria-current={activeTab === "groups" ? "page" : undefined}>
         <Users2 className="h-4 w-4" />
         <span className="hidden sm:inline">Groups</span>
       </TabsTrigger>
-      <TabsTrigger value="campaigns" className={tabConfig}>
+      <TabsTrigger value="campaigns" className={tabConfig} aria-current={activeTab === "campaigns" ? "page" : undefined}>
         <Heart className="h-4 w-4" />
         <span className="hidden sm:inline">Campaigns</span>
       </TabsTrigger>
-      <TabsTrigger value="discover" className={tabConfig}>
+      <TabsTrigger value="discover" className={tabConfig} aria-current={activeTab === "discover" ? "page" : undefined}>
         <UserPlus className="h-4 w-4" />
         <span className="hidden sm:inline">Discover</span>
       </TabsTrigger>
-      <TabsTrigger value="champions" className={tabConfig}>
+      <TabsTrigger value="champions" className={tabConfig} aria-current={activeTab === "champions" ? "page" : undefined}>
         <Crown className="h-4 w-4" />
         <span className="hidden sm:inline">Champions</span>
       </TabsTrigger>

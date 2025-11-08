@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -19,6 +20,7 @@ export const useSafeSpaceSession = (sessionId: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>({ isPaused: false });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMessages();
@@ -210,7 +212,7 @@ export const useSafeSpaceSession = (sessionId: string) => {
       if (error) throw error;
 
       // Navigate away from session
-      window.location.reload();
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error ending session:', error);
       throw error;

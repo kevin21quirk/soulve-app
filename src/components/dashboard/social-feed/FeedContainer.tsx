@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ArrowUp } from "lucide-react";
-import { useSocialFeed } from "@/hooks/useSocialFeed";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FeedContainerProps {
   children: React.ReactNode;
@@ -12,13 +12,12 @@ interface FeedContainerProps {
 const FeedContainer = ({ children }: FeedContainerProps) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate refresh delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await queryClient.invalidateQueries({ queryKey: ['social-feed'] });
     setIsRefreshing(false);
-    window.location.reload();
   };
 
   const scrollToTop = () => {
