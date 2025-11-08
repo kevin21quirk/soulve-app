@@ -30,6 +30,14 @@ const Dashboard = () => {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
+
+  // Ensure URL always has a tab parameter
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (!tabParam) {
+      setSearchParams({ tab: activeTab, context, ...(orgId ? { orgId } : {}) }, { replace: true });
+    }
+  }, []);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
