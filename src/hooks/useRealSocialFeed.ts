@@ -28,6 +28,7 @@ export interface SocialPost {
   shares_count: number;
   is_liked: boolean;
   is_bookmarked: boolean;
+  reactions: any[];
   status?: string;
   import_source?: string | null;
   external_id?: string | null;
@@ -37,6 +38,21 @@ export interface SocialPost {
     thumbnailUrl?: string;
   } | null;
   imported_at?: string | null;
+  // Campaign-specific fields
+  goalAmount?: number;
+  currentAmount?: number;
+  endDate?: string | null;
+  campaignCategory?: string;
+  currency?: string;
+  campaignStats?: {
+    donorCount: number;
+    recentDonations24h: number;
+    recentDonors: any[];
+    averageDonation: number;
+    progressPercentage: number;
+    daysRemaining: number | null;
+    isOngoing: boolean;
+  };
 }
 
 export const useRealSocialFeed = (organizationId?: string | null) => {
@@ -51,246 +67,86 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
   const POSTS_PER_PAGE = 20;
 
   const fetchPosts = useCallback(async () => {
+    if (!user) return;
+    
     try {
-      // Build posts query with organization context filtering
-      let postsQuery = supabase
-        .from('posts')
-        .select('*')
-        .eq('is_active', true);
+      // Use optimized RPC function that fetches everything in one query
+      const { data, error } = await supabase
+        .rpc('get_feed_with_stats', {
+          p_user_id: user.id,
+          p_organization_id: organizationId || null,
+          p_limit: POSTS_PER_PAGE,
+          p_offset: page * POSTS_PER_PAGE
+        });
 
-      // Filter by organization context
-      if (organizationId) {
-        // When viewing organization profile, only show posts by that organization
-        postsQuery = postsQuery.eq('organization_id', organizationId);
-      } else {
-        // When viewing personal feed, show personal posts (no organization_id) and posts from followed orgs
-        postsQuery = postsQuery.is('organization_id', null);
+      if (error) {
+        logger.error('useRealSocialFeed - RPC error', error);
+        throw error;
       }
 
-      // Add pagination
-      postsQuery = postsQuery
-        .order('created_at', { ascending: false })
-        .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1);
+      const feedData = data || [];
 
-      // Build campaigns query with organization context filtering
-      let campaignsQuery = supabase
-        .from('campaigns')
-        .select('*');
-
-      if (organizationId) {
-        // For organization context, show campaigns created by org members
-        campaignsQuery = campaignsQuery.or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`);
-      } else {
-        campaignsQuery = campaignsQuery.or(`status.eq.active${user ? `,and(status.eq.draft,creator_id.eq.${user.id})` : ''}`);
-      }
-
-      // Add pagination to campaigns
-      campaignsQuery = campaignsQuery
-        .order('created_at', { ascending: false })
-        .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1);
-
-      const [postsResult, campaignsResult] = await Promise.all([
-        postsQuery,
-        campaignsQuery
-      ]);
-
-      if (postsResult.error) {
-        logger.error('useRealSocialFeed - Posts query error', postsResult.error);
-        throw postsResult.error;
-      }
-
-      if (campaignsResult.error) {
-        logger.error('useRealSocialFeed - Campaigns query error', campaignsResult.error);
-        throw campaignsResult.error;
-      }
-
-      const postsData = postsResult.data || [];
-      const campaignsData = campaignsResult.data || [];
-
-      // Get unique author IDs and organization IDs
-      const postAuthorIds = postsData.map(post => post.author_id);
-      const campaignAuthorIds = campaignsData.map(campaign => campaign.creator_id);
-      const authorIds = [...new Set([...postAuthorIds, ...campaignAuthorIds])];
-      
-      const orgIds = [...new Set(postsData.map(post => post.organization_id).filter(Boolean))];
-
-      // Fetch profiles and organizations in parallel
-      const [profilesData, orgsData] = await Promise.all([
-        authorIds.length > 0
-          ? supabase
-              .from('profiles')
-              .select('id, first_name, last_name, avatar_url')
-              .in('id', authorIds)
-              .then(({ data, error }) => {
-                if (error) {
-                  logger.error('useRealSocialFeed - Profiles query error', error);
-                }
-                return data || [];
-              })
-          : Promise.resolve([]),
-        orgIds.length > 0
-          ? supabase
-              .from('organizations')
-              .select('id, name, avatar_url')
-              .in('id', orgIds)
-              .then(({ data, error }) => {
-                if (error) {
-                  logger.error('useRealSocialFeed - Organizations query error', error);
-                }
-                return data || [];
-              })
-          : Promise.resolve([])
-      ]);
-
-      // Create maps for quick lookup
-      const profilesMap = new Map();
-      profilesData.forEach(profile => {
-        profilesMap.set(profile.id, profile);
-      });
-
-      const orgsMap = new Map();
-      orgsData.forEach(org => {
-        orgsMap.set(org.id, org);
-      });
-
-      // Transform posts
-      const transformedPosts: SocialPost[] = postsData.map(post => {
-        const profile = profilesMap.get(post.author_id);
-        const org = post.organization_id ? orgsMap.get(post.organization_id) : null;
+      // Transform the data to match SocialPost interface
+      const transformedPosts: SocialPost[] = feedData.map((item: any) => {
+        const isCampaign = item.status !== null;
         
-        let authorName = 'Anonymous';
-        let avatarUrl = '';
-
-        // If post is by organization, use org details; otherwise use profile
-        if (org) {
-          authorName = org.name || 'Organization';
-          avatarUrl = org.avatar_url || '';
-        } else if (profile) {
-          authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
-          avatarUrl = profile.avatar_url || '';
-        }
-
-        const transformed = {
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          author_id: post.author_id,
-          author_name: authorName,
-          author_avatar: avatarUrl,
-          organization_id: post.organization_id || null,
-          organization_name: org?.name,
-          organization_logo: org?.avatar_url,
-          category: post.category,
-          urgency: post.urgency,
-          location: post.location,
-          tags: post.tags || [],
-          media_urls: Array.isArray(post.media_urls) ? post.media_urls : [],
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          likes_count: 0,
-          comments_count: 0,
-          shares_count: 0,
-          is_liked: false,
-          is_bookmarked: false,
-          import_source: post.import_source || null,
-          external_id: post.external_id || null,
-          import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
-          imported_at: post.imported_at || null
+        // Base post data
+        const post: SocialPost = {
+          id: isCampaign ? `campaign_${item.id}` : item.id,
+          title: item.title,
+          content: item.content,
+          author_id: item.author_id,
+          author_name: item.author_name,
+          author_avatar: item.author_avatar || '',
+          organization_id: item.organization_id,
+          organization_name: item.organization_name,
+          organization_logo: item.organization_logo,
+          category: item.category,
+          urgency: item.urgency,
+          location: item.location,
+          tags: item.tags || [],
+          media_urls: item.media_urls || [],
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          likes_count: Number(item.likes_count) || 0,
+          comments_count: Number(item.comments_count) || 0,
+          shares_count: Number(item.shares_count) || 0,
+          is_liked: item.is_liked || false,
+          is_bookmarked: item.is_bookmarked || false,
+          reactions: item.reactions || [],
+          import_source: item.import_source,
+          external_id: item.external_id,
+          import_metadata: item.import_metadata,
+          imported_at: item.imported_at
         };
 
-        // Log imported content posts in dev mode
-        if (transformed.import_source) {
-          logger.debug('Post with imported content', {
-            id: transformed.id,
-            import_source: transformed.import_source,
-            external_id: transformed.external_id,
-            has_metadata: !!transformed.import_metadata
-          });
+        // Add campaign-specific data if it's a campaign
+        if (isCampaign) {
+          post.status = item.status;
+          post.goalAmount = item.goal_amount;
+          post.currentAmount = item.current_amount;
+          post.endDate = item.end_date;
+          post.campaignCategory = item.campaign_category;
+          post.currency = item.currency;
+          post.campaignStats = {
+            donorCount: Number(item.donor_count) || 0,
+            recentDonations24h: Number(item.recent_donations_24h) || 0,
+            recentDonors: item.recent_donors || [],
+            averageDonation: Number(item.average_donation) || 0,
+            progressPercentage: Number(item.progress_percentage) || 0,
+            daysRemaining: item.days_remaining,
+            isOngoing: item.end_date === null
+          };
         }
 
-        return transformed;
+        return post;
       });
 
-      // Transform campaigns to look like posts with enhanced status handling and campaign data
-      const transformedCampaigns: SocialPost[] = campaignsData.map(campaign => {
-        const profile = profilesMap.get(campaign.creator_id);
-        let authorName = 'Anonymous';
-        let avatarUrl = '';
-
-        if (profile) {
-          authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
-          avatarUrl = profile.avatar_url || '';
-        }
-
-        // Handle gallery_images properly
-        let mediaUrls: string[] = [];
-        if (campaign.gallery_images) {
-          if (Array.isArray(campaign.gallery_images)) {
-            mediaUrls = campaign.gallery_images
-              .map((item: any) => typeof item === 'string' ? item : String(item))
-              .filter((url: string) => typeof url === 'string' && url.length > 0);
-          } else if (typeof campaign.gallery_images === 'string') {
-            try {
-              const parsed = JSON.parse(campaign.gallery_images);
-              if (Array.isArray(parsed)) {
-                mediaUrls = parsed
-                  .map((item: any) => typeof item === 'string' ? item : String(item))
-                  .filter((url: string) => typeof url === 'string' && url.length > 0);
-              }
-            } catch {
-              mediaUrls = [];
-            }
-          }
-        }
-
-        // Create campaign content with status indicator for drafts
-        let content = `${campaign.description}\n\nGoal: $${campaign.goal_amount || 0}\nCurrent: $${campaign.current_amount || 0}`;
-        if (campaign.status === 'draft' && user && campaign.creator_id === user.id) {
-          content = `[DRAFT] ${content}\n\n⚠️ This campaign is still in draft mode. It's only visible to you.`;
-        }
-
-        return {
-          id: `campaign_${campaign.id}`,
-          title: campaign.status === 'draft' && user && campaign.creator_id === user.id 
-            ? `[DRAFT] ${campaign.title}` 
-            : campaign.title,
-          content,
-          author_id: campaign.creator_id,
-          author_name: authorName,
-          author_avatar: avatarUrl,
-          category: 'fundraising',
-          urgency: campaign.urgency || 'medium',
-          location: campaign.location,
-          tags: campaign.tags || [],
-          media_urls: mediaUrls,
-          created_at: campaign.created_at,
-          updated_at: campaign.updated_at,
-          likes_count: 0,
-          comments_count: 0,
-          shares_count: 0,
-          is_liked: false,
-          is_bookmarked: false,
-          status: campaign.status,
-          // Campaign-specific data for enhanced display
-          campaignId: campaign.id,
-          goalAmount: campaign.goal_amount,
-          currentAmount: campaign.current_amount,
-          endDate: campaign.end_date,
-          campaignCategory: campaign.category,
-          currency: campaign.currency || 'USD',
-        } as any;
-      });
-
-      // Combine and sort by creation date
-      const allPosts = [...transformedPosts, ...transformedCampaigns].sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-      
       // Check if we have more posts to load
-      setHasMore(allPosts.length === POSTS_PER_PAGE * 2);
+      setHasMore(transformedPosts.length === POSTS_PER_PAGE);
       
       // Append to existing posts if loading more, otherwise replace
-      setPosts(prev => page === 0 ? allPosts : [...prev, ...allPosts]);
+      setPosts(prev => page === 0 ? transformedPosts : [...prev, ...transformedPosts]);
     } catch (error: any) {
       logger.error('useRealSocialFeed - Error fetching posts', error);
       toast({
@@ -302,7 +158,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [toast, user, organizationId]);
+  }, [user, toast, organizationId, page]);
 
   const refreshFeed = useCallback(() => {
     setRefreshing(true);

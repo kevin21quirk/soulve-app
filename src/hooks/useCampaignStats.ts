@@ -100,26 +100,7 @@ export const useCampaignStats = (
     staleTime: 30000, // 30 seconds
   });
 
-  // Subscribe to real-time donation updates
-  useEffect(() => {
-    if (!campaignId) return;
-
-    let channel: any;
-    
-    const setupSubscription = async () => {
-      channel = await CampaignDonationService.subscribeToDonations(campaignId, () => {
-        refetch();
-      });
-    };
-
-    setupSubscription();
-
-    return () => {
-      if (channel) {
-        channel.unsubscribe();
-      }
-    };
-  }, [campaignId, refetch]);
+  // Real-time subscriptions are now handled at the feed level for better performance
 
   return { stats, isLoading };
 };
