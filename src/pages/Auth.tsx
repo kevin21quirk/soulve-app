@@ -214,7 +214,7 @@ const Auth = () => {
                 Your Supabase backend is experiencing connectivity issues after the recent upgrade. 
                 This may resolve itself in a few minutes. If the issue persists, please check your 
                 <a 
-                  href={`https://supabase.com/dashboard/project/${import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0]}`}
+                  href="https://supabase.com/dashboard/project/anuvztvypsihzlbkewci" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="underline ml-1"
