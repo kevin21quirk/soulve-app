@@ -13,24 +13,63 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Unauthorized - invalid token:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { url } = await req.json();
 
     if (!url) {
       throw new Error('URL is required');
     }
 
-    // Validate URL format
+    // Validate URL format and prevent SSRF attacks
     const urlPattern = /^https?:\/\/.+/i;
     if (!urlPattern.test(url)) {
       throw new Error('Invalid URL format');
     }
 
-    console.log('Fetching URL preview for:', url);
+    // Parse URL and check for dangerous hosts
+    const urlObj = new URL(url);
+    const dangerousHosts = [
+      'localhost', '127.0.0.1', '0.0.0.0', '169.254.169.254',
+      '10.', '172.16.', '172.17.', '172.18.', '172.19.', '172.20.',
+      '172.21.', '172.22.', '172.23.', '172.24.', '172.25.', '172.26.',
+      '172.27.', '172.28.', '172.29.', '172.30.', '172.31.', '192.168.'
+    ];
+    
+    const isDangerous = dangerousHosts.some(host => 
+      urlObj.hostname === host || 
+      urlObj.hostname.includes(host) || 
+      urlObj.hostname.startsWith(host)
+    );
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    if (isDangerous || !['http:', 'https:'].includes(urlObj.protocol)) {
+      throw new Error('Invalid or dangerous URL');
+    }
+
+    console.log('Fetching URL preview for:', url, 'User:', user.id);
 
     // Check if preview already exists in cache
     const { data: cached, error: cacheError } = await supabase
@@ -52,12 +91,16 @@ serve(async (req) => {
       );
     }
 
-    // Fetch the URL
+    // Fetch the URL with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; URLPreviewBot/1.0)',
       },
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.statusText}`);
@@ -87,6 +130,8 @@ serve(async (req) => {
     if (insertError) {
       console.error('Error caching preview:', insertError);
     }
+
+    console.log('URL preview fetched successfully for user:', user.id);
 
     return new Response(
       JSON.stringify({ 

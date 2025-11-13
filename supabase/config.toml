@@ -28,7 +28,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.fetch-url-preview]
-verify_jwt = false
+verify_jwt = true
 
 [functions.import-content]
 verify_jwt = true
