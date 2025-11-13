@@ -8130,55 +8130,6 @@ export type Database = {
           missing_indicators: number
         }[]
       }
-      get_feed_with_stats: {
-        Args: {
-          p_limit?: number
-          p_offset?: number
-          p_organization_id?: string
-          p_user_id: string
-        }
-        Returns: {
-          author_avatar: string
-          author_id: string
-          author_name: string
-          average_donation: number
-          campaign_category: string
-          category: string
-          comments_count: number
-          content: string
-          created_at: string
-          currency: string
-          current_amount: number
-          days_remaining: number
-          donor_count: number
-          end_date: string
-          external_id: string
-          goal_amount: number
-          id: string
-          import_metadata: Json
-          import_source: string
-          imported_at: string
-          is_active: boolean
-          is_bookmarked: boolean
-          is_liked: boolean
-          likes_count: number
-          location: string
-          media_urls: string[]
-          organization_id: string
-          organization_logo: string
-          organization_name: string
-          progress_percentage: number
-          reactions: Json
-          recent_donations_24h: number
-          recent_donors: Json
-          shares_count: number
-          status: string
-          tags: string[]
-          title: string
-          updated_at: string
-          urgency: string
-        }[]
-      }
       get_notification_analytics: {
         Args: { p_days_back?: number; p_user_id: string }
         Returns: {

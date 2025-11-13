@@ -19,7 +19,7 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     throw new Error('Cannot transform post without author_id');
   }
   
-  const feedPost: FeedPost = {
+  const feedPost = {
     id: socialPost.id,
     author: socialPost.author_name || 'Anonymous',
     authorId: socialPost.author_id,
@@ -39,7 +39,7 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     isBookmarked: socialPost.is_bookmarked || false,
     isShared: socialPost.is_shared || false,
     comments: [],
-    reactions: socialPost.reactions || [],
+    reactions: [],
     feeling: socialPost.feeling,
     visibility: socialPost.visibility || 'public',
     import_source: socialPost.import_source || null,
@@ -47,17 +47,6 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     import_metadata: socialPost.import_metadata || null,
     imported_at: socialPost.imported_at || null
   };
-
-  // Add campaign-specific data if present
-  if (socialPost.status) {
-    feedPost.status = socialPost.status;
-    feedPost.goalAmount = socialPost.goalAmount;
-    feedPost.currentAmount = socialPost.currentAmount;
-    feedPost.endDate = socialPost.endDate;
-    feedPost.campaignCategory = socialPost.campaignCategory;
-    feedPost.currency = socialPost.currency;
-    feedPost.campaignStats = socialPost.campaignStats;
-  }
   
   if (import.meta.env.DEV) {
     console.log('✅ [Transform] Output feedPost:', {

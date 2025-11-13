@@ -30,22 +30,6 @@ export interface FeedPost {
     thumbnailUrl?: string;
   } | null;
   imported_at?: string | null;
-  // Campaign-specific fields
-  status?: string;
-  goalAmount?: number;
-  currentAmount?: number;
-  endDate?: string | null;
-  campaignCategory?: string;
-  currency?: string;
-  campaignStats?: {
-    donorCount: number;
-    recentDonations24h: number;
-    recentDonors: any[];
-    averageDonation: number;
-    progressPercentage: number;
-    daysRemaining: number | null;
-    isOngoing: boolean;
-  };
 }
 
 export interface MediaItem {
@@ -74,14 +58,8 @@ export interface Comment {
 }
 
 export interface Reaction {
+  type: string;
   emoji: string;
-  type?: string; // For backward compatibility
   count: number;
-  userReacted?: boolean;
-  hasReacted?: boolean; // For backward compatibility
-  users?: Array<{
-    id: string;
-    name: string;
-    avatar?: string;
-  }>;
+  hasReacted: boolean;
 }

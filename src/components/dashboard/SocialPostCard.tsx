@@ -59,11 +59,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   const { toast } = useToast();
   const [showPostDetail, setShowPostDetail] = useState(false);
   const [showSelectHelper, setShowSelectHelper] = useState(false);
-  
-  // Use pre-computed reactions from post, or fetch if needed via toggleReaction
-  const { toggleReaction } = usePostReactions(post.id);
-  const reactions = post.reactions || [];
-  
+  const { reactions, toggleReaction } = usePostReactions(post.id);
   const { trackCommunityEngagement, trackHelpProvided } = useImpactTracking();
 
   const handleHelperSelected = async (helperId: string, helperName: string) => {
@@ -112,9 +108,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
     }
   };
 
-  // Use pre-computed comments count from post
-  // Comments will be fetched lazily in PostDetailModal when opened
-  const commentsCount = post.responses || 0;
+  const { comments } = usePostComments(post.id);
   
   // Translation support
   const { preference } = useUserLanguagePreference();
@@ -258,16 +252,13 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   const isCampaign = post.id.startsWith('campaign_');
   const campaignId = isCampaign ? post.id.replace('campaign_', '') : null;
   
-  // Use pre-computed campaign stats from post (fetched via RPC)
-  const stats = post.campaignStats || {
-    donorCount: 0,
-    recentDonations24h: 0,
-    recentDonors: [],
-    averageDonation: 0,
-    progressPercentage: 0,
-    daysRemaining: null,
-    isOngoing: true
-  };
+  // Get campaign stats if this is a campaign
+  const { stats } = useCampaignStats(
+    campaignId || '',
+    (post as any).goalAmount || 0,
+    (post as any).currentAmount || 0,
+    (post as any).endDate
+  );
 
   // If this is a campaign, render enhanced campaign layout
   if (isCampaign) {
@@ -425,7 +416,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
             {/* Reactions Display */}
             {reactions && Object.keys(reactions).length > 0 && (
               <ReactionDisplay 
-                reactions={reactions as any} 
+                reactions={reactions} 
                 onReactionClick={handleReactionSelect}
               />
             )}
@@ -464,7 +455,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
                   className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>{commentsCount}</span>
+                  <span>{comments.length}</span>
                 </Button>
                 
                 <Button
@@ -670,7 +661,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
         {reactions.length > 0 && (
           <div className="mb-4">
             <ReactionDisplay
-              reactions={reactions as any}
+              reactions={reactions}
               onReactionClick={toggleReaction}
             />
           </div>
@@ -725,7 +716,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 px-2 flex-shrink-0"
             >
               <MessageCircle className="h-4 w-4" />
-              <span>{commentsCount}</span>
+              <span>{comments.length}</span>
             </Button>
             
             <Button
@@ -769,7 +760,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
         )}
 
         {/* View Comments Button */}
-        {commentsCount > 0 && (
+        {comments.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <Button
               variant="ghost"
@@ -777,7 +768,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               onClick={handleCommentClick}
               className="text-gray-600 hover:text-blue-600 w-full"
             >
-              View {commentsCount} {commentsCount === 1 ? 'comment' : 'comments'}
+              View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
             </Button>
           </div>
         )}

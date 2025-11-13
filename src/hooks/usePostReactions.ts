@@ -154,7 +154,32 @@ export const usePostReactions = (postId: string) => {
     }
   }, [user, postId, fetchReactions, toast]);
 
-  // Real-time subscriptions are now handled at the feed level for better performance
+  // Set up real-time subscription for reaction updates
+  useEffect(() => {
+    if (!postId) return;
+
+    const actualPostId = getActualPostId(postId);
+
+    const channel = supabase
+      .channel(`post-reactions-${actualPostId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'post_reactions',
+          filter: `post_id=eq.${actualPostId}`
+        },
+        (payload) => {
+          fetchReactions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [postId, fetchReactions]);
 
   // Initial fetch
   useEffect(() => {
