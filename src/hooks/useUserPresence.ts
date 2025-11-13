@@ -69,18 +69,23 @@ export const useUserPresence = () => {
 
     setUserPresences(prev => ({ ...prev, ...mockPresences }));
 
-    // Auto-update status based on activity
+    // Auto-update status based on activity (debounced to prevent rapid updates)
+    let debounceTimer: NodeJS.Timeout;
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        updateUserStatus('away');
-      } else {
-        updateUserStatus('online');
-      }
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (document.hidden) {
+          updateUserStatus('away');
+        } else {
+          updateUserStatus('online');
+        }
+      }, 300); // Wait 300ms before updating to prevent rapid state changes
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      clearTimeout(debounceTimer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       updateUserStatus('offline');
     };

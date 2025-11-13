@@ -22,6 +22,7 @@ const Dashboard = () => {
   }, [searchParams]);
   const [currentOrgName, setCurrentOrgName] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
   
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
@@ -46,6 +47,9 @@ const Dashboard = () => {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (!user) return;
+      
+      // Skip if already checked to prevent re-runs on token refresh
+      if (onboardingChecked) return;
 
       try {
         const { data } = await supabase
@@ -56,6 +60,7 @@ const Dashboard = () => {
         
         const completed = !!data;
         setHasCompletedOnboarding(completed);
+        setOnboardingChecked(true);
 
         if (!completed) {
           navigate('/profile-registration', { replace: true });
@@ -76,13 +81,14 @@ const Dashboard = () => {
         console.error('Error checking onboarding status:', error);
         // Default to allowing access if there's an error
         setHasCompletedOnboarding(true);
+        setOnboardingChecked(true);
       }
     };
 
-    if (!loading && user) {
+    if (!loading && user?.id) {
       checkOnboardingStatus();
     }
-  }, [user, loading, toast, navigate]);
+  }, [user?.id, loading, toast, navigate, onboardingChecked]);
 
   const handleNavigateToTab = (tab: string) => {
     setSearchParams({ tab, context, ...(orgId ? { orgId } : {}) });

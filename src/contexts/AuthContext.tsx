@@ -53,9 +53,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        // Update state with new session
+        // Only update state if user ID changed (prevents re-renders on token refresh)
         setSession(newSession);
-        setUser(newSession?.user ?? null);
+        setUser(prev => {
+          // If same user, keep the existing user object to prevent re-renders
+          if (prev?.id === newSession?.user?.id) {
+            return prev;
+          }
+          return newSession?.user ?? null;
+        });
         
         // Fetch organization membership
         if (newSession?.user) {
