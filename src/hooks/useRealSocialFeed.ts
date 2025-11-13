@@ -477,57 +477,13 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     }
   }, [user, toast, organizationId]);
 
-  // Consolidated real-time subscription - single multiplexed channel
-  useEffect(() => {
-    if (!user) return;
-    
-    // Debounce refresh to prevent excessive refetches
-    let refreshTimeout: NodeJS.Timeout;
-    const debouncedRefresh = () => {
-      clearTimeout(refreshTimeout);
-      refreshTimeout = setTimeout(() => {
-        setPage(0);
-        fetchPosts();
-      }, 500);
-    };
-    
-    // Single channel for all feed updates
-    const feedChannel = supabase
-      .channel('social-feed-realtime')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'posts'
-      }, debouncedRefresh)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'campaigns'
-      }, debouncedRefresh)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'post_interactions'
-      }, debouncedRefresh)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'campaign_interactions'
-      }, debouncedRefresh)
-      .subscribe();
-
-    return () => {
-      clearTimeout(refreshTimeout);
-      supabase.removeChannel(feedChannel);
-    };
-  }, [user, fetchPosts]);
-
-  // Initial fetch
+  // Real-time updates are now handled by centralized RealtimeManager
+  // This component just fetches on mount and when page changes
   useEffect(() => {
     if (user) {
       fetchPosts();
     }
-  }, [user, fetchPosts]);
+  }, [user, fetchPosts, organizationId]);
 
   // Fetch more when page changes
   useEffect(() => {

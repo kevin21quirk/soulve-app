@@ -16,8 +16,10 @@ const FeedContainer = ({ children }: FeedContainerProps) => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await queryClient.invalidateQueries({ queryKey: ['social-feed'] });
-    setIsRefreshing(false);
+    // Use realtimeManager to force refresh
+    const { realtimeManager } = await import('@/services/realtimeManager');
+    realtimeManager.forceRefresh(['posts']);
+    setTimeout(() => setIsRefreshing(false), 1000);
   };
 
   const scrollToTop = () => {

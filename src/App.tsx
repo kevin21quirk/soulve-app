@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AccountProvider } from "@/contexts/AccountContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
+import { RealtimeProvider } from "@/contexts/RealtimeContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -100,10 +101,11 @@ function App() {
     <ErrorBoundary>
       <ErrorProvider>
         <AuthProvider>
-          <AccountProvider>
-            <Suspense fallback={<LoadingState message="Loading application..." />}>
-              <GoogleAnalytics />
-              <Routes>
+          <RealtimeProvider>
+            <AccountProvider>
+              <Suspense fallback={<LoadingState message="Loading application..." />}>
+                <GoogleAnalytics />
+                <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -247,12 +249,13 @@ function App() {
             />
             {/* 404 Catch-all Route */}
             <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          <FloatingFeedbackButton />
-          <CookieConsent />
-          <Toaster />
-        </AccountProvider>
+              </Routes>
+            </Suspense>
+            <FloatingFeedbackButton />
+            <CookieConsent />
+            <Toaster />
+          </AccountProvider>
+          </RealtimeProvider>
         </AuthProvider>
       </ErrorProvider>
     </ErrorBoundary>
