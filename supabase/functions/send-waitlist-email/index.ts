@@ -1,6 +1,6 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -23,7 +23,58 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      console.error('Unauthorized - invalid token:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify user is admin
+    const { data: isAdmin, error: adminError } = await supabaseClient.rpc('is_admin', {
+      user_uuid: user.id
+    });
+
+    if (adminError || !isAdmin) {
+      console.error('Forbidden - user is not admin:', { userId: user.id, adminError });
+      return new Response(
+        JSON.stringify({ error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { to, firstName, lastName, type, reason }: EmailRequest = await req.json();
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid email format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Sanitize name fields to prevent injection
+    const sanitizedFirstName = firstName.replace(/[<>"']/g, '').substring(0, 50);
+    const sanitizedLastName = lastName.replace(/[<>"']/g, '').substring(0, 50);
 
     const isApproval = type === 'approved';
     const subject = isApproval 
@@ -37,7 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div style="background: white; padding: 40px 30px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <h2 style="color: #333; margin-bottom: 20px;">Hi ${firstName}!</h2>
+          <h2 style="color: #333; margin-bottom: 20px;">Hi ${sanitizedFirstName}!</h2>
           
           <p style="color: #666; line-height: 1.6; font-size: 16px;">
             Great news! Your application to join SouLVE has been <strong>approved</strong>. 
@@ -73,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div style="background: white; padding: 40px 30px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <h2 style="color: #333; margin-bottom: 20px;">Hi ${firstName},</h2>
+          <h2 style="color: #333; margin-bottom: 20px;">Hi ${sanitizedFirstName},</h2>
           
           <p style="color: #666; line-height: 1.6; font-size: 16px;">
             Thank you for your interest in joining SouLVE. After careful review, 
@@ -103,6 +154,14 @@ const handler = async (req: Request): Promise<Response> => {
       to: [to],
       subject,
       html,
+    });
+
+    // Audit log
+    console.log('Waitlist email sent:', { 
+      adminId: user.id, 
+      recipientEmail: to, 
+      type, 
+      timestamp: new Date().toISOString() 
     });
 
     return new Response(JSON.stringify(emailResponse), {
