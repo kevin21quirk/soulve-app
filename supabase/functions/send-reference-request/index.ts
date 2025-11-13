@@ -28,11 +28,54 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client with anon key for auth check
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Authentication error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { applicationId, applicantName, references }: ReferenceRequestPayload = await req.json();
+
+    // Verify user owns the application
+    const { data: application, error: appError } = await supabase
+      .from('safe_space_helper_applications')
+      .select('user_id')
+      .eq('id', applicationId)
+      .single();
+
+    if (appError || !application || application.user_id !== user.id) {
+      console.error('Authorization error:', appError);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - not your application' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Now use service role for privileged operations
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     console.log('Processing reference requests for application:', applicationId);
 
@@ -46,7 +89,7 @@ serve(async (req) => {
           expiresAt.setDate(expiresAt.getDate() + 14); // 14 days expiry
 
           // Insert reference check record
-          const { data: referenceCheck, error: dbError } = await supabase
+          const { data: referenceCheck, error: dbError } = await supabaseAdmin
             .from('safe_space_reference_checks')
             .insert({
               application_id: applicationId,

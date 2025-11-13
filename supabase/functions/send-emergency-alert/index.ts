@@ -14,7 +14,50 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client with anon key first for auth check
     const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      console.error('Authentication error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify user has safeguarding role
+    const { data: safeguardingRole, error: roleError } = await supabaseClient
+      .from('safeguarding_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .single();
+
+    if (roleError || !safeguardingRole) {
+      console.error('Authorization error:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - safeguarding role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Now use service role for privileged operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
@@ -24,7 +67,7 @@ serve(async (req) => {
     console.log(`Sending emergency alert: ${alertType}, Severity: ${severity}, Risk: ${riskScore}`);
 
     // Get safeguarding lead email
-    const { data: safeguardingLeads, error: leadsError } = await supabaseClient
+    const { data: safeguardingLeads, error: leadsError } = await supabaseAdmin
       .from('safeguarding_roles')
       .select(`
         user_id,
@@ -44,7 +87,7 @@ serve(async (req) => {
     }
 
     // Get session details
-    const { data: session } = await supabaseClient
+    const { data: session } = await supabaseAdmin
       .from('safe_space_sessions')
       .select('*')
       .eq('id', sessionId)
@@ -103,7 +146,7 @@ serve(async (req) => {
     console.log(`Emergency alert email sent to ${leadEmail}`);
 
     // Create in-app notification
-    await supabaseClient
+    await supabaseAdmin
       .from('notifications')
       .insert({
         recipient_id: safeguardingLeads[0].user_id,
@@ -123,7 +166,7 @@ serve(async (req) => {
       });
 
     // Log to audit
-    await supabaseClient
+    await supabaseAdmin
       .from('safe_space_audit_log')
       .insert({
         user_id: safeguardingLeads[0].user_id,

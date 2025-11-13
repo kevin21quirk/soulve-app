@@ -45,27 +45,63 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
+    // Initialize Supabase client with anon key for auth check
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Authentication error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { userId, notificationId, type, notifications }: NotificationEmailRequest = await req.json();
+
+    // Verify user can only send emails to themselves
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - can only send notifications to yourself' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
       throw new Error('RESEND_API_KEY not configured');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const { userId, notificationId, type, notifications }: NotificationEmailRequest = await req.json();
+    // Now use service role for privileged operations
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     // Get user email
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('first_name, last_name')
       .eq('id', userId)
       .single();
 
-    const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+    const { data: { user: targetUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
     
-    if (!user?.email) {
+    if (!targetUser?.email) {
       throw new Error('User email not found');
     }
 
@@ -74,7 +110,7 @@ serve(async (req) => {
 
     if (type === 'instant' && notificationId) {
       // Get single notification
-      const { data: notification } = await supabase
+      const { data: notification } = await supabaseAdmin
         .from('notifications')
         .select('*')
         .eq('id', notificationId)
@@ -101,7 +137,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'SouLVE Notifications <notifications@join-soulve.com>',
-        to: [user.email],
+        to: [targetUser.email],
         subject,
         html: emailHtml,
       }),
@@ -115,7 +151,7 @@ serve(async (req) => {
 
     // Log email delivery
     if (notificationId) {
-      await supabase.from('notification_delivery_log').insert({
+      await supabaseAdmin.from('notification_delivery_log').insert({
         notification_id: notificationId,
         user_id: userId,
         delivery_method: 'email',
