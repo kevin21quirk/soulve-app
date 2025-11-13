@@ -29,13 +29,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
       try {
         // Check if user is an admin - admins bypass all checks
-        const { data: adminRole } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        const isAdmin = !!adminRole;
+        // Use security definer function for consistent and secure admin verification
+        const { data: isAdmin } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
 
         // If admin, allow access
         if (isAdmin) {
