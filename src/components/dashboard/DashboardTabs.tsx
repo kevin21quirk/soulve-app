@@ -28,36 +28,52 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <MainTabsList />
 
-      <TabsContent value="feed" className="space-y-6">
-        <FeedTab organizationId={organizationId} />
+      <TabsContent value="feed" className="space-y-6" forceMount>
+        <div className={activeTab !== "feed" ? "hidden" : ""}>
+          <FeedTab organizationId={organizationId} />
+        </div>
       </TabsContent>
 
-      <TabsContent value="discover-connect" className="space-y-6">
-        <DiscoverTab />
+      <TabsContent value="discover-connect" className="space-y-6" forceMount>
+        <div className={activeTab !== "discover-connect" ? "hidden" : ""}>
+          <DiscoverTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="messaging" className="space-y-6">
-        <MessagingTab />
+      <TabsContent value="messaging" className="space-y-6" forceMount>
+        <div className={activeTab !== "messaging" ? "hidden" : ""}>
+          <MessagingTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="campaigns" className="space-y-6">
-        <CampaignsTab />
+      <TabsContent value="campaigns" className="space-y-6" forceMount>
+        <div className={activeTab !== "campaigns" ? "hidden" : ""}>
+          <CampaignsTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="organisation-tools" className="space-y-6">
-        <OrganizationTab />
+      <TabsContent value="organisation-tools" className="space-y-6" forceMount>
+        <div className={activeTab !== "organisation-tools" ? "hidden" : ""}>
+          <OrganizationTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="impact-analytics" className="space-y-6">
-        <CombinedImpactAnalyticsTab />
+      <TabsContent value="impact-analytics" className="space-y-6" forceMount>
+        <div className={activeTab !== "impact-analytics" ? "hidden" : ""}>
+          <CombinedImpactAnalyticsTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="help-center" className="space-y-6">
-        <EnhancedHelpCenterTab />
+      <TabsContent value="help-center" className="space-y-6" forceMount>
+        <div className={activeTab !== "help-center" ? "hidden" : ""}>
+          <EnhancedHelpCenterTab />
+        </div>
       </TabsContent>
 
-      <TabsContent value="profile" className="space-y-6">
-        <ProfileTab />
+      <TabsContent value="profile" className="space-y-6" forceMount>
+        <div className={activeTab !== "profile" ? "hidden" : ""}>
+          <ProfileTab />
+        </div>
       </TabsContent>
     </Tabs>
   );
