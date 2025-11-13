@@ -59,10 +59,18 @@ export class RealtimeManager {
           table: 'posts'
         },
         () => {
-          // Only invalidate if user is on feed tab - otherwise just mark as stale
+          // Mark as stale but don't refetch immediately
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'none' // Don't auto-refetch, just mark stale
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed-infinite'],
+            refetchType: 'none'
           });
         }
       )
@@ -78,6 +86,14 @@ export class RealtimeManager {
             queryKey: ['posts'],
             refetchType: 'none'
           });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed-infinite'],
+            refetchType: 'none'
+          });
         }
       )
       .on(
@@ -90,6 +106,14 @@ export class RealtimeManager {
         () => {
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed-infinite'],
             refetchType: 'none'
           });
         }
@@ -143,6 +167,14 @@ export class RealtimeManager {
           // Mark as stale but don't refetch
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed-infinite'],
             refetchType: 'none'
           });
         }

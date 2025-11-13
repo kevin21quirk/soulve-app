@@ -136,9 +136,18 @@ export const useJoinGroup = () => {
       return data;
     },
     onSuccess: async (_, groupId) => {
-      queryClient.invalidateQueries({ queryKey: ['groups'] });
-      queryClient.invalidateQueries({ queryKey: ['user-groups'] });
-      queryClient.invalidateQueries({ queryKey: ['suggested-groups'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['groups'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['user-groups'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['suggested-groups'],
+        refetchType: 'none'
+      });
       
       // Track impact for group join
       const { data: { user } } = await supabase.auth.getUser();
@@ -192,9 +201,18 @@ export const useLeaveGroup = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups'] });
-      queryClient.invalidateQueries({ queryKey: ['user-groups'] });
-      queryClient.invalidateQueries({ queryKey: ['suggested-groups'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['groups'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['user-groups'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['suggested-groups'],
+        refetchType: 'none'
+      });
       toast({
         title: "Left group",
         description: "You've left the community group.",

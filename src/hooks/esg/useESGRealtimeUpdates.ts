@@ -42,7 +42,8 @@ export const useESGRealtimeUpdates = ({
             
             // Invalidate data requests query
             queryClient.invalidateQueries({ 
-              queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_DATA_REQUESTS(organizationId) 
+              queryKey: ESG_EXTENDED_QUERY_KEYS.ESG_DATA_REQUESTS(organizationId),
+              refetchType: 'none'
             });
 
             if (payload.eventType === 'INSERT') {
@@ -66,7 +67,8 @@ export const useESGRealtimeUpdates = ({
             
             // Invalidate contributions query
             queryClient.invalidateQueries({ 
-              queryKey: ESG_EXTENDED_QUERY_KEYS.STAKEHOLDER_CONTRIBUTIONS(organizationId) 
+              queryKey: ESG_EXTENDED_QUERY_KEYS.STAKEHOLDER_CONTRIBUTIONS(organizationId),
+              refetchType: 'none'
             });
 
             if (payload.eventType === 'INSERT') {
@@ -83,7 +85,8 @@ export const useESGRealtimeUpdates = ({
                 const initiativeId = (payload.new as any)?.initiative_id;
                 if (initiativeId) {
                   queryClient.invalidateQueries({ 
-                    queryKey: ['esg-initiatives', organizationId] 
+                    queryKey: ['esg-initiatives', organizationId],
+                    refetchType: 'none'
                   });
                 }
                 
@@ -108,7 +111,8 @@ export const useESGRealtimeUpdates = ({
             
             // Invalidate initiatives query
             queryClient.invalidateQueries({ 
-              queryKey: ['esg-initiatives', organizationId] 
+              queryKey: ['esg-initiatives', organizationId],
+              refetchType: 'none'
             });
 
             if (payload.eventType === 'INSERT') {

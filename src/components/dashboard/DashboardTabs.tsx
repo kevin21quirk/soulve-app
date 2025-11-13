@@ -1,19 +1,15 @@
 
-import { lazy, Suspense } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MainTabsList from "./tabs/MainTabsList";
-import { LoadingState } from "@/components/ui/loading-state";
-
-// Lazy load heavy tab components for better performance
-const FeedTab = lazy(() => import("./tabs/FeedTab"));
-const DiscoverTab = lazy(() => import("./tabs/DiscoverTab"));
-const CampaignsTab = lazy(() => import("./tabs/CampaignsTab"));
-const MessagingTab = lazy(() => import("./tabs/MessagingTab"));
-const ProfileTab = lazy(() => import("./tabs/ProfileTab"));
-const CombinedImpactAnalyticsTab = lazy(() => import("./tabs/CombinedImpactAnalyticsTab"));
-const EnhancedHelpCenterTab = lazy(() => import("./tabs/EnhancedHelpCenterTab"));
-const OrganizationTab = lazy(() => import("../tabs/OrganizationTab"));
+import FeedTab from "./tabs/FeedTab";
+import DiscoverTab from "./tabs/DiscoverTab";
+import CampaignsTab from "./tabs/CampaignsTab";
+import MessagingTab from "./tabs/MessagingTab";
+import ProfileTab from "./tabs/ProfileTab";
+import CombinedImpactAnalyticsTab from "./tabs/CombinedImpactAnalyticsTab";
+import EnhancedHelpCenterTab from "./tabs/EnhancedHelpCenterTab";
+import OrganizationTab from "../tabs/OrganizationTab";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -32,53 +28,37 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <MainTabsList />
 
-      <Suspense fallback={<LoadingState message="Loading feed..." />}>
-        <TabsContent value="feed" className="space-y-6">
-          <FeedTab organizationId={organizationId} />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="feed" className="space-y-6">
+        <FeedTab organizationId={organizationId} />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading discover..." />}>
-        <TabsContent value="discover-connect" className="space-y-6">
-          <DiscoverTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="discover-connect" className="space-y-6">
+        <DiscoverTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading messages..." />}>
-        <TabsContent value="messaging" className="space-y-6">
-          <MessagingTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="messaging" className="space-y-6">
+        <MessagingTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading campaigns..." />}>
-        <TabsContent value="campaigns" className="space-y-6">
-          <CampaignsTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="campaigns" className="space-y-6">
+        <CampaignsTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading organization..." />}>
-        <TabsContent value="organisation-tools" className="space-y-6">
-          <OrganizationTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="organisation-tools" className="space-y-6">
+        <OrganizationTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading analytics..." />}>
-        <TabsContent value="impact-analytics" className="space-y-6">
-          <CombinedImpactAnalyticsTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="impact-analytics" className="space-y-6">
+        <CombinedImpactAnalyticsTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading help center..." />}>
-        <TabsContent value="help-center" className="space-y-6">
-          <EnhancedHelpCenterTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="help-center" className="space-y-6">
+        <EnhancedHelpCenterTab />
+      </TabsContent>
 
-      <Suspense fallback={<LoadingState message="Loading profile..." />}>
-        <TabsContent value="profile" className="space-y-6">
-          <ProfileTab />
-        </TabsContent>
-      </Suspense>
+      <TabsContent value="profile" className="space-y-6">
+        <ProfileTab />
+      </TabsContent>
     </Tabs>
   );
 };

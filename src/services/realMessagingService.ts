@@ -184,8 +184,14 @@ export const useSendMessage = () => {
       return data;
     },
     onSuccess: (_, { recipientId }) => {
-      queryClient.invalidateQueries({ queryKey: ['messages', recipientId] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['messages', recipientId],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['conversations'],
+        refetchType: 'none'
+      });
     },
     onError: (error: any) => {
       toast({
@@ -215,8 +221,14 @@ export const useMarkAsRead = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['conversations'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['messages'],
+        refetchType: 'none'
+      });
     },
   });
 };

@@ -115,8 +115,14 @@ export const useJoinCampaign = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
-      queryClient.invalidateQueries({ queryKey: ['user-campaign-participation'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['campaigns'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['user-campaign-participation'],
+        refetchType: 'none'
+      });
       toast({
         title: "Joined campaign!",
         description: "You're now participating in this community campaign.",
@@ -151,8 +157,14 @@ export const useLeaveCampaign = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
-      queryClient.invalidateQueries({ queryKey: ['user-campaign-participation'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['campaigns'],
+        refetchType: 'none'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['user-campaign-participation'],
+        refetchType: 'none'
+      });
       toast({
         title: "Left campaign",
         description: "You're no longer participating in this campaign.",
