@@ -262,7 +262,7 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
     handleAddComment,
     // Legacy properties for backward compatibility
     page: 0,
-    hasMore: true,
+    hasMore: false,
     loadMore: () => Promise.resolve()
   };
 };
