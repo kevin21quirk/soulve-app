@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GifItem {
   id: string;
@@ -25,21 +26,15 @@ const GifPicker = ({ onGifSelect, onClose }: GifPickerProps) => {
   const [loading, setLoading] = useState(false);
   const [selectedGif, setSelectedGif] = useState<GifItem | null>(null);
 
-  // GIPHY API configuration
-  const GIPHY_API_KEY = "GlVGYHkr3WSBnllca54iNt0yFbjz7L65"; // Public beta key
-  const GIPHY_BASE_URL = "https://api.giphy.com/v1/gifs";
-
   const searchGifs = async (query: string) => {
     setLoading(true);
     try {
-      const endpoint = query 
-        ? `${GIPHY_BASE_URL}/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=g`
-        : `${GIPHY_BASE_URL}/trending?api_key=${GIPHY_API_KEY}&limit=12&rating=g`;
+      const { data, error } = await supabase.functions.invoke('fetch-gif', {
+        body: { query, type: query ? 'search' : 'trending' }
+      });
+
+      if (error) throw error;
       
-      const response = await fetch(endpoint);
-      if (!response.ok) throw new Error('Failed to fetch GIFs');
-      
-      const data = await response.json();
       const transformedGifs = data.data.map((gif: any) => ({
         id: gif.id,
         title: gif.title || 'Untitled GIF',
