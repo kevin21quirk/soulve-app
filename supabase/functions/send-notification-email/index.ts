@@ -6,6 +6,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Security utility functions
+function escapeHtml(unsafe: string): string {
+  if (!unsafe) return '';
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isValidUrl(url: string): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 interface NotificationEmailRequest {
   userId: string;
   notificationId: string;
@@ -116,9 +137,17 @@ serve(async (req) => {
 });
 
 function generateInstantEmailHtml(notification: any, profile: any): string {
-  const userName = profile ? `${profile.first_name} ${profile.last_name}` : 'there';
+  const userName = profile ? escapeHtml(`${profile.first_name} ${profile.last_name}`) : 'there';
   const priorityColor = notification.priority === 'urgent' ? '#ef4444' : 
                        notification.priority === 'high' ? '#f97316' : '#6b7280';
+  
+  // Sanitize notification data
+  const safeTitle = escapeHtml(notification.title);
+  const safeMessage = escapeHtml(notification.message);
+  const safePriority = escapeHtml(notification.priority);
+  const safeActionUrl = notification.action_url && isValidUrl(notification.action_url) 
+    ? escapeHtml(notification.action_url) 
+    : '#';
 
   return `
     <!DOCTYPE html>
@@ -138,16 +167,16 @@ function generateInstantEmailHtml(notification: any, profile: any): string {
           <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid ${priorityColor}; margin: 20px 0;">
             ${notification.priority !== 'normal' ? `
               <span style="background: ${priorityColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
-                ${notification.priority}
+                ${safePriority}
               </span>
             ` : ''}
-            <h2 style="color: #1f2937; margin-top: 10px;">${notification.title}</h2>
-            <p style="color: #4b5563; font-size: 15px;">${notification.message}</p>
+            <h2 style="color: #1f2937; margin-top: 10px;">${safeTitle}</h2>
+            <p style="color: #4b5563; font-size: 15px;">${safeMessage}</p>
           </div>
           
-          ${notification.action_url ? `
+          ${notification.action_url && isValidUrl(notification.action_url) ? `
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${notification.action_url}" style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+              <a href="${safeActionUrl}" style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Notification
               </a>
             </div>
@@ -164,15 +193,21 @@ function generateInstantEmailHtml(notification: any, profile: any): string {
 }
 
 function generateDigestEmailHtml(notifications: any[], profile: any): string {
-  const userName = profile ? `${profile.first_name} ${profile.last_name}` : 'there';
+  const userName = profile ? escapeHtml(`${profile.first_name} ${profile.last_name}`) : 'there';
   
-  const notificationItems = notifications.map(n => `
-    <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #667eea;">
-      <h3 style="margin: 0 0 5px 0; color: #1f2937; font-size: 16px;">${n.title}</h3>
-      <p style="margin: 0; color: #6b7280; font-size: 14px;">${n.message}</p>
-      <p style="margin: 5px 0 0 0; color: #9ca3af; font-size: 12px;">${new Date(n.created_at).toLocaleString()}</p>
-    </div>
-  `).join('');
+  const notificationItems = notifications.map(n => {
+    const safeTitle = escapeHtml(n.title);
+    const safeMessage = escapeHtml(n.message);
+    const safeDate = escapeHtml(new Date(n.created_at).toLocaleString());
+    
+    return `
+      <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #667eea;">
+        <h3 style="margin: 0 0 5px 0; color: #1f2937; font-size: 16px;">${safeTitle}</h3>
+        <p style="margin: 0; color: #6b7280; font-size: 14px;">${safeMessage}</p>
+        <p style="margin: 5px 0 0 0; color: #9ca3af; font-size: 12px;">${safeDate}</p>
+      </div>
+    `;
+  }).join('');
 
   return `
     <!DOCTYPE html>
