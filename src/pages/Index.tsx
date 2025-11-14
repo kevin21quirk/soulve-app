@@ -1,16 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import HeroSection from "@/components/HeroSection";
-import ImpactStoriesSection from "@/components/ImpactStoriesSection";
-import FeaturesSection from "@/components/FeaturesSection";
-import UserTypesSection from "@/components/UserTypesSection";
-import Footer from "@/components/Footer";
 import HomeHeader from "@/components/HomeHeader";
 import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSchema from "@/components/seo/FAQSchema";
+
+// Lazy load below-the-fold sections for faster initial load
+const HeroSection = lazy(() => import("@/components/HeroSection"));
+const ImpactStoriesSection = lazy(() => import("@/components/ImpactStoriesSection"));
+const FeaturesSection = lazy(() => import("@/components/FeaturesSection"));
+const UserTypesSection = lazy(() => import("@/components/UserTypesSection"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -102,11 +104,21 @@ const Index = () => {
         ]}
       />
       <HomeHeader />
-      <HeroSection />
-      <ImpactStoriesSection />
-      <FeaturesSection />
-      <UserTypesSection />
-      <Footer />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <HeroSection />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-[400px]" />}>
+        <ImpactStoriesSection />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-[400px]" />}>
+        <FeaturesSection />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-[400px]" />}>
+        <UserTypesSection />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-[200px]" />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 };
