@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Heart, Users, ArrowRight, Sparkles, Crown, Zap, Calendar } from "lucide-react";
+import { Heart, Users, ArrowRight, Sparkles, Crown, Zap, Calendar } from "@/components/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,7 @@ const HeroSection = () => {
   const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
-    // Non-blocking checks - render immediately, update in background
+    // Defer non-critical API calls until browser is idle
     const checkOnboardingStatus = async () => {
       if (!user) {
         setHasCompletedOnboarding(null);
@@ -49,9 +49,13 @@ const HeroSection = () => {
       }
     };
 
-    // Run checks in parallel, non-blocking
-    checkOnboardingStatus();
-    fetchApplicantCount();
+    // Wait for browser idle time before making API calls
+    const idleCallback = requestIdleCallback(() => {
+      checkOnboardingStatus();
+      fetchApplicantCount();
+    });
+
+    return () => cancelIdleCallback(idleCallback);
   }, [user]);
 
   const handleJoinBeta = () => {
