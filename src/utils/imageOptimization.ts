@@ -15,7 +15,7 @@ export const optimizeImage = async (
     maxWidth = 1920,
     maxHeight = 1080,
     quality = 0.8,
-    format = 'webp', // Default to WebP for better compression
+    format = 'jpeg',
   } = options;
 
   return new Promise((resolve, reject) => {
@@ -69,7 +69,7 @@ export const generateThumbnail = async (
     maxWidth: size,
     maxHeight: size,
     quality: 0.7,
-    format: 'webp', // Use WebP for thumbnails
+    format: 'jpeg',
   });
 };
 

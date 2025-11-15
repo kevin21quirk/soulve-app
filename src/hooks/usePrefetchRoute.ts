@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { requestIdleCallbackPolyfill } from '@/utils/browserUtils';
 
 /**
  * Route prefetching utilities for optimal navigation performance
@@ -20,7 +19,7 @@ export const prefetchRoute = (routePath: string) => {
   }
 
   // Wait for browser idle time
-  requestIdleCallbackPolyfill(() => {
+  requestIdleCallback(() => {
     try {
       // Map route paths to their component files
       const routeMap: Record<string, () => Promise<any>> = {

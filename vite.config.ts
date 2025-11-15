@@ -24,50 +24,11 @@ export default defineConfig(({ mode }) => ({
     cssMinify: true,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Landing page critical components
-          if (id.includes('src/components/HomeHeader') || 
-              id.includes('src/components/HeroSection')) {
-            return 'landing-critical';
-          }
-          
-          // Landing page secondary components
-          if (id.includes('src/components/ImpactStoriesSection') || 
-              id.includes('src/components/FeaturesSection')) {
-            return 'landing-secondary';
-          }
-          
-          // Landing page tertiary components
-          if (id.includes('src/components/Footer') || 
-              id.includes('src/components/UserTypesSection')) {
-            return 'landing-tertiary';
-          }
-          
-          // SEO components
-          if (id.includes('src/components/SEO')) {
-            return 'seo';
-          }
-          
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'vendor-query';
-            }
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-icons';
-            }
-            // Other node_modules
-            return 'vendor-misc';
-          }
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-supabase': ['@supabase/supabase-js'],
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.endsWith('.css')) {
