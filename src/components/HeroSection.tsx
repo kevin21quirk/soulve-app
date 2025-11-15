@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BookDemoModal } from "@/components/BookDemoModal";
+import { requestIdleCallbackPolyfill, cancelIdleCallbackPolyfill } from "@/utils/browserUtils";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -50,12 +51,12 @@ const HeroSection = () => {
     };
 
     // Wait for browser idle time before making API calls
-    const idleCallback = requestIdleCallback(() => {
+    const idleCallback = requestIdleCallbackPolyfill(() => {
       checkOnboardingStatus();
       fetchApplicantCount();
     });
 
-    return () => cancelIdleCallback(idleCallback);
+    return () => cancelIdleCallbackPolyfill(idleCallback);
   }, [user]);
 
   const handleJoinBeta = () => {
