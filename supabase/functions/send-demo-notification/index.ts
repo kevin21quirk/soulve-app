@@ -20,7 +20,25 @@ const demoNotificationSchema = z.object({
     errorMap: () => ({ message: "Invalid status value" })
   }),
   meetingLink: z.string().url("Invalid meeting link URL").max(500, "Meeting link too long").optional(),
-  scheduledDate: z.string().datetime("Invalid date format").optional(),
+  scheduledDate: z.string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      
+      try {
+        const date = new Date(val);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date');
+        }
+        
+        // Return ISO 8601 string
+        return date.toISOString();
+      } catch (error) {
+        throw new Error(`Invalid date format: ${val}`);
+      }
+    }),
   adminNotes: z.string().max(1000, "Admin notes too long").optional(),
 });
 
@@ -34,10 +52,19 @@ const handler = async (req: Request): Promise<Response> => {
     const validation = demoNotificationSchema.safeParse(requestBody);
     
     if (!validation.success) {
+      console.error('Validation failed:', {
+        errors: validation.error.errors,
+        receivedData: requestBody
+      });
+      
       return new Response(
         JSON.stringify({ 
           error: "Validation failed", 
-          details: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+          details: validation.error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message,
+            received: e.path.reduce((obj: any, key) => obj?.[key], requestBody)
+          }))
         }),
         {
           status: 400,
