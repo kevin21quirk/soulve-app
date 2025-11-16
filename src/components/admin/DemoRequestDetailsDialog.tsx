@@ -22,7 +22,14 @@ interface DemoRequestDetailsDialogProps {
 export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: DemoRequestDetailsDialogProps) => {
   const [status, setStatus] = useState(request.status);
   const [priority, setPriority] = useState(request.priority);
-  const [scheduledDate, setScheduledDate] = useState(request.scheduled_meeting_time || '');
+  const [scheduledDate, setScheduledDate] = useState(() => {
+    if (request.scheduled_meeting_time) {
+      // Convert PostgreSQL timestamp to datetime-local format (YYYY-MM-DDTHH:mm)
+      const date = new Date(request.scheduled_meeting_time);
+      return date.toISOString().slice(0, 16); // "2025-11-18T13:06"
+    }
+    return '';
+  });
   const [meetingLink, setMeetingLink] = useState(request.meeting_link || '');
   const [adminNotes, setAdminNotes] = useState(request.admin_notes || '');
   const [activityLog, setActivityLog] = useState<any[]>([]);
@@ -51,14 +58,28 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
 
   const sendNotificationEmail = async () => {
     try {
-      // Convert scheduledDate to ISO 8601 format if it exists
       let isoScheduledDate: string | undefined = undefined;
       if (scheduledDate) {
+        // datetime-local input returns "YYYY-MM-DDTHH:mm"
+        // We need to convert it to ISO 8601 format
         const date = new Date(scheduledDate);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date selected');
+        }
+        
         isoScheduledDate = date.toISOString();
       }
 
-      const { error } = await supabase.functions.invoke('send-demo-notification', {
+      console.log('Sending notification with data:', {
+        email: request.email,
+        status,
+        scheduledDate: isoScheduledDate,
+        meetingLink: meetingLink || undefined
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-demo-notification', {
         body: {
           email: request.email,
           fullName: request.full_name,
@@ -70,10 +91,14 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function returned error:', error);
+        throw error;
+      }
+      
+      console.log('Edge function response:', data);
     } catch (error) {
       console.error('Error sending notification email:', error);
-      // Propagate error instead of silently catching
       throw error;
     }
   };
