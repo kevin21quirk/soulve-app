@@ -51,6 +51,13 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
 
   const sendNotificationEmail = async () => {
     try {
+      // Convert scheduledDate to ISO 8601 format if it exists
+      let isoScheduledDate: string | undefined = undefined;
+      if (scheduledDate) {
+        const date = new Date(scheduledDate);
+        isoScheduledDate = date.toISOString();
+      }
+
       const { error } = await supabase.functions.invoke('send-demo-notification', {
         body: {
           email: request.email,
@@ -58,7 +65,7 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
           companyName: request.company_name,
           status,
           meetingLink: meetingLink || undefined,
-          scheduledDate: scheduledDate || undefined,
+          scheduledDate: isoScheduledDate,
           adminNotes: adminNotes || undefined
         }
       });
@@ -66,8 +73,8 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
       if (error) throw error;
     } catch (error) {
       console.error('Error sending notification email:', error);
-      // Don't show error to admin - just log it
-      console.warn('Email notification failed but request was saved');
+      // Propagate error instead of silently catching
+      throw error;
     }
   };
 
@@ -107,15 +114,28 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
 
       // Send email notification if status changed
       if (shouldSendEmail) {
-        await sendNotificationEmail();
+        try {
+          await sendNotificationEmail();
+          console.log('Email notification sent successfully');
+          toast({ 
+            title: 'Success', 
+            description: 'Demo request updated and email notification sent'
+          });
+        } catch (emailError) {
+          console.error('Email notification failed:', emailError);
+          toast({ 
+            title: 'Warning', 
+            description: 'Demo request updated successfully, but email notification failed to send. Please contact the user manually.',
+            variant: 'destructive',
+            duration: 7000
+          });
+        }
+      } else {
+        toast({ 
+          title: 'Success', 
+          description: 'Demo request updated successfully'
+        });
       }
-
-      toast({ 
-        title: 'Success', 
-        description: shouldSendEmail 
-          ? 'Demo request updated and email notification sent' 
-          : 'Demo request updated successfully' 
-      });
       
       onUpdate();
       onClose();
