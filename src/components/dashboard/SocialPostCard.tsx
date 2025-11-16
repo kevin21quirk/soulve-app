@@ -246,7 +246,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   };
 
   // Quick reaction buttons (most common ones)
-  const quickReactions = ['👍', '❤️', '😂', '🔥'];
+  const quickReactions = ['👍', '❤️', '👏', '🔥'];
 
   // Check if this is a campaign post
   const isCampaign = post.id.startsWith('campaign_');

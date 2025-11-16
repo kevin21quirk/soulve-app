@@ -34,7 +34,7 @@ const EnhancedPostReactions = ({
   };
 
   // Quick reactions (most common ones)
-  const quickReactions = ['👍', '❤️', '😂', '😮', '🔥'];
+  const quickReactions = ['👍', '❤️', '👏', '🔥'];
 
   return (
     <div className="space-y-3">
