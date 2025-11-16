@@ -106,59 +106,7 @@ export const usePostReactions = (postId: string) => {
     }
 
     const actualPostId = getActualPostId(postId);
-    const existingReaction = reactions.find(r => r.userReacted);
 
-    // OPTIMISTIC UPDATE - Update UI immediately
-    setReactions(prev => {
-      // Remove user's existing reaction if any
-      let updated = prev.map(r => ({
-        ...r,
-        userReacted: false,
-        count: r.userReacted ? r.count - 1 : r.count,
-        users: r.userReacted && r.users 
-          ? r.users.filter(u => u.id !== user.id) 
-          : r.users
-      }));
-
-      // Add or toggle the new reaction
-      const reactionIndex = updated.findIndex(r => r.emoji === emoji);
-      
-      if (existingReaction?.emoji === emoji) {
-        // Same emoji clicked - remove it
-        updated = updated.map(r => 
-          r.emoji === emoji 
-            ? { ...r, count: Math.max(0, r.count - 1), userReacted: false }
-            : r
-        );
-      } else {
-        // Different emoji or no existing reaction
-        if (reactionIndex >= 0) {
-          // Emoji exists, increment count and add user
-          const currentReaction = updated[reactionIndex];
-          updated[reactionIndex] = {
-            ...currentReaction,
-            count: currentReaction.count + 1,
-            userReacted: true,
-            users: [
-              ...(currentReaction.users || []),
-              { id: user.id, name: 'You', avatar: undefined }
-            ]
-          };
-        } else {
-          // New emoji, add it
-          updated.push({
-            emoji,
-            count: 1,
-            userReacted: true,
-            users: [{ id: user.id, name: 'You', avatar: undefined }]
-          });
-        }
-      }
-
-      return updated.filter(r => r.count > 0); // Remove reactions with 0 count
-    });
-
-    // API CALL IN BACKGROUND
     try {
       const { data: result, error } = await supabase
         .rpc('toggle_post_reaction', {
@@ -171,21 +119,40 @@ export const usePostReactions = (postId: string) => {
         throw error;
       }
 
-      // Sync with actual database state (in case of concurrent updates)
+      // Get the user's current reaction before refreshing
+      const existingReaction = reactions.find(r => r.userReacted);
+      
+      // Refresh reactions after toggle
       await fetchReactions();
+
+      // Show feedback based on whether reaction was added, changed, or removed
+      if (result) {
+        if (existingReaction && existingReaction.emoji !== emoji) {
+          toast({
+            title: "Reaction changed!",
+            description: `Changed from ${existingReaction.emoji} to ${emoji}`,
+          });
+        } else {
+          toast({
+            title: "Reaction added!",
+            description: `You reacted with ${emoji}`,
+          });
+        }
+      } else {
+        toast({
+          title: "Reaction removed",
+          description: `You removed your ${emoji} reaction`,
+        });
+      }
     } catch (error) {
       console.error('Error toggling reaction:', error);
-      
-      // REVERT OPTIMISTIC UPDATE on error
-      await fetchReactions();
-      
       toast({
         title: "Error",
-        description: "Failed to update reaction. Please try again.",
+        description: "Failed to update reaction",
         variant: "destructive"
       });
     }
-  }, [user, postId, reactions, fetchReactions, toast]);
+  }, [user, postId, fetchReactions, toast]);
 
   // Set up real-time subscription for reaction updates
   useEffect(() => {
