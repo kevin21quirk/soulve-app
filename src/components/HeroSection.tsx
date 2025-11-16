@@ -50,12 +50,23 @@ const HeroSection = () => {
     };
 
     // Wait for browser idle time before making API calls
-    const idleCallback = requestIdleCallback(() => {
-      checkOnboardingStatus();
-      fetchApplicantCount();
-    });
+    // Safari compatibility: Use requestIdleCallback if available, otherwise setTimeout
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleCallback = requestIdleCallback(() => {
+        checkOnboardingStatus();
+        fetchApplicantCount();
+      });
 
-    return () => cancelIdleCallback(idleCallback);
+      return () => cancelIdleCallback(idleCallback);
+    } else {
+      // Fallback for Safari
+      const timeoutId = setTimeout(() => {
+        checkOnboardingStatus();
+        fetchApplicantCount();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
   }, [user]);
 
   const handleJoinBeta = () => {
