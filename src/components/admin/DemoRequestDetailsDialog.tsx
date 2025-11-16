@@ -131,19 +131,27 @@ export const DemoRequestDetailsDialog = ({ request, open, onClose, onUpdate }: D
     if (!confirm('Are you sure you want to delete this demo request?')) return;
 
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('demo_requests')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('id', request.id);
 
       if (error) throw error;
+      
+      if (count === 0) {
+        throw new Error('Failed to delete - you may not have permission or the record no longer exists');
+      }
 
       toast({ title: 'Success', description: 'Demo request deleted' });
       onUpdate();
       onClose();
     } catch (error) {
       console.error('Error deleting demo request:', error);
-      toast({ title: 'Error', description: 'Failed to delete demo request', variant: 'destructive' });
+      toast({ 
+        title: 'Error', 
+        description: error instanceof Error ? error.message : 'Failed to delete demo request', 
+        variant: 'destructive' 
+      });
     }
   };
 
