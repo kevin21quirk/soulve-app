@@ -266,17 +266,30 @@ const CommentItem = ({
           )}
           
           {showReplyInput && (
-            <div className="mt-2 flex space-x-2">
-              <UserTagging
-                placeholder="Write a reply... (Type @ to tag someone)"
-                value={replyText}
-                onChange={(value, users) => {
-                  setReplyText(value);
-                  setReplyTaggedUserIds(users.map(u => u.id));
-                }}
-                className="flex-1 min-h-[60px] resize-none text-sm"
-              />
-              <Button size="sm" onClick={handleReply} disabled={!replyText.trim()}>
+            <div className="mt-3 flex gap-2 items-end">
+              <div className="flex-1 relative">
+                <UserTagging
+                  placeholder="Write a reply... (Type @ to tag someone)"
+                  value={replyText}
+                  onChange={(value, users) => {
+                    setReplyText(value);
+                    setReplyTaggedUserIds(users.map(u => u.id));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && replyText.trim()) {
+                      e.preventDefault();
+                      handleReply();
+                    }
+                  }}
+                  className="min-h-[60px] resize-none text-sm bg-muted/50 border-border/50 focus:bg-background transition-colors rounded-md"
+                />
+              </div>
+              <Button 
+                onClick={handleReply} 
+                disabled={!replyText.trim()}
+                size="icon"
+                className="shrink-0"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
