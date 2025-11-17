@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
+import { useDeleteComment } from "@/hooks/useDeleteComment";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,8 @@ const CommentItem = ({
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
+  const { likeComment, replyToComment, editComment } = useCommentInteractions();
+  const deleteCommentMutation = useDeleteComment();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyTaggedUserIds, setReplyTaggedUserIds] = useState<string[]>([]);
@@ -92,8 +94,8 @@ const CommentItem = ({
     }
   };
 
-  const handleDelete = async () => {
-    await deleteComment(comment.id);
+  const handleDelete = () => {
+    deleteCommentMutation.mutate({ commentId: comment.id, postId });
   };
 
   const handleUserTagClick = async (username: string) => {

@@ -6,6 +6,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
+import { useDeleteComment } from "@/hooks/useDeleteComment";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -31,7 +32,8 @@ const MobileCommentItem = ({
   level?: number;
 }) => {
   const { user } = useAuth();
-  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
+  const { likeComment, replyToComment, editComment } = useCommentInteractions();
+  const deleteCommentMutation = useDeleteComment();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -68,8 +70,8 @@ const MobileCommentItem = ({
     }
   };
 
-  const handleDelete = async () => {
-    await deleteComment(comment.id);
+  const handleDelete = () => {
+    deleteCommentMutation.mutate({ commentId: comment.id, postId });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
