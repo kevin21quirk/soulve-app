@@ -5,6 +5,7 @@ import { Heart, Send, Reply, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
+import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -23,14 +24,18 @@ interface MobilePostCommentsProps {
 const MobileCommentItem = ({ 
   comment, 
   postId, 
-  level = 0 
+  level = 0,
+  onOptimisticDelete,
+  onRevertOptimistic
 }: { 
   comment: Comment; 
   postId: string; 
   level?: number;
+  onOptimisticDelete?: (commentId: string) => void;
+  onRevertOptimistic?: () => void;
 }) => {
   const { user } = useAuth();
-  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
+  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions(onOptimisticDelete, onRevertOptimistic);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -68,7 +73,7 @@ const MobileCommentItem = ({
   };
 
   const handleDelete = async () => {
-    await deleteComment(comment.id);
+    await deleteComment(comment.id, postId);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -202,6 +207,8 @@ const MobileCommentItem = ({
                   comment={reply}
                   postId={postId}
                   level={level + 1}
+                  onOptimisticDelete={onOptimisticDelete}
+                  onRevertOptimistic={onRevertOptimistic}
                 />
               ))}
             </div>
@@ -218,7 +225,8 @@ const MobilePostComments = ({
   isExpanded 
 }: MobilePostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
-  const { comments, loading } = usePostComments(post.id);
+  const { optimisticDelete, revertOptimisticUpdate, optimisticUpdates } = useOptimisticUpdates();
+  const { comments, loading } = usePostComments(post.id, optimisticUpdates);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmitComment = () => {
@@ -266,7 +274,13 @@ const MobilePostComments = ({
         ) : comments.length > 0 ? (
           <div className="space-y-1 mb-3">
             {comments.map((comment) => (
-              <MobileCommentItem key={comment.id} comment={comment} postId={post.id} />
+              <MobileCommentItem 
+                key={comment.id} 
+                comment={comment} 
+                postId={post.id}
+                onOptimisticDelete={optimisticDelete}
+                onRevertOptimistic={revertOptimisticUpdate}
+              />
             ))}
           </div>
         ) : isExpanded ? (
