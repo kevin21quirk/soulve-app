@@ -6,6 +6,7 @@ import { Heart, Send, Reply, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
+import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -33,15 +34,19 @@ interface PostCommentsProps {
 const CommentItem = ({ 
   comment, 
   postId, 
-  level = 0 
+  level = 0,
+  onOptimisticDelete,
+  onRevertOptimistic
 }: { 
   comment: Comment; 
   postId: string; 
   level?: number;
+  onOptimisticDelete?: (commentId: string) => void;
+  onRevertOptimistic?: () => void;
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions();
+  const { likeComment, replyToComment, editComment, deleteComment } = useCommentInteractions(onOptimisticDelete, onRevertOptimistic);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyTaggedUserIds, setReplyTaggedUserIds] = useState<string[]>([]);
@@ -92,7 +97,7 @@ const CommentItem = ({
   };
 
   const handleDelete = async () => {
-    await deleteComment(comment.id);
+    await deleteComment(comment.id, postId);
   };
 
   const handleUserTagClick = async (username: string) => {
@@ -278,6 +283,8 @@ const CommentItem = ({
                   comment={reply}
                   postId={postId}
                   level={level + 1}
+                  onOptimisticDelete={onOptimisticDelete}
+                  onRevertOptimistic={onRevertOptimistic}
                 />
               ))}
             </div>
@@ -295,7 +302,8 @@ const PostComments = ({
 }: PostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
   const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
-  const { comments, loading } = usePostComments(post.id);
+  const { optimisticDelete, revertOptimisticUpdate, optimisticUpdates } = useOptimisticUpdates();
+  const { comments, loading } = usePostComments(post.id, optimisticUpdates);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -328,7 +336,13 @@ const PostComments = ({
         ) : comments.length > 0 ? (
           <div className="space-y-2 mb-4">
             {comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} postId={post.id} />
+              <CommentItem 
+                key={comment.id} 
+                comment={comment} 
+                postId={post.id}
+                onOptimisticDelete={optimisticDelete}
+                onRevertOptimistic={revertOptimisticUpdate}
+              />
             ))}
           </div>
         ) : isExpanded ? (

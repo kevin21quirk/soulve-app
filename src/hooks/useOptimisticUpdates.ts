@@ -25,6 +25,22 @@ export const useOptimisticUpdates = () => {
     });
   };
 
+  const optimisticDelete = (commentId: string) => {
+    setOptimisticUpdates(prev => {
+      const newUpdates = new Map(prev);
+      newUpdates.set(`delete_${commentId}`, { deleted: true, timestamp: Date.now() });
+      return newUpdates;
+    });
+  };
+
+  const clearOptimisticUpdate = (key: string) => {
+    setOptimisticUpdates(prev => {
+      const newUpdates = new Map(prev);
+      newUpdates.delete(key);
+      return newUpdates;
+    });
+  };
+
   const revertOptimisticUpdate = () => {
     setOptimisticUpdates(new Map());
   };
@@ -32,6 +48,8 @@ export const useOptimisticUpdates = () => {
   return {
     optimisticLike,
     optimisticComment,
+    optimisticDelete,
+    clearOptimisticUpdate,
     revertOptimisticUpdate,
     optimisticUpdates
   };

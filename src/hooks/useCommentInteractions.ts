@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAccount } from '@/contexts/AccountContext';
 import { useToast } from '@/hooks/use-toast';
 
-export const useCommentInteractions = () => {
+export const useCommentInteractions = (onOptimisticDelete?: (commentId: string) => void, onRevertOptimistic?: () => void) => {
   const { user } = useAuth();
   const { organizationId } = useAccount();
   const { toast } = useToast();
@@ -244,7 +244,7 @@ export const useCommentInteractions = () => {
     }
   }, [user, toast, isLoading, setLoading]);
 
-  const deleteComment = useCallback(async (commentId: string) => {
+  const deleteComment = useCallback(async (commentId: string, postId?: string) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -256,20 +256,41 @@ export const useCommentInteractions = () => {
 
     if (isLoading(commentId, 'delete')) return false;
 
+    // Call optimistic delete immediately for instant UI feedback
+    if (onOptimisticDelete) {
+      onOptimisticDelete(commentId);
+    }
+
     try {
       setLoading(commentId, 'delete', true);
 
-      // Soft delete - mark as deleted instead of removing
-      const { error } = await supabase
-        .from('post_interactions')
-        .update({ 
-          is_deleted: true,
-          content: '[deleted]'
-        })
-        .eq('id', commentId)
-        .eq('user_id', user.id); // Ensure user owns the comment
+      // Determine if this is a campaign or post comment
+      const isCampaign = postId?.startsWith('campaign_');
 
-      if (error) throw error;
+      // Soft delete - mark as deleted instead of removing
+      if (isCampaign) {
+        const { error } = await supabase
+          .from('campaign_interactions')
+          .update({ 
+            is_deleted: true,
+            content: '[deleted]'
+          })
+          .eq('id', commentId)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('post_interactions')
+          .update({ 
+            is_deleted: true,
+            content: '[deleted]'
+          })
+          .eq('id', commentId)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Comment deleted",
@@ -279,6 +300,12 @@ export const useCommentInteractions = () => {
       return true;
     } catch (error: any) {
       console.error('Error deleting comment:', error);
+      
+      // Revert optimistic update on failure
+      if (onRevertOptimistic) {
+        onRevertOptimistic();
+      }
+      
       toast({
         title: "Failed to delete comment",
         description: error.message || "Please try again",
