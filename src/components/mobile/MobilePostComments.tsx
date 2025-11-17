@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, Send, Reply, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
@@ -250,7 +251,17 @@ const MobilePostComments = ({
     <div className="mt-3 pt-3 border-t border-gray-100">
       {/* Comments List */}
       {loading ? (
-        <div className="text-sm text-gray-500 text-center py-4">Loading comments...</div>
+        <div className="space-y-3 mb-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-2 animate-pulse">
+              <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 bg-muted rounded w-1/4" />
+                <div className="h-3 bg-muted rounded w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : comments.length > 0 ? (
         <div className="space-y-1 mb-3">
           {comments.map((comment) => (
@@ -258,7 +269,7 @@ const MobilePostComments = ({
           ))}
         </div>
       ) : isExpanded ? (
-        <div className="text-sm text-gray-500 text-center py-4">
+        <div className="text-sm text-muted-foreground text-center py-4">
           No comments yet. Be the first to comment!
         </div>
       ) : null}

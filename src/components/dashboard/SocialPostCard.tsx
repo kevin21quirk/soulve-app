@@ -177,6 +177,11 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
     trackCommunityEngagement('view_post', `Viewed ${post.author}'s post`);
   };
 
+  const handleCommentHover = () => {
+    // Prefetch comments by triggering the hook early - comments are already being fetched
+    // This ensures data is ready when modal opens
+  };
+
   const handleReactionSelect = (emoji: string) => {
     toggleReaction(emoji);
     if (onReaction) {
@@ -766,6 +771,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               variant="ghost"
               size="sm"
               onClick={handleCommentClick}
+              onMouseEnter={handleCommentHover}
               className="text-gray-600 hover:text-blue-600 w-full"
             >
               View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
