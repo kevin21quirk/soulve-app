@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Comment } from '@/types/feed';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchComments as fetchCommentsService, getInteractionTarget } from '@/services/interactionRoutingService';
+import { QUERY_KEYS } from '@/services/queryKeys';
 
 interface RawComment {
   id: string;
@@ -24,9 +26,7 @@ interface RawComment {
 
 export const usePostComments = (postId: string) => {
   const { user } = useAuth();
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const transformComment = (raw: RawComment): Comment => ({
     id: raw.id,
@@ -70,29 +70,18 @@ export const usePostComments = (postId: string) => {
     return rootComments;
   };
 
-  const fetchComments = useCallback(async () => {
-    if (!postId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
+  const { data: comments = [], isLoading: loading, error } = useQuery({
+    queryKey: QUERY_KEYS.POST_COMMENTS(postId),
+    queryFn: async (): Promise<Comment[]> => {
+      if (!postId) return [];
 
       const data = await fetchCommentsService(postId, user?.id);
-
       const transformed = (data as RawComment[]).map(transformComment);
-      const organized = organizeComments(transformed);
-      setComments(organized);
-    } catch (err: any) {
-      console.error('Error fetching comments:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [postId, user?.id]);
-
-  useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+      return organizeComments(transformed);
+    },
+    enabled: !!postId,
+    staleTime: 30000, // 30 seconds - comments change frequently
+  });
 
   // Real-time subscription for new comments
   useEffect(() => {
@@ -114,8 +103,8 @@ export const usePostComments = (postId: string) => {
         },
         (payload) => {
           if (payload.new.interaction_type === 'comment') {
-            console.log('New comment detected, refreshing...');
-            fetchComments();
+            console.log('New comment detected, invalidating cache...');
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POST_COMMENTS(postId) });
           }
         }
       )
@@ -129,8 +118,8 @@ export const usePostComments = (postId: string) => {
         },
         (payload) => {
           if (payload.new.interaction_type === 'comment') {
-            console.log('Comment updated, refreshing...');
-            fetchComments();
+            console.log('Comment updated, invalidating cache...');
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POST_COMMENTS(postId) });
           }
         }
       )
@@ -142,8 +131,8 @@ export const usePostComments = (postId: string) => {
           table: tableName
         },
         () => {
-          console.log('Comment deleted, refreshing...');
-          fetchComments();
+          console.log('Comment deleted, invalidating cache...');
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POST_COMMENTS(postId) });
         }
       )
       .subscribe();
@@ -159,8 +148,8 @@ export const usePostComments = (postId: string) => {
           table: 'comment_likes'
         },
         () => {
-          console.log('Comment like changed, refreshing...');
-          fetchComments();
+          console.log('Comment like changed, invalidating cache...');
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POST_COMMENTS(postId) });
         }
       )
       .subscribe();
@@ -169,12 +158,11 @@ export const usePostComments = (postId: string) => {
       supabase.removeChannel(channel);
       supabase.removeChannel(likesChannel);
     };
-  }, [postId, fetchComments]);
+  }, [postId, queryClient]);
 
   return {
     comments,
     loading,
-    error,
-    refetch: fetchComments
+    error: error ? String(error) : null,
   };
 };

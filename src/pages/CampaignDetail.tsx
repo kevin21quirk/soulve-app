@@ -61,7 +61,7 @@ const CampaignDetail = () => {
   );
 
   const { interactions, refetch: refetchInteractions } = useCampaignInteractions(campaignId || '');
-  const { refetch: refetchComments } = usePostComments(`campaign_${campaignId}`);
+  usePostComments(`campaign_${campaignId}`);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -196,9 +196,8 @@ const CampaignDetail = () => {
         description: "Your comment has been added to the campaign"
       });
 
-      // Refetch both interactions count and comments
+      // Refetch interactions count (comments refetch handled by React Query mutation)
       refetchInteractions();
-      refetchComments();
     } catch (error) {
       console.error('Error posting comment:', error);
       toast({

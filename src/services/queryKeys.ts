@@ -2,6 +2,8 @@
 // Centralized query key definitions for React Query
 export const QUERY_KEYS = {
   FEED_POSTS: ['feedPosts'] as const,
+  POSTS: ['posts'] as const,
+  POST_COMMENTS: (postId: string) => ['post-comments', postId] as const,
   CONNECTIONS: ['connections'] as const,
   CONVERSATIONS: ['conversations'] as const,
   MESSAGES: (conversationId: string) => ['messages', conversationId] as const,
