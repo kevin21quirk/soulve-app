@@ -22,6 +22,7 @@ interface UserTaggingProps {
   multiline?: boolean;
   rows?: number;
   className?: string;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
 const UserTagging = ({ 
@@ -30,7 +31,8 @@ const UserTagging = ({
   placeholder = "Type @ to tag someone...", 
   multiline = false,
   rows = 3,
-  className = ""
+  className = "",
+  onKeyDown
 }: UserTaggingProps) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<TaggedUser[]>([]);
@@ -214,6 +216,7 @@ const UserTagging = ({
         className={className}
         rows={multiline ? rows : undefined}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        onKeyDown={onKeyDown}
       />
       
       {showSuggestions && suggestions.length > 0 && (

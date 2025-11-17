@@ -291,6 +291,14 @@ const MobilePostComments = ({
               value={newComment}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (newComment.trim()) {
+                    handleSubmitComment();
+                  }
+                }
+              }}
               className="flex-1 bg-transparent text-sm border-0 focus:outline-none resize-none min-h-[36px] max-h-[120px] pr-10"
               rows={1}
             />
