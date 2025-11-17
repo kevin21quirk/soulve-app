@@ -140,7 +140,7 @@ const MobilePostDetailModal = ({ post, isOpen, onClose, onAddComment }: MobilePo
           </div>
 
           {/* Comments Section */}
-          <div className="bg-white p-4">
+          <div className="bg-white p-4 h-[50vh] flex flex-col">
             <MobilePostComments
               post={post}
               onAddComment={onAddComment}

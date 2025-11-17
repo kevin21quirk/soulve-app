@@ -255,8 +255,8 @@ const MobilePostComments = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto mt-3 pt-3 border-t border-gray-100">
+    <div className="flex flex-col relative h-full">
+      <div className="flex-1 overflow-y-auto mt-3 pt-3 border-t border-gray-100 pb-20">
         {/* Comments List */}
         {loading ? (
           <div className="space-y-3 mb-3">
@@ -285,7 +285,7 @@ const MobilePostComments = ({
 
       {/* Add Comment - Fixed at bottom */}
       {isExpanded && (
-        <div className="sticky bottom-0 bg-background border-t border-gray-200 pt-3 mt-3">
+        <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-gray-200 pt-3 px-4 z-10">
           <div className="flex items-end space-x-2 bg-gray-50 rounded-xl p-3 relative">
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">

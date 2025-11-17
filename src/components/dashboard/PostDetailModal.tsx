@@ -161,7 +161,7 @@ const PostDetailModal = ({ post, isOpen, onClose, onAddComment }: PostDetailModa
             )}
 
             {/* Comments Section */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 h-[400px] flex flex-col">
               <PostComments
                 post={post}
                 onAddComment={onAddComment}

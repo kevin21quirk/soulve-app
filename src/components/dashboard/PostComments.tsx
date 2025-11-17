@@ -317,8 +317,8 @@ const PostComments = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100">
+    <div className="flex flex-col relative h-full">
+      <div className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100 pb-24">
         {/* Comments List */}
         {loading ? (
           <div className="space-y-4 mb-4">
@@ -348,7 +348,7 @@ const PostComments = ({
 
       {/* Add Comment - Fixed at bottom */}
       {isExpanded && (
-        <div className="sticky bottom-0 bg-background border-t border-gray-200 pt-3 mt-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-gray-200 pt-3 px-6 z-10">
           <div className="flex items-start space-x-3">
             <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
               <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
