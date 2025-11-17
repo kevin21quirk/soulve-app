@@ -184,26 +184,25 @@ const MobileCommentItem = ({
           )}
 
           {showReplyInput && (
-            <div className="mt-3 flex items-end gap-2">
-              <div className="flex-1 relative bg-muted/50 rounded-lg p-2 border border-border/50 focus-within:bg-background transition-colors">
-                <textarea
-                  ref={inputRef}
-                  placeholder="Write a reply..."
-                  value={replyText}
-                  onChange={handleInputChange}
-                  onKeyPress={handleKeyPress}
-                  className="w-full bg-transparent text-sm border-0 focus:outline-none resize-none min-h-[36px] max-h-[120px]"
-                  rows={1}
-                />
-              </div>
-              <Button 
-                onClick={handleReply} 
-                disabled={!replyText.trim()}
-                size="icon"
-                className="shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            <div className="mt-3 bg-gray-50 rounded-xl p-3 relative">
+              <textarea
+                ref={inputRef}
+                placeholder="Write a reply..."
+                value={replyText}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                className="w-full bg-transparent text-sm border-0 focus:outline-none resize-none min-h-[36px] max-h-[120px] pr-10"
+                rows={1}
+              />
+              {replyText.trim() && (
+                <Button
+                  size="sm"
+                  onClick={handleReply}
+                  className="absolute right-5 bottom-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] h-8 w-8 p-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 

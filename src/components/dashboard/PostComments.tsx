@@ -266,32 +266,33 @@ const CommentItem = ({
           )}
           
           {showReplyInput && (
-            <div className="mt-3 flex gap-2 items-end">
-              <div className="flex-1 relative">
-                <UserTagging
-                  placeholder="Write a reply... (Type @ to tag someone)"
-                  value={replyText}
-                  onChange={(value, users) => {
-                    setReplyText(value);
-                    setReplyTaggedUserIds(users.map(u => u.id));
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && replyText.trim()) {
-                      e.preventDefault();
-                      handleReply();
-                    }
-                  }}
-                  className="min-h-[60px] resize-none text-sm bg-muted/50 border-border/50 focus:bg-background transition-colors rounded-md"
-                />
-              </div>
-              <Button 
-                onClick={handleReply} 
-                disabled={!replyText.trim()}
-                size="icon"
-                className="shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            <div className="mt-3 flex-1 relative">
+              <UserTagging
+                placeholder="Write a reply... (Type @ to tag someone)"
+                value={replyText}
+                onChange={(value, users) => {
+                  setReplyText(value);
+                  setReplyTaggedUserIds(users.map(u => u.id));
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && replyText.trim()) {
+                    e.preventDefault();
+                    handleReply();
+                  }
+                }}
+                multiline
+                rows={1}
+                className="min-h-[40px] resize-none border-gray-200 focus:border-teal-500 focus:ring-teal-500 pr-10"
+              />
+              {replyText.trim() && (
+                <Button
+                  size="sm"
+                  onClick={handleReply}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe]"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 
