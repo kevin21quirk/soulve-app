@@ -309,63 +309,65 @@ const PostComments = ({
   }
 
   return (
-    <div className="mt-4 pt-4 border-t border-gray-100">
-      {/* Comments List */}
-      {loading ? (
-        <div className="space-y-4 mb-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex gap-3 animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 bg-muted rounded w-1/4" />
-                <div className="h-3 bg-muted rounded w-3/4" />
-                <div className="h-3 bg-muted rounded w-1/2" />
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100">
+        {/* Comments List */}
+        {loading ? (
+          <div className="space-y-4 mb-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-3 animate-pulse">
+                <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-1/4" />
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : comments.length > 0 ? (
-        <div className="space-y-2 mb-4">
-          {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} postId={post.id} />
-          ))}
-        </div>
-      ) : isExpanded ? (
-        <div className="text-sm text-muted-foreground text-center py-4">
-          No comments yet. Be the first to comment!
-        </div>
-      ) : null}
+            ))}
+          </div>
+        ) : comments.length > 0 ? (
+          <div className="space-y-2 mb-4">
+            {comments.map((comment) => (
+              <CommentItem key={comment.id} comment={comment} postId={post.id} />
+            ))}
+          </div>
+        ) : isExpanded ? (
+          <div className="text-sm text-muted-foreground text-center py-4">
+            No comments yet. Be the first to comment!
+          </div>
+        ) : null}
+      </div>
 
-      {/* Add Comment */}
+      {/* Add Comment - Fixed at bottom */}
       {isExpanded && (
-        <div className="flex space-x-3">
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
-              Y
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <UserTagging
-              placeholder="Write a comment... (Type @ to tag someone)"
-              value={newComment}
-              onChange={(value, users) => {
-                setNewComment(value);
-                setTaggedUserIds(users.map(u => u.id));
-              }}
-              multiline
-              rows={3}
-              className="min-h-[80px] resize-none border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-            />
-            <div className="flex justify-end mt-2">
-              <Button
-                size="sm"
-                onClick={handleSubmitComment}
-                disabled={!newComment.trim()}
-                className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe]"
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Comment
-              </Button>
+        <div className="sticky bottom-0 bg-background border-t border-gray-200 pt-3 mt-4">
+          <div className="flex items-start space-x-3">
+            <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+              <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
+                Y
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 relative">
+              <UserTagging
+                placeholder="Write a comment... (Type @ to tag someone)"
+                value={newComment}
+                onChange={(value, users) => {
+                  setNewComment(value);
+                  setTaggedUserIds(users.map(u => u.id));
+                }}
+                multiline
+                rows={1}
+                className="min-h-[40px] resize-none border-gray-200 focus:border-teal-500 focus:ring-teal-500 pr-10"
+              />
+              {newComment.trim() && (
+                <Button
+                  size="sm"
+                  onClick={handleSubmitComment}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:from-[#0ce4af] hover:to-[#18a5fe]"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

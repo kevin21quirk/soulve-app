@@ -248,57 +248,62 @@ const MobilePostComments = ({
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-gray-100">
-      {/* Comments List */}
-      {loading ? (
-        <div className="space-y-3 mb-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex gap-2 animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 bg-muted rounded w-1/4" />
-                <div className="h-3 bg-muted rounded w-3/4" />
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto mt-3 pt-3 border-t border-gray-100">
+        {/* Comments List */}
+        {loading ? (
+          <div className="space-y-3 mb-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-2 animate-pulse">
+                <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-1/4" />
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : comments.length > 0 ? (
-        <div className="space-y-1 mb-3">
-          {comments.map((comment) => (
-            <MobileCommentItem key={comment.id} comment={comment} postId={post.id} />
-          ))}
-        </div>
-      ) : isExpanded ? (
-        <div className="text-sm text-muted-foreground text-center py-4">
-          No comments yet. Be the first to comment!
-        </div>
-      ) : null}
+            ))}
+          </div>
+        ) : comments.length > 0 ? (
+          <div className="space-y-1 mb-3">
+            {comments.map((comment) => (
+              <MobileCommentItem key={comment.id} comment={comment} postId={post.id} />
+            ))}
+          </div>
+        ) : isExpanded ? (
+          <div className="text-sm text-muted-foreground text-center py-4">
+            No comments yet. Be the first to comment!
+          </div>
+        ) : null}
+      </div>
 
-      {/* Add Comment */}
+      {/* Add Comment - Fixed at bottom */}
       {isExpanded && (
-        <div className="flex items-end space-x-2 bg-gray-50 rounded-xl p-3">
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
-              Y
-            </AvatarFallback>
-          </Avatar>
-          <textarea
-            ref={inputRef}
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            className="flex-1 bg-transparent text-sm border-0 focus:outline-none resize-none min-h-[36px] max-h-[120px]"
-            rows={1}
-          />
-          <Button
-            size="sm"
-            onClick={handleSubmitComment}
-            disabled={!newComment.trim()}
-            className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] h-9 w-9 p-0"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="sticky bottom-0 bg-background border-t border-gray-200 pt-3 mt-3">
+          <div className="flex items-end space-x-2 bg-gray-50 rounded-xl p-3 relative">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">
+                Y
+              </AvatarFallback>
+            </Avatar>
+            <textarea
+              ref={inputRef}
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              className="flex-1 bg-transparent text-sm border-0 focus:outline-none resize-none min-h-[36px] max-h-[120px] pr-10"
+              rows={1}
+            />
+            {newComment.trim() && (
+              <Button
+                size="sm"
+                onClick={handleSubmitComment}
+                className="absolute right-5 bottom-4 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] h-8 w-8 p-0"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </div>
