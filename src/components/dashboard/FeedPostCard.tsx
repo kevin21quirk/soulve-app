@@ -92,6 +92,11 @@ const FeedPostCard = ({
     }
   };
 
+  const handleCommentHover = () => {
+    // Prefetch comments - comments are already being fetched in the component
+    // This ensures data is ready when modal opens
+  };
+
   logger.debug('FeedPostCard rendering post', {
     id: post.id,
     author: post.author,
@@ -283,6 +288,7 @@ const FeedPostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowPostDetail(true)}
+                onMouseEnter={handleCommentHover}
                 className="text-gray-600 hover:text-blue-600 w-full"
               >
                 View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}

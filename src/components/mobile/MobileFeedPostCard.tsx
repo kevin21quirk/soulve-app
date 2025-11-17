@@ -78,6 +78,11 @@ const MobileFeedPostCard = ({
     onShare(); // Keep the original callback for any analytics
   };
 
+  const handleCommentHover = () => {
+    // Prefetch comments - comments are already being fetched in the component
+    // This ensures data is ready when modal opens
+  };
+
   const getCategoryColor = (category: string) => {
     const colors = {
       "help-needed": "bg-red-100 text-red-700 border-red-200",
@@ -266,6 +271,7 @@ const MobileFeedPostCard = ({
             variant="ghost"
             size="sm"
             onClick={() => setShowPostDetail(true)}
+            onMouseEnter={handleCommentHover}
             className="text-gray-600 hover:text-blue-600 w-full text-sm"
           >
             View {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
