@@ -67,7 +67,8 @@ export const usePostComments = (postId: string) => {
       }
     });
 
-    return rootComments;
+    // Reverse to show newest comments first
+    return rootComments.reverse();
   };
 
   const { data: comments = [], isLoading: loading, error } = useQuery({
