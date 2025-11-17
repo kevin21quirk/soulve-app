@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -300,6 +300,17 @@ const PostComments = ({
   const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
   const { comments, loading } = usePostComments(post.id);
   const addCommentMutation = useAddComment();
+  const commentsEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (comments.length > 0 && !loading) {
+      scrollToBottom();
+    }
+  }, [comments.length, loading]);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -338,6 +349,7 @@ const PostComments = ({
             {comments.map((comment) => (
               <CommentItem key={comment.id} comment={comment} postId={post.id} />
             ))}
+            <div ref={commentsEndRef} />
           </div>
         ) : isExpanded ? (
           <div className="text-sm text-muted-foreground text-center py-4">
