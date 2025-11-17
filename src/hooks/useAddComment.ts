@@ -68,10 +68,10 @@ export const useAddComment = () => {
         replies: [],
       };
 
-      // Optimistically update the cache
+      // Optimistically update the cache - add at beginning since newest are shown first
       queryClient.setQueryData<Comment[]>(
         QUERY_KEYS.POST_COMMENTS(postId),
-        (old = []) => [...old, optimisticComment]
+        (old = []) => [optimisticComment, ...old]
       );
 
       // Return context for rollback
