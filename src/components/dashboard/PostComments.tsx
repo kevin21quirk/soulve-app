@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -300,6 +300,7 @@ const PostComments = ({
   const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
   const { comments, loading } = usePostComments(post.id);
   const addCommentMutation = useAddComment();
+  const commentsScrollRef = useRef<HTMLDivElement>(null);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -309,6 +310,11 @@ const PostComments = ({
       });
       setNewComment("");
       setTaggedUserIds([]);
+      
+      // Scroll to top to show the new comment
+      if (commentsScrollRef.current) {
+        commentsScrollRef.current.scrollTop = 0;
+      }
     }
   };
 
@@ -318,7 +324,7 @@ const PostComments = ({
 
   return (
     <div className="flex flex-col relative h-full">
-      <div className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100 pb-24">
+      <div ref={commentsScrollRef} className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100 pb-24">
         {/* Comments List */}
         {loading ? (
           <div className="space-y-4 mb-4">

@@ -224,6 +224,7 @@ const MobilePostComments = ({
   const { comments, loading } = usePostComments(post.id);
   const addCommentMutation = useAddComment();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const commentsScrollRef = useRef<HTMLDivElement>(null);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -232,6 +233,11 @@ const MobilePostComments = ({
         content: newComment.trim(),
       });
       setNewComment("");
+      
+      // Scroll to top to show the new comment
+      if (commentsScrollRef.current) {
+        commentsScrollRef.current.scrollTop = 0;
+      }
     }
   };
 
@@ -256,7 +262,7 @@ const MobilePostComments = ({
 
   return (
     <div className="flex flex-col relative h-full">
-      <div className="flex-1 overflow-y-auto mt-3 pt-3 border-t border-gray-100 pb-20">
+      <div ref={commentsScrollRef} className="flex-1 overflow-y-auto mt-3 pt-3 border-t border-gray-100 pb-20">
         {/* Comments List */}
         {loading ? (
           <div className="space-y-3 mb-3">
