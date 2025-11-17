@@ -355,6 +355,14 @@ const PostComments = ({
                   setNewComment(value);
                   setTaggedUserIds(users.map(u => u.id));
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (newComment.trim()) {
+                      handleSubmitComment();
+                    }
+                  }
+                }}
                 multiline
                 rows={1}
                 className="min-h-[40px] resize-none border-gray-200 focus:border-teal-500 focus:ring-teal-500 pr-10"
