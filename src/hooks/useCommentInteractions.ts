@@ -244,7 +244,7 @@ export const useCommentInteractions = () => {
     }
   }, [user, toast, isLoading, setLoading]);
 
-  const deleteComment = useCallback(async (commentId: string) => {
+  const deleteComment = useCallback(async (commentId: string, onOptimisticDelete?: (id: string) => void) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -258,6 +258,11 @@ export const useCommentInteractions = () => {
 
     try {
       setLoading(commentId, 'delete', true);
+      
+      // Call optimistic delete immediately if provided
+      if (onOptimisticDelete) {
+        onOptimisticDelete(commentId);
+      }
 
       // Soft delete - mark as deleted instead of removing
       const { error } = await supabase
