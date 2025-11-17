@@ -8,6 +8,8 @@ import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useDeleteComment } from "@/hooks/useDeleteComment";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
+import { useLikeComment } from "@/hooks/useLikeComment";
+import { useReplyToComment } from "@/hooks/useReplyToComment";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -32,8 +34,10 @@ const MobileCommentItem = ({
   level?: number;
 }) => {
   const { user } = useAuth();
-  const { likeComment, replyToComment, editComment } = useCommentInteractions();
+  const { editComment } = useCommentInteractions();
   const deleteCommentMutation = useDeleteComment();
+  const likeCommentMutation = useLikeComment();
+  const replyCommentMutation = useReplyToComment();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -47,17 +51,22 @@ const MobileCommentItem = ({
     }
   }, [replyText, editText]);
 
-  const handleLike = async () => {
-    await likeComment(comment.id);
+  const handleLike = () => {
+    likeCommentMutation.mutate({
+      commentId: comment.id,
+      postId: postId,
+    });
   };
 
-  const handleReply = async () => {
+  const handleReply = () => {
     if (replyText.trim()) {
-      const success = await replyToComment(postId, comment.id, replyText);
-      if (success) {
-        setReplyText("");
-        setShowReplyInput(false);
-      }
+      replyCommentMutation.mutate({
+        postId,
+        parentCommentId: comment.id,
+        content: replyText.trim(),
+      });
+      setReplyText("");
+      setShowReplyInput(false);
     }
   };
 
