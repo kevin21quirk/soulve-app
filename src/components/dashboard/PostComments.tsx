@@ -9,6 +9,8 @@ import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useDeleteComment } from "@/hooks/useDeleteComment";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
+import { useLikeComment } from "@/hooks/useLikeComment";
+import { useReplyToComment } from "@/hooks/useReplyToComment";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import UserTagging from "./tagging/UserTagging";
@@ -43,8 +45,10 @@ const CommentItem = ({
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { likeComment, replyToComment, editComment } = useCommentInteractions();
+  const { editComment } = useCommentInteractions();
   const deleteCommentMutation = useDeleteComment();
+  const likeCommentMutation = useLikeComment();
+  const replyCommentMutation = useReplyToComment();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyTaggedUserIds, setReplyTaggedUserIds] = useState<string[]>([]);
@@ -70,18 +74,24 @@ const CommentItem = ({
     await translate(comment.content, preference?.preferred_language || 'en', detectedLanguage);
   };
 
-  const handleLike = async () => {
-    await likeComment(comment.id);
+  const handleLike = () => {
+    likeCommentMutation.mutate({
+      commentId: comment.id,
+      postId: postId,
+    });
   };
 
-  const handleReply = async () => {
+  const handleReply = () => {
     if (replyText.trim()) {
-      const success = await replyToComment(postId, comment.id, replyText, replyTaggedUserIds);
-      if (success) {
-        setReplyText("");
-        setReplyTaggedUserIds([]);
-        setShowReplyInput(false);
-      }
+      replyCommentMutation.mutate({
+        postId,
+        parentCommentId: comment.id,
+        content: replyText.trim(),
+        taggedUserIds: replyTaggedUserIds,
+      });
+      setReplyText("");
+      setShowReplyInput(false);
+      setReplyTaggedUserIds([]);
     }
   };
 
