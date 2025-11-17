@@ -93,9 +93,6 @@ const PostDetailModal = ({ post, isOpen, onClose, onAddComment }: PostDetailModa
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </DialogHeader>
 
