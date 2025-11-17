@@ -218,13 +218,15 @@ const MobilePostComments = ({
   isExpanded 
 }: MobilePostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
-  const { comments, loading } = usePostComments(post.id);
+  const { comments, loading, refetch } = usePostComments(post.id);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (newComment.trim()) {
-      onAddComment(post.id, newComment.trim());
+      await onAddComment(post.id, newComment.trim());
       setNewComment("");
+      // Refetch comments to update UI
+      await refetch();
     }
   };
 
