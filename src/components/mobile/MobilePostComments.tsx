@@ -224,17 +224,6 @@ const MobilePostComments = ({
   const { comments, loading } = usePostComments(post.id);
   const addCommentMutation = useAddComment();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const commentsEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    if (comments.length > 0 && !loading) {
-      scrollToBottom();
-    }
-  }, [comments.length, loading]);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -286,7 +275,6 @@ const MobilePostComments = ({
             {comments.map((comment) => (
               <MobileCommentItem key={comment.id} comment={comment} postId={post.id} />
             ))}
-            <div ref={commentsEndRef} />
           </div>
         ) : isExpanded ? (
           <div className="text-sm text-muted-foreground text-center py-4">
