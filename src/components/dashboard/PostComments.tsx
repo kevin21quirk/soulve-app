@@ -33,13 +33,11 @@ interface PostCommentsProps {
 const CommentItem = ({ 
   comment, 
   postId, 
-  level = 0,
-  onDelete
+  level = 0 
 }: { 
   comment: Comment; 
   postId: string; 
   level?: number;
-  onDelete?: (commentId: string) => void;
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -94,11 +92,7 @@ const CommentItem = ({
   };
 
   const handleDelete = async () => {
-    if (onDelete) {
-      onDelete(comment.id);
-    } else {
-      await deleteComment(comment.id);
-    }
+    await deleteComment(comment.id);
   };
 
   const handleUserTagClick = async (username: string) => {
@@ -284,7 +278,6 @@ const CommentItem = ({
                   comment={reply}
                   postId={postId}
                   level={level + 1}
-                  onDelete={onDelete}
                 />
               ))}
             </div>
@@ -302,29 +295,13 @@ const PostComments = ({
 }: PostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
   const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
-  const { comments, loading, addOptimisticComment, removeComment } = usePostComments(post.id);
-  const { deleteComment } = useCommentInteractions();
+  const { comments, loading } = usePostComments(post.id);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
-      // Add optimistic comment immediately
-      const tempComment = addOptimisticComment(newComment.trim());
-      
-      // Clear input immediately
+      onAddComment(post.id, newComment.trim());
       setNewComment("");
-      setTaggedUserIds([]);
-      
-      // Send to database in background
-      onAddComment(post.id, tempComment?.content || newComment.trim());
     }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    // Remove from UI immediately
-    removeComment(commentId);
-    
-    // Delete from database in background
-    await deleteComment(commentId, removeComment);
   };
 
   if (!isExpanded && comments.length === 0) {
@@ -332,45 +309,38 @@ const PostComments = ({
   }
 
   return (
-    <div className="flex flex-col h-full relative">
-      {/* Comments List - Scrollable */}
-      <div className="flex-1 overflow-y-auto pb-24">
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          {loading ? (
-            <div className="space-y-4 mb-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-3 animate-pulse">
-                  <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-muted rounded w-1/4" />
-                    <div className="h-3 bg-muted rounded w-3/4" />
-                    <div className="h-3 bg-muted rounded w-1/2" />
-                  </div>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto mt-4 pt-4 border-t border-gray-100">
+        {/* Comments List */}
+        {loading ? (
+          <div className="space-y-4 mb-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-3 animate-pulse">
+                <div className="h-8 w-8 rounded-full bg-muted flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-1/4" />
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
-              ))}
-            </div>
-          ) : comments.length > 0 ? (
-            <div className="space-y-2 mb-4">
-              {comments.map((comment) => (
-                <CommentItem 
-                  key={comment.id} 
-                  comment={comment} 
-                  postId={post.id}
-                  onDelete={handleDeleteComment}
-                />
-              ))}
-            </div>
-          ) : isExpanded ? (
-            <div className="text-sm text-muted-foreground text-center py-4">
-              No comments yet. Be the first to comment!
-            </div>
-          ) : null}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : comments.length > 0 ? (
+          <div className="space-y-2 mb-4">
+            {comments.map((comment) => (
+              <CommentItem key={comment.id} comment={comment} postId={post.id} />
+            ))}
+          </div>
+        ) : isExpanded ? (
+          <div className="text-sm text-muted-foreground text-center py-4">
+            No comments yet. Be the first to comment!
+          </div>
+        ) : null}
       </div>
 
       {/* Add Comment - Fixed at bottom */}
       {isExpanded && (
-        <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-gray-200 pt-3 pb-4 px-4">
+        <div className="sticky bottom-0 bg-background border-t border-gray-200 pt-3 mt-4">
           <div className="flex items-start space-x-3">
             <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
               <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-xs">

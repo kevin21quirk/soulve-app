@@ -25,7 +25,6 @@ interface RawComment {
 export const usePostComments = (postId: string) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [optimisticComments, setOptimisticComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,62 +90,9 @@ export const usePostComments = (postId: string) => {
     }
   }, [postId, user?.id]);
 
-  const addOptimisticComment = useCallback((content: string) => {
-    if (!user) return null;
-    
-    const tempComment: Comment = {
-      id: `temp-${Date.now()}`,
-      content,
-      author: 'You',
-      authorId: user.id,
-      avatar: '',
-      timestamp: 'Just now',
-      likes: 0,
-      isLiked: false,
-      isOrganization: false,
-      replies: [],
-      isDeleted: false
-    };
-    
-    setOptimisticComments(prev => [...prev, tempComment]);
-    return tempComment;
-  }, [user]);
-
-  const removeOptimisticComment = useCallback((id: string) => {
-    setOptimisticComments(prev => prev.filter(c => c.id !== id));
-  }, []);
-
-  const removeComment = useCallback((id: string) => {
-    setComments(prev => {
-      const filterComments = (comments: Comment[]): Comment[] => {
-        return comments.filter(c => {
-          if (c.id === id) return false;
-          if (c.replies && c.replies.length > 0) {
-            c.replies = filterComments(c.replies);
-          }
-          return true;
-        });
-      };
-      return filterComments(prev);
-    });
-  }, []);
-
   useEffect(() => {
     fetchComments();
   }, [fetchComments]);
-
-  // Merge optimistic comments with real comments
-  const allComments = useCallback(() => {
-    // Filter out optimistic comments that might have been added to real comments
-    const filtered = optimisticComments.filter(opt => 
-      !comments.find(c => 
-        c.content === opt.content && 
-        c.authorId === opt.authorId &&
-        Math.abs(new Date(c.timestamp).getTime() - Date.now()) < 10000
-      )
-    );
-    return [...comments, ...filtered];
-  }, [comments, optimisticComments]);
 
   // Real-time subscription for new comments
   useEffect(() => {
@@ -226,12 +172,9 @@ export const usePostComments = (postId: string) => {
   }, [postId, fetchComments]);
 
   return {
-    comments: allComments(),
+    comments,
     loading,
     error,
-    refetch: fetchComments,
-    addOptimisticComment,
-    removeOptimisticComment,
-    removeComment
+    refetch: fetchComments
   };
 };
