@@ -22,7 +22,7 @@ interface RawComment {
   user_has_liked: boolean;
 }
 
-export const usePostComments = (postId: string, optimisticUpdates?: Map<string, any>) => {
+export const usePostComments = (postId: string) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,19 +49,13 @@ export const usePostComments = (postId: string, optimisticUpdates?: Map<string, 
     const commentMap = new Map<string, Comment>();
     const rootComments: Comment[] = [];
 
-    // Filter out optimistically deleted comments
-    const filteredComments = flatComments.filter(comment => {
-      const deleteKey = `delete_${comment.id}`;
-      return !optimisticUpdates?.has(deleteKey);
-    });
-
     // First pass: create map of all comments
-    filteredComments.forEach(comment => {
+    flatComments.forEach(comment => {
       commentMap.set(comment.id, { ...comment, replies: [] });
     });
 
     // Second pass: organize into tree structure
-    filteredComments.forEach(comment => {
+    flatComments.forEach(comment => {
       const commentWithReplies = commentMap.get(comment.id)!;
       if (comment.parentCommentId) {
         const parent = commentMap.get(comment.parentCommentId);
