@@ -5,6 +5,7 @@ import { Heart, Send, Reply, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
+import { useAddComment } from "@/hooks/useAddComment";
 import { useCommentInteractions } from "@/hooks/useCommentInteractions";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -218,15 +219,17 @@ const MobilePostComments = ({
   isExpanded 
 }: MobilePostCommentsProps) => {
   const [newComment, setNewComment] = useState("");
-  const { comments, loading, refetch } = usePostComments(post.id);
+  const { comments, loading } = usePostComments(post.id);
+  const addCommentMutation = useAddComment();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmitComment = async () => {
+  const handleSubmitComment = () => {
     if (newComment.trim()) {
-      await onAddComment(post.id, newComment.trim());
+      addCommentMutation.mutate({
+        postId: post.id,
+        content: newComment.trim(),
+      });
       setNewComment("");
-      // Refetch comments to update UI
-      await refetch();
     }
   };
 
