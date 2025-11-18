@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -51,9 +51,11 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
     return () => scrollArea.removeEventListener('scroll', handleScroll);
   }, [messages.length]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
+  // Auto-scroll to bottom when new messages arrive - using useLayoutEffect for synchronous updates
+  useLayoutEffect(() => {
     const isNewMessage = messages.length > previousMessageCountRef.current;
+    
+    console.log('[MessagesList] Messages changed, length:', messages.length, 'previous:', previousMessageCountRef.current, 'isNew:', isNewMessage);
     
     if (isNewMessage && messages.length > 0) {
       // Get the last message ID
@@ -73,8 +75,11 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
         }, 3000);
       }
 
-      // Scroll to the new message
-      scrollToBottom();
+      // Small delay to ensure DOM is rendered before scrolling
+      requestAnimationFrame(() => {
+        console.log('[MessagesList] Scrolling to bottom');
+        scrollToBottom();
+      });
     }
 
     previousMessageCountRef.current = messages.length;
