@@ -1,8 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Building } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -91,37 +88,15 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
   return (
     <>
-      <Card className="mb-6 border-teal-100 bg-gradient-to-r from-teal-50 to-blue-50">
-        <CardHeader className="pb-3">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={orgData?.avatar_url || user.user_metadata?.avatar_url} />
-              <AvatarFallback className="bg-gradient-to-r from-teal-500 to-blue-500 text-white">
-                {orgData?.name?.charAt(0) || user.user_metadata?.display_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-1">
-              {accountType === 'organization' && orgData && (
-                <Badge variant="secondary" className="gap-1.5 mb-1">
-                  <Building className="h-3 w-3" />
-                  <span>Posting as {orgData.name}</span>
-                </Badge>
-              )}
-              <Button
-                variant="outline"
-                className="w-full justify-start text-gray-500 hover:bg-white/60"
-                onClick={() => setShowModal(true)}
-                disabled={isCreating}
-              >
-                {isCreating ? "Creating post..." : "What's happening in your community?"}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <SocialPostCollapsed onExpand={() => setShowModal(true)} />
-        </CardContent>
-      </Card>
+      <div className="mb-6">
+        {accountType === 'organization' && orgData && (
+          <Badge variant="secondary" className="gap-1.5 mb-2">
+            <Building className="h-3 w-3" />
+            <span>Posting as {orgData.name}</span>
+          </Badge>
+        )}
+        <SocialPostCollapsed onExpand={() => setShowModal(true)} />
+      </div>
 
       <CreatePostModal
         isOpen={showModal}
