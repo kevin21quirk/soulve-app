@@ -8,7 +8,7 @@ import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useDeleteComment } from "@/hooks/useDeleteComment";
-import { useCommentInteractions } from "@/hooks/useCommentInteractions";
+import { useEditComment } from "@/hooks/useEditComment";
 import { useLikeComment } from "@/hooks/useLikeComment";
 import { useReplyToComment } from "@/hooks/useReplyToComment";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,7 +45,7 @@ const CommentItem = ({
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { editComment } = useCommentInteractions();
+  const editCommentMutation = useEditComment();
   const deleteCommentMutation = useDeleteComment();
   const likeCommentMutation = useLikeComment();
   const replyCommentMutation = useReplyToComment();
@@ -95,12 +95,14 @@ const CommentItem = ({
     }
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
     if (editText.trim() && editText !== comment.content) {
-      const success = await editComment(comment.id, editText);
-      if (success) {
-        setIsEditing(false);
-      }
+      editCommentMutation.mutate({
+        commentId: comment.id,
+        postId,
+        newContent: editText.trim(),
+      });
+      setIsEditing(false);
     }
   };
 
@@ -193,20 +195,44 @@ const CommentItem = ({
               )}
             </div>
             {isEditing ? (
-              <div className="space-y-2">
-                <Textarea
+              <div className="relative pr-12">
+                <UserTagging
+                  placeholder="Edit your comment..."
                   value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="min-h-[60px] resize-none"
+                  onChange={setEditText}
+                  className="text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (editText.trim() && editText !== comment.content) {
+                        handleEdit();
+                      }
+                    } else if (e.key === 'Escape') {
+                      setIsEditing(false);
+                      setEditText(comment.content);
+                    }
+                  }}
                 />
-                <div className="flex justify-end space-x-2">
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                    Cancel
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditText(comment.content);
+                  }}
+                  className="absolute top-2 right-2 h-8 w-8"
+                >
+                  ✕
+                </Button>
+                {editText.trim() && editText !== comment.content && (
+                  <Button
+                    size="icon"
+                    onClick={handleEdit}
+                    className="absolute bottom-2 right-2 h-8 w-8 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90"
+                  >
+                    <Send className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" onClick={handleEdit}>
-                    Save
-                  </Button>
-                </div>
+                )}
               </div>
             ) : (
               <>
