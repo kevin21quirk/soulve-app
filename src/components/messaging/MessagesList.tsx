@@ -39,14 +39,23 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   // Check scroll position to show/hide scroll to bottom button
   useEffect(() => {
     const scrollArea = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (!scrollArea) return;
+    if (!scrollArea) {
+      console.log('[MessagesList] ScrollArea viewport not found');
+      return;
+    }
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = scrollArea;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const isNearBottom = distanceFromBottom < 100;
+      
+      console.log('[MessagesList] Scroll position:', { scrollTop, scrollHeight, clientHeight, distanceFromBottom, isNearBottom });
       setShowScrollButton(!isNearBottom && messages.length > 0);
     };
 
+    // Initial check
+    handleScroll();
+    
     scrollArea.addEventListener('scroll', handleScroll);
     return () => scrollArea.removeEventListener('scroll', handleScroll);
   }, [messages.length]);
@@ -86,7 +95,14 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   }, [messages, userId]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    console.log('[MessagesList] Scroll to bottom clicked');
+    const scrollArea = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollArea) {
+      scrollArea.scrollTo({
+        top: scrollArea.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const handleDownload = (url: string, name: string) => {
@@ -228,10 +244,10 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
         <Button
           onClick={scrollToBottom}
           size="icon"
-          className="absolute bottom-4 right-4 h-8 w-8 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-10"
+          className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50 transition-all duration-200"
           aria-label="Scroll to bottom"
         >
-          <ArrowDown className="h-4 w-4" />
+          <ArrowDown className="h-5 w-5 text-primary-foreground" />
         </Button>
       )}
     </div>
