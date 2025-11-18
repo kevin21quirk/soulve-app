@@ -184,7 +184,7 @@ const MobileCommentItem = ({
           )}
 
           {showReplyInput && (
-            <div className="mt-3 bg-gray-50 rounded-xl p-3 relative">
+            <div className="mt-3 bg-gray-50 rounded-xl p-3 relative mx-2">
               <textarea
                 ref={inputRef}
                 placeholder="Write a reply..."
