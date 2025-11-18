@@ -36,10 +36,10 @@ const MainTabsList = () => {
           return (
             <Tooltip key={tab.value}>
               <TooltipTrigger asChild>
-                <TabsTrigger 
-                  value={tab.value}
-                  className="flex items-center justify-center rounded-md px-4 py-3 transition-all duration-200 flex-1 min-w-0 relative border bg-gray-100 border-gray-200 text-gray-600 hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white hover:border-transparent hover:shadow-lg data-[state=active]:!bg-gradient-to-r data-[state=active]:!from-[#0ce4af] data-[state=active]:!to-[#18a5fe] data-[state=active]:!text-white data-[state=active]:!border-transparent data-[state=active]:!shadow-xl data-[state=active]:scale-105"
-                >
+              <TabsTrigger 
+                value={tab.value}
+                className="flex items-center justify-center rounded-md px-4 py-3 transition-all duration-200 flex-1 min-w-0 relative border border-border text-muted-foreground bg-muted/50 hover:bg-gradient-to-r hover:from-[hsl(var(--soulve-teal))] hover:to-[hsl(var(--soulve-blue))] hover:text-white hover:border-transparent hover:shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(var(--soulve-teal))] data-[state=active]:to-[hsl(var(--soulve-blue))] data-[state=active]:text-white data-[state=active]:border-transparent data-[state=active]:shadow-xl data-[state=active]:scale-105"
+              >
                   <IconComponent className="h-5 w-5" />
                   <NotificationBadge count={tab.badgeCount} />
                 </TabsTrigger>
