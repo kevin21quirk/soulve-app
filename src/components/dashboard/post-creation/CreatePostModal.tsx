@@ -16,6 +16,9 @@ interface CreatePostModalProps {
   onSubmit: (data: PostFormData) => void;
   isSubmitting: boolean;
   sharedPost?: any;
+  editMode?: boolean;
+  postId?: string;
+  initialData?: Partial<PostFormData>;
 }
 
 const CreatePostModal = ({ 
@@ -23,7 +26,10 @@ const CreatePostModal = ({
   onClose, 
   onSubmit, 
   isSubmitting,
-  sharedPost 
+  sharedPost,
+  editMode = false,
+  postId,
+  initialData
 }: CreatePostModalProps) => {
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -46,7 +52,13 @@ const CreatePostModal = ({
   });
 
   useEffect(() => {
-    if (sharedPost) {
+    if (editMode && initialData) {
+      console.log('CreatePostModal - Setting up edit mode with data:', initialData);
+      setFormData(prev => ({
+        ...prev,
+        ...initialData
+      }));
+    } else if (sharedPost) {
       console.log('CreatePostModal - Setting up shared post data:', sharedPost);
       setFormData(prev => ({
         ...prev,
@@ -55,12 +67,13 @@ const CreatePostModal = ({
         tags: sharedPost.tags || []
       }));
     }
-  }, [sharedPost]);
+  }, [sharedPost, editMode, initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('CreatePostModal - Submitting form data:', formData);
-    onSubmit(formData);
+    const submitData = editMode && postId ? { ...formData, postId } : formData;
+    onSubmit(submitData);
   };
 
   const handleLocationDetect = () => {
@@ -93,7 +106,7 @@ const CreatePostModal = ({
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
         <DialogHeader className="flex-shrink-0 p-6 pb-4">
           <DialogTitle>
-            {sharedPost ? 'Share Post' : 'Create New Post'}
+            {editMode ? 'Edit Post' : sharedPost ? 'Share Post' : 'Create New Post'}
           </DialogTitle>
         </DialogHeader>
 

@@ -169,6 +169,82 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
   return post.id;
 };
 
+// Update existing post
+export const updateUnifiedPost = async (postId: string, postData: Partial<CreatePostData>) => {
+  console.log('updateUnifiedPost - Starting with data:', { postId, postData });
+  
+  // Get authenticated user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    throw new Error('User not authenticated');
+  }
+
+  // Verify user owns the post
+  const { data: existingPost } = await supabase
+    .from('posts')
+    .select('author_id, organization_id')
+    .eq('id', postId)
+    .single();
+
+  if (!existingPost) {
+    throw new Error('Post not found');
+  }
+
+  // Check if user has permission to edit
+  if (existingPost.author_id && existingPost.author_id !== user.id) {
+    throw new Error('You can only edit your own posts');
+  }
+
+  // Content moderation check if content is being updated
+  if (postData.content) {
+    try {
+      const moderationResult = await ContentModerationService.filterContent(
+        postData.content,
+        postData.title
+      );
+
+      if (!moderationResult.isAllowed) {
+        throw new Error(`Content blocked: ${moderationResult.reasons.join(', ')}`);
+      }
+    } catch (moderationError) {
+      console.error('Content moderation failed:', moderationError);
+    }
+  }
+
+  // Prepare update data
+  const updateData: any = {
+    updated_at: new Date().toISOString()
+  };
+
+  if (postData.title !== undefined) updateData.title = postData.title;
+  if (postData.content !== undefined) updateData.content = postData.content;
+  if (postData.category !== undefined) updateData.category = postData.category;
+  if (postData.urgency !== undefined) updateData.urgency = postData.urgency;
+  if (postData.location !== undefined) updateData.location = postData.location;
+  if (postData.tags !== undefined) updateData.tags = postData.tags;
+  if (postData.visibility !== undefined) updateData.visibility = postData.visibility;
+  if (postData.media_urls !== undefined) updateData.media_urls = postData.media_urls;
+
+  console.log('updateUnifiedPost - Updating post:', updateData);
+
+  const { data: updatedPost, error: updateError } = await supabase
+    .from('posts')
+    .update(updateData)
+    .eq('id', postId)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error('updateUnifiedPost - Update error:', updateError);
+    throw new Error(`Failed to update post: ${updateError.message}`);
+  }
+
+  console.log('updateUnifiedPost - Post updated successfully:', postId);
+  
+  return updatedPost;
+};
+
 // Notification service for tagged users
 async function createTagNotifications(taggedUserIds: string[], postId: string, taggerId: string) {
   try {
