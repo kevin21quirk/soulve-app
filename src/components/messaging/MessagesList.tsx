@@ -1,4 +1,5 @@
 
+import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -29,6 +30,40 @@ interface MessagesListProps {
 }
 
 const MessagesList = ({ messages, userId, loading = false, partnerTyping = false }: MessagesListProps) => {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [highlightedMessages, setHighlightedMessages] = useState<Set<string>>(new Set());
+  const previousMessageCountRef = useRef(messages.length);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    const isNewMessage = messages.length > previousMessageCountRef.current;
+    
+    if (isNewMessage && messages.length > 0) {
+      // Get the last message ID
+      const lastMessage = messages[messages.length - 1];
+      
+      // Only highlight if it's from someone else (not own message)
+      if (lastMessage.sender_id !== userId) {
+        setHighlightedMessages(prev => new Set(prev).add(lastMessage.id));
+        
+        // Remove highlight after 3 seconds
+        setTimeout(() => {
+          setHighlightedMessages(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(lastMessage.id);
+            return newSet;
+          });
+        }, 3000);
+      }
+
+      // Scroll to the new message
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    previousMessageCountRef.current = messages.length;
+  }, [messages, userId]);
+
   const handleDownload = (url: string, name: string) => {
     const link = document.createElement('a');
     link.href = url;
@@ -93,7 +128,7 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   };
 
   return (
-    <ScrollArea className="h-full p-4">
+    <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="flex items-center space-x-2">
@@ -112,38 +147,39 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
               const senderName = message.sender_profile 
                 ? `${message.sender_profile.first_name || ''} ${message.sender_profile.last_name || ''}`.trim() || 'You'
                 : 'You';
+              const isHighlighted = highlightedMessages.has(message.id);
 
               return (
                 <div
                   key={message.id}
-                  className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                  className={`flex ${isOwn ? "justify-end" : "justify-start"} transition-all duration-300`}
                 >
-                  <div className={`max-w-[70%] ${isOwn ? "order-2" : "order-1"}`}>
+                  <div className={`max-w-[70%] ${isOwn ? "ml-12" : "mr-12"}`}>
                     {!isOwn && (
-                      <p className="text-xs text-gray-500 mb-1 px-3">{senderName}</p>
+                      <p className="text-xs text-gray-500 mb-1 px-1">{senderName}</p>
                     )}
-                    <div
-                      className={`px-4 py-2 rounded-2xl ${
-                        isOwn
-                          ? "bg-blue-600 text-white rounded-br-md"
-                          : "bg-gray-100 text-gray-900 rounded-bl-md"
-                      }`}
+                    <div 
+                      className={`
+                        relative rounded-lg p-3 
+                        ${isOwn 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-muted text-foreground"
+                        }
+                        ${isHighlighted ? "message-highlight" : ""}
+                      `}
                     >
-                      {message.content && (
-                        <p className="text-sm">{message.content}</p>
-                      )}
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       {renderAttachment(message)}
-                      <div className="flex items-center justify-between mt-1">
-                        <p className={`text-xs ${isOwn ? "text-blue-100" : "text-gray-500"}`}>
-                          {format(new Date(message.created_at), 'HH:mm')}
-                        </p>
-                      </div>
+                      <p className={`text-xs mt-1 ${isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                        {format(new Date(message.created_at), "MMM d, h:mm a")}
+                      </p>
                     </div>
                     {renderReadReceipt(message, isOwn)}
                   </div>
                 </div>
               );
             })}
+            <div ref={messagesEndRef} />
             
             {/* Typing indicator */}
             {partnerTyping && (
