@@ -7,7 +7,7 @@ import { FeedPost, Comment } from "@/types/feed";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useDeleteComment } from "@/hooks/useDeleteComment";
-import { useCommentInteractions } from "@/hooks/useCommentInteractions";
+import { useEditComment } from "@/hooks/useEditComment";
 import { useLikeComment } from "@/hooks/useLikeComment";
 import { useReplyToComment } from "@/hooks/useReplyToComment";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,7 +34,7 @@ const MobileCommentItem = ({
   level?: number;
 }) => {
   const { user } = useAuth();
-  const { editComment } = useCommentInteractions();
+  const editCommentMutation = useEditComment();
   const deleteCommentMutation = useDeleteComment();
   const likeCommentMutation = useLikeComment();
   const replyCommentMutation = useReplyToComment();
@@ -70,12 +70,14 @@ const MobileCommentItem = ({
     }
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
     if (editText.trim() && editText !== comment.content) {
-      const success = await editComment(comment.id, editText);
-      if (success) {
-        setIsEditing(false);
-      }
+      editCommentMutation.mutate({
+        commentId: comment.id,
+        postId,
+        newContent: editText.trim(),
+      });
+      setIsEditing(false);
     }
   };
 
@@ -142,21 +144,42 @@ const MobileCommentItem = ({
               )}
             </div>
             {isEditing ? (
-              <div className="space-y-2">
+              <div className="bg-gray-50 rounded-xl p-3 relative">
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditText(comment.content);
+                  }}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 z-10"
+                >
+                  ✕
+                </button>
                 <textarea
                   ref={inputRef}
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  className="w-full min-h-[60px] p-2 text-sm border rounded-lg resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (editText.trim() && editText !== comment.content) {
+                        handleEdit();
+                      }
+                    } else if (e.key === 'Escape') {
+                      setIsEditing(false);
+                      setEditText(comment.content);
+                    }
+                  }}
+                  className="w-full min-h-[60px] pr-8 pb-10 text-sm bg-transparent border-0 resize-none focus:outline-none focus:ring-0"
+                  placeholder="Edit your comment..."
                 />
-                <div className="flex justify-end space-x-2">
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleEdit}>
-                    Save
-                  </Button>
-                </div>
+                {editText.trim() && editText !== comment.content && (
+                  <button
+                    onClick={handleEdit}
+                    className="absolute bottom-2 right-2 p-2 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white hover:opacity-90"
+                  >
+                    <Send className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             ) : (
               <p className="text-sm text-gray-700 leading-snug">{comment.content}</p>
