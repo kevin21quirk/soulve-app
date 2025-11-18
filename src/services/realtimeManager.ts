@@ -46,9 +46,6 @@ export class RealtimeManager {
     
     // Single subscription for interactions
     this.setupInteractionsSubscription();
-    
-    // Single subscription for messages
-    this.setupMessagesSubscription();
   }
 
   private setupPostsSubscription() {
@@ -185,72 +182,6 @@ export class RealtimeManager {
       .subscribe();
 
     this.channels.set('interactions', channel);
-  }
-
-  private setupMessagesSubscription() {
-    if (!this.userId) return;
-
-    const channel = supabase
-      .channel('realtime-messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `recipient_id=eq.${this.userId}`
-        },
-        async (payload) => {
-          console.log('[RealtimeManager] New message received:', payload);
-          
-          // Update messages cache for this conversation
-          const senderId = payload.new.sender_id;
-          const messagesQueryKey = ['messages', senderId];
-          
-          // Get current messages and add the new one
-          const currentMessages = (this.queryClient?.getQueryData(messagesQueryKey) as any[]) || [];
-          const newMessage = {
-            ...payload.new,
-            sender_profile: null // Will be fetched if needed
-          };
-          
-          this.queryClient?.setQueryData(messagesQueryKey, [...currentMessages, newMessage]);
-          
-          // Update conversations list
-          this.queryClient?.invalidateQueries({ 
-            queryKey: ['conversations'],
-            refetchType: 'active'
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
-          filter: `sender_id=eq.${this.userId}`
-        },
-        (payload) => {
-          console.log('[RealtimeManager] Message read status updated:', payload);
-          
-          // Update read status in messages cache
-          if (payload.new.is_read && !payload.old.is_read) {
-            const recipientId = payload.new.recipient_id;
-            const messagesQueryKey = ['messages', recipientId];
-            
-            const currentMessages: any[] = (this.queryClient?.getQueryData(messagesQueryKey) as any[]) || [];
-            const updatedMessages = currentMessages.map(msg => 
-              msg.id === payload.new.id ? { ...msg, is_read: true } : msg
-            );
-            
-            this.queryClient?.setQueryData(messagesQueryKey, updatedMessages);
-          }
-        }
-      )
-      .subscribe();
-
-    this.channels.set('messages', channel);
   }
 
   // Method to force refresh when user explicitly requests it

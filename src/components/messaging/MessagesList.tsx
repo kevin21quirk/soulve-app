@@ -1,9 +1,8 @@
 
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Loader2, Download, Check, CheckCheck, ArrowDown } from "lucide-react";
+import { Loader2, Download, Check, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Message {
@@ -30,81 +29,6 @@ interface MessagesListProps {
 }
 
 const MessagesList = ({ messages, userId, loading = false, partnerTyping = false }: MessagesListProps) => {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [highlightedMessages, setHighlightedMessages] = useState<Set<string>>(new Set());
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const previousMessageCountRef = useRef(messages.length);
-
-  // Check scroll position to show/hide scroll to bottom button
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (!scrollArea) {
-      console.log('[MessagesList] ScrollArea viewport not found');
-      return;
-    }
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollArea;
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      const isNearBottom = distanceFromBottom < 100;
-      
-      console.log('[MessagesList] Scroll position:', { scrollTop, scrollHeight, clientHeight, distanceFromBottom, isNearBottom });
-      setShowScrollButton(!isNearBottom && messages.length > 0);
-    };
-
-    // Initial check
-    handleScroll();
-    
-    scrollArea.addEventListener('scroll', handleScroll);
-    return () => scrollArea.removeEventListener('scroll', handleScroll);
-  }, [messages.length]);
-
-  // Auto-scroll to bottom when new messages arrive - using useLayoutEffect for synchronous updates
-  useLayoutEffect(() => {
-    const isNewMessage = messages.length > previousMessageCountRef.current;
-    
-    console.log('[MessagesList] Messages changed, length:', messages.length, 'previous:', previousMessageCountRef.current, 'isNew:', isNewMessage);
-    
-    if (isNewMessage && messages.length > 0) {
-      // Get the last message ID
-      const lastMessage = messages[messages.length - 1];
-      
-      // Only highlight if it's from someone else (not own message)
-      if (lastMessage.sender_id !== userId) {
-        setHighlightedMessages(prev => new Set(prev).add(lastMessage.id));
-        
-        // Remove highlight after 3 seconds
-        setTimeout(() => {
-          setHighlightedMessages(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(lastMessage.id);
-            return newSet;
-          });
-        }, 3000);
-      }
-
-      // Small delay to ensure DOM is rendered before scrolling
-      requestAnimationFrame(() => {
-        console.log('[MessagesList] Scrolling to bottom');
-        scrollToBottom();
-      });
-    }
-
-    previousMessageCountRef.current = messages.length;
-  }, [messages, userId]);
-
-  const scrollToBottom = () => {
-    console.log('[MessagesList] Scroll to bottom clicked');
-    const scrollArea = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (scrollArea) {
-      scrollArea.scrollTo({
-        top: scrollArea.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   const handleDownload = (url: string, name: string) => {
     const link = document.createElement('a');
     link.href = url;
@@ -169,8 +93,7 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   };
 
   return (
-    <div className="relative h-full">
-      <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+    <ScrollArea className="h-full p-4">
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="flex items-center space-x-2">
@@ -189,39 +112,38 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
               const senderName = message.sender_profile 
                 ? `${message.sender_profile.first_name || ''} ${message.sender_profile.last_name || ''}`.trim() || 'You'
                 : 'You';
-              const isHighlighted = highlightedMessages.has(message.id);
 
               return (
                 <div
                   key={message.id}
-                  className={`flex ${isOwn ? "justify-end" : "justify-start"} transition-all duration-300`}
+                  className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                 >
-                  <div className={`max-w-[70%] ${isOwn ? "ml-12" : "mr-12"}`}>
+                  <div className={`max-w-[70%] ${isOwn ? "order-2" : "order-1"}`}>
                     {!isOwn && (
-                      <p className="text-xs text-gray-500 mb-1 px-1">{senderName}</p>
+                      <p className="text-xs text-gray-500 mb-1 px-3">{senderName}</p>
                     )}
-                    <div 
-                      className={`
-                        relative rounded-lg p-3 
-                        ${isOwn 
-                          ? "bg-primary text-primary-foreground" 
-                          : "bg-muted text-foreground"
-                        }
-                        ${isHighlighted ? "message-highlight" : ""}
-                      `}
+                    <div
+                      className={`px-4 py-2 rounded-2xl ${
+                        isOwn
+                          ? "bg-blue-600 text-white rounded-br-md"
+                          : "bg-gray-100 text-gray-900 rounded-bl-md"
+                      }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      {message.content && (
+                        <p className="text-sm">{message.content}</p>
+                      )}
                       {renderAttachment(message)}
-                      <p className={`text-xs mt-1 ${isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                        {format(new Date(message.created_at), "MMM d, h:mm a")}
-                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className={`text-xs ${isOwn ? "text-blue-100" : "text-gray-500"}`}>
+                          {format(new Date(message.created_at), 'HH:mm')}
+                        </p>
+                      </div>
                     </div>
                     {renderReadReceipt(message, isOwn)}
                   </div>
                 </div>
               );
             })}
-            <div ref={messagesEndRef} />
             
             {/* Typing indicator */}
             {partnerTyping && (
@@ -238,19 +160,6 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
           </div>
         )}
       </ScrollArea>
-      
-      {/* Scroll to bottom button */}
-      {showScrollButton && (
-        <Button
-          onClick={scrollToBottom}
-          size="icon"
-          className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50 transition-all duration-200"
-          aria-label="Scroll to bottom"
-        >
-          <ArrowDown className="h-5 w-5 text-primary-foreground" />
-        </Button>
-      )}
-    </div>
   );
 };
 

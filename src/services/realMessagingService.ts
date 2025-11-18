@@ -183,88 +183,21 @@ export const useSendMessage = () => {
 
       return data;
     },
-    onMutate: async ({ recipientId, content, messageType = 'text', attachment }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
-
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['messages', recipientId] });
-      await queryClient.cancelQueries({ queryKey: ['conversations'] });
-
-      // Snapshot previous values
-      const previousMessages = queryClient.getQueryData(['messages', recipientId]);
-      const previousConversations = queryClient.getQueryData(['conversations']);
-
-      // Create optimistic message
-      const optimisticMessage = {
-        id: `optimistic-${Date.now()}`,
-        content: content.trim(),
-        sender_id: user.user.id,
-        recipient_id: recipientId,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        is_read: false,
-        message_type: attachment ? attachment.type : messageType,
-        file_url: attachment?.url,
-        file_name: attachment?.name,
-        file_size: attachment?.size,
-        sender_profile: null
-      };
-
-      // Optimistically update messages cache
-      queryClient.setQueryData(['messages', recipientId], (old: any[] = []) => [...old, optimisticMessage]);
-
-      // Optimistically update conversations cache
-      queryClient.setQueryData(['conversations'], (old: any[] = []) => {
-        const conversationExists = old.some(conv => conv.partner_id === recipientId);
-        
-        if (conversationExists) {
-          return old.map(conv => 
-            conv.partner_id === recipientId 
-              ? { ...conv, last_message: content.trim(), last_message_time: new Date().toISOString() }
-              : conv
-          );
-        }
-        
-        return old;
+    onSuccess: (_, { recipientId }) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ['messages', recipientId],
+        refetchType: 'none'
       });
-
-      return { previousMessages, previousConversations, optimisticMessage };
+      queryClient.invalidateQueries({ 
+        queryKey: ['conversations'],
+        refetchType: 'none'
+      });
     },
-    onError: (error: any, variables, context) => {
-      // Rollback optimistic update on error
-      if (context?.previousMessages) {
-        queryClient.setQueryData(['messages', variables.recipientId], context.previousMessages);
-      }
-      if (context?.previousConversations) {
-        queryClient.setQueryData(['conversations'], context.previousConversations);
-      }
-
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to send message.",
         variant: "destructive",
-      });
-    },
-    onSuccess: (data, { recipientId }, context) => {
-      // Replace optimistic message with real message
-      if (context?.optimisticMessage) {
-        queryClient.setQueryData(['messages', recipientId], (old: any[] = []) => 
-          old.map(msg => msg.id === context.optimisticMessage.id ? { ...data, sender_profile: null } : msg)
-        );
-      }
-      
-      // Refetch conversations to get accurate data
-      queryClient.invalidateQueries({ 
-        queryKey: ['conversations'],
-        refetchType: 'active'
-      });
-    },
-    onSettled: (_, __, { recipientId }) => {
-      // Ensure cache consistency
-      queryClient.invalidateQueries({ 
-        queryKey: ['messages', recipientId],
-        refetchType: 'none'
       });
     },
   });

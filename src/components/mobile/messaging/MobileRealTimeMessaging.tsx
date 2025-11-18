@@ -1,10 +1,10 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Send, MessageCircle, ArrowDown } from 'lucide-react';
+import { ArrowLeft, Send, MessageCircle } from 'lucide-react';
 import { useRealTimeMessaging } from '@/hooks/useRealTimeMessaging';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -22,8 +22,6 @@ const MobileRealTimeMessaging = () => {
   
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const handleConversationSelect = async (partnerId: string) => {
     setActiveConversation(partnerId);
@@ -48,42 +46,8 @@ const MobileRealTimeMessaging = () => {
     }
   };
 
-  const scrollToBottom = () => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
   const activePartner = conversations.find(c => c.user_id === activeConversation);
-
-  // Check scroll position to show/hide scroll button
-  useEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      const isNearBottom = distanceFromBottom < 100;
-      
-      setShowScrollButton(!isNearBottom && activeMessages.length > 0);
-    };
-
-    handleScroll(); // Initial check
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [activeMessages.length]);
-
-  // Auto-scroll to bottom when conversation changes or new messages arrive
-  useEffect(() => {
-    if (activeConversation) {
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [activeConversation, activeMessages.length]);
 
   if (activeConversation) {
     // Chat view
@@ -110,7 +74,7 @@ const MobileRealTimeMessaging = () => {
         </div>
 
         {/* Messages */}
-        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-20 relative">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
           {activeMessages.map((message) => (
             <div
               key={message.id}
@@ -132,18 +96,6 @@ const MobileRealTimeMessaging = () => {
               </div>
             </div>
           ))}
-          
-          {/* Scroll to bottom button */}
-          {showScrollButton && (
-            <Button
-              onClick={scrollToBottom}
-              size="icon"
-              className="fixed bottom-24 right-4 h-10 w-10 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50 transition-all duration-200"
-              aria-label="Scroll to bottom"
-            >
-              <ArrowDown className="h-5 w-5 text-primary-foreground" />
-            </Button>
-          )}
         </div>
 
         {/* Input - Fixed at bottom */}
