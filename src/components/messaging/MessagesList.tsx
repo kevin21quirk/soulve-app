@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Loader2, Download, Check, CheckCheck } from "lucide-react";
+import { Loader2, Download, Check, CheckCheck, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Message {
@@ -33,7 +33,23 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [highlightedMessages, setHighlightedMessages] = useState<Set<string>>(new Set());
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const previousMessageCountRef = useRef(messages.length);
+
+  // Check scroll position to show/hide scroll to bottom button
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (!scrollArea) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom && messages.length > 0);
+    };
+
+    scrollArea.addEventListener('scroll', handleScroll);
+    return () => scrollArea.removeEventListener('scroll', handleScroll);
+  }, [messages.length]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -58,11 +74,15 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
       }
 
       // Scroll to the new message
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      scrollToBottom();
     }
 
     previousMessageCountRef.current = messages.length;
   }, [messages, userId]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const handleDownload = (url: string, name: string) => {
     const link = document.createElement('a');
@@ -128,7 +148,8 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
   };
 
   return (
-    <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+    <div className="relative h-full">
+      <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="flex items-center space-x-2">
@@ -196,6 +217,19 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
           </div>
         )}
       </ScrollArea>
+      
+      {/* Scroll to bottom button */}
+      {showScrollButton && (
+        <Button
+          onClick={scrollToBottom}
+          size="icon"
+          className="absolute bottom-4 right-4 h-8 w-8 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-10"
+          aria-label="Scroll to bottom"
+        >
+          <ArrowDown className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
   );
 };
 
