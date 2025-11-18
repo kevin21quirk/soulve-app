@@ -85,15 +85,8 @@ export const useRealTimeMessaging = () => {
         recipientId: partnerId,
         content: content.trim()
       });
-
-      // Refresh data after sending
-      setTimeout(() => {
-        refreshConversations();
-        if (activeConversation === partnerId) {
-          refetchMessages();
-        }
-      }, 500);
-
+      // Optimistic updates and real-time subscriptions handle cache updates
+      // No manual refetch needed
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast({
@@ -103,7 +96,7 @@ export const useRealTimeMessaging = () => {
       });
       throw error; // Re-throw for component handling
     }
-  }, [sendMessageMutation, refreshConversations, refetchMessages, activeConversation, toast]);
+  }, [sendMessageMutation, toast]);
 
   const isLoading = useCallback((partnerId?: string, action?: string) => {
     return sendMessageMutation.isPending;
