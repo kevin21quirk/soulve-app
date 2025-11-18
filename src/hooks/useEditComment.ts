@@ -46,7 +46,6 @@ export const useEditComment = () => {
         .from("post_interactions")
         .update({
           content: newContent,
-          updated_at: new Date().toISOString(),
         })
         .eq("id", commentId)
         .select()
