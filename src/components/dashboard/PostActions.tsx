@@ -11,6 +11,7 @@ import {
 import { MoreHorizontal, Flag, Trash2, Edit, Bookmark } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { ContentModerationService } from '@/services/contentModerationService';
 import EnhancedReportDialog from '@/components/moderation/EnhancedReportDialog';
 
@@ -26,6 +27,7 @@ interface PostActionsProps {
 const PostActions = ({ postId, authorId, onPostDeleted, onReportPost, onBookmark, isBookmarked }: PostActionsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -37,6 +39,14 @@ const PostActions = ({ postId, authorId, onPostDeleted, onReportPost, onBookmark
     setIsDeleting(true);
     try {
       await ContentModerationService.deletePost(postId);
+      
+      // Invalidate all relevant queries to refresh the feed
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['social-feed'] }),
+        queryClient.invalidateQueries({ queryKey: ['posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['feedPosts'] }),
+      ]);
+      
       toast({
         title: "Post deleted",
         description: "Your post has been removed successfully.",
