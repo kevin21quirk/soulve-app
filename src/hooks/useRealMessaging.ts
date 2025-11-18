@@ -3,12 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from '@/services/realMessagingService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useRealMessaging = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
   
   // Fetch conversations with error handling
   const { 
@@ -43,8 +45,8 @@ export const useRealMessaging = () => {
     is_read: conv.is_read || false
   }));
 
-  // Transform messages to include proper interface
-  const transformedMessages = currentMessages.map(msg => ({
+  // Transform messages to include proper interface and merge with optimistic
+  const transformedRealMessages = currentMessages.map(msg => ({
     id: msg.id,
     content: msg.content,
     created_at: msg.created_at,
@@ -59,6 +61,8 @@ export const useRealMessaging = () => {
     file_name: msg.file_name,
     is_read: msg.is_read
   }));
+
+  const transformedMessages = [...transformedRealMessages, ...optimisticMessages];
 
   const fetchMessages = useCallback(async (partnerId: string) => {
     try {
@@ -83,14 +87,36 @@ export const useRealMessaging = () => {
   }, [transformedMessages, markAsReadMutation, toast]);
 
   const sendMessage = useCallback(async (partnerId: string, content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !user?.id) return;
 
+    const trimmedContent = content.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Create optimistic message
+    const optimisticMessage = {
+      id: tempId,
+      content: trimmedContent,
+      created_at: new Date().toISOString(),
+      sender_id: user.id,
+      recipient_id: partnerId,
+      is_own: true,
+      sender_name: 'You',
+      message_type: 'text' as const,
+      is_read: false
+    };
+
+    // Add optimistic message
+    setOptimisticMessages(prev => [...prev, optimisticMessage]);
     setSendingMessage(true);
+
     try {
       await sendMessageMutation.mutateAsync({
         recipientId: partnerId,
-        content: content.trim()
+        content: trimmedContent
       });
+
+      // Remove optimistic message after successful send
+      setOptimisticMessages(prev => prev.filter(msg => msg.id !== tempId));
 
       // Refresh conversations and messages
       setTimeout(() => {
@@ -98,10 +124,14 @@ export const useRealMessaging = () => {
         if (selectedPartnerId === partnerId) {
           refetchMessages();
         }
-      }, 500);
+      }, 300);
 
     } catch (error: any) {
       console.error('Error sending message:', error);
+      
+      // Remove optimistic message on error
+      setOptimisticMessages(prev => prev.filter(msg => msg.id !== tempId));
+      
       toast({
         title: "Failed to send message",
         description: error.message || "Please try again",
@@ -110,7 +140,47 @@ export const useRealMessaging = () => {
     } finally {
       setSendingMessage(false);
     }
-  }, [sendMessageMutation, refetchConversations, refetchMessages, selectedPartnerId, toast]);
+  }, [sendMessageMutation, refetchConversations, refetchMessages, selectedPartnerId, toast, user?.id]);
+
+  // Real-time subscription for new messages
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('messages-mobile-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `recipient_id=eq.${user.id}`
+        },
+        () => {
+          refetchConversations();
+          if (selectedPartnerId) {
+            refetchMessages();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${user.id}`
+        },
+        () => {
+          refetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, selectedPartnerId, refetchConversations, refetchMessages]);
 
   return {
     conversations: transformedConversations,

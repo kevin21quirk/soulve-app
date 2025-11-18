@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useConversations, useMessages, useSendMessage } from '@/services/realMessagingService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+
 interface TransformedConversation {
   user_id: string;
   user_name: string;
@@ -25,6 +26,7 @@ export const useRealTimeMessaging = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [optimisticMessages, setOptimisticMessages] = useState<Record<string, TransformedMessage[]>>({});
   
   // Fetch conversations
   const { 
@@ -56,16 +58,21 @@ export const useRealTimeMessaging = () => {
     unread_count: conv.unread_count || 0
   }));
 
-  // Transform messages data
+  // Transform messages data and merge with optimistic messages
+  const transformedRealMessages = rawMessages.map(msg => ({
+    id: msg.id,
+    content: msg.content,
+    created_at: msg.created_at,
+    sender_id: msg.sender_id,
+    is_own: msg.sender_id === user?.id,
+    is_read: msg.is_read
+  }));
+
   const messages: Record<string, TransformedMessage[]> = {
-    [activeConversation || '']: rawMessages.map(msg => ({
-      id: msg.id,
-      content: msg.content,
-      created_at: msg.created_at,
-      sender_id: msg.sender_id,
-      is_own: msg.sender_id === user?.id,
-      is_read: msg.is_read
-    }))
+    [activeConversation || '']: [
+      ...transformedRealMessages,
+      ...(optimisticMessages[activeConversation || ''] || [])
+    ]
   };
 
   const refreshConversations = useCallback(async () => {
@@ -77,13 +84,38 @@ export const useRealTimeMessaging = () => {
   }, [refetchConversations]);
 
   const sendMessage = useCallback(async (partnerId: string, content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !user?.id) return;
+
+    const trimmedContent = content.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Create optimistic message
+    const optimisticMessage: TransformedMessage = {
+      id: tempId,
+      content: trimmedContent,
+      created_at: new Date().toISOString(),
+      sender_id: user.id,
+      is_own: true,
+      is_read: false
+    };
+
+    // Add optimistic message to state
+    setOptimisticMessages(prev => ({
+      ...prev,
+      [partnerId]: [...(prev[partnerId] || []), optimisticMessage]
+    }));
 
     try {
       await sendMessageMutation.mutateAsync({
         recipientId: partnerId,
-        content: content.trim()
+        content: trimmedContent
       });
+
+      // Remove optimistic message after successful send
+      setOptimisticMessages(prev => ({
+        ...prev,
+        [partnerId]: (prev[partnerId] || []).filter(msg => msg.id !== tempId)
+      }));
 
       // Refresh data after sending
       setTimeout(() => {
@@ -91,18 +123,25 @@ export const useRealTimeMessaging = () => {
         if (activeConversation === partnerId) {
           refetchMessages();
         }
-      }, 500);
+      }, 300);
 
     } catch (error: any) {
       console.error('Error sending message:', error);
+      
+      // Remove optimistic message on error
+      setOptimisticMessages(prev => ({
+        ...prev,
+        [partnerId]: (prev[partnerId] || []).filter(msg => msg.id !== tempId)
+      }));
+      
       toast({
         title: "Failed to send message",
         description: error.message || "Please try again",
         variant: "destructive"
       });
-      throw error; // Re-throw for component handling
+      throw error;
     }
-  }, [sendMessageMutation, refreshConversations, refetchMessages, activeConversation, toast]);
+  }, [sendMessageMutation, refreshConversations, refetchMessages, activeConversation, toast, user?.id]);
 
   const isLoading = useCallback((partnerId?: string, action?: string) => {
     return sendMessageMutation.isPending;

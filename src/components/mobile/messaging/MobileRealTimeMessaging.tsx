@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,6 +22,7 @@ const MobileRealTimeMessaging = () => {
   
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleConversationSelect = async (partnerId: string) => {
     setActiveConversation(partnerId);
@@ -30,10 +31,14 @@ const MobileRealTimeMessaging = () => {
   const handleSendMessage = async () => {
     if (!activeConversation || !newMessage.trim()) return;
 
+    const messageToSend = newMessage;
+    setNewMessage(''); // Clear input immediately for better UX
     setSending(true);
+    
     try {
-      await sendMessage(activeConversation, newMessage);
-      setNewMessage('');
+      await sendMessage(activeConversation, messageToSend);
+    } catch (error) {
+      setNewMessage(messageToSend); // Restore message on error
     } finally {
       setSending(false);
     }
@@ -48,6 +53,11 @@ const MobileRealTimeMessaging = () => {
 
   const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
   const activePartner = conversations.find(c => c.user_id === activeConversation);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeMessages.length]);
 
   if (activeConversation) {
     // Chat view
@@ -96,6 +106,7 @@ const MobileRealTimeMessaging = () => {
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input - Fixed at bottom */}

@@ -1,4 +1,5 @@
 
+import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -29,6 +30,15 @@ interface MessagesListProps {
 }
 
 const MessagesList = ({ messages, userId, loading = false, partnerTyping = false }: MessagesListProps) => {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (!loading && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages.length, loading]);
+
   const handleDownload = (url: string, name: string) => {
     const link = document.createElement('a');
     link.href = url;
@@ -157,6 +167,9 @@ const MessagesList = ({ messages, userId, loading = false, partnerTyping = false
                 </div>
               </div>
             )}
+            
+            {/* Auto-scroll anchor */}
+            <div ref={bottomRef} />
           </div>
         )}
       </ScrollArea>
