@@ -266,7 +266,7 @@ const CommentItem = ({
           )}
           
           {showReplyInput && (
-            <div className="mt-3 flex-1 relative">
+            <div className="mt-3 flex-1 relative px-2">
               <UserTagging
                 placeholder="Write a reply... (Type @ to tag someone)"
                 value={replyText}
