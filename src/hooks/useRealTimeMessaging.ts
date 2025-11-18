@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useConversations, useMessages, useSendMessage } from '@/services/realMessagingService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,17 +56,24 @@ export const useRealTimeMessaging = () => {
     unread_count: conv.unread_count || 0
   }));
 
-  // Transform messages data
-  const messages: Record<string, TransformedMessage[]> = {
-    [activeConversation || '']: rawMessages.map(msg => ({
-      id: msg.id,
-      content: msg.content,
-      created_at: msg.created_at,
-      sender_id: msg.sender_id,
-      is_own: msg.sender_id === user?.id,
-      is_read: msg.is_read
-    }))
-  };
+  // Transform messages data - memoized to prevent unnecessary re-renders
+  const messages = useMemo(() => {
+    console.log('[useRealTimeMessaging] Transforming messages, count:', rawMessages.length);
+    const transformed: Record<string, TransformedMessage[]> = {};
+    
+    if (activeConversation) {
+      transformed[activeConversation] = rawMessages.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        created_at: msg.created_at,
+        sender_id: msg.sender_id,
+        is_own: msg.sender_id === user?.id,
+        is_read: msg.is_read
+      }));
+    }
+    
+    return transformed;
+  }, [rawMessages, activeConversation, user?.id]);
 
   const refreshConversations = useCallback(async () => {
     try {
