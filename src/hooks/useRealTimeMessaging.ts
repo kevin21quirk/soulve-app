@@ -1,9 +1,8 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useConversations, useMessages, useSendMessage } from '@/services/realMessagingService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { supabase } from '@/integrations/supabase/client';
 interface TransformedConversation {
   user_id: string;
   user_name: string;
@@ -108,6 +107,48 @@ export const useRealTimeMessaging = () => {
   const isLoading = useCallback((partnerId?: string, action?: string) => {
     return sendMessageMutation.isPending;
   }, [sendMessageMutation.isPending]);
+
+  // Real-time subscription for new messages
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('messages-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `recipient_id=eq.${user.id}`
+        },
+        () => {
+          // Refresh conversations and messages when new message arrives
+          refetchConversations();
+          if (activeConversation) {
+            refetchMessages();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${user.id}`
+        },
+        () => {
+          // Refresh conversations when user sends a message
+          refetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, activeConversation, refetchConversations, refetchMessages]);
 
   const hasError = conversationsError || messageError;
 
