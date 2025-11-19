@@ -3,6 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMessagesQuery } from "@/hooks/useMessagesQuery";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useConversationsQuery } from "@/hooks/useConversationsQuery";
+import { useQuery } from "@tanstack/react-query";
+import { getUserProfile } from "@/services/messagingService";
 import MessageBubble from "./MessageBubble";
 import ConversationHeader from "./ConversationHeader";
 import MessageInputField from "./MessageInputField";
@@ -22,6 +24,22 @@ const MessageThread = ({ partnerId, onBack, isMobile }: MessageThreadProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const conversation = conversations?.find(c => c.partner_id === partnerId);
+  
+  // Fetch partner profile if no conversation exists (new conversation)
+  const { data: partnerProfile, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['user-profile', partnerId],
+    queryFn: () => getUserProfile(partnerId),
+    enabled: !conversation && !!partnerId,
+  });
+
+  // Create a temporary conversation object for new conversations
+  const displayConversation = conversation || (partnerProfile ? {
+    id: partnerId,
+    partner_id: partnerId,
+    partner_name: `${partnerProfile.first_name || ''} ${partnerProfile.last_name || ''}`.trim() || 'Unknown User',
+    partner_avatar: partnerProfile.avatar_url,
+    unread_count: 0,
+  } : null);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -54,14 +72,27 @@ const MessageThread = ({ partnerId, onBack, isMobile }: MessageThreadProps) => {
     return timeDiff > 120000; // 2 minutes
   };
 
-  if (!conversation) {
+  if (isLoadingProfile) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="p-4 border-b border-border">
+          <Skeleton className="h-8 w-48" />
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <Skeleton className="h-24 w-64" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!displayConversation) {
     return <EmptyStates type="no-selection" />;
   }
 
   return (
     <div className="h-full flex flex-col">
       <ConversationHeader
-        conversation={conversation}
+        conversation={displayConversation}
         onBack={onBack}
         isMobile={isMobile}
       />

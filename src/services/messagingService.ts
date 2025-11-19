@@ -163,3 +163,14 @@ export const deleteConversation = async (userId: string, partnerId: string) => {
 
   if (error) throw error;
 };
+
+export const getUserProfile = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, first_name, last_name, avatar_url')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
