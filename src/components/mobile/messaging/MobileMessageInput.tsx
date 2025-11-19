@@ -136,7 +136,7 @@ const MobileMessageInput = ({
             <Input
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type your message... old mobile"
               className="rounded-2xl border-gray-300 focus:border-blue-500 pr-12"
               onFocus={() => setIsExpanded(true)}
               onKeyPress={onKeyPress}
