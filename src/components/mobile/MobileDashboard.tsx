@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import MobileNavigation from "./MobileNavigation";
 import FeedTab from "@/components/dashboard/tabs/FeedTab";
 import DiscoverTab from "@/components/dashboard/tabs/DiscoverTab";
+import MessagingTab from "@/components/dashboard/tabs/MessagingTab";
 import CampaignsTab from "@/components/dashboard/tabs/CampaignsTab";
 import OrganizationTab from "@/components/tabs/OrganizationTab";
 import CombinedImpactAnalyticsTab from "@/components/dashboard/tabs/CombinedImpactAnalyticsTab";
@@ -49,6 +50,12 @@ const MobileDashboard = () => {
         return (
           <div className="pb-20">
             <DiscoverTab />
+          </div>
+        );
+      case "messaging":
+        return (
+          <div className="pb-20">
+            <MessagingTab />
           </div>
         );
       case "campaigns":
