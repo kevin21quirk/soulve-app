@@ -5,6 +5,7 @@ import MainTabsList from "./tabs/MainTabsList";
 import FeedTab from "./tabs/FeedTab";
 import DiscoverTab from "./tabs/DiscoverTab";
 import CampaignsTab from "./tabs/CampaignsTab";
+import MessagingTab from "./tabs/MessagingTab";
 import ProfileTab from "./tabs/ProfileTab";
 import CombinedImpactAnalyticsTab from "./tabs/CombinedImpactAnalyticsTab";
 import EnhancedHelpCenterTab from "./tabs/EnhancedHelpCenterTab";
@@ -36,6 +37,12 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
       <TabsContent value="discover-connect" className="space-y-6" forceMount>
         <div className={activeTab !== "discover-connect" ? "hidden" : ""}>
           <DiscoverTab />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="messaging" className="space-y-6" forceMount>
+        <div className={activeTab !== "messaging" ? "hidden" : ""}>
+          <MessagingTab />
         </div>
       </TabsContent>
 
