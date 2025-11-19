@@ -134,7 +134,7 @@ const Dashboard = () => {
         orgName={currentOrgName}
       />
       
-      <main className="container mx-auto px-4 py-6">
+      <main className={activeTab === 'messaging' ? 'flex flex-col h-[calc(100vh-64px)]' : 'container mx-auto px-4 py-6'}>
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={(tab) => {

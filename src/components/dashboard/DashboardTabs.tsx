@@ -40,8 +40,8 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
         </div>
       </TabsContent>
 
-      <TabsContent value="messaging" className="space-y-6" forceMount>
-        <div className={activeTab !== "messaging" ? "hidden" : ""}>
+      <TabsContent value="messaging" className="h-full" forceMount>
+        <div className={activeTab !== "messaging" ? "hidden" : "h-full"}>
           <MessagingTab />
         </div>
       </TabsContent>
