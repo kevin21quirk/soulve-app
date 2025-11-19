@@ -1,19 +1,8 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Send, 
-  Paperclip, 
-  Smile, 
-  Mic, 
-  MicOff, 
-  Image as ImageIcon,
-  Camera,
-  X,
-  Plus
-} from "lucide-react";
+import { Send, Paperclip, Smile, Mic, MicOff, Image as ImageIcon, Camera, X, Plus } from "lucide-react";
 
 interface MobileMessageInputProps {
   value: string;
@@ -30,7 +19,7 @@ const MobileMessageInput = ({
   onSend,
   onKeyPress,
   isRecording,
-  onToggleRecording
+  onToggleRecording,
 }: MobileMessageInputProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
@@ -38,8 +27,8 @@ const MobileMessageInput = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (type: 'file' | 'image') => {
-    if (type === 'file') {
+  const handleFileSelect = (type: "file" | "image") => {
+    if (type === "file") {
       fileInputRef.current?.click();
     } else {
       imageInputRef.current?.click();
@@ -49,11 +38,11 @@ const MobileMessageInput = ({
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setAttachments(prev => [...prev, ...files]);
+    setAttachments((prev) => [...prev, ...files]);
   };
 
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSendMessage = () => {
@@ -70,7 +59,10 @@ const MobileMessageInput = ({
       {attachments.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {attachments.map((file, index) => (
-            <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center space-x-2">
+            <div
+              key={index}
+              className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center space-x-2"
+            >
               <span className="text-sm text-blue-700 truncate max-w-24">{file.name}</span>
               <Button
                 variant="ghost"
@@ -92,7 +84,7 @@ const MobileMessageInput = ({
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-1 h-auto py-3"
-              onClick={() => handleFileSelect('image')}
+              onClick={() => handleFileSelect("image")}
             >
               <ImageIcon className="h-6 w-6 text-blue-600" />
               <span className="text-xs text-gray-600">Photo</span>
@@ -100,15 +92,12 @@ const MobileMessageInput = ({
             <Button
               variant="ghost"
               className="flex flex-col items-center space-y-1 h-auto py-3"
-              onClick={() => handleFileSelect('file')}
+              onClick={() => handleFileSelect("file")}
             >
               <Paperclip className="h-6 w-6 text-blue-600" />
               <span className="text-xs text-gray-600">File</span>
             </Button>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center space-y-1 h-auto py-3"
-            >
+            <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-3">
               <Camera className="h-6 w-6 text-blue-600" />
               <span className="text-xs text-gray-600">Camera</span>
             </Button>
@@ -123,9 +112,9 @@ const MobileMessageInput = ({
           variant="ghost"
           size="sm"
           onClick={() => setShowAttachments(!showAttachments)}
-          className={`p-2 ${showAttachments ? 'bg-gray-100' : ''}`}
+          className={`p-2 ${showAttachments ? "bg-gray-100" : ""}`}
         >
-          <Plus className={`h-5 w-5 transition-transform ${showAttachments ? 'rotate-45' : ''}`} />
+          <Plus className={`h-5 w-5 transition-transform ${showAttachments ? "rotate-45" : ""}`} />
         </Button>
 
         {/* Message input */}
@@ -134,10 +123,10 @@ const MobileMessageInput = ({
             <Textarea
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type your message... mobile"
               className="min-h-[80px] resize-none rounded-2xl border-gray-300 focus:border-blue-500"
               onKeyDown={(e) => {
-                if (e.key === 'Escape') {
+                if (e.key === "Escape") {
                   setIsExpanded(false);
                 }
                 onKeyPress(e);
@@ -169,7 +158,7 @@ const MobileMessageInput = ({
             variant="ghost"
             size="sm"
             onClick={onToggleRecording}
-            className={`rounded-full h-10 w-10 p-0 ${isRecording ? 'bg-red-100 text-red-600' : 'text-gray-600'}`}
+            className={`rounded-full h-10 w-10 p-0 ${isRecording ? "bg-red-100 text-red-600" : "text-gray-600"}`}
           >
             {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
           </Button>
@@ -185,21 +174,8 @@ const MobileMessageInput = ({
       )}
 
       {/* Hidden file inputs */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        multiple
-        onChange={handleFileInput}
-      />
-      <input
-        ref={imageInputRef}
-        type="file"
-        className="hidden"
-        accept="image/*"
-        multiple
-        onChange={handleFileInput}
-      />
+      <input ref={fileInputRef} type="file" className="hidden" multiple onChange={handleFileInput} />
+      <input ref={imageInputRef} type="file" className="hidden" accept="image/*" multiple onChange={handleFileInput} />
     </div>
   );
 };

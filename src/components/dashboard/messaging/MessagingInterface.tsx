@@ -136,7 +136,7 @@ const MessagingInterface = () => {
               {/* Message Input */}
               <div className="flex space-x-2">
                 <Input
-                  placeholder="Type a message... haha lalal"
+                  placeholder="Type a message..."
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
