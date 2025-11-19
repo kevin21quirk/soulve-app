@@ -119,7 +119,7 @@ const Dashboard = () => {
   return <div className="min-h-screen bg-gray-50">
       <DashboardHeader showSearch={showSearch} setShowSearch={setShowSearch} showShortcuts={showShortcuts} setShowShortcuts={setShowShortcuts} showActivity={showActivity} setShowActivity={setShowActivity} onNavigateToTab={handleNavigateToTab} context={context} orgId={orgId || undefined} orgName={currentOrgName} />
       
-      <main className="container mx-auto px-4 py-2 ">
+      <main className="container mx-auto px-4 py-2 flex flex-col h-[calc(100vh-80px)]">
         <DashboardTabs activeTab={activeTab} onTabChange={tab => {
         setSearchParams({
           tab,

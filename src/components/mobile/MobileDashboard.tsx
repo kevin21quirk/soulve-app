@@ -41,64 +41,28 @@ const MobileDashboard = () => {
     
     switch (activeTab) {
       case "feed":
-        return (
-          <div className="pb-20">
-            <FeedTab organizationId={organizationId} />
-          </div>
-        );
+        return <FeedTab organizationId={organizationId} />;
       case "discover":
-        return (
-          <div className="pb-20">
-            <DiscoverTab />
-          </div>
-        );
+        return <DiscoverTab />;
       case "messaging":
-        return (
-          <div className="pb-20">
-            <MessagingTab />
-          </div>
-        );
+        return <MessagingTab />;
       case "campaigns":
-        return (
-          <div className="pb-20">
-            <CampaignsTab />
-          </div>
-        );
+        return <CampaignsTab />;
       case "organisation-tools":
-        return (
-          <div className="pb-20">
-            <OrganizationTab />
-          </div>
-        );
+        return <OrganizationTab />;
       case "impact":
-        return (
-          <div className="pb-20">
-            <CombinedImpactAnalyticsTab />
-          </div>
-        );
+        return <CombinedImpactAnalyticsTab />;
       case "help-center":
-        return (
-          <div className="pb-20">
-            <EnhancedHelpCenterTab />
-          </div>
-        );
+        return <EnhancedHelpCenterTab />;
       case "profile":
-        return (
-          <div className="pb-20">
-            <ProfileTab />
-          </div>
-        );
+        return <ProfileTab />;
       default:
-        return (
-          <div className="pb-20">
-            <FeedTab organizationId={organizationId} />
-          </div>
-        );
+        return <FeedTab organizationId={organizationId} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background">
       {/* Context Header */}
       {context === 'org' && orgName && (
         <div className="sticky top-0 z-40 bg-background border-b px-4 py-3 flex items-center justify-between">
@@ -114,7 +78,7 @@ const MobileDashboard = () => {
       )}
 
       {/* Content */}
-      <div className="w-full">
+      <div className="flex-1 overflow-hidden">
         {renderTabContent()}
       </div>
 
