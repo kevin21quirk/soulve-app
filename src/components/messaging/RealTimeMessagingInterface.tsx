@@ -35,6 +35,7 @@ const RealTimeMessagingInterface = () => {
   
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [localMessages, setLocalMessages] = useState<Record<string, any[]>>({});
   
   // Get typing indicator for active conversation
   const { partnerTyping } = useTypingIndicator(user?.id, activeConversation);
@@ -52,13 +53,40 @@ const RealTimeMessagingInterface = () => {
   };
 
   const handleSendMessage = async (content: string, attachment?: any) => {
-    if (!activeConversation || (!content.trim() && !attachment)) return;
+    if (!activeConversation || (!content.trim() && !attachment) || !user?.id) return;
+
+    // Create optimistic message for immediate UI update
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage = {
+      id: tempId,
+      content: content.trim(),
+      sender_id: user.id,
+      created_at: new Date().toISOString(),
+      is_read: false,
+    };
+
+    setLocalMessages(prev => ({
+      ...prev,
+      [activeConversation]: [...(prev[activeConversation] || []), optimisticMessage]
+    }));
 
     setSending(true);
     try {
       await sendMessage(activeConversation, content);
+
+      // Remove optimistic message once real message is fetched
+      setLocalMessages(prev => ({
+        ...prev,
+        [activeConversation]: (prev[activeConversation] || []).filter(m => m.id !== tempId)
+      }));
+
       setNewMessage('');
     } catch (error) {
+      // Remove optimistic message on error
+      setLocalMessages(prev => ({
+        ...prev,
+        [activeConversation]: (prev[activeConversation] || []).filter(m => m.id !== tempId)
+      }));
       // Error is already handled in the hook with toast
     } finally {
       setSending(false);
@@ -72,7 +100,9 @@ const RealTimeMessagingInterface = () => {
     }
   };
 
-  const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
+  const baseMessages = activeConversation ? messages[activeConversation] || [] : [];
+  const optimisticForConversation = activeConversation ? localMessages[activeConversation] || [] : [];
+  const activeMessages = [...baseMessages, ...optimisticForConversation];
   const activePartner = conversations.find(c => c.user_id === activeConversation);
 
   // Error state for conversations
