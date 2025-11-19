@@ -1,8 +1,15 @@
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import MessagingInterface from "@/components/messaging/MessagingInterface";
 
 const MessagingTab = () => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="h-[calc(100vh-140px)] max-h-[calc(100vh-140px)] overflow-hidden">
+    <div className={cn(
+      "flex flex-col overflow-hidden",
+      isMobile ? "h-full" : "flex-1"
+    )}>
       <MessagingInterface />
     </div>
   );

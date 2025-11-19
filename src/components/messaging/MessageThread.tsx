@@ -106,8 +106,8 @@ const MessageThread = ({
         </div>
       </ScrollArea>
 
-      <div className=" bg-background mx-0 px-0">
-        <MessageInputField onSend={handleSend} disabled={!partnerId} isSending={sendMutation.isPending} className="m-0 px-4 border-none " />
+      <div className="px-4 py-2 border-t border-border bg-background">
+        <MessageInputField onSend={handleSend} disabled={!partnerId} isSending={sendMutation.isPending} />
       </div>
     </div>;
 };
