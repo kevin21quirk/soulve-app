@@ -120,7 +120,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={activeTab === 'messaging' ? 'flex flex-col h-screen bg-gray-50' : 'min-h-screen bg-gray-50'}>
+    <div className="min-h-screen bg-gray-50">
       <DashboardHeader
         showSearch={showSearch}
         setShowSearch={setShowSearch}
@@ -134,7 +134,7 @@ const Dashboard = () => {
         orgName={currentOrgName}
       />
       
-      <main className={activeTab === 'messaging' ? 'flex-1 overflow-hidden' : 'container mx-auto px-4 py-6'}>
+      <main className="container mx-auto px-4 py-6">
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={(tab) => {

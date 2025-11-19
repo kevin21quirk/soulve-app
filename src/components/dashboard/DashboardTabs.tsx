@@ -25,7 +25,7 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full h-full">
+    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <MainTabsList />
 
       <TabsContent value="feed" className="space-y-6" forceMount>
@@ -40,8 +40,8 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
         </div>
       </TabsContent>
 
-      <TabsContent value="messaging" className="h-full" forceMount>
-        <div className={activeTab !== "messaging" ? "hidden" : "h-full"}>
+      <TabsContent value="messaging" className="space-y-6" forceMount>
+        <div className={activeTab !== "messaging" ? "hidden" : ""}>
           <MessagingTab />
         </div>
       </TabsContent>
