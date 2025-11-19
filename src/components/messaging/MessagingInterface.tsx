@@ -58,7 +58,7 @@ const MessagingInterface = () => {
             isMobile={isMobile}
           />
         ) : (
-          <div className="hidden md:flex h-full">
+          <div className="hidden md:flex h-full w-full">
             <EmptyStates type="no-selection" />
           </div>
         )}
