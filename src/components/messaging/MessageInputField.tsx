@@ -2,7 +2,7 @@ import { useState, useRef, KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Send, Smile, Paperclip, Loader2 } from "lucide-react";
+import { Send, Smile, Loader2 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 
 interface MessageInputFieldProps {
@@ -49,15 +49,6 @@ const MessageInputField = ({ onSend, disabled, isSending }: MessageInputFieldPro
   return (
     <div className="px-4 py-3 border-t border-border bg-background">
       <div className="flex items-end gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="shrink-0 hidden md:flex"
-          disabled={disabled}
-        >
-          <Paperclip className="h-5 w-5" />
-        </Button>
-
         <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
           <PopoverTrigger asChild>
             <Button
