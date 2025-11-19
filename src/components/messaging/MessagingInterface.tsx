@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
 import EmptyStates from "./EmptyStates";
+import { useConversationsQuery } from "@/hooks/useConversationsQuery";
 
 const MessagingInterface = () => {
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const { data: conversations } = useConversationsQuery();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -14,6 +16,18 @@ const MessagingInterface = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Reset selection if active conversation is deleted
+  useEffect(() => {
+    if (selectedPartnerId && conversations) {
+      const conversationExists = conversations.some(
+        conv => conv.partner_id === selectedPartnerId
+      );
+      if (!conversationExists) {
+        setSelectedPartnerId(null);
+      }
+    }
+  }, [conversations, selectedPartnerId]);
 
   return (
     <div className="flex h-full bg-background">

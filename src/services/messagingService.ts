@@ -154,3 +154,12 @@ export const subscribeToMessages = (
 
   return channel;
 };
+
+export const deleteConversation = async (userId: string, partnerId: string) => {
+  const { error } = await supabase
+    .from('messages')
+    .delete()
+    .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`);
+
+  if (error) throw error;
+};

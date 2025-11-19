@@ -1,8 +1,10 @@
+import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useConversationsQuery } from "@/hooks/useConversationsQuery";
 import ConversationItem from "./ConversationItem";
 import EmptyStates from "./EmptyStates";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConversationListProps {
   onSelect: (conversationId: string) => void;
@@ -11,6 +13,13 @@ interface ConversationListProps {
 
 const ConversationList = ({ onSelect, activeId }: ConversationListProps) => {
   const { data: conversations, isLoading } = useConversationsQuery();
+  const [userId, setUserId] = React.useState<string>("");
+
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
 
   if (isLoading) {
     return (
@@ -58,6 +67,7 @@ const ConversationList = ({ onSelect, activeId }: ConversationListProps) => {
               conversation={conversation}
               isActive={activeId === conversation.partner_id}
               onClick={() => onSelect(conversation.partner_id)}
+              userId={userId}
             />
           ))}
         </div>
