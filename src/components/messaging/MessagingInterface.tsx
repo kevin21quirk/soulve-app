@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
@@ -9,6 +9,7 @@ const MessagingInterface = () => {
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { data: conversations } = useConversationsQuery();
+  const hadConversationForSelectedRef = useRef(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -17,16 +18,21 @@ const MessagingInterface = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Reset selection if active conversation is deleted
+  // Reset selection only if active conversation was deleted (not for new conversations)
   useEffect(() => {
-    if (selectedPartnerId && conversations) {
-      const conversationExists = conversations.some(
-        conv => conv.partner_id === selectedPartnerId
-      );
-      if (!conversationExists) {
-        setSelectedPartnerId(null);
-      }
+    if (!selectedPartnerId || !conversations) return;
+
+    const hasConversation = conversations.some(
+      conv => conv.partner_id === selectedPartnerId
+    );
+
+    // Only clear if there WAS a conversation and now there isn't (deleted)
+    if (hadConversationForSelectedRef.current && !hasConversation) {
+      setSelectedPartnerId(null);
     }
+
+    // Update ref for next check
+    hadConversationForSelectedRef.current = hasConversation;
   }, [conversations, selectedPartnerId]);
 
   return (
