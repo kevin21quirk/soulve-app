@@ -90,14 +90,14 @@ const MessageThread = ({ partnerId, onBack, isMobile }: MessageThreadProps) => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full max-h-full flex flex-col overflow-hidden">
       <ConversationHeader
         conversation={displayConversation}
         onBack={onBack}
         isMobile={isMobile}
       />
 
-      <ScrollArea className="flex-1 px-4 py-2 overflow-y-auto">
+      <ScrollArea className="flex-1 min-h-0 px-4 py-2 overflow-y-auto">
         <div ref={scrollRef} className="space-y-2 pb-2">
           {isLoading ? (
             <div className="space-y-4">
