@@ -105,28 +105,19 @@ export const useRealMessaging = () => {
       is_read: false
     };
 
-    // Add optimistic message
+    // Add optimistic message immediately
     setOptimisticMessages(prev => [...prev, optimisticMessage]);
-    setSendingMessage(true);
 
-    try {
-      await sendMessageMutation.mutateAsync({
-        recipientId: partnerId,
-        content: trimmedContent
-      });
-
-      // Remove optimistic message after successful send
+    // Send to database in background
+    sendMessageMutation.mutateAsync({
+      recipientId: partnerId,
+      content: trimmedContent
+    }).then(() => {
+      // Remove optimistic message and refresh to get real one
       setOptimisticMessages(prev => prev.filter(msg => msg.id !== tempId));
-
-      // Refresh conversations and messages
-      setTimeout(() => {
-        refetchConversations();
-        if (selectedPartnerId === partnerId) {
-          refetchMessages();
-        }
-      }, 300);
-
-    } catch (error: any) {
+      refetchMessages();
+      refetchConversations();
+    }).catch((error: any) => {
       console.error('Error sending message:', error);
       
       // Remove optimistic message on error
@@ -137,10 +128,8 @@ export const useRealMessaging = () => {
         description: error.message || "Please try again",
         variant: "destructive"
       });
-    } finally {
-      setSendingMessage(false);
-    }
-  }, [sendMessageMutation, refetchConversations, refetchMessages, selectedPartnerId, toast, user?.id]);
+    });
+  }, [sendMessageMutation, refetchConversations, refetchMessages, toast, user?.id]);
 
   // Real-time subscription for new messages
   useEffect(() => {
