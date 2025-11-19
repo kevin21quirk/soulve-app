@@ -2,7 +2,7 @@ import MessagingInterface from "@/components/messaging/MessagingInterface";
 
 const MessagingTab = () => {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="h-[calc(100vh-140px)] max-h-[calc(100vh-140px)] overflow-hidden">
       <MessagingInterface />
     </div>
   );
