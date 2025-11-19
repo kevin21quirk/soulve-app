@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ const mockConversations: Conversation[] = [
     avatar: "https://randomuser.me/api/portraits/men/75.jpg",
     lastMessage: "Thanks for your help with the project!",
     timestamp: "2 min ago",
-    unreadCount: 2
+    unreadCount: 2,
   },
   {
     id: "2",
@@ -31,8 +30,8 @@ const mockConversations: Conversation[] = [
     avatar: "https://randomuser.me/api/portraits/women/22.jpg",
     lastMessage: "Are you available for the community event?",
     timestamp: "1 hour ago",
-    unreadCount: 0
-  }
+    unreadCount: 0,
+  },
 ];
 
 const MessagingInterface = () => {
@@ -42,7 +41,7 @@ const MessagingInterface = () => {
 
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
-    
+
     // Mock message sending
     console.log("Sending message:", messageInput);
     setMessageInput("");
@@ -73,14 +72,19 @@ const MessagingInterface = () => {
               <div
                 key={conversation.id}
                 className={`p-4 cursor-pointer hover:bg-gray-50 border-b ${
-                  selectedConversation === conversation.id ? 'bg-blue-50' : ''
+                  selectedConversation === conversation.id ? "bg-blue-50" : ""
                 }`}
                 onClick={() => setSelectedConversation(conversation.id)}
               >
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={conversation.avatar} alt={conversation.name} />
-                    <AvatarFallback>{conversation.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    <AvatarFallback>
+                      {conversation.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
@@ -105,9 +109,7 @@ const MessagingInterface = () => {
       <Card className="lg:col-span-2">
         <CardHeader>
           {selectedConversation ? (
-            <CardTitle>
-              {mockConversations.find(c => c.id === selectedConversation)?.name}
-            </CardTitle>
+            <CardTitle>{mockConversations.find((c) => c.id === selectedConversation)?.name}</CardTitle>
           ) : (
             <CardTitle className="text-gray-500">Select a conversation</CardTitle>
           )}
@@ -134,10 +136,10 @@ const MessagingInterface = () => {
               {/* Message Input */}
               <div className="flex space-x-2">
                 <Input
-                  placeholder="Type a message..."
+                  placeholder="Type a message... haha lalal"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                   className="flex-1"
                 />
                 <Button onClick={handleSendMessage} size="sm">
