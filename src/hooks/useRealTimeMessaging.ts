@@ -99,33 +99,25 @@ export const useRealTimeMessaging = () => {
       is_read: false
     };
 
-    // Add optimistic message to state
+    // Add optimistic message immediately
     setOptimisticMessages(prev => ({
       ...prev,
       [partnerId]: [...(prev[partnerId] || []), optimisticMessage]
     }));
 
-    try {
-      await sendMessageMutation.mutateAsync({
-        recipientId: partnerId,
-        content: trimmedContent
-      });
-
-      // Remove optimistic message after successful send
+    // Send to database in background
+    sendMessageMutation.mutateAsync({
+      recipientId: partnerId,
+      content: trimmedContent
+    }).then(() => {
+      // Remove optimistic message and refresh to get real one
       setOptimisticMessages(prev => ({
         ...prev,
         [partnerId]: (prev[partnerId] || []).filter(msg => msg.id !== tempId)
       }));
-
-      // Refresh data after sending
-      setTimeout(() => {
-        refreshConversations();
-        if (activeConversation === partnerId) {
-          refetchMessages();
-        }
-      }, 300);
-
-    } catch (error: any) {
+      refetchMessages();
+      refreshConversations();
+    }).catch((error: any) => {
       console.error('Error sending message:', error);
       
       // Remove optimistic message on error
@@ -139,9 +131,8 @@ export const useRealTimeMessaging = () => {
         description: error.message || "Please try again",
         variant: "destructive"
       });
-      throw error;
-    }
-  }, [sendMessageMutation, refreshConversations, refetchMessages, activeConversation, toast, user?.id]);
+    });
+  }, [sendMessageMutation, refreshConversations, refetchMessages, toast, user?.id]);
 
   const isLoading = useCallback((partnerId?: string, action?: string) => {
     return sendMessageMutation.isPending;
