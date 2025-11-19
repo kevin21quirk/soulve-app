@@ -97,8 +97,8 @@ const MessageThread = ({ partnerId, onBack, isMobile }: MessageThreadProps) => {
         isMobile={isMobile}
       />
 
-      <ScrollArea className="flex-1 p-4">
-        <div ref={scrollRef} className="space-y-2">
+      <ScrollArea className="flex-1 px-4 py-2 overflow-y-auto">
+        <div ref={scrollRef} className="space-y-2 pb-2">
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -123,11 +123,13 @@ const MessageThread = ({ partnerId, onBack, isMobile }: MessageThreadProps) => {
         </div>
       </ScrollArea>
 
-      <MessageInputField
-        onSend={handleSend}
-        disabled={!partnerId}
-        isSending={sendMutation.isPending}
-      />
+      <div className="px-4 py-2 border-t border-border bg-background">
+        <MessageInputField
+          onSend={handleSend}
+          disabled={!partnerId}
+          isSending={sendMutation.isPending}
+        />
+      </div>
     </div>
   );
 };
