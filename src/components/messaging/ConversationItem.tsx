@@ -109,7 +109,7 @@ const ConversationItem = ({ conversation, isActive, onClick, userId }: Conversat
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
           >
             <MoreVertical className="h-4 w-4" />
           </Button>
