@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Video, MoreVertical } from "lucide-react";
+import { ArrowLeft, MoreVertical } from "lucide-react";
 import { UnifiedConversation } from "@/types/unified-messaging";
 
 interface ConversationHeaderProps {
@@ -49,12 +49,6 @@ const ConversationHeader = ({ conversation, onBack, isMobile }: ConversationHead
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="hidden md:flex">
-          <Phone className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="hidden md:flex">
-          <Video className="h-4 w-4" />
-        </Button>
         <Button variant="ghost" size="icon">
           <MoreVertical className="h-4 w-4" />
         </Button>
