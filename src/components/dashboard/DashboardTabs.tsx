@@ -25,7 +25,7 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full h-full">
       <MainTabsList />
 
       <TabsContent value="feed" className="space-y-6" forceMount>
