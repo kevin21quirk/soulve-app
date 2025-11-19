@@ -78,7 +78,7 @@ const MobileDashboard = () => {
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden pb-20">
         {renderTabContent()}
       </div>
 
