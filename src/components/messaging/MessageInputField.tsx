@@ -9,9 +9,10 @@ interface MessageInputFieldProps {
   onSend: (content: string) => void;
   disabled?: boolean;
   isSending?: boolean;
+  className?: string;
 }
 
-const MessageInputField = ({ onSend, disabled, isSending }: MessageInputFieldProps) => {
+const MessageInputField = ({ onSend, disabled, isSending, className }: MessageInputFieldProps) => {
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -47,7 +48,7 @@ const MessageInputField = ({ onSend, disabled, isSending }: MessageInputFieldPro
   };
 
   return (
-    <div className="px-4 py-3 border-t border-border bg-background">
+    <div className={`px-4 py-3 border-t border-border bg-background ${className || ''}`}>
       <div className="flex items-end gap-2">
         <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
           <PopoverTrigger asChild>
