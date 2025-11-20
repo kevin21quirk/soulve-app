@@ -16,7 +16,7 @@ const SEOHead = ({
   title = "SouLVE - Social Impact Platform",
   description = "Connect, contribute, and create lasting social impact. Join SouLVE to track your ESG contributions, support campaigns, and make a difference.",
   keywords = ["social impact", "ESG", "charity", "campaigns", "volunteering", "donations"],
-  image = "https://bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com/og-image.png",
+  image = "https://join-soulve.com/soulve-og-image.png",
   url = "https://bf52b470-070e-4c4a-ac1a-978a0d3d9af7.lovableproject.com",
   type = "website",
   author,
