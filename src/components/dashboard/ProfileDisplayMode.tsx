@@ -11,9 +11,10 @@ import { Award } from "lucide-react";
 interface ProfileDisplayModeProps {
   profileData: UserProfileData;
   onViewPointsDetails: () => void;
+  onPostsClick?: () => void;
 }
 
-const ProfileDisplayMode = ({ profileData, onViewPointsDetails }: ProfileDisplayModeProps) => {
+const ProfileDisplayMode = ({ profileData, onViewPointsDetails, onPostsClick }: ProfileDisplayModeProps) => {
   return (
     <CardContent className="p-0">
       {/* Banner + Header with overlap */}
@@ -31,6 +32,7 @@ const ProfileDisplayMode = ({ profileData, onViewPointsDetails }: ProfileDisplay
           profileData={profileData} 
           isEditing={false} 
           onViewPointsDetails={onViewPointsDetails}
+          onPostsClick={onPostsClick}
         />
       </div>
       
