@@ -387,7 +387,7 @@ const EnhancedUserAccessPanel = () => {
       </CardContent>
 
       <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent allowDismiss>
           <AlertDialogHeader>
             <AlertDialogTitle>Reset User Onboarding</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">

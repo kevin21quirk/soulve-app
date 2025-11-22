@@ -92,7 +92,7 @@ const ConversationItem = ({
     </button>
 
     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-      <AlertDialogContent>
+      <AlertDialogContent allowDismiss>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
           <AlertDialogDescription>

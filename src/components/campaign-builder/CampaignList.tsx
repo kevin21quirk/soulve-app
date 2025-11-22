@@ -270,7 +270,7 @@ const CampaignList = () => {
       )}
 
       <AlertDialog open={!!deletingCampaignId} onOpenChange={() => setDeletingCampaignId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent allowDismiss>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Campaign</AlertDialogTitle>
             <AlertDialogDescription>
