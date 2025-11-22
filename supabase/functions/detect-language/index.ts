@@ -15,9 +15,18 @@ serve(async (req) => {
     const { text } = await req.json();
 
     if (!text || text.trim().length < 10) {
+      console.log('Language detection skipped: text too short', { 
+        length: text?.length, 
+        trimmedLength: text?.trim().length 
+      });
+      // Return a successful response with default language instead of error
       return new Response(
-        JSON.stringify({ error: 'Text must be at least 10 characters' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          language: 'en', 
+          confidence: 0,
+          reason: 'text_too_short'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

@@ -17,7 +17,7 @@ export const useLanguageDetection = (
   const { data, isLoading } = useQuery({
     queryKey: ['language-detection', text.substring(0, 100)],
     queryFn: async () => {
-      if (!text || text.length < 10) {
+      if (!text || text.trim().length < 10) {
         return { language: userPreferredLanguage, confidence: 1.0 };
       }
 
@@ -32,7 +32,7 @@ export const useLanguageDetection = (
 
       return data;
     },
-    enabled: enabled && !!text && text.length >= 10,
+    enabled: enabled && !!text && text.trim().length >= 10,
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
   });
 

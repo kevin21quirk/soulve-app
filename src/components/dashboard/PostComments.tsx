@@ -58,7 +58,7 @@ const CommentItem = ({
   // Translation support
   const { preference } = useUserLanguagePreference();
   const { needsTranslation, detectedLanguage } = useLanguageDetection(
-    comment.content,
+    comment.content || '',
     preference?.preferred_language || 'en',
     preference?.show_translation_button !== false
   );
