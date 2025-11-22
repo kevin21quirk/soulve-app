@@ -10,12 +10,14 @@ interface UserProfileTabsProps {
   profileData: UserProfileData;
   onProfileUpdate: (data: UserProfileData) => void;
   onViewPointsDetails: () => void;
+  onPostsClick?: () => void;
 }
 
 const UserProfileTabs = ({ 
   profileData, 
   onProfileUpdate, 
-  onViewPointsDetails 
+  onViewPointsDetails,
+  onPostsClick 
 }: UserProfileTabsProps) => {
   const {
     isEditing,
@@ -67,6 +69,7 @@ const UserProfileTabs = ({
         <ProfileDisplayMode
           profileData={profileData}
           onViewPointsDetails={onViewPointsDetails}
+          onPostsClick={onPostsClick}
         />
       )}
     </Card>

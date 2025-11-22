@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserProfileData } from "./UserProfileTypes";
@@ -28,6 +28,7 @@ const UserProfile = () => {
   const { profileData, loading, updating, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const postsTabsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -66,6 +67,15 @@ const UserProfile = () => {
 
   const handleClosePointsDetails = () => {
     setShowPointsDetails(false);
+  };
+
+  const handlePostsClick = () => {
+    if (postsTabsRef.current) {
+      postsTabsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
   };
 
   if (loading) {
@@ -151,10 +161,12 @@ const UserProfile = () => {
                 profileData={profileData}
                 onProfileUpdate={handleProfileUpdate}
                 onViewPointsDetails={handleViewPointsDetails}
+                onPostsClick={handlePostsClick}
               />
               
               {/* Profile Content Tabs */}
-              <Tabs defaultValue="posts" className="w-full">
+              <div ref={postsTabsRef}>
+                <Tabs defaultValue="posts" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-gray-100">
                   <TabsTrigger 
                     value="posts"
@@ -180,6 +192,7 @@ const UserProfile = () => {
                   <RealImpactJourney />
                 </TabsContent>
               </Tabs>
+              </div>
             </div>
             
             <div className="space-y-6">

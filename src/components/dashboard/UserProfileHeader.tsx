@@ -14,13 +14,15 @@ interface UserProfileHeaderProps {
   isEditing: boolean;
   onViewPointsDetails?: () => void;
   onAvatarUpdate?: (newAvatarUrl: string) => void;
+  onPostsClick?: () => void;
 }
 
 const UserProfileHeader = ({ 
   profileData, 
   isEditing, 
   onViewPointsDetails,
-  onAvatarUpdate 
+  onAvatarUpdate,
+  onPostsClick 
 }: UserProfileHeaderProps) => {
   const { verifications } = useVerifications();
   
@@ -90,7 +92,7 @@ const UserProfileHeader = ({
                   <span className="font-semibold text-gray-900">{profileData.followingCount}</span> following
                 </button>
                 <span>·</span>
-                <button className="hover:underline font-medium">
+                <button className="hover:underline font-medium" onClick={onPostsClick}>
                   <span className="font-semibold text-gray-900">{profileData.postCount}</span> posts
                 </button>
                 <span>·</span>
