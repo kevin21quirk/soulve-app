@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, MapPin, Mail, Phone, Globe, Users, FileText, Target, Eye, Shield, Award } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 interface UserProfileDisplayProps {
   profileData: UserProfileData;
@@ -98,13 +99,15 @@ const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
               <span className="text-gray-700">{profileData.phone}</span>
             </div>
           )}
-          <div className="flex items-center space-x-3">
-            <MapPin className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">{profileData.location}</span>
-          </div>
+          {profileData.location && (
+            <div className="flex items-center space-x-3">
+              <MapPin className="h-4 w-4 text-gray-500" />
+              <span className="text-gray-700">{profileData.location}</span>
+            </div>
+          )}
           <div className="flex items-center space-x-3">
             <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">Joined {profileData.joinDate}</span>
+            <span className="text-gray-700">Joined {format(new Date(profileData.joinDate), 'MMM yyyy')}</span>
           </div>
         </div>
       </div>
