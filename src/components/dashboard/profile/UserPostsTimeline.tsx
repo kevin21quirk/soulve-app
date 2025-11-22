@@ -24,6 +24,7 @@ const UserPostsTimeline = () => {
           .from('posts')
           .select('*')
           .eq('author_id', user.id)
+          .eq('is_active', true)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -129,6 +130,7 @@ const UserPostsTimeline = () => {
                 onShare={() => {}}
                 onBookmark={() => {}}
                 onComment={() => {}}
+                onPostDeleted={() => setPosts((prev) => prev.filter((p) => p.id !== post.id))}
               />
             ))}
           </div>
