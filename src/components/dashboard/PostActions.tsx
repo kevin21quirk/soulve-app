@@ -104,6 +104,7 @@ const PostActions = ({ postId, authorId, onPostDeleted, onReportPost, onBookmark
         queryClient.invalidateQueries({ queryKey: ['social-feed'] }),
         queryClient.invalidateQueries({ queryKey: ['posts'] }),
         queryClient.invalidateQueries({ queryKey: ['feedPosts'] }),
+        queryClient.invalidateQueries({ queryKey: ['user-profile'] }),
       ]);
       
       toast({
