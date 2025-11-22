@@ -76,6 +76,8 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['social-feed'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
 
       // Call the callback
       onPostCreated?.();

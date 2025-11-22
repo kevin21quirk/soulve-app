@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { createUnifiedPost } from '@/services/unifiedPostService';
 import { useContentModeration } from './useContentModeration';
@@ -19,6 +20,7 @@ export interface CreatePostData {
 
 export const useCreatePost = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { moderateContent, isModeratingContent } = useContentModeration();
   const rateLimit = usePostCreationRateLimit();
@@ -69,6 +71,12 @@ export const useCreatePost = () => {
       }
 
       const postId = await createUnifiedPost(postData);
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['social-feed'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
 
       toast({
         title: "Post created successfully!",

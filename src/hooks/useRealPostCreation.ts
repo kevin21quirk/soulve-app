@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { createUnifiedPost } from '@/services/unifiedPostService';
 
@@ -17,6 +18,7 @@ export interface PostCreationData {
 
 export const useRealPostCreation = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
 
   const createPost = async (postData: PostCreationData) => {
@@ -35,6 +37,12 @@ export const useRealPostCreation = () => {
       }
 
       const postId = await createUnifiedPost(postData);
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['social-feed'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
 
       toast({
         title: "Post created successfully!",
