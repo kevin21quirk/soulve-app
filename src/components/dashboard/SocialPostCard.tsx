@@ -113,7 +113,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
   // Translation support
   const { preference } = useUserLanguagePreference();
   const { needsTranslation, detectedLanguage } = useLanguageDetection(
-    post.description,
+    post.description || '',
     preference?.preferred_language || 'en',
     preference?.show_translation_button !== false
   );
