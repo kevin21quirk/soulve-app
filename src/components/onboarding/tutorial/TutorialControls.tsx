@@ -34,7 +34,7 @@ export function TutorialControls({ canSkip = true }: TutorialControlsProps) {
                 Skip
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent allowDismiss>
               <AlertDialogHeader>
                 <AlertDialogTitle>Skip Tutorial?</AlertDialogTitle>
                 <AlertDialogDescription>
