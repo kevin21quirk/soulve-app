@@ -67,11 +67,12 @@ export const useUserProfile = () => {
       const followerCount = connectionsCount || 0;
       const followingCount = connectionsCount || 0;
 
-      // Get real post count
+      // Get real post count (only active posts)
       const { count: postCount } = await supabase
         .from('posts')
         .select('*', { count: 'exact', head: true })
-        .eq('author_id', user.id);
+        .eq('author_id', user.id)
+        .eq('is_active', true);
 
       // Get organization connections
       const { data: orgConnections } = await supabase
