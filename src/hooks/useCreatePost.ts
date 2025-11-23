@@ -85,8 +85,14 @@ export const useCreatePost = () => {
 
       // Invalidate user-specific queries with correct keys
       if (userId) {
-        queryClient.invalidateQueries({ queryKey: ['user-profile', userId] });
-        queryClient.invalidateQueries({ queryKey: ['user-posts', userId] });
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-profile', userId],
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-posts', userId],
+          refetchType: 'active'
+        });
       }
 
       toast({

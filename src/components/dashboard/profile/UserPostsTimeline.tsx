@@ -67,7 +67,7 @@ const UserPostsTimeline = () => {
       return transformedPosts;
     },
     enabled: !!user?.id,
-    staleTime: 1 * 60 * 1000, // 1 minute
+    staleTime: 0, // Always refetch on invalidation for immediate updates
   });
 
   const handlePostDeleted = (postId: string) => {
