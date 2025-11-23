@@ -97,15 +97,29 @@ const PostActions = ({ postId, authorId, onPostDeleted, onReportPost, onBookmark
     
     setIsDeleting(true);
     try {
+      const userId = user.id;
+      
       await ContentModerationService.deletePost(postId);
       
-      // Invalidate all relevant queries to refresh the feed
+      // Invalidate feed queries
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['social-feed'] }),
+        queryClient.invalidateQueries({ queryKey: ['social-feed-infinite'] }),
         queryClient.invalidateQueries({ queryKey: ['posts'] }),
         queryClient.invalidateQueries({ queryKey: ['feedPosts'] }),
-        queryClient.invalidateQueries({ queryKey: ['user-profile'] }),
       ]);
+      
+      // Invalidate user-specific queries with correct keys
+      if (userId) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-profile', userId],
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-posts', userId],
+          refetchType: 'active'
+        });
+      }
       
       toast({
         title: "Post deleted",
