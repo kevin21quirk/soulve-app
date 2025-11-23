@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { createUnifiedPost } from '@/services/unifiedPostService';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface PostCreationData {
   title?: string;
@@ -38,11 +39,21 @@ export const useRealPostCreation = () => {
 
       const postId = await createUnifiedPost(postData);
 
-      // Invalidate queries to refresh UI
+      // Get user ID for invalidations
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const userId = currentUser?.id;
+
+      // Invalidate feed queries
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['social-feed'] });
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['social-feed-infinite'] });
+
+      // Invalidate user-specific queries with correct keys
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['user-profile', userId] });
+        queryClient.invalidateQueries({ queryKey: ['user-posts', userId] });
+      }
 
       toast({
         title: "Post created successfully!",
