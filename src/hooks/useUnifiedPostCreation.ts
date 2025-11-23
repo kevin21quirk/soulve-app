@@ -6,6 +6,7 @@ import { ContentModerationService } from '@/services/contentModerationService';
 import { uploadMediaFiles } from '@/services/mediaUploadService';
 import { useToast } from '@/hooks/use-toast';
 import { useAccount } from '@/contexts/AccountContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -73,11 +74,27 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         description: "Your post has been published successfully."
       });
 
-      // Invalidate relevant queries
+      // Get user ID for invalidations
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const userId = currentUser?.id;
+
+      // Invalidate feed queries
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['social-feed'] });
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['social-feed-infinite'] });
+
+      // Invalidate user-specific queries with correct keys
+      if (userId) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-profile', userId],
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ['user-posts', userId],
+          refetchType: 'active'
+        });
+      }
 
       // Call the callback
       onPostCreated?.();
