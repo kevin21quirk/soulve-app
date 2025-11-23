@@ -10,9 +10,10 @@ import { format } from "date-fns";
 
 interface UserProfileDisplayProps {
   profileData: UserProfileData;
+  onPostsClick?: () => void;
 }
 
-const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
+const UserProfileDisplay = ({ profileData, onPostsClick }: UserProfileDisplayProps) => {
   const navigate = useNavigate();
 
   const getSocialIcon = (platform: string) => {
@@ -40,7 +41,11 @@ const UserProfileDisplay = ({ profileData }: UserProfileDisplayProps) => {
         navigate('/dashboard?tab=discover-connect&section=following');
         break;
       case 'posts':
-        navigate('/dashboard?tab=feed&filter=my-posts');
+        if (onPostsClick) {
+          onPostsClick();
+        } else {
+          navigate('/dashboard?tab=feed&filter=my-posts');
+        }
         break;
       case 'helps':
         navigate('/dashboard?tab=help-center&section=my-impact');
