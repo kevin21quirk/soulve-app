@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,21 +30,38 @@ import { Campaign } from "@/hooks/campaigns/types";
 const CampaignList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { campaigns, loading, deleteCampaign, updateCampaign } = useEnhancedCampaigns();
+  const { loading, deleteCampaign, updateCampaign, getUserCampaigns } = useEnhancedCampaigns();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deletingCampaignId, setDeletingCampaignId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const loadUserCampaigns = async () => {
+      setIsLoadingCampaigns(true);
+      const userCampaigns = await getUserCampaigns();
+      setCampaigns(userCampaigns);
+      setIsLoadingCampaigns(false);
+    };
+    
+    loadUserCampaigns();
+  }, [getUserCampaigns]);
+
   const handleToggleStatus = async (campaign: Campaign) => {
     const newStatus = campaign.status === "active" ? "paused" : "active";
     await updateCampaign(campaign.id, { status: newStatus });
+    const userCampaigns = await getUserCampaigns();
+    setCampaigns(userCampaigns);
   };
 
   const handleDelete = async () => {
     if (!deletingCampaignId) return;
     try {
       await deleteCampaign(deletingCampaignId);
+      const userCampaigns = await getUserCampaigns();
+      setCampaigns(userCampaigns);
       setDeletingCampaignId(null);
     } catch (error) {
       console.error("Failed to delete campaign:", error);
@@ -88,7 +105,7 @@ const CampaignList = () => {
     return matchesSearch && matchesStatus;
   });
 
-  if (loading) {
+  if (loading || isLoadingCampaigns) {
     return (
       <div className="flex justify-center items-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
