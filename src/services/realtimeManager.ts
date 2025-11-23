@@ -58,20 +58,32 @@ export class RealtimeManager {
           schema: 'public',
           table: 'posts'
         },
-        () => {
-          // Mark as stale but don't refetch immediately
+        (payload) => {
+          // Mark as stale and refetch active queries
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed-infinite'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
+          
+          // Invalidate user-specific queries for the post author
+          if (payload.new?.author_id) {
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-posts', payload.new.author_id],
+              refetchType: 'active'
+            });
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-profile', payload.new.author_id],
+              refetchType: 'active'
+            });
+          }
         }
       )
       .on(
@@ -81,19 +93,31 @@ export class RealtimeManager {
           schema: 'public',
           table: 'posts'
         },
-        () => {
+        (payload) => {
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed-infinite'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
+          
+          // Invalidate user-specific queries for the post author
+          if (payload.new?.author_id) {
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-posts', payload.new.author_id],
+              refetchType: 'active'
+            });
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-profile', payload.new.author_id],
+              refetchType: 'active'
+            });
+          }
         }
       )
       .on(
@@ -106,15 +130,15 @@ export class RealtimeManager {
         () => {
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed-infinite'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
         }
       )
@@ -164,18 +188,18 @@ export class RealtimeManager {
           table: 'post_interactions'
         },
         () => {
-          // Mark as stale but don't refetch
+          // Mark as stale and refetch active queries
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed-infinite'],
-            refetchType: 'none'
+            refetchType: 'active'
           });
         }
       )

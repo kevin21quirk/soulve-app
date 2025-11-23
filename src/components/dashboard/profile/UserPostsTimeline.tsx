@@ -1,5 +1,3 @@
-
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,74 +6,78 @@ import SocialPostCard from "../SocialPostCard";
 import { transformSocialPostToFeedPost } from "@/utils/socialPostTransformers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const UserPostsTimeline = () => {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchUserPosts = async () => {
-      if (!user) return;
+  const { data: posts = [], isLoading: loading } = useQuery({
+    queryKey: ['user-posts', user?.id],
+    queryFn: async (): Promise<SocialPost[]> => {
+      if (!user?.id) return [];
 
-      try {
-        // Fetch posts by current user
-        const { data: postsData, error } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('author_id', user.id)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
+      // Fetch posts by current user
+      const { data: postsData, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('author_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Get user profile for author info
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar_url')
-          .eq('id', user.id)
-          .single();
+      // Get user profile for author info
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, avatar_url')
+        .eq('id', user.id)
+        .single();
 
-        const authorName = profileData 
-          ? `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || 'You'
-          : 'You';
+      const authorName = profileData 
+        ? `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || 'You'
+        : 'You';
 
-        // Transform posts
-        const transformedPosts: SocialPost[] = (postsData || []).map(post => ({
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          author_id: post.author_id,
-          author_name: authorName,
-          author_avatar: profileData?.avatar_url || '',
-          category: post.category,
-          urgency: post.urgency,
-          location: post.location,
-          tags: post.tags || [],
-          media_urls: post.media_urls || [],
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          likes_count: 0,
-          comments_count: 0,
-          shares_count: 0,
-          is_liked: false,
-          is_bookmarked: false,
-          import_source: post.import_source || null,
-          external_id: post.external_id || null,
-          import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
-          imported_at: post.imported_at || null
-        }));
+      // Transform posts
+      const transformedPosts: SocialPost[] = (postsData || []).map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        author_id: post.author_id,
+        author_name: authorName,
+        author_avatar: profileData?.avatar_url || '',
+        category: post.category,
+        urgency: post.urgency,
+        location: post.location,
+        tags: post.tags || [],
+        media_urls: post.media_urls || [],
+        created_at: post.created_at,
+        updated_at: post.updated_at,
+        likes_count: 0,
+        comments_count: 0,
+        shares_count: 0,
+        is_liked: false,
+        is_bookmarked: false,
+        import_source: post.import_source || null,
+        external_id: post.external_id || null,
+        import_metadata: post.import_metadata ? (post.import_metadata as any) : null,
+        imported_at: post.imported_at || null
+      }));
 
-        setPosts(transformedPosts);
-      } catch (error) {
-        console.error('Error fetching user posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      return transformedPosts;
+    },
+    enabled: !!user?.id,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
 
-    fetchUserPosts();
-  }, [user]);
+  const handlePostDeleted = (postId: string) => {
+    // Optimistically update cache
+    queryClient.setQueryData(['user-posts', user?.id], (oldPosts: SocialPost[] = []) => 
+      oldPosts.filter((p) => p.id !== postId)
+    );
+    // Also invalidate profile to update post count
+    queryClient.invalidateQueries({ queryKey: ['user-profile', user?.id] });
+  };
 
   if (loading) {
     return (
@@ -130,7 +132,7 @@ const UserPostsTimeline = () => {
                 onShare={() => {}}
                 onBookmark={() => {}}
                 onComment={() => {}}
-                onPostDeleted={() => setPosts((prev) => prev.filter((p) => p.id !== post.id))}
+                onPostDeleted={() => handlePostDeleted(post.id)}
               />
             ))}
           </div>
