@@ -47,7 +47,7 @@ const ProfileDisplayMode = ({ profileData, onViewPointsDetails, onPostsClick }: 
           <ProfileBadgeShowcase userId={profileData.id} maxDisplay={5} />
         </div>
 
-        <UserProfileDetails profileData={profileData} />
+        <UserProfileDetails profileData={profileData} onPostsClick={onPostsClick} />
         
         <OrganizationConnections 
           connections={profileData.organizationConnections}
