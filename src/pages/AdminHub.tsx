@@ -29,6 +29,7 @@ import { DonationManagementPanel } from '@/components/admin/DonationManagementPa
 import { SystemHealthPanel } from '@/components/admin/SystemHealthPanel';
 import AdminDemoControls from '@/components/admin/AdminDemoControls';
 import SubscriptionManagementPanel from '@/components/admin/SubscriptionManagementPanel';
+import BlogManagementPanel from '@/components/admin/blog/BlogManagementPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -320,6 +321,7 @@ const AdminHub = () => {
             <Route path="campaigns" element={<CampaignModerationPanel />} />
             <Route path="organizations" element={<OrganizationVerificationPanel />} />
             <Route path="blocks" element={<UserBlocksPanel />} />
+            <Route path="blog" element={<BlogManagementPanel />} />
             <Route path="donations" element={<DonationManagementPanel />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
             <Route path="demo-controls" element={<AdminDemoControls />} />
