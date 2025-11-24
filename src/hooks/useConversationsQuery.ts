@@ -66,6 +66,18 @@ export const useConversationsQuery = () => {
             queryClient.invalidateQueries({ queryKey: ['conversations'] });
           }
         )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'conversation_participants',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+          }
+        )
         .subscribe();
 
       return () => {
