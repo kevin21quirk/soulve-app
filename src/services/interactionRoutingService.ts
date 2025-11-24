@@ -34,6 +34,33 @@ export const createInteraction = async (
 ) => {
   const target = getInteractionTarget(id);
   
+  // ✅ Validate that post/campaign is still active before allowing interaction
+  if (target.isCampaign) {
+    const { data: campaign, error: campaignError } = await supabase
+      .from('campaigns')
+      .select('status')
+      .eq('id', target.actualId)
+      .single();
+    
+    if (campaignError) throw campaignError;
+    
+    if (!campaign || campaign.status === 'deleted' || campaign.status === 'archived') {
+      throw new Error('This campaign is no longer available');
+    }
+  } else {
+    const { data: post, error: postError } = await supabase
+      .from('posts')
+      .select('is_active')
+      .eq('id', target.actualId)
+      .single();
+    
+    if (postError) throw postError;
+    
+    if (!post || !post.is_active) {
+      throw new Error('This post is no longer available');
+    }
+  }
+  
   // ✅ Always include user_id for audit trail and RLS validation
   const baseData = {
     user_id: userId,

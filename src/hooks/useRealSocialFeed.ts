@@ -81,11 +81,27 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       // Revert optimistic update on error
       await refetch();
       
-      toast({
-        title: "Error",
-        description: "Failed to like post. Please try again.",
-        variant: "destructive"
-      });
+      // Check if error is due to deleted post
+      const errorMessage = error instanceof Error ? error.message : 'Failed to like post';
+      
+      if (errorMessage.includes('no longer available')) {
+        toast({
+          title: "Post unavailable",
+          description: "This post has been deleted by the author.",
+          variant: "default"
+        });
+        // Remove the post from the feed
+        queryClient.setQueryData<SocialPost[]>(
+          ['social-feed', organizationId],
+          (old = []) => old.filter(post => post.id !== postId)
+        );
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
       return false;
     }
   }, [user, toast, queryClient, organizationId, refetch]);
@@ -128,11 +144,27 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       // Revert optimistic update on error
       await refetch();
       
-      toast({
-        title: "Error",
-        description: "Failed to bookmark post. Please try again.",
-        variant: "destructive"
-      });
+      // Check if error is due to deleted post
+      const errorMessage = error instanceof Error ? error.message : 'Failed to bookmark post';
+      
+      if (errorMessage.includes('no longer available')) {
+        toast({
+          title: "Post unavailable",
+          description: "This post has been deleted by the author.",
+          variant: "default"
+        });
+        // Remove the post from the feed
+        queryClient.setQueryData<SocialPost[]>(
+          ['social-feed', organizationId],
+          (old = []) => old.filter(post => post.id !== postId)
+        );
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
       return false;
     }
   }, [user, toast, queryClient, organizationId, refetch]);
@@ -180,11 +212,27 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       // Revert optimistic update on error
       await refetch();
       
-      toast({
-        title: "Error",
-        description: "Failed to share post. Please try again.",
-        variant: "destructive"
-      });
+      // Check if error is due to deleted post
+      const errorMessage = error instanceof Error ? error.message : 'Failed to share post';
+      
+      if (errorMessage.includes('no longer available')) {
+        toast({
+          title: "Post unavailable",
+          description: "This post has been deleted by the author.",
+          variant: "default"
+        });
+        // Remove the post from the feed
+        queryClient.setQueryData<SocialPost[]>(
+          ['social-feed', organizationId],
+          (old = []) => old.filter(post => post.id !== postId)
+        );
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
       return false;
     }
   }, [user, toast, queryClient, organizationId, refetch]);
@@ -242,11 +290,27 @@ export const useRealSocialFeed = (organizationId?: string | null) => {
       // Revert optimistic update on error
       await refetch();
       
-      toast({
-        title: "Error",
-        description: "Failed to add comment. Please try again.",
-        variant: "destructive"
-      });
+      // Check if error is due to deleted post
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add comment';
+      
+      if (errorMessage.includes('no longer available')) {
+        toast({
+          title: "Post unavailable",
+          description: "This post has been deleted by the author.",
+          variant: "default"
+        });
+        // Remove the post from the feed
+        queryClient.setQueryData<SocialPost[]>(
+          ['social-feed', organizationId],
+          (old = []) => old.filter(post => post.id !== postId)
+        );
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
       return false;
     }
   }, [user, toast, queryClient, organizationId, refetch]);
