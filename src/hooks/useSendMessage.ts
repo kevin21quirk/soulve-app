@@ -53,8 +53,25 @@ export const useSendMessage = (partnerId: string | null) => {
       }
       toast.error('Failed to send message');
     },
-    onSuccess: () => {
-      // Refetch to get the real message
+    onSuccess: (data) => {
+      // Update the temp message with real message data
+      queryClient.setQueryData<UnifiedMessage[]>(
+        ['messages', partnerId],
+        (old = []) => {
+          return old.map(msg => 
+            msg.id.startsWith('temp-') 
+              ? { 
+                  ...data, 
+                  message_type: data.message_type as 'text' | 'image' | 'file' | 'voice',
+                  isOwn: true, 
+                  status: 'sent' as const 
+                }
+              : msg
+          );
+        }
+      );
+      
+      // Refetch to sync with server
       queryClient.invalidateQueries({ queryKey: ['messages', partnerId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },

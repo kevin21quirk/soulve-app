@@ -4,12 +4,16 @@ import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
 import EmptyStates from "./EmptyStates";
 import { useConversationsQuery } from "@/hooks/useConversationsQuery";
+import { useUserPresence } from "@/hooks/useUserPresence";
 
 const MessagingInterface = () => {
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { data: conversations } = useConversationsQuery();
   const hadConversationForSelectedRef = useRef(false);
+  
+  // Track user presence globally
+  useUserPresence();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);

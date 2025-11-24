@@ -10,6 +10,8 @@ export interface UnifiedMessage {
   message_type: 'text' | 'image' | 'file' | 'voice';
   file_url?: string | null;
   file_name?: string | null;
+  delivered_at?: string | null;
+  read_at?: string | null;
   isOwn?: boolean;
   status?: MessageStatus;
   senderName?: string;
