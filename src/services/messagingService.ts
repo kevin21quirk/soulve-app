@@ -145,7 +145,7 @@ export const sendMessage = async (data: {
   file_url?: string;
   file_name?: string;
 }) => {
-  // Auto-unhide conversation for recipient when new message arrives
+  // Auto-restore conversation for recipient when new message arrives
   const conversationId = await getOrCreateConversation(data.sender_id, data.recipient_id);
   
   await supabase
@@ -218,8 +218,8 @@ const getOrCreateConversation = async (userId: string, partnerId: string): Promi
   return data;
 };
 
-// Helper: Check if conversation is hidden by user
-const isConversationHidden = async (userId: string, partnerId: string): Promise<boolean> => {
+// Helper: Check if conversation is deleted by user
+const isConversationDeleted = async (userId: string, partnerId: string): Promise<boolean> => {
   const conversationId = await getOrCreateConversation(userId, partnerId);
   
   const { data } = await supabase
@@ -232,7 +232,7 @@ const isConversationHidden = async (userId: string, partnerId: string): Promise<
   return data?.deleted_at !== null;
 };
 
-export const hideConversation = async (userId: string, partnerId: string) => {
+export const deleteConversation = async (userId: string, partnerId: string) => {
   const conversationId = await getOrCreateConversation(userId, partnerId);
   
   const { error } = await supabase
