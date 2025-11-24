@@ -3813,12 +3813,14 @@ export type Database = {
           attachment_url: string | null
           content: string
           created_at: string
+          delivered_at: string | null
           file_name: string | null
           file_size: number | null
           file_url: string | null
           id: string
           is_read: boolean
           message_type: string
+          read_at: string | null
           recipient_id: string
           sender_id: string
           updated_at: string
@@ -3830,12 +3832,14 @@ export type Database = {
           attachment_url?: string | null
           content: string
           created_at?: string
+          delivered_at?: string | null
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
           id?: string
           is_read?: boolean
           message_type?: string
+          read_at?: string | null
           recipient_id: string
           sender_id: string
           updated_at?: string
@@ -3847,12 +3851,14 @@ export type Database = {
           attachment_url?: string | null
           content?: string
           created_at?: string
+          delivered_at?: string | null
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
           id?: string
           is_read?: boolean
           message_type?: string
+          read_at?: string | null
           recipient_id?: string
           sender_id?: string
           updated_at?: string
@@ -7330,6 +7336,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      user_presence: {
+        Row: {
+          is_online: boolean | null
+          last_seen: string | null
+          typing_started_at: string | null
+          typing_to_user_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          typing_started_at?: string | null
+          typing_to_user_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          typing_started_at?: string | null
+          typing_to_user_id?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
