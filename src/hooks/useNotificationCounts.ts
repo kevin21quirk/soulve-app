@@ -49,12 +49,43 @@ export const useNotificationCounts = () => {
       refreshTimeout = setTimeout(loadCounts, 1000);
     };
 
+    // Optimistic handler for new message inserts
+    const handleMessageInsert = (payload: any) => {
+      console.log('[useNotificationCounts] New message received:', payload.new);
+      
+      // Optimistic update - increment immediately
+      setCounts(prev => {
+        const newCounts = {
+          ...prev,
+          messages: prev.messages + 1,
+          total: prev.total + 1
+        };
+        console.log('[useNotificationCounts] Optimistically updated counts:', newCounts);
+        return newCounts;
+      });
+      
+      // Then debounce the full refresh to sync with DB
+      debouncedLoadCounts();
+    };
+
     // Consolidated real-time subscriptions - 3 channels instead of 8
     // Channel 1: User-specific notifications (messages, connections)
     const userNotificationsChannel = supabase
       .channel('user-notifications')
       .on('postgres_changes', {
-        event: '*',
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `recipient_id=eq.${user.id}`,
+      }, handleMessageInsert)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `recipient_id=eq.${user.id}`,
+      }, debouncedLoadCounts)
+      .on('postgres_changes', {
+        event: 'DELETE',
         schema: 'public',
         table: 'messages',
         filter: `recipient_id=eq.${user.id}`,
