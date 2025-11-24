@@ -19,34 +19,24 @@ export const getConversations = async (userId: string): Promise<UnifiedConversat
 
     if (error) throw error;
 
-    // Pre-compute which partners are hidden for this user
-    let hiddenPartnerIds = new Set<string>();
+    // Get deletion thresholds for this user (Messenger-like behavior)
+    const deletionThresholds = new Map<string, string>();
     
     try {
-      // Step 1: Get all hidden conversation IDs for this user
-      const { data: hiddenConversations } = await supabase
+      const { data: participants } = await supabase
         .from('conversation_participants')
-        .select('conversation_id')
+        .select('conversation_id, deleted_at')
         .eq('user_id', userId)
         .not('deleted_at', 'is', null);
 
-      if (hiddenConversations && hiddenConversations.length > 0) {
-        const hiddenConvIds = hiddenConversations.map(c => c.conversation_id);
-        
-        // Step 2: Get the partner user_ids from those conversations
-        const { data: hiddenPartners } = await supabase
-          .from('conversation_participants')
-          .select('user_id')
-          .in('conversation_id', hiddenConvIds)
-          .neq('user_id', userId);
-
-        if (hiddenPartners) {
-          hiddenPartnerIds = new Set(hiddenPartners.map(p => p.user_id));
+      if (participants) {
+        // Map conversation_id to deletion timestamp
+        for (const p of participants) {
+          deletionThresholds.set(p.conversation_id, p.deleted_at);
         }
       }
-    } catch (hiddenError) {
-      // If hidden lookup fails, log it but continue showing all conversations
-      console.warn('[getConversations] Failed to load hidden conversations, showing all:', hiddenError);
+    } catch (error) {
+      console.warn('[getConversations] Failed to load deletion thresholds:', error);
     }
 
     // Group by conversation partner
@@ -55,8 +45,16 @@ export const getConversations = async (userId: string): Promise<UnifiedConversat
     for (const msg of messages || []) {
       const partnerId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
       
-      // Skip if this partner's conversation is hidden
-      if (hiddenPartnerIds.has(partnerId)) continue;
+      // Check if conversation was deleted and if this message is after deletion
+      const conversationId = await getOrCreateConversation(userId, partnerId);
+      const deletionThreshold = deletionThresholds.get(conversationId);
+      
+      if (deletionThreshold) {
+        // Skip messages before deletion threshold
+        if (new Date(msg.created_at) <= new Date(deletionThreshold)) {
+          continue;
+        }
+      }
       
       if (!conversationsMap.has(partnerId)) {
         // Get partner profile
@@ -70,10 +68,16 @@ export const getConversations = async (userId: string): Promise<UnifiedConversat
           ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User'
           : 'Unknown User';
 
-        // Count unread messages from this partner
-        const unreadCount = messages.filter(
-          m => m.sender_id === partnerId && m.recipient_id === userId && !m.is_read
-        ).length;
+        // Count unread messages from this partner (only after deletion threshold)
+        const unreadCount = messages.filter(m => {
+          if (m.sender_id !== partnerId || m.recipient_id !== userId || m.is_read) return false;
+          
+          // Only count if after deletion threshold
+          if (deletionThreshold) {
+            return new Date(m.created_at) > new Date(deletionThreshold);
+          }
+          return true;
+        }).length;
 
         conversationsMap.set(partnerId, {
           id: partnerId,
@@ -98,7 +102,20 @@ export const getMessages = async (
   partnerId: string,
   userId: string
 ): Promise<UnifiedMessage[]> => {
-  const { data, error } = await supabase
+  // Get deletion threshold for this user (Messenger-like behavior)
+  const conversationId = await getOrCreateConversation(userId, partnerId);
+  
+  const { data: participant } = await supabase
+    .from('conversation_participants')
+    .select('deleted_at')
+    .eq('conversation_id', conversationId)
+    .eq('user_id', userId)
+    .single();
+
+  const deletionThreshold = participant?.deleted_at;
+
+  // Build query - only show messages AFTER deletion timestamp if exists
+  let query = supabase
     .from('messages')
     .select(`
       id,
@@ -111,8 +128,14 @@ export const getMessages = async (
       file_url,
       file_name
     `)
-    .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`)
-    .order('created_at', { ascending: true });
+    .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`);
+
+  // Filter out messages before deletion (permanent deletion from this user's view)
+  if (deletionThreshold) {
+    query = query.gt('created_at', deletionThreshold);
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: true });
 
   if (error) throw error;
 
@@ -145,14 +168,8 @@ export const sendMessage = async (data: {
   file_url?: string;
   file_name?: string;
 }) => {
-  // Auto-restore conversation for recipient when new message arrives
-  const conversationId = await getOrCreateConversation(data.sender_id, data.recipient_id);
-  
-  await supabase
-    .from('conversation_participants')
-    .update({ deleted_at: null })
-    .eq('conversation_id', conversationId)
-    .eq('user_id', data.recipient_id);
+  // Conversation will reappear automatically if there are new messages after deletion
+  // We don't reset deleted_at - it acts as a permanent threshold timestamp
   
   const { data: message, error } = await supabase
     .from('messages')
@@ -218,8 +235,9 @@ const getOrCreateConversation = async (userId: string, partnerId: string): Promi
   return data;
 };
 
-// Helper: Check if conversation is deleted by user
-const isConversationDeleted = async (userId: string, partnerId: string): Promise<boolean> => {
+// Helper: Get deletion threshold timestamp for a conversation (Messenger-like behavior)
+// Returns null if not deleted, or the timestamp when user deleted the conversation
+const getConversationDeletionThreshold = async (userId: string, partnerId: string): Promise<string | null> => {
   const conversationId = await getOrCreateConversation(userId, partnerId);
   
   const { data } = await supabase
@@ -229,7 +247,7 @@ const isConversationDeleted = async (userId: string, partnerId: string): Promise
     .eq('user_id', userId)
     .single();
   
-  return data?.deleted_at !== null;
+  return data?.deleted_at || null;
 };
 
 export const deleteConversation = async (userId: string, partnerId: string) => {
