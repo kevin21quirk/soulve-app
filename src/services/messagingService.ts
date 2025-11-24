@@ -202,49 +202,20 @@ export const subscribeToMessages = (
   return channel;
 };
 
-// Helper: Get or create conversation between two users
+// Helper: Get or create conversation between two users using database function
 const getOrCreateConversation = async (userId: string, partnerId: string): Promise<string> => {
-  // Find existing conversation with both users as participants
-  const { data: userParticipations } = await supabase
-    .from('conversation_participants')
-    .select('conversation_id')
-    .eq('user_id', userId);
+  const { data, error } = await supabase
+    .rpc('get_or_create_conversation', {
+      user1_id: userId,
+      user2_id: partnerId
+    });
   
-  if (userParticipations && userParticipations.length > 0) {
-    const conversationIds = userParticipations.map(p => p.conversation_id);
-    
-    const { data: partnerParticipation } = await supabase
-      .from('conversation_participants')
-      .select('conversation_id')
-      .eq('user_id', partnerId)
-      .in('conversation_id', conversationIds)
-      .single();
-    
-    if (partnerParticipation) {
-      return partnerParticipation.conversation_id;
-    }
+  if (error) {
+    console.error('[getOrCreateConversation] Error:', error);
+    throw error;
   }
   
-  // Create new conversation
-  const { data: conversation, error: convError } = await supabase
-    .from('conversations')
-    .insert({})
-    .select('id')
-    .single();
-  
-  if (convError) throw convError;
-  
-  // Add both users as participants
-  const { error: participantsError } = await supabase
-    .from('conversation_participants')
-    .insert([
-      { conversation_id: conversation.id, user_id: userId },
-      { conversation_id: conversation.id, user_id: partnerId }
-    ]);
-  
-  if (participantsError) throw participantsError;
-  
-  return conversation.id;
+  return data;
 };
 
 // Helper: Check if conversation is hidden by user
