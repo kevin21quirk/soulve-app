@@ -2,62 +2,96 @@ import { supabase } from "@/integrations/supabase/client";
 import { UnifiedConversation, UnifiedMessage } from "@/types/unified-messaging";
 
 export const getConversations = async (userId: string): Promise<UnifiedConversation[]> => {
-  // Get all messages where user is sender or recipient
-  const { data: messages, error } = await supabase
-    .from('messages')
-    .select(`
-      id,
-      sender_id,
-      recipient_id,
-      content,
-      created_at,
-      is_read
-    `)
-    .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
-    .order('created_at', { ascending: false });
+  try {
+    // Get all messages where user is sender or recipient
+    const { data: messages, error } = await supabase
+      .from('messages')
+      .select(`
+        id,
+        sender_id,
+        recipient_id,
+        content,
+        created_at,
+        is_read
+      `)
+      .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
 
-  if (error) throw error;
+    if (error) throw error;
 
-  // Group by conversation partner
-  const conversationsMap = new Map<string, UnifiedConversation>();
-
-  for (const msg of messages || []) {
-    const partnerId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
+    // Pre-compute which partners are hidden for this user
+    let hiddenPartnerIds = new Set<string>();
     
-    // Skip if conversation is hidden by this user
-    const hidden = await isConversationHidden(userId, partnerId);
-    if (hidden) continue;
-    
-    if (!conversationsMap.has(partnerId)) {
-      // Get partner profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, avatar_url')
-        .eq('id', partnerId)
-        .single();
+    try {
+      // Step 1: Get all hidden conversation IDs for this user
+      const { data: hiddenConversations } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', userId)
+        .not('deleted_at', 'is', null);
 
-      const partnerName = profile 
-        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User'
-        : 'Unknown User';
+      if (hiddenConversations && hiddenConversations.length > 0) {
+        const hiddenConvIds = hiddenConversations.map(c => c.conversation_id);
+        
+        // Step 2: Get the partner user_ids from those conversations
+        const { data: hiddenPartners } = await supabase
+          .from('conversation_participants')
+          .select('user_id')
+          .in('conversation_id', hiddenConvIds)
+          .neq('user_id', userId);
 
-      // Count unread messages from this partner
-      const unreadCount = messages.filter(
-        m => m.sender_id === partnerId && m.recipient_id === userId && !m.is_read
-      ).length;
-
-      conversationsMap.set(partnerId, {
-        id: partnerId,
-        partner_id: partnerId,
-        partner_name: partnerName,
-        partner_avatar: profile?.avatar_url,
-        last_message: msg.content,
-        last_message_time: msg.created_at,
-        unread_count: unreadCount,
-      });
+        if (hiddenPartners) {
+          hiddenPartnerIds = new Set(hiddenPartners.map(p => p.user_id));
+        }
+      }
+    } catch (hiddenError) {
+      // If hidden lookup fails, log it but continue showing all conversations
+      console.warn('[getConversations] Failed to load hidden conversations, showing all:', hiddenError);
     }
-  }
 
-  return Array.from(conversationsMap.values());
+    // Group by conversation partner
+    const conversationsMap = new Map<string, UnifiedConversation>();
+
+    for (const msg of messages || []) {
+      const partnerId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
+      
+      // Skip if this partner's conversation is hidden
+      if (hiddenPartnerIds.has(partnerId)) continue;
+      
+      if (!conversationsMap.has(partnerId)) {
+        // Get partner profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar_url')
+          .eq('id', partnerId)
+          .single();
+
+        const partnerName = profile 
+          ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User'
+          : 'Unknown User';
+
+        // Count unread messages from this partner
+        const unreadCount = messages.filter(
+          m => m.sender_id === partnerId && m.recipient_id === userId && !m.is_read
+        ).length;
+
+        conversationsMap.set(partnerId, {
+          id: partnerId,
+          partner_id: partnerId,
+          partner_name: partnerName,
+          partner_avatar: profile?.avatar_url,
+          last_message: msg.content,
+          last_message_time: msg.created_at,
+          unread_count: unreadCount,
+        });
+      }
+    }
+
+    return Array.from(conversationsMap.values());
+  } catch (error) {
+    console.error('[getConversations] Critical error:', error);
+    throw error;
+  }
 };
 
 export const getMessages = async (

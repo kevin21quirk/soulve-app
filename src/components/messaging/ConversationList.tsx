@@ -15,7 +15,7 @@ interface ConversationListProps {
 }
 
 const ConversationList = ({ onSelect, activeId }: ConversationListProps) => {
-  const { data: conversations, isLoading } = useConversationsQuery();
+  const { data: conversations, isLoading, error, refetch } = useConversationsQuery();
   const [userId, setUserId] = React.useState<string>("");
   const [showNewMessageDialog, setShowNewMessageDialog] = React.useState(false);
 
@@ -50,6 +50,33 @@ const ConversationList = ({ onSelect, activeId }: ConversationListProps) => {
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="px-4 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Messages</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowNewMessageDialog(true)}
+            title="New Message"
+          >
+            <PenSquare className="h-5 w-5" />
+          </Button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <p className="text-muted-foreground mb-4">Failed to load conversations</p>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+        <NewMessageDialog
+          open={showNewMessageDialog}
+          onOpenChange={setShowNewMessageDialog}
+          onSelectUser={onSelect}
+        />
       </div>
     );
   }
