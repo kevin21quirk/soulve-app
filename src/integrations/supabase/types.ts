@@ -1620,6 +1620,7 @@ export type Database = {
       conversation_participants: {
         Row: {
           conversation_id: string
+          deleted_at: string | null
           id: string
           joined_at: string
           last_read_at: string | null
@@ -1627,6 +1628,7 @@ export type Database = {
         }
         Insert: {
           conversation_id: string
+          deleted_at?: string | null
           id?: string
           joined_at?: string
           last_read_at?: string | null
@@ -1634,6 +1636,7 @@ export type Database = {
         }
         Update: {
           conversation_id?: string
+          deleted_at?: string | null
           id?: string
           joined_at?: string
           last_read_at?: string | null

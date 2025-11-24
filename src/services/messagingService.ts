@@ -24,6 +24,10 @@ export const getConversations = async (userId: string): Promise<UnifiedConversat
   for (const msg of messages || []) {
     const partnerId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
     
+    // Skip if conversation is hidden by this user
+    const hidden = await isConversationHidden(userId, partnerId);
+    if (hidden) continue;
+    
     if (!conversationsMap.has(partnerId)) {
       // Get partner profile
       const { data: profile } = await supabase
@@ -107,6 +111,15 @@ export const sendMessage = async (data: {
   file_url?: string;
   file_name?: string;
 }) => {
+  // Auto-unhide conversation for recipient when new message arrives
+  const conversationId = await getOrCreateConversation(data.sender_id, data.recipient_id);
+  
+  await supabase
+    .from('conversation_participants')
+    .update({ deleted_at: null })
+    .eq('conversation_id', conversationId)
+    .eq('user_id', data.recipient_id);
+  
   const { data: message, error } = await supabase
     .from('messages')
     .insert({
@@ -155,12 +168,74 @@ export const subscribeToMessages = (
   return channel;
 };
 
-export const deleteConversation = async (userId: string, partnerId: string) => {
-  const { error } = await supabase
-    .from('messages')
-    .delete()
-    .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`);
+// Helper: Get or create conversation between two users
+const getOrCreateConversation = async (userId: string, partnerId: string): Promise<string> => {
+  // Find existing conversation with both users as participants
+  const { data: userParticipations } = await supabase
+    .from('conversation_participants')
+    .select('conversation_id')
+    .eq('user_id', userId);
+  
+  if (userParticipations && userParticipations.length > 0) {
+    const conversationIds = userParticipations.map(p => p.conversation_id);
+    
+    const { data: partnerParticipation } = await supabase
+      .from('conversation_participants')
+      .select('conversation_id')
+      .eq('user_id', partnerId)
+      .in('conversation_id', conversationIds)
+      .single();
+    
+    if (partnerParticipation) {
+      return partnerParticipation.conversation_id;
+    }
+  }
+  
+  // Create new conversation
+  const { data: conversation, error: convError } = await supabase
+    .from('conversations')
+    .insert({})
+    .select('id')
+    .single();
+  
+  if (convError) throw convError;
+  
+  // Add both users as participants
+  const { error: participantsError } = await supabase
+    .from('conversation_participants')
+    .insert([
+      { conversation_id: conversation.id, user_id: userId },
+      { conversation_id: conversation.id, user_id: partnerId }
+    ]);
+  
+  if (participantsError) throw participantsError;
+  
+  return conversation.id;
+};
 
+// Helper: Check if conversation is hidden by user
+const isConversationHidden = async (userId: string, partnerId: string): Promise<boolean> => {
+  const conversationId = await getOrCreateConversation(userId, partnerId);
+  
+  const { data } = await supabase
+    .from('conversation_participants')
+    .select('deleted_at')
+    .eq('conversation_id', conversationId)
+    .eq('user_id', userId)
+    .single();
+  
+  return data?.deleted_at !== null;
+};
+
+export const hideConversation = async (userId: string, partnerId: string) => {
+  const conversationId = await getOrCreateConversation(userId, partnerId);
+  
+  const { error } = await supabase
+    .from('conversation_participants')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId)
+    .eq('user_id', userId);
+  
   if (error) throw error;
 };
 

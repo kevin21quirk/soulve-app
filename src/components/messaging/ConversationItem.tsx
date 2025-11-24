@@ -7,7 +7,7 @@ import { UnifiedConversation } from "@/types/unified-messaging";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { MoreVertical, Trash2 } from "lucide-react";
-import { useDeleteConversation } from "@/hooks/useDeleteConversation";
+import { useHideConversation } from "@/hooks/useHideConversation";
 interface ConversationItemProps {
   conversation: UnifiedConversation;
   isActive: boolean;
@@ -21,7 +21,7 @@ const ConversationItem = ({
   userId
 }: ConversationItemProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const deleteConversation = useDeleteConversation();
+  const hideConversation = useHideConversation();
   const formatTimestamp = (timestamp?: string) => {
     if (!timestamp) return '';
     try {
@@ -36,7 +36,7 @@ const ConversationItem = ({
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
   const handleDelete = () => {
-    deleteConversation.mutate({
+    hideConversation.mutate({
       userId,
       partnerId: conversation.partner_id
     });
@@ -85,7 +85,7 @@ const ConversationItem = ({
             setShowDeleteDialog(true);
           }} className="text-destructive focus:text-destructive">
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete Conversation
+            Hide Conversation
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -94,15 +94,15 @@ const ConversationItem = ({
     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
       <AlertDialogContent allowDismiss>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
+          <AlertDialogTitle>Hide Conversation?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete all messages with {conversation.partner_name}. 
-            This action cannot be undone.
+            This will hide the conversation from your view. {conversation.partner_name} will still see it. 
+            If they send a new message, the conversation will reappear.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          <AlertDialogAction onClick={handleDelete}>Hide</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
