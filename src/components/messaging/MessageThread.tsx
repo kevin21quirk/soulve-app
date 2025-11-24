@@ -5,6 +5,7 @@ import { useSendMessage } from "@/hooks/useSendMessage";
 import { useConversationsQuery } from "@/hooks/useConversationsQuery";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/services/messagingService";
+import { supabase } from "@/integrations/supabase/client";
 import MessageBubble from "./MessageBubble";
 import ConversationHeader from "./ConversationHeader";
 import MessageInputField from "./MessageInputField";
@@ -40,6 +41,56 @@ const MessageThread = ({
     queryFn: () => getUserProfile(partnerId),
     enabled: !conversation && !!partnerId
   });
+
+  // Query partner's presence
+  const { data: partnerPresence } = useQuery({
+    queryKey: ['presence', partnerId],
+    queryFn: async () => {
+      if (!partnerId) return null;
+      
+      const { data } = await supabase
+        .from('user_presence')
+        .select('is_online, last_seen')
+        .eq('user_id', partnerId)
+        .single();
+      
+      return data;
+    },
+    enabled: !!partnerId,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Real-time subscription for partner presence updates
+  useEffect(() => {
+    if (!partnerId) return;
+
+    const channel = supabase
+      .channel('partner-presence')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_presence',
+          filter: `user_id=eq.${partnerId}`,
+        },
+        () => {
+          // Invalidate presence query on any change
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [partnerId]);
+
+  // Read typing state from React Query cache
+  const { data: typingState } = useQuery<{ isTyping: boolean } | null>({
+    queryKey: ['typing', partnerId],
+    initialData: null,
+  });
+  const isPartnerTyping = typingState?.isTyping;
 
   // Create a temporary conversation object for new conversations
   const displayConversation = conversation || (partnerProfile ? {
@@ -106,8 +157,20 @@ const MessageThread = ({
         </div>
       </ScrollArea>
 
+      {isPartnerTyping && (
+        <div className="px-4 py-2 text-sm text-muted-foreground italic">
+          {displayConversation.partner_name} is typing...
+        </div>
+      )}
+
       <div className=" bg-background mx-0 px-0">
-        <MessageInputField onSend={handleSend} disabled={!partnerId} isSending={sendMutation.isPending} className="m-0 px-4 border-none " />
+        <MessageInputField 
+          onSend={handleSend} 
+          disabled={!partnerId} 
+          isSending={sendMutation.isPending} 
+          className="m-0 px-4 border-none"
+          partnerId={partnerId}
+        />
       </div>
     </div>;
 };

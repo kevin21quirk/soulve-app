@@ -4,21 +4,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Send, Smile, Loader2 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 
 interface MessageInputFieldProps {
   onSend: (content: string) => void;
   disabled?: boolean;
   isSending?: boolean;
   className?: string;
+  partnerId?: string | null;
 }
 
-const MessageInputField = ({ onSend, disabled, isSending, className }: MessageInputFieldProps) => {
+const MessageInputField = ({ onSend, disabled, isSending, className, partnerId }: MessageInputFieldProps) => {
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { notifyTyping, stopTyping } = useTypingIndicator(partnerId);
 
   const handleSend = () => {
     if (message.trim() && !disabled && !isSending) {
+      stopTyping(); // Stop typing indicator before sending
       onSend(message.trim());
       setMessage("");
       // Reset textarea height
@@ -37,6 +41,12 @@ const MessageInputField = ({ onSend, disabled, isSending, className }: MessageIn
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
+    
+    // Notify that user is typing
+    if (e.target.value.length > 0) {
+      notifyTyping();
+    }
+    
     // Auto-expand textarea
     e.target.style.height = 'auto';
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';

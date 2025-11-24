@@ -1,101 +1,50 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-
-export interface UserPresence {
-  userId: string;
-  status: 'online' | 'away' | 'busy' | 'offline';
-  lastSeen: string;
-  activity?: string;
-}
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useUserPresence = () => {
-  const { user } = useAuth();
-  const [userPresences, setUserPresences] = useState<Record<string, UserPresence>>({});
-  const [currentUserStatus, setCurrentUserStatus] = useState<UserPresence['status']>('online');
-
-  const updateUserStatus = useCallback((status: UserPresence['status'], activity?: string) => {
-    if (!user) return;
-
-    setCurrentUserStatus(status);
-    
-    setUserPresences(prev => ({
-      ...prev,
-      [user.id]: {
-        userId: user.id,
-        status,
-        lastSeen: new Date().toISOString(),
-        activity
-      }
-    }));
-  }, [user]);
-
-  const getUserPresence = useCallback((userId: string): UserPresence | null => {
-    return userPresences[userId] || null;
-  }, [userPresences]);
-
-  const isUserOnline = useCallback((userId: string): boolean => {
-    const presence = getUserPresence(userId);
-    return presence?.status === 'online';
-  }, [getUserPresence]);
-
-  // Simulate presence updates
   useEffect(() => {
-    if (!user) return;
+    const updatePresence = async (isOnline: boolean) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    // Set initial status
-    updateUserStatus('online');
+      await supabase
+        .from('user_presence')
+        .upsert({
+          user_id: user.id,
+          is_online: isOnline,
+          last_seen: new Date().toISOString(),
+        });
+    };
 
-    // Simulate other users being online
-    const mockPresences: Record<string, UserPresence> = {
-      'user-1': {
-        userId: 'user-1',
-        status: 'online',
-        lastSeen: new Date().toISOString(),
-        activity: 'Viewing feed'
-      },
-      'user-2': {
-        userId: 'user-2',
-        status: 'away',
-        lastSeen: new Date(Date.now() - 5 * 60 * 1000).toISOString()
-      },
-      'user-3': {
-        userId: 'user-3',
-        status: 'online',
-        lastSeen: new Date().toISOString(),
-        activity: 'In messaging'
+    // Set online when component mounts
+    updatePresence(true);
+
+    // Heartbeat every 30 seconds
+    const interval = setInterval(() => {
+      updatePresence(true);
+    }, 30000);
+
+    // Set offline when page is hidden/closed
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        updatePresence(false);
+      } else {
+        updatePresence(true);
       }
     };
 
-    setUserPresences(prev => ({ ...prev, ...mockPresences }));
-
-    // Auto-update status based on activity (debounced to prevent rapid updates)
-    let debounceTimer: NodeJS.Timeout;
-    const handleVisibilityChange = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        if (document.hidden) {
-          updateUserStatus('away');
-        } else {
-          updateUserStatus('online');
-        }
-      }, 300); // Wait 300ms before updating to prevent rapid state changes
+    const handleBeforeUnload = () => {
+      updatePresence(false);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      clearTimeout(debounceTimer);
+      clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      updateUserStatus('offline');
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      updatePresence(false);
     };
-  }, [user, updateUserStatus]);
-
-  return {
-    userPresences,
-    currentUserStatus,
-    updateUserStatus,
-    getUserPresence,
-    isUserOnline
-  };
+  }, []);
 };

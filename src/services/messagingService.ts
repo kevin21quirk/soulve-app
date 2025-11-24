@@ -126,7 +126,9 @@ export const getMessages = async (
       is_read,
       message_type,
       file_url,
-      file_name
+      file_name,
+      delivered_at,
+      read_at
     `)
     .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`);
 
@@ -154,7 +156,11 @@ export const getMessages = async (
     ...msg,
     message_type: msg.message_type as 'text' | 'image' | 'file' | 'voice',
     isOwn: msg.sender_id === userId,
-    status: (msg.is_read ? 'read' : 'sent') as 'read' | 'sent',
+    status: (
+      msg.read_at ? 'read' : 
+      msg.delivered_at ? 'delivered' : 
+      'sent'
+    ) as 'read' | 'delivered' | 'sent',
     senderName: msg.sender_id === userId ? 'You' : partnerName,
     senderAvatar: msg.sender_id === userId ? undefined : profile?.avatar_url,
   }));
@@ -189,10 +195,25 @@ export const sendMessage = async (data: {
   return message;
 };
 
+// Mark messages as delivered (called when recipient receives message)
+export const markAsDelivered = async (messageIds: string[]) => {
+  const { error } = await supabase
+    .from('messages')
+    .update({ delivered_at: new Date().toISOString() })
+    .in('id', messageIds)
+    .is('delivered_at', null); // Only update if not already delivered
+
+  if (error) throw error;
+};
+
+// Mark messages as read (includes read timestamp)
 export const markAsRead = async (messageIds: string[]) => {
   const { error } = await supabase
     .from('messages')
-    .update({ is_read: true })
+    .update({ 
+      is_read: true,
+      read_at: new Date().toISOString()
+    })
     .in('id', messageIds);
 
   if (error) throw error;
