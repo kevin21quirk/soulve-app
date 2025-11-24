@@ -94,20 +94,21 @@ export class RealtimeManager {
           table: 'posts'
         },
         (payload) => {
+          // Use 'all' for feed queries so deletions sync across all users
           this.queryClient?.invalidateQueries({ 
             queryKey: ['posts'],
-            refetchType: 'active'
+            refetchType: 'all'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed'],
-            refetchType: 'active'
+            refetchType: 'all'
           });
           this.queryClient?.invalidateQueries({ 
             queryKey: ['social-feed-infinite'],
-            refetchType: 'active'
+            refetchType: 'all'
           });
           
-          // Invalidate user-specific queries for the post author
+          // User-specific queries can stay 'active'
           if (payload.new?.author_id) {
             this.queryClient?.invalidateQueries({ 
               queryKey: ['user-posts', payload.new.author_id],
@@ -115,6 +116,41 @@ export class RealtimeManager {
             });
             this.queryClient?.invalidateQueries({ 
               queryKey: ['user-profile', payload.new.author_id],
+              refetchType: 'active'
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'posts'
+        },
+        (payload) => {
+          // Force refetch on all clients when post is deleted
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['posts'],
+            refetchType: 'all'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed'],
+            refetchType: 'all'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['social-feed-infinite'],
+            refetchType: 'all'
+          });
+          
+          // Invalidate user-specific queries for the post author
+          if (payload.old?.author_id) {
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-posts', payload.old.author_id],
+              refetchType: 'active'
+            });
+            this.queryClient?.invalidateQueries({ 
+              queryKey: ['user-profile', payload.old.author_id],
               refetchType: 'active'
             });
           }
