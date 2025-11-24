@@ -38,7 +38,7 @@ const Footer = () => {
             <PrefetchLink to="/careers" className="block text-xs text-muted-foreground hover:underline">Careers</PrefetchLink>
             <PrefetchLink to="/press" className="block text-xs text-muted-foreground hover:underline">Press & Media</PrefetchLink>
             <PrefetchLink to="/team" className="block text-xs text-muted-foreground hover:underline">Team</PrefetchLink>
-            <PrefetchLink to="/blog" className="block text-xs text-muted-foreground hover:underline">Blog</PrefetchLink>
+            <PrefetchLink to="/blog" className="block text-xs text-muted-foreground hover:underline">News & Media</PrefetchLink>
           </div>
 
           {/* Column 2 */}

@@ -29,13 +29,14 @@ const Blog = () => {
 
   return (
     <>
-      <Helmet>
-        <title>SouLVE Blog - Community Stories, Platform Updates & Social Impact News</title>
+        <Helmet>
+        <title>SouLVE Newsroom - Latest Updates, Impact Stories & Platform News</title>
         <meta 
           name="description" 
-          content="Read the latest stories from the SouLVE community, platform updates, social impact insights, and tips for making meaningful connections." 
+          content="Stay updated with the latest news from SouLVE - platform updates, impact stories, company announcements, and insights on building better communities." 
         />
-        <meta property="og:title" content="SouLVE Blog - Community Stories & Updates" />
+        <meta property="og:title" content="SouLVE Newsroom - Latest Updates & News" />
+        <meta property="og:type" content="website" />
         <link rel="canonical" href="https://join-soulve.com/blog" />
       </Helmet>
 
@@ -52,10 +53,10 @@ const Blog = () => {
         <section className="bg-gradient-to-r from-primary to-secondary text-white py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              SouLVE Blog & News
+              SouLVE Newsroom
             </h1>
             <p className="text-xl text-teal-100">
-              Stories, insights, and updates from our community-driven platform.
+              Latest updates, impact stories, and platform news from our community-driven social impact platform.
             </p>
           </div>
         </section>

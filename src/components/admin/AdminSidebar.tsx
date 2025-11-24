@@ -21,7 +21,8 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  Activity
+  Activity,
+  Newspaper
 } from 'lucide-react';
 import {
   Sidebar,
@@ -54,6 +55,7 @@ const adminNavItems = [
   { title: 'Points Config', url: '/admin/points-config', icon: Sliders, showBadge: false },
   { title: 'Campaigns', url: '/admin/campaigns', icon: Award, showBadge: false },
   { title: 'Organizations', url: '/admin/organizations', icon: Users, showBadge: false },
+  { title: 'Blog Management', url: '/admin/blog', icon: Newspaper, showBadge: false },
   { title: 'Donations', url: '/admin/donations', icon: DollarSign, showBadge: false },
   { title: 'Analytics', url: '/admin/analytics', icon: TrendingUp, showBadge: false },
   { title: 'Subscriptions', url: '/admin/subscriptions', icon: Award, showBadge: false },
