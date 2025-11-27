@@ -42,8 +42,18 @@ export const useDownloadESGReport = () => {
       document.body.removeChild(a);
 
       // Increment download count
-      // TODO: Enable after creating RPC function in database
-      // await supabase.rpc('increment_report_download', { report_id: reportId });
+      const { data: reportData } = await supabase
+        .from('esg_reports')
+        .select('download_count')
+        .eq('id', reportId)
+        .single();
+      
+      if (reportData) {
+        await supabase
+          .from('esg_reports')
+          .update({ download_count: (reportData.download_count || 0) + 1 })
+          .eq('id', reportId);
+      }
       
       return { success: true };
     },

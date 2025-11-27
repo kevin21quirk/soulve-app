@@ -98,11 +98,75 @@ serve(async (req) => {
       }
     }
 
-    // In production, send email here using Resend or similar service
-    const invitationUrl = `${req.headers.get('origin')}/register/esg-contributor/${invitationToken}`;
+    // Generate invitation URL
+    const invitationUrl = `${req.headers.get('origin')}/stakeholder-registration/${invitationToken}`;
     
-    console.log('Invitation URL:', invitationUrl);
-    console.log('✅ ESG invitation sent successfully');
+    // Send email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    
+    if (resendApiKey) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'ESG Platform <noreply@soulve.app>',
+            to: [stakeholderEmail],
+            subject: `ESG Data Contribution Request from ${stakeholderOrgName || 'Organization'}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #0ce4af;">ESG Data Contribution Request</h2>
+                <p>You've been invited to contribute ESG data to help ${stakeholderOrgName || 'an organization'} with their sustainability reporting.</p>
+                
+                ${requestMessage ? `<div style="background: #f5f5f5; padding: 15px; border-left: 4px solid #0ce4af; margin: 20px 0;">
+                  <p style="margin: 0;"><strong>Message:</strong></p>
+                  <p style="margin: 5px 0 0 0;">${requestMessage}</p>
+                </div>` : ''}
+                
+                <p><strong>Due Date:</strong> ${new Date(dueDate).toLocaleDateString()}</p>
+                <p><strong>Priority:</strong> ${priority?.toUpperCase() || 'MEDIUM'}</p>
+                
+                <div style="margin: 30px 0;">
+                  <a href="${invitationUrl}" 
+                     style="background: linear-gradient(135deg, #0ce4af 0%, #18a5fe 100%); 
+                            color: white; 
+                            padding: 12px 30px; 
+                            text-decoration: none; 
+                            border-radius: 5px; 
+                            display: inline-block;">
+                    Access Contribution Portal
+                  </a>
+                </div>
+                
+                <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                  This invitation will expire in 30 days. If you have any questions, please contact the organization directly.
+                </p>
+              </div>
+            `,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          console.error('Resend API error:', errorText);
+          throw new Error(`Failed to send email: ${errorText}`);
+        }
+
+        const emailData = await emailResponse.json();
+        console.log('✅ Email sent via Resend:', emailData.id);
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        // Don't fail the entire request if email fails
+      }
+    } else {
+      console.warn('⚠️ RESEND_API_KEY not configured - email not sent');
+      console.log('Invitation URL (for manual sharing):', invitationUrl);
+    }
+    
+    console.log('✅ ESG invitation processed successfully');
 
     return new Response(
       JSON.stringify({

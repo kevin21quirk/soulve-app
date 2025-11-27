@@ -47,3 +47,12 @@ verify_jwt = false
 
 [functions.fetch-gif]
 verify_jwt = true
+
+[functions.generate-esg-report]
+verify_jwt = true
+
+[functions.send-esg-invitation]
+verify_jwt = true
+
+[functions.send-esg-notification]
+verify_jwt = true

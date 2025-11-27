@@ -104,6 +104,32 @@ serve(async (req) => {
 
     console.log(`Fetched ${contributions?.length || 0} stakeholder contributions`);
 
+    // Fetch SDG indicators (UN SDG framework)
+    const { data: sdgIndicators, error: sdgError } = await supabaseClient
+      .from('esg_indicators')
+      .select('*')
+      .eq('framework_id', '510dd185-ef4b-47d6-8b95-efb8193dacb3') // UN_SDG framework ID
+      .order('indicator_code');
+
+    if (sdgError) {
+      console.error('Error fetching SDG indicators:', sdgError);
+    }
+
+    console.log(`Fetched ${sdgIndicators?.length || 0} SDG indicators`);
+
+    // Match organization data to SDG goals
+    const sdgAlignment = sdgIndicators?.map(sdg => {
+      const matchingData = esgData?.filter(d => 
+        d.indicator?.name?.toLowerCase().includes(sdg.name?.toLowerCase().split(' ')[0]) ||
+        d.indicator?.subcategory === sdg.subcategory
+      );
+      return {
+        ...sdg,
+        dataPoints: matchingData?.length || 0,
+        aligned: (matchingData?.length || 0) > 0
+      };
+    }) || [];
+
     // Group data by category
     const categorizedData = {
       environmental: esgData?.filter((d: any) => d.indicator?.category === 'environmental') || [],
@@ -118,7 +144,8 @@ serve(async (req) => {
       executiveSummary,
       reportingPeriod: `${reportingPeriodStart} to ${reportingPeriodEnd}`,
       categorizedData,
-      contributions
+      contributions,
+      sdgAlignment
     });
 
     // Upload HTML to storage
@@ -137,12 +164,18 @@ serve(async (req) => {
       throw htmlUploadError;
     }
 
-    // Get public URL for HTML
-    const { data: { publicUrl: htmlUrl } } = supabaseClient.storage
+    // Generate signed URL (1 year expiry) for secure access
+    const { data: signedUrlData, error: signedUrlError } = await supabaseClient.storage
       .from('esg-reports')
-      .getPublicUrl(htmlFileName);
+      .createSignedUrl(htmlFileName, 31536000); // 1 year in seconds
 
-    console.log('✅ HTML uploaded to storage:', htmlUrl);
+    if (signedUrlError) {
+      console.error('Error creating signed URL:', signedUrlError);
+      throw signedUrlError;
+    }
+
+    const htmlUrl = signedUrlData.signedUrl;
+    console.log('✅ HTML uploaded to storage with signed URL');
 
     // Update report with generated content and URLs
     const { error: updateError } = await supabaseClient
@@ -187,11 +220,28 @@ serve(async (req) => {
 });
 
 function generateReportHTML(data: any): string {
-  const { reportName, reportType, executiveSummary, reportingPeriod, categorizedData, contributions } = data;
+  const { reportName, reportType, executiveSummary, reportingPeriod, categorizedData, contributions, sdgAlignment } = data;
 
   const contributionsList = contributions?.map((c: any) => 
     `<li>${c.contributor_org?.name || 'Unknown'}</li>`
   ).join('') || '';
+
+  const alignedSDGs = sdgAlignment?.filter((sdg: any) => sdg.aligned) || [];
+  const sdgSection = alignedSDGs.length > 0 ? `
+    <div class="category">
+      <h2>UN Sustainable Development Goals Alignment</h2>
+      <p>This report aligns with <strong>${alignedSDGs.length}</strong> UN Sustainable Development Goals:</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+        ${alignedSDGs.map((sdg: any) => `
+          <div style="background: linear-gradient(135deg, #0ce4af 0%, #18a5fe 100%); color: white; padding: 15px; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">SDG ${sdg.indicator_code}</div>
+            <div style="font-size: 14px;">${sdg.name}</div>
+            <div style="font-size: 12px; margin-top: 5px; opacity: 0.9;">${sdg.dataPoints} data points</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
 
   return `
     <!DOCTYPE html>
@@ -219,6 +269,8 @@ function generateReportHTML(data: any): string {
         <h2>Executive Summary</h2>
         <p>${executiveSummary || 'No executive summary provided.'}</p>
       </div>
+
+      ${sdgSection}
 
       <div class="category">
         <h2>Environmental Performance</h2>

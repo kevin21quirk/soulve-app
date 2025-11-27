@@ -32,7 +32,7 @@ const UserTypesSection = () => {
   return (
     <div className="bg-gradient-to-r from-grey-50 to-teal-50 py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-centre mb-16">
+        <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-grey-900 mb-4">Built for Everyone Who Cares</h2>
           <p className="text-xl text-grey-600 max-w-2xl mx-auto">
             Whether you're looking to help or need support, SouLVE creates meaningful connections across all communities.
