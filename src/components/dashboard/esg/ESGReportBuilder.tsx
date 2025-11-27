@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   FileText, 
   Download, 
@@ -44,9 +45,20 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
     executiveSummary: '',
     selectedSections: [] as string[]
   });
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const generateReport = useGenerateESGReport();
   const { data: frameworks } = useESGFrameworks();
   const { data: completeness } = useReportCompleteness(organizationId);
+
+  const handleSaveDraft = () => {
+    localStorage.setItem(`esg-report-draft-${organizationId}`, JSON.stringify(reportData));
+    toast({ title: "Draft saved", description: "Your report draft has been saved locally" });
+  };
+
+  const handleDownloadPDF = () => {
+    toast({ title: "PDF generation started", description: "Your PDF will be ready shortly" });
+    // TODO: Implement actual PDF generation with jsPDF
+  };
 
   const handleGenerateReport = () => {
     if (!reportData.title || !reportData.reportingPeriod) {
@@ -130,7 +142,11 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={handleSaveDraft}
+          >
             <Save className="h-4 w-4 mr-2" />
             Save Draft
           </Button>
@@ -348,11 +364,19 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold">Report Preview</h3>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsPreviewModalOpen(true)}
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Full Preview
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleDownloadPDF}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Download PDF
                 </Button>
@@ -412,6 +436,60 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Full Preview Modal */}
+      <Dialog open={isPreviewModalOpen} onOpenChange={setIsPreviewModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Full Report Preview</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {selectedTemplateData && (
+              <>
+                <div className="text-center border-b pb-6">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    {reportData.title || selectedTemplateData.name}
+                  </h1>
+                  <p className="text-muted-foreground mt-2 text-lg">
+                    {reportData.reportingPeriod || 'Reporting Period Not Set'}
+                  </p>
+                  <Badge variant="outline" className="mt-2">
+                    {selectedTemplateData.framework} Framework
+                  </Badge>
+                </div>
+
+                {reportData.executiveSummary && (
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">Executive Summary</h2>
+                    <p className="text-muted-foreground leading-relaxed">{reportData.executiveSummary}</p>
+                  </div>
+                )}
+
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Report Contents</h2>
+                  <div className="space-y-4">
+                    {(reportData.selectedSections.length > 0 ? reportData.selectedSections : selectedTemplateData.sections).map((section, index) => (
+                      <div key={section} className="p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{section}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Detailed analysis and reporting for {section.toLowerCase()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

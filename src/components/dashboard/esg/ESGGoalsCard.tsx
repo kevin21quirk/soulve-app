@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Target, TrendingUp, Calendar, Users, AlertTriangle } from "lucide-react";
+import { ESGGoalDialog } from "./modals/ESGGoalDialog";
 
 interface Goal {
   id: string;
@@ -22,7 +24,10 @@ interface ESGGoalsCardProps {
   isLoading?: boolean;
 }
 
-const ESGGoalsCard = ({ goals, isLoading = false }: ESGGoalsCardProps) => {
+const ESGGoalsCard = ({ organizationId, goals, isLoading = false }: ESGGoalsCardProps) => {
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const getPriorityColor = (level: string) => {
     switch (level) {
       case 'critical':
@@ -126,7 +131,15 @@ const ESGGoalsCard = ({ goals, isLoading = false }: ESGGoalsCardProps) => {
                    goal.progress_percentage >= 50 ? 'Needs Attention' : 'At Risk'}
                 </span>
               </div>
-              <Button size="sm" variant="outline" className="text-xs h-7">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-xs h-7"
+                onClick={() => {
+                  setSelectedGoal(goal);
+                  setIsDialogOpen(true);
+                }}
+              >
                 View Details
               </Button>
             </div>
@@ -138,7 +151,14 @@ const ESGGoalsCard = ({ goals, isLoading = false }: ESGGoalsCardProps) => {
         <div className="text-center py-8">
           <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">No ESG goals set yet</p>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              setSelectedGoal(null);
+              setIsDialogOpen(true);
+            }}
+          >
             <Target className="h-4 w-4 mr-2" />
             Set First Goal
           </Button>
@@ -150,6 +170,13 @@ const ESGGoalsCard = ({ goals, isLoading = false }: ESGGoalsCardProps) => {
           Goals are automatically tracked against your ESG data inputs. Progress updates in real-time as new data is collected.
         </p>
       </div>
+
+      <ESGGoalDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        organizationId={organizationId}
+        goal={selectedGoal}
+      />
     </Card>
   );
 };
