@@ -18,7 +18,8 @@ import {
   Clock,
   AlertCircle
 } from "lucide-react";
-import { useGenerateESGReport } from "@/services/esgService";
+import { useGenerateESGReport, useESGFrameworks } from "@/services/esgService";
+import { useReportCompleteness } from "@/hooks/esg/useReportCompleteness";
 import { toast } from "@/hooks/use-toast";
 
 interface ReportTemplate {
@@ -44,6 +45,8 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
     selectedSections: [] as string[]
   });
   const generateReport = useGenerateESGReport();
+  const { data: frameworks } = useESGFrameworks();
+  const { data: completeness } = useReportCompleteness(organizationId);
 
   const handleGenerateReport = () => {
     if (!reportData.title || !reportData.reportingPeriod) {
@@ -67,8 +70,16 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
     });
   };
 
-  // Mock data - in real app, this would come from the service
-  const reportTemplates: ReportTemplate[] = [
+  // Map frameworks from database to report templates
+  const reportTemplates: ReportTemplate[] = frameworks?.map(fw => ({
+    id: fw.code.toLowerCase(),
+    name: `${fw.name} Report`,
+    framework: fw.code,
+    description: fw.description || `Report following ${fw.name} standards`,
+    sections: ['Organizational Profile', 'Strategy', 'Performance Metrics', 'Stakeholder Engagement'],
+    estimatedTime: '4-6 weeks',
+    status: 'draft' as const
+  })) || [
     {
       id: 'gri',
       name: 'GRI Standards Report',
@@ -76,33 +87,6 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
       description: 'Comprehensive sustainability report following GRI Standards',
       sections: ['Organizational Profile', 'Strategy', 'Ethics & Integrity', 'Governance', 'Stakeholder Engagement'],
       estimatedTime: '4-6 weeks',
-      status: 'draft'
-    },
-    {
-      id: 'sasb',
-      name: 'SASB Report',
-      framework: 'SASB',
-      description: 'Industry-specific sustainability accounting standards',
-      sections: ['Material Topics', 'Accounting Metrics', 'Activity Metrics', 'Forward-Looking Guidance'],
-      estimatedTime: '3-4 weeks',
-      status: 'in_progress'
-    },
-    {
-      id: 'tcfd',
-      name: 'TCFD Report',
-      framework: 'TCFD',
-      description: 'Climate-related financial disclosures',
-      sections: ['Governance', 'Strategy', 'Risk Management', 'Metrics & Targets'],
-      estimatedTime: '2-3 weeks',
-      status: 'completed'
-    },
-    {
-      id: 'integrated',
-      name: 'Integrated Report',
-      framework: 'IIRC',
-      description: 'Integrated thinking and reporting framework',
-      sections: ['Value Creation Process', 'Business Model', 'Performance', 'Outlook', 'Basis of Preparation'],
-      estimatedTime: '6-8 weeks',
       status: 'draft'
     }
   ];
@@ -308,34 +292,49 @@ const ESGReportBuilder = ({ organizationId }: ESGReportBuilderProps) => {
                   ))}
                 </div>
 
-                {/* Data Completeness Indicator */}
+                {/* Data Completeness Indicator - Use Real Data */}
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                   <h4 className="font-medium text-blue-800 mb-2">Data Completeness</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-blue-600">Environmental Data</span>
-                      <span className="font-medium text-blue-800">85%</span>
+                      <span className="font-medium text-blue-800">
+                        {completeness?.environmental || 0}%
+                      </span>
                     </div>
                     <div className="w-full bg-blue-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{ width: `${completeness?.environmental || 0}%` }}
+                      ></div>
                     </div>
                   </div>
                   <div className="space-y-2 mt-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-blue-600">Social Data</span>
-                      <span className="font-medium text-blue-800">72%</span>
+                      <span className="font-medium text-blue-800">
+                        {completeness?.social || 0}%
+                      </span>
                     </div>
                     <div className="w-full bg-blue-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '72%' }}></div>
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{ width: `${completeness?.social || 0}%` }}
+                      ></div>
                     </div>
                   </div>
                   <div className="space-y-2 mt-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-blue-600">Governance Data</span>
-                      <span className="font-medium text-blue-800">90%</span>
+                      <span className="font-medium text-blue-800">
+                        {completeness?.governance || 0}%
+                      </span>
                     </div>
                     <div className="w-full bg-blue-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '90%' }}></div>
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{ width: `${completeness?.governance || 0}%` }}
+                      ></div>
                     </div>
                   </div>
                 </div>
