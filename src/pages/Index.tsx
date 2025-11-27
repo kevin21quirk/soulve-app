@@ -6,6 +6,7 @@ import HomeHeader from "@/components/HomeHeader";
 import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSchema from "@/components/seo/FAQSchema";
+import { LoadingState } from "@/components/ui/loading-state";
 
 // Lazy load below-the-fold sections for faster initial load
 const HeroSection = lazy(() => import("@/components/HeroSection"));
@@ -104,19 +105,39 @@ const Index = () => {
         ]}
       />
       <HomeHeader />
-      <Suspense fallback={<div className="min-h-screen" />}>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingState message="Loading..." />
+        </div>
+      }>
         <HeroSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={
+        <div className="min-h-[400px] flex items-center justify-center">
+          <LoadingState message="Loading content..." />
+        </div>
+      }>
         <ImpactStoriesSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={
+        <div className="min-h-[400px] flex items-center justify-center">
+          <LoadingState message="Loading features..." />
+        </div>
+      }>
         <FeaturesSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={
+        <div className="min-h-[400px] flex items-center justify-center">
+          <LoadingState message="Loading..." />
+        </div>
+      }>
         <UserTypesSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[200px]" />}>
+      <Suspense fallback={
+        <div className="min-h-[200px] flex items-center justify-center">
+          <LoadingState size="sm" />
+        </div>
+      }>
         <Footer />
       </Suspense>
     </div>

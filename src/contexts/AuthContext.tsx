@@ -184,21 +184,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 5 seconds, assume auth failed
+  // Timeout fallback: If loading state doesn't resolve within 5 seconds, force completion
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (loading && !initialized) {
-        logger.error('⏰ Auth initialization timeout - clearing stale session');
-        localStorage.removeItem('supabase.auth.token');
+      if (loading) {
+        logger.error('⏰ Auth initialization timeout - forcing load completion and clearing stale storage');
+        
+        // Aggressively clear all Supabase-related localStorage
+        try {
+          localStorage.removeItem('supabase.auth.token');
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('sb-')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch (e) {
+          // Ignore localStorage errors in incognito/restricted modes
+        }
+        
         setLoading(false);
         setSession(null);
         setUser(null);
         setOrganizationId(null);
+        setInitialized(true);
       }
     }, 5000); // 5 second timeout
     
     return () => clearTimeout(timeout);
-  }, [loading, initialized]);
+  }, [loading]);
 
   const signOut = async () => {
     try {
