@@ -36,6 +36,18 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         },
       });
     }
+
+    // Clear potentially corrupted auth state on critical errors
+    try {
+      localStorage.removeItem('supabase.auth.token');
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      // Ignore localStorage errors in incognito/restricted modes
+    }
   }
 
   render() {
