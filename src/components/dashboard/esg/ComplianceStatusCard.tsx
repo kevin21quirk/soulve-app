@@ -7,6 +7,7 @@ import type { ESGComplianceStatus } from "@/services/esgService";
 interface ComplianceStatusCardProps {
   complianceData: ESGComplianceStatus[];
   isLoading?: boolean;
+  organizationId?: string;
 }
 
 const ComplianceStatusCard = ({ complianceData, isLoading = false }: ComplianceStatusCardProps) => {

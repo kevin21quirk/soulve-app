@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { MobileAwareTabsList } from "@/components/ui/mobile-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BarChart3, FileText, Settings, Download, RefreshCw, Building } from "lucide-react";
+import { BarChart3, FileText, Settings, Download, RefreshCw, Building, Plus } from "lucide-react";
+import { ReportCreationWizard } from "./ReportCreationWizard";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Select,
@@ -62,6 +63,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   );
   const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
+  const [showReportWizard, setShowReportWizard] = useState(false);
   
   // Report generation hooks
   const generateReport = useGenerateESGReport();
@@ -191,6 +193,14 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
             Enterprise Grade
           </Badge>
           <Button
+            variant="gradient"
+            size="sm"
+            onClick={() => setShowReportWizard(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Report
+          </Button>
+          <Button
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
@@ -198,14 +208,6 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleExportReport}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
           </Button>
         </div>
       </div>
@@ -216,88 +218,62 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         isLoading={scoreLoading}
       />
 
-      <Tabs defaultValue="overview" className="w-full">
-        <MobileAwareTabsList className="grid w-full grid-cols-10 bg-secondary/20 text-xs">
+      <Tabs defaultValue="dashboard" className="w-full">
+        <MobileAwareTabsList className="grid w-full grid-cols-6 bg-secondary/20">
           <TabsTrigger 
-            value="overview"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            value="dashboard"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
-            Overview
+            Dashboard
           </TabsTrigger>
           <TabsTrigger 
-            value="initiatives"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            value="data"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
-            Initiatives
-          </TabsTrigger>
-          <TabsTrigger 
-            value="progress"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
-          >
-            Progress
-          </TabsTrigger>
-          <TabsTrigger 
-            value="materiality"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
-          >
-            Materiality
-          </TabsTrigger>
-          <TabsTrigger 
-            value="benchmarks"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
-          >
-            Benchmarks
+            Data Management
           </TabsTrigger>
           <TabsTrigger 
             value="reports"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
             Reports
           </TabsTrigger>
           <TabsTrigger 
-            value="ai-insights"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            value="insights"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
-            AI Insights
+            Insights
           </TabsTrigger>
           <TabsTrigger 
             value="stakeholders"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
             Stakeholders
           </TabsTrigger>
           <TabsTrigger 
-            value="compliance"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
+            value="settings"
+            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent"
           >
-            Compliance
-          </TabsTrigger>
-          <TabsTrigger 
-            value="data-input"
-            className="text-gray-600 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white data-[state=active]:border-transparent text-xs"
-          >
-            Data Input
+            Settings
           </TabsTrigger>
         </MobileAwareTabsList>
 
-        <TabsContent value="overview" className="mt-6">
+        <TabsContent value="dashboard" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ComplianceStatusCard 
               complianceData={displayCompliance}
               isLoading={complianceLoading}
+              organizationId={selectedOrganizationId}
             />
             <StakeholderEngagementCard 
               engagementData={displayEngagement}
               isLoading={engagementLoading}
             />
             <ESGGoalsCard 
-              goals={[]}
-              isLoading={false}
+              organizationId={selectedOrganizationId}
             />
             <ESGRecommendationsCard 
               organizationId={selectedOrganizationId}
-              recommendations={[]}
-              isLoading={false}
             />
           </div>
           <div className="mt-6">
@@ -308,27 +284,10 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="initiatives" className="mt-6">
-          <InitiativeManagementPanel organizationId={selectedOrganizationId} />
-        </TabsContent>
-
-        <TabsContent value="progress" className="mt-6">
-          <InitiativeProgressDashboard organizationId={selectedOrganizationId} />
-        </TabsContent>
-
-        <TabsContent value="materiality" className="mt-6">
-          <MaterialityAssessmentMatrix />
-        </TabsContent>
-
-        <TabsContent value="benchmarks" className="mt-6">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center max-w-md">
-              <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Benchmarking Coming Soon</h3>
-              <p className="text-muted-foreground">
-                Industry benchmark comparisons will be available once we integrate with benchmark data providers.
-              </p>
-            </div>
+        <TabsContent value="data" className="mt-6">
+          <div className="space-y-6">
+            <ESGDataInputForm organizationId={selectedOrganizationId} />
+            <InitiativeManagementPanel organizationId={selectedOrganizationId} />
           </div>
         </TabsContent>
 
@@ -343,49 +302,30 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="ai-insights" className="mt-6">
-          <AIInsightsDashboard />
+        <TabsContent value="insights" className="mt-6">
+          <div className="space-y-6">
+            <AIInsightsDashboard />
+            <ESGBenchmarkingCard />
+          </div>
         </TabsContent>
 
         <TabsContent value="stakeholders" className="mt-6">
           <StakeholderPortal organizationId={selectedOrganizationId} />
         </TabsContent>
 
-        <TabsContent value="compliance" className="mt-6">
+        <TabsContent value="settings" className="mt-6">
           <div className="space-y-6">
-            <ComplianceStatusCard 
-              complianceData={displayCompliance}
-              isLoading={complianceLoading}
-            />
-            
-            {/* Detailed Compliance Breakdown */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Framework Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {displayCompliance.map((framework, index) => (
-                  <div key={index} className="p-4 border rounded-lg bg-gradient-to-br from-gray-50 to-gray-100">
-                    <h4 className="font-medium text-sm mb-2">{framework.framework_name}</h4>
-                    <div className="text-2xl font-bold text-primary mb-1">
-                      {framework.compliance_percentage}%
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {framework.missing_indicators} missing indicators
-                    </div>
-                    <Button size="sm" variant="outline" className="w-full mt-3">
-                      <FileText className="h-3 w-3 mr-1" />
-                      View Details
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <MaterialityAssessmentMatrix />
+            <InitiativeProgressDashboard organizationId={selectedOrganizationId} />
           </div>
         </TabsContent>
-
-        <TabsContent value="data-input" className="mt-6">
-          <ESGDataInputForm organizationId={selectedOrganizationId} />
-        </TabsContent>
       </Tabs>
+
+      <ReportCreationWizard
+        open={showReportWizard}
+        onOpenChange={setShowReportWizard}
+        organizationId={selectedOrganizationId}
+      />
     </div>
   );
 };

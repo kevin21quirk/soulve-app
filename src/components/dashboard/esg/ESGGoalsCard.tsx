@@ -17,7 +17,8 @@ interface Goal {
 }
 
 interface ESGGoalsCardProps {
-  goals: Goal[];
+  organizationId: string;
+  goals?: Goal[];
   isLoading?: boolean;
 }
 
