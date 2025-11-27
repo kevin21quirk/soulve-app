@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useESGDataRequests } from "@/services/esgService";
 import { format } from "date-fns";
 import { Clock, AlertCircle, CheckCircle, FileText } from "lucide-react";
+import { DataRequestDetailsModal } from "./modals/DataRequestDetailsModal";
+import { SubmitDataDialog } from "./modals/SubmitDataDialog";
 
 interface StakeholderDataRequestsPanelProps {
   organizationId: string;
@@ -11,6 +14,9 @@ interface StakeholderDataRequestsPanelProps {
 
 const StakeholderDataRequestsPanel = ({ organizationId }: StakeholderDataRequestsPanelProps) => {
   const { data: dataRequests, isLoading } = useESGDataRequests(organizationId);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -114,11 +120,24 @@ const StakeholderDataRequestsPanel = ({ organizationId }: StakeholderDataRequest
                 </div>
 
                 <div className="flex items-center justify-end gap-2 mt-4">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedRequest(request);
+                      setIsDetailsModalOpen(true);
+                    }}
+                  >
                     View Details
                   </Button>
                   {request.status === 'pending' && (
-                    <Button size="sm">
+                    <Button 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedRequest(request);
+                        setIsSubmitDialogOpen(true);
+                      }}
+                    >
                       Submit Data
                     </Button>
                   )}
@@ -136,6 +155,24 @@ const StakeholderDataRequestsPanel = ({ organizationId }: StakeholderDataRequest
           </p>
         </Card>
       )}
+
+      <DataRequestDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        request={selectedRequest}
+        onSubmitData={() => {
+          setIsDetailsModalOpen(false);
+          setIsSubmitDialogOpen(true);
+        }}
+      />
+
+      <SubmitDataDialog
+        open={isSubmitDialogOpen}
+        onOpenChange={setIsSubmitDialogOpen}
+        requestId={selectedRequest?.id || ''}
+        indicatorName={selectedRequest?.indicator?.name || ''}
+        indicatorUnit={selectedRequest?.indicator?.unit}
+      />
     </div>
   );
 };

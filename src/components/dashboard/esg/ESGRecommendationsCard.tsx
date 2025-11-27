@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,8 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Lightbulb, TrendingUp, Clock, Sparkles, CheckCircle, X, AlertCircle } from "lucide-react";
 import { useAIESGRecommendations } from "@/hooks/esg/useAIESGRecommendations";
+import { RecommendationsModal } from "./modals/RecommendationsModal";
+import { toast } from "@/hooks/use-toast";
 
 interface Recommendation {
   id: string;
@@ -25,10 +28,19 @@ interface ESGRecommendationsCardProps {
 
 const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs = [], isLoading: propLoading = false }: ESGRecommendationsCardProps) => {
   const { data: aiRecommendations, isLoading: aiLoading, error } = useAIESGRecommendations(organizationId);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Use AI recommendations if available, otherwise fallback to mock data
   const recommendations = aiRecommendations && aiRecommendations.length > 0 ? aiRecommendations : fallbackRecs;
   const isLoading = propLoading || aiLoading;
+
+  const handleDismiss = (id: string) => {
+    toast({ title: "Recommendation dismissed" });
+  };
+
+  const handleAccept = (id: string) => {
+    toast({ title: "Recommendation accepted", description: "Implementation tracking has been started" });
+  };
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'efficiency':
@@ -165,11 +177,20 @@ const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs 
                 {rec.status === 'new' ? 'New' : rec.status}
               </Badge>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="h-7 text-xs">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-7 text-xs"
+                  onClick={() => handleDismiss(rec.id)}
+                >
                   <X className="h-3 w-3 mr-1" />
                   Dismiss
                 </Button>
-                <Button size="sm" className="h-7 text-xs">
+                <Button 
+                  size="sm" 
+                  className="h-7 text-xs"
+                  onClick={() => handleAccept(rec.id)}
+                >
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Accept
                 </Button>
@@ -181,7 +202,11 @@ const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs 
 
       {recommendations.length > 3 && (
         <div className="mt-4 text-center">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+          >
             View All {recommendations.length} Recommendations
           </Button>
         </div>
@@ -201,6 +226,23 @@ const ESGRecommendationsCard = ({ organizationId, recommendations: fallbackRecs 
           Recommendations are updated automatically as new data becomes available.
         </p>
       </div>
+
+      <RecommendationsModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        recommendations={recommendations.map(r => ({
+          id: r.id,
+          title: r.title,
+          description: r.description,
+          type: r.recommendation_type === 'efficiency' ? 'quick_win' : 
+                r.recommendation_type === 'risk_mitigation' ? 'compliance' : 'strategic',
+          priority: r.priority_score >= 80 ? 'high' : r.priority_score >= 60 ? 'medium' : 'low',
+          estimatedEffort: r.implementation_effort,
+          potentialImpact: r.potential_impact
+        }))}
+        onDismiss={handleDismiss}
+        onAccept={handleAccept}
+      />
     </Card>
   );
 };
