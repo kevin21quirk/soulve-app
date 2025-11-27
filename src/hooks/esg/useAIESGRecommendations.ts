@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 export interface AIESGRecommendation {
@@ -16,11 +17,13 @@ export interface AIESGRecommendation {
 
 export const useAIESGRecommendations = (organizationId: string | undefined) => {
   const { toast } = useToast();
+  const { user, loading } = useAuth();
   
   const query = useQuery({
     queryKey: ['esg', 'ai-recommendations', organizationId],
     queryFn: async () => {
       if (!organizationId) throw new Error('Organization ID required');
+      if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase.functions.invoke('ai-esg-insights', {
         body: {
@@ -70,7 +73,7 @@ export const useAIESGRecommendations = (organizationId: string | undefined) => {
         return [];
       }
     },
-    enabled: !!organizationId,
+    enabled: !!organizationId && !!user && !loading, // Wait for auth to complete
     staleTime: 5 * 60 * 1000, // 5 minutes - recommendations don't change that frequently
     retry: (failureCount, error: any) => {
       // Don't retry on auth or rate limit errors
