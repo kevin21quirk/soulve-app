@@ -8136,6 +8136,19 @@ export type Database = {
           target_id: string
         }[]
       }
+      get_conversations_optimized: {
+        Args: { p_user_id: string }
+        Returns: {
+          conversation_id: string
+          deleted_at: string
+          last_message: string
+          last_message_time: string
+          partner_avatar: string
+          partner_id: string
+          partner_name: string
+          unread_count: number
+        }[]
+      }
       get_donor_statistics: {
         Args: { org_id: string }
         Returns: {
