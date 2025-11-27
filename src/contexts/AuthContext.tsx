@@ -44,11 +44,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           logger.log('✅ Token refreshed successfully');
         }
         
+        // Handle explicit sign out events
+        if (event === 'SIGNED_OUT') {
+          logger.log('🔓 User signed out');
+          setSession(null);
+          setUser(null);
+          setOrganizationId(null);
+          setLoading(false);
+          return;
+        }
+        
         // If session becomes null (sign out, expired, or invalid)
         if (!newSession) {
           logger.log('🔓 Session cleared - user signed out or session expired');
+          // Clear potentially corrupted tokens from localStorage
+          localStorage.removeItem('supabase.auth.token');
           setSession(null);
           setUser(null);
+          setOrganizationId(null);
           setLoading(false);
           return;
         }
@@ -170,6 +183,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Timeout fallback: If loading state doesn't resolve within 5 seconds, assume auth failed
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading && !initialized) {
+        logger.error('⏰ Auth initialization timeout - clearing stale session');
+        localStorage.removeItem('supabase.auth.token');
+        setLoading(false);
+        setSession(null);
+        setUser(null);
+        setOrganizationId(null);
+      }
+    }, 5000); // 5 second timeout
+    
+    return () => clearTimeout(timeout);
+  }, [loading, initialized]);
 
   const signOut = async () => {
     try {
