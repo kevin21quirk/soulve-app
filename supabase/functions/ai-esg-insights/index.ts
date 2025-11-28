@@ -20,25 +20,31 @@ serve(async (req) => {
       );
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      console.error("Auth error:", userError?.message || "No user found", {
-        hasAuthHeader: !!authHeader,
-        authHeaderPrefix: authHeader?.substring(0, 20)
-      });
+    // Extract JWT token and decode it (Deno already verified it via verify_jwt = true)
+    const jwt = authHeader.replace("Bearer ", "");
+    const parts = jwt.split(".");
+    if (parts.length !== 3) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Invalid token format" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
-    console.log("✅ Authenticated user:", user.id);
+
+    let userId: string;
+    try {
+      const payload = JSON.parse(atob(parts[1]));
+      userId = payload.sub;
+      if (!userId) {
+        throw new Error("No user ID in token");
+      }
+      console.log("✅ Authenticated user:", userId);
+    } catch (error) {
+      console.error("Token decode error:", error);
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Input validation and sanitization
     const requestBody = await req.json();
@@ -69,7 +75,7 @@ serve(async (req) => {
       .from("organization_members")
       .select("id")
       .eq("organization_id", organizationId)
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("is_active", true)
       .single();
 
@@ -82,7 +88,7 @@ serve(async (req) => {
 
     // Check rate limit (50 requests per hour per user)
     const { data: rateLimitOk } = await supabase.rpc('check_ai_rate_limit', {
-      p_user_id: user.id,
+      p_user_id: userId,
       p_endpoint_name: 'ai-esg-insights',
       p_max_requests: 50,
       p_window_minutes: 60
