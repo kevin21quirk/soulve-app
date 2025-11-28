@@ -12,7 +12,7 @@ import {
   Plus, 
   Building, 
   Calendar,
-  DollarSign,
+  PoundSterling,
   Mail,
   Phone,
   Target
@@ -252,7 +252,7 @@ const BusinessPartnershipManagement = ({ organizationId }: BusinessPartnershipMa
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-green-600" />
+              <PoundSterling className="h-5 w-5 text-green-600" />
               <div>
                 <p className="text-sm text-gray-600">Total Value</p>
                 <p className="text-2xl font-bold">£{totalValue.toLocaleString()}</p>
@@ -312,7 +312,7 @@ const BusinessPartnershipManagement = ({ organizationId }: BusinessPartnershipMa
                 )}
                 {partnership.value && (
                   <div className="flex items-center space-x-2 text-sm">
-                    <DollarSign className="h-3 w-3 text-gray-400" />
+                    <PoundSterling className="h-3 w-3 text-gray-400" />
                     <span className="text-gray-600">Value: £{partnership.value.toLocaleString()}</span>
                   </div>
                 )}

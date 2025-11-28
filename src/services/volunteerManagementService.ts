@@ -102,6 +102,15 @@ export class VolunteerManagementService {
     return data;
   }
 
+  static async deleteOpportunity(opportunityId: string) {
+    const { error } = await supabase
+      .from('volunteer_opportunities')
+      .delete()
+      .eq('id', opportunityId);
+
+    if (error) throw error;
+  }
+
   static async getApplications(opportunityId: string): Promise<VolunteerApplication[]> {
     const { data, error } = await supabase
       .from('volunteer_applications')

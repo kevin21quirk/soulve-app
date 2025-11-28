@@ -12,11 +12,13 @@ import {
   FileText, 
   Plus, 
   Calendar, 
-  DollarSign,
+  PoundSterling,
   AlertTriangle,
   Clock,
   CheckCircle,
-  Target
+  Target,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GrantManagementService, Grant } from "@/services/grantManagementService";
@@ -363,7 +365,7 @@ const GrantManagement = ({ organizationId }: GrantManagementProps) => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-purple-600" />
+                <PoundSterling className="h-5 w-5 text-purple-600" />
                 <div>
                   <p className="text-sm text-gray-600">Total Awarded</p>
                   <p className="text-2xl font-bold">£{analytics.totalAwarded.toLocaleString()}</p>
@@ -408,7 +410,7 @@ const GrantManagement = ({ organizationId }: GrantManagementProps) => {
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
                     {grant.amount_requested && (
                       <div className="flex items-center space-x-1">
-                        <DollarSign className="h-4 w-4" />
+                        <PoundSterling className="h-4 w-4" />
                         <span>Requested: £{grant.amount_requested.toLocaleString()}</span>
                       </div>
                     )}

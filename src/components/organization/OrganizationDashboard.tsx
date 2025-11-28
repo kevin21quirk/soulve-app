@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Users, 
   Heart, 
-  DollarSign, 
+  PoundSterling, 
   TrendingUp, 
   UserPlus, 
   Calendar,
@@ -162,7 +162,7 @@ const OrganizationDashboard = ({ organizationId, organizationName }: Organizatio
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-yellow-600" />
+              <PoundSterling className="h-5 w-5 text-yellow-600" />
               <div>
                 <p className="text-sm text-gray-600">Total Raised</p>
                 <p className="text-2xl font-bold">£{stats.totalRaised.toLocaleString()}</p>
