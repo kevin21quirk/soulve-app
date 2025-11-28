@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   TrendingUp, 
   Users, 
-  DollarSign, 
+  PoundSterling, 
   Heart,
   Award,
   Target,
@@ -94,7 +94,7 @@ const CSRAnalyticsDashboard = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <DollarSign className="h-5 w-5 text-blue-600" />
+                <PoundSterling className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">CSR Investment</p>
