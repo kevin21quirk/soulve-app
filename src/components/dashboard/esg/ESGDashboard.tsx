@@ -24,6 +24,7 @@ import {
 } from "@/services/esgService";
 import { toast } from "@/hooks/use-toast";
 import { useDownloadESGReport } from "@/hooks/esg/useDownloadESGReport";
+import { useESGGoals } from "@/hooks/esg/useESGGoals";
 
 import ESGOverviewCard from "./ESGOverviewCard";
 import ComplianceStatusCard from "./ComplianceStatusCard";
@@ -74,6 +75,7 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
   const { data: complianceData, isLoading: complianceLoading, refetch: refetchCompliance } = useESGComplianceStatus(selectedOrganizationId);
   const { data: carbonData, isLoading: carbonLoading, refetch: refetchCarbon } = useCarbonFootprint(selectedOrganizationId);
   const { data: engagementData, isLoading: engagementLoading, refetch: refetchEngagement } = useStakeholderEngagement(selectedOrganizationId);
+  const { data: goalsData, isLoading: goalsLoading, refetch: refetchGoals } = useESGGoals(selectedOrganizationId);
 
   // Use real data only - no mock fallbacks
   const displayScore = esgScore || { overall: 0, environmental: 0, social: 0, governance: 0, trend: 'stable' as const };
@@ -94,7 +96,8 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
         refetchScore(),
         refetchCompliance(),
         refetchCarbon(),
-        refetchEngagement()
+        refetchEngagement(),
+        refetchGoals()
       ]);
     } finally {
       setRefreshing(false);
@@ -271,6 +274,8 @@ const ESGDashboard = ({ organizations = [] }: ESGDashboardProps) => {
             />
             <ESGGoalsCard 
               organizationId={selectedOrganizationId}
+              goals={goalsData}
+              isLoading={goalsLoading}
             />
             <ESGRecommendationsCard 
               organizationId={selectedOrganizationId}
