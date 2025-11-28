@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Eye, Ban, CheckCircle, Flag } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Eye, Ban, CheckCircle, Flag, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,6 +26,8 @@ interface Campaign {
 const CampaignModerationPanel = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     loadCampaigns();
@@ -100,6 +103,25 @@ const CampaignModerationPanel = () => {
     } catch (error) {
       console.error('Error updating visibility:', error);
       toast.error('Failed to update visibility');
+    }
+  };
+
+  const handleDeleteCampaign = async () => {
+    if (!campaignToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', campaignToDelete.id);
+
+      if (error) throw error;
+      toast.success(`Campaign "${campaignToDelete.title}" deleted permanently`);
+      setDeleteDialogOpen(false);
+      setCampaignToDelete(null);
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      toast.error('Failed to delete campaign');
     }
   };
 
@@ -183,12 +205,51 @@ const CampaignModerationPanel = () => {
                         <CheckCircle className="h-4 w-4" />
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        setCampaignToDelete({ id: campaign.id, title: campaign.title });
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Campaign</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to permanently delete "{campaignToDelete?.title}"? 
+                This will delete:
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>All donations and donation records</li>
+                  <li>All participants and participant data</li>
+                  <li>All comments and interactions</li>
+                  <li>All analytics and tracking data</li>
+                  <li>All campaign updates and media</li>
+                </ul>
+                <strong className="block mt-2 text-destructive">This action cannot be undone.</strong>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteCampaign}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete Permanently
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
