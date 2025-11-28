@@ -77,12 +77,12 @@ const ESGGoalsCard = ({ organizationId, goals, isLoading = false }: ESGGoalsCard
           <h3 className="text-lg font-semibold text-foreground">ESG Goals & Targets</h3>
         </div>
         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-          {goals.length} Active Goals
+          {goals?.length ?? 0} Active Goals
         </Badge>
       </div>
 
       <div className="space-y-4">
-        {goals.map((goal) => (
+        {(goals ?? []).map((goal) => (
           <div
             key={goal.id}
             className={`p-4 rounded-lg border ${getCategoryColor(goal.category)} hover:shadow-sm transition-all duration-200`}
@@ -147,7 +147,7 @@ const ESGGoalsCard = ({ organizationId, goals, isLoading = false }: ESGGoalsCard
         ))}
       </div>
 
-      {goals.length === 0 && (
+      {(!goals || goals.length === 0) && (
         <div className="text-center py-8">
           <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">No ESG goals set yet</p>
