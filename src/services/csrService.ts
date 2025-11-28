@@ -47,25 +47,37 @@ export const fetchCommunityNeeds = async (filters?: {
       .from('posts')
       .select('*')
       .in('category', ['help-needed', 'emergency-relief'])
-      .eq('status', 'active')
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(20);
 
     if (result.error) throw result.error;
 
-    const needs: CommunityNeed[] = (result.data || []).map((post: any) => ({
-      id: post.id,
-      title: post.title || 'Community Need',
-      content: post.content,
-      category: post.category,
-      urgency: post.urgency || 'medium',
-      location: post.location || 'Location not specified',
-      tags: post.tags || [],
-      created_at: post.created_at,
-      author_id: post.author_id,
-      author_name: 'Community Member',
-      author_avatar: '',
-    }));
+    // Fetch author profiles for all posts
+    const authorIds = [...new Set((result.data || []).map((post: any) => post.author_id))];
+    const { data: profiles } = await db
+      .from('profiles')
+      .select('id, first_name, last_name, avatar_url')
+      .in('id', authorIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    const needs: CommunityNeed[] = (result.data || []).map((post: any) => {
+      const profile = profileMap.get(post.author_id) as any;
+      return {
+        id: post.id,
+        title: post.title || 'Community Need',
+        content: post.content,
+        category: post.category,
+        urgency: post.urgency || 'medium',
+        location: post.location || 'Location not specified',
+        tags: post.tags || [],
+        created_at: post.created_at,
+        author_id: post.author_id,
+        author_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Community Member',
+        author_avatar: profile?.avatar_url || '',
+      };
+    });
 
     return needs;
   } catch (error) {
@@ -145,11 +157,7 @@ export const fetchSponsorableCampaigns = async () => {
       status,
       created_at,
       creator_id,
-      profiles!campaigns_creator_id_fkey (
-        first_name,
-        last_name,
-        avatar_url
-      ),
+      organizer,
       campaign_participants (count)
     `)
     .eq('status', 'active')
@@ -159,13 +167,30 @@ export const fetchSponsorableCampaigns = async () => {
 
   if (error) throw error;
 
-  return data.map((campaign: any) => ({
-    ...campaign,
-    supporters_count: campaign.campaign_participants?.[0]?.count || 0,
-    progress: campaign.goal_amount > 0 
-      ? (campaign.current_amount / campaign.goal_amount) * 100 
-      : 0,
-  }));
+  // Fetch creator profiles separately
+  const creatorIds = [...new Set(data.map(c => c.creator_id))];
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, first_name, last_name, avatar_url')
+    .in('id', creatorIds);
+
+  const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+  return data.map((campaign: any) => {
+    const profile = profileMap.get(campaign.creator_id);
+    return {
+      ...campaign,
+      profiles: profile ? {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        avatar_url: profile.avatar_url,
+      } : null,
+      supporters_count: campaign.campaign_participants?.[0]?.count || 0,
+      progress: campaign.goal_amount > 0 
+        ? (campaign.current_amount / campaign.goal_amount) * 100 
+        : 0,
+    };
+  });
 };
 
 // Create campaign sponsorship
