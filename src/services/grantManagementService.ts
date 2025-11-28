@@ -81,6 +81,15 @@ export class GrantManagementService {
     return data;
   }
 
+  static async deleteGrant(grantId: string) {
+    const { error } = await supabase
+      .from('grants')
+      .delete()
+      .eq('id', grantId);
+
+    if (error) throw error;
+  }
+
   static async getGrantsByStatus(organizationId: string, status: string): Promise<Grant[]> {
     const { data, error } = await supabase
       .from('grants')

@@ -81,6 +81,15 @@ export class DonorManagementService {
     return data;
   }
 
+  static async deleteDonor(donorId: string) {
+    const { error } = await supabase
+      .from('donors')
+      .delete()
+      .eq('id', donorId);
+
+    if (error) throw error;
+  }
+
   static async getDonorAnalytics(organizationId: string) {
     const { data: donors } = await supabase
       .from('donors')

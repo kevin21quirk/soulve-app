@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Users, 
   Heart, 
-  DollarSign, 
+  PoundSterling, 
   UserPlus, 
   FileText,
   TrendingUp,
@@ -151,7 +151,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-yellow-600" />
+              <PoundSterling className="h-5 w-5 text-yellow-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Raised</p>
                 <p className="text-2xl font-bold text-foreground">£{stats.totalRaised.toLocaleString()}</p>

@@ -20,7 +20,7 @@ import {
 import { 
   TrendingUp, 
   Users, 
-  DollarSign, 
+  PoundSterling, 
   Target,
   Calendar,
   Award
