@@ -70,8 +70,8 @@ const CampaignPartnershipHub = () => {
         amount
       );
       toast({
-        title: "Sponsorship Request Sent!",
-        description: "The campaign organizer will review your sponsorship offer.",
+        title: "Sponsorship Request Sent",
+        description: "The campaign organiser will review your sponsorship offer.",
       });
       setSelectedCampaign(null);
     } catch (error) {
@@ -96,9 +96,9 @@ const CampaignPartnershipHub = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">Campaign Partnership Hub</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">Campaign Partnerships</h3>
         <p className="text-muted-foreground">
-          Partner with established campaigns and unlock sponsorship opportunities
+          Sponsor community-led campaigns and build strategic partnerships that create measurable social impact
         </p>
       </div>
 

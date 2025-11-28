@@ -88,7 +88,7 @@ const CommunityNeedsDiscovery = () => {
     try {
       await createCSROpportunity(organizationId, need.id);
       toast({
-        title: "Interest Registered!",
+        title: "Interest Registered",
         description: "We've notified the community member. You can now contact them directly.",
       });
     } catch (error) {
@@ -126,9 +126,9 @@ const CommunityNeedsDiscovery = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">Community Needs Discovery</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">Discover Community Needs</h3>
         <p className="text-muted-foreground">
-          Real-time feed of community needs seeking corporate support
+          Real-time feed of community needs seeking corporate support and partnership
         </p>
       </div>
 
@@ -200,7 +200,7 @@ const CommunityNeedsDiscovery = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-foreground">{need.title}</h4>
+                      <h4 className="font-semibold text-lg text-foreground">{need.title}</h4>
                       <Badge className={getUrgencyColor(need.urgency)}>
                         {need.urgency}
                       </Badge>

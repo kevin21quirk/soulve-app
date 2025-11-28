@@ -7,13 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Plus,
-  Sparkles,
-  Building,
   Target,
-  Zap,
-  Palette,
   Users,
-  TrendingUp,
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -69,7 +64,7 @@ const CSRMarketplace = () => {
       if (error) throw error;
 
       toast({
-        title: "Campaign Created!",
+        title: "Campaign Created",
         description: "Your CSR campaign is now live on the platform.",
       });
 
@@ -91,9 +86,9 @@ const CSRMarketplace = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">CSR Marketplace & Creator</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">Create CSR Campaign</h3>
         <p className="text-muted-foreground">
-          Create white-label campaigns and CSR opportunities tailored to your brand
+          Launch corporate-led campaigns to address community needs and track measurable impact
         </p>
       </div>
 
@@ -150,7 +145,7 @@ const CSRMarketplace = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="goal">Budget Goal (£) *</Label>
+                <Label htmlFor="goal">Budget Target (£) *</Label>
                 <Input
                   id="goal"
                   name="goal"
@@ -211,35 +206,36 @@ const CSRMarketplace = () => {
         </CardContent>
       </Card>
 
-      {/* ROI Calculator Section */}
-      <Card>
+      {/* Information Card */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <Target className="h-6 w-6 text-primary" />
             <div>
-              <h4 className="font-semibold text-foreground">Impact ROI Calculator</h4>
+              <h4 className="font-semibold text-foreground">CSR Campaign Guidelines</h4>
               <p className="text-sm text-muted-foreground">
-                Estimate the marketing value and social impact of your CSR initiative
+                Create meaningful campaigns that connect with communities and demonstrate real social impact
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <Zap className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-bold text-foreground">5-10x</p>
-              <p className="text-xs text-muted-foreground">Estimated Media Value ROI</p>
-            </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-bold text-foreground">Direct</p>
-              <p className="text-xs text-muted-foreground">Community Connection</p>
-            </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-bold text-foreground">+35%</p>
-              <p className="text-xs text-muted-foreground">Average Customer Engagement Boost</p>
-            </div>
-          </div>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
+              <span>Align campaigns with UN Sustainable Development Goals (SDGs)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
+              <span>Set clear, measurable outcomes for community benefit</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
+              <span>Track and report progress transparently to stakeholders</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
+              <span>Integrate CSR metrics with your ESG reporting framework</span>
+            </li>
+          </ul>
         </CardContent>
       </Card>
     </div>
