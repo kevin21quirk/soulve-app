@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { MobileAwareTabsList } from "@/components/ui/mobile-tabs";
@@ -13,17 +13,13 @@ import {
   TrendingUp,
   Calendar
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import TeamManagement from "./TeamManagement";
 import DonorManagement from "./DonorManagement";
 import VolunteerManagement from "./VolunteerManagement";
 import GrantManagement from "./GrantManagement";
 import OrganizationAnalytics from "./OrganizationAnalytics";
-import { OrganizationManagementService } from "@/services/organizationManagementService";
-import { DonorManagementService } from "@/services/donorManagementService";
-import { VolunteerManagementService } from "@/services/volunteerManagementService";
-import { GrantManagementService } from "@/services/grantManagementService";
+import { useCharityToolsStats } from "@/hooks/useCharityToolsData";
 
 interface CharityToolsDashboardProps {
   organizationId: string;
@@ -31,55 +27,17 @@ interface CharityToolsDashboardProps {
 }
 
 const CharityToolsDashboard = ({ organizationId, organizationName }: CharityToolsDashboardProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
+  
+  const { data: stats, isLoading: loading } = useCharityToolsStats(organizationId);
+  
+  const safeStats = stats || {
     teamMembers: 0,
     donors: 0,
     volunteers: 0,
     totalRaised: 0,
     activeGrants: 0,
-  });
-
-  useEffect(() => {
-    loadDashboardData();
-  }, [organizationId]);
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load basic stats - if empty, default to 0
-      const [teamData, donorData, volunteerData, grantData] = await Promise.allSettled([
-        OrganizationManagementService.getTeamMembers(organizationId),
-        DonorManagementService.getDonors(organizationId),
-        VolunteerManagementService.getOpportunities(organizationId),
-        GrantManagementService.getGrants(organizationId),
-      ]);
-
-      setStats({
-        teamMembers: teamData.status === 'fulfilled' ? teamData.value.length : 0,
-        donors: donorData.status === 'fulfilled' ? donorData.value.length : 0,
-        volunteers: volunteerData.status === 'fulfilled' ? volunteerData.value.length : 0,
-        totalRaised: donorData.status === 'fulfilled' 
-          ? donorData.value.reduce((sum: number, d: any) => sum + (d.total_donated || 0), 0) 
-          : 0,
-        activeGrants: grantData.status === 'fulfilled' 
-          ? grantData.value.filter((g: any) => g.status === 'active').length 
-          : 0,
-      });
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      toast({
-        title: "Notice",
-        description: "Dashboard loaded. You can start creating your first items.",
-        variant: "default",
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (loading) {
@@ -118,7 +76,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
               <Users className="h-5 w-5 text-blue-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Team Members</p>
-                <p className="text-2xl font-bold text-foreground">{stats.teamMembers}</p>
+                <p className="text-2xl font-bold text-foreground">{safeStats.teamMembers}</p>
               </div>
             </div>
           </CardContent>
@@ -130,7 +88,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
               <Heart className="h-5 w-5 text-red-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Donors</p>
-                <p className="text-2xl font-bold text-foreground">{stats.donors}</p>
+                <p className="text-2xl font-bold text-foreground">{safeStats.donors}</p>
               </div>
             </div>
           </CardContent>
@@ -142,7 +100,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
               <UserPlus className="h-5 w-5 text-green-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Volunteers</p>
-                <p className="text-2xl font-bold text-foreground">{stats.volunteers}</p>
+                <p className="text-2xl font-bold text-foreground">{safeStats.volunteers}</p>
               </div>
             </div>
           </CardContent>
@@ -154,7 +112,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
               <PoundSterling className="h-5 w-5 text-yellow-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Raised</p>
-                <p className="text-2xl font-bold text-foreground">£{stats.totalRaised.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-foreground">£{safeStats.totalRaised.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -166,7 +124,7 @@ const CharityToolsDashboard = ({ organizationId, organizationName }: CharityTool
               <FileText className="h-5 w-5 text-purple-600" />
               <div>
                 <p className="text-sm text-muted-foreground">Active Grants</p>
-                <p className="text-2xl font-bold text-foreground">{stats.activeGrants}</p>
+                <p className="text-2xl font-bold text-foreground">{safeStats.activeGrants}</p>
               </div>
             </div>
           </CardContent>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,9 @@ import {
   Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { DonorManagementService, Donor } from "@/services/donorManagementService";
+import { useDonors, useDonorAnalytics, charityToolsKeys } from "@/hooks/useCharityToolsData";
 
 interface DonorManagementProps {
   organizationId: string;
@@ -33,13 +34,15 @@ interface DonorManagementProps {
 
 const DonorManagement = ({ organizationId }: DonorManagementProps) => {
   const { toast } = useToast();
-  const [donors, setDonors] = useState<Donor[]>([]);
+  const queryClient = useQueryClient();
   const [filteredDonors, setFilteredDonors] = useState<Donor[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSegment, setSelectedSegment] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [analytics, setAnalytics] = useState<any>(null);
+  
+  const { data: donors = [], isLoading: loadingDonors } = useDonors(organizationId);
+  const { data: analytics, isLoading: loadingAnalytics } = useDonorAnalytics(organizationId);
+  const loading = loadingDonors || loadingAnalytics;
   
   const [newDonor, setNewDonor] = useState({
     email: '',
@@ -52,34 +55,8 @@ const DonorManagement = ({ organizationId }: DonorManagementProps) => {
   });
 
   useEffect(() => {
-    loadDonorData();
-  }, [organizationId]);
-
-  useEffect(() => {
     filterDonors();
   }, [donors, searchQuery, selectedSegment]);
-
-  const loadDonorData = async () => {
-    try {
-      setLoading(true);
-      const [donorList, donorAnalytics] = await Promise.all([
-        DonorManagementService.getDonors(organizationId),
-        DonorManagementService.getDonorAnalytics(organizationId)
-      ]);
-      
-      setDonors(donorList);
-      setAnalytics(donorAnalytics);
-    } catch (error) {
-      console.error('Error loading donor data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load donor data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterDonors = async () => {
     let filtered = donors;
@@ -105,6 +82,12 @@ const DonorManagement = ({ organizationId }: DonorManagementProps) => {
     }
 
     setFilteredDonors(filtered);
+  };
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.donors(organizationId) });
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.donorAnalytics(organizationId) });
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.stats(organizationId) });
   };
 
   const handleAddDonor = async () => {
@@ -135,7 +118,7 @@ const DonorManagement = ({ organizationId }: DonorManagementProps) => {
         notes: ''
       });
       setShowAddDialog(false);
-      loadDonorData();
+      refreshData();
     } catch (error) {
       console.error('Error adding donor:', error);
       toast({

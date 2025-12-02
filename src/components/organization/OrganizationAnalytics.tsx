@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -25,46 +24,14 @@ import {
   Calendar,
   Award
 } from "lucide-react";
-import { DonorManagementService } from "@/services/donorManagementService";
-import { VolunteerManagementService } from "@/services/volunteerManagementService";
-import { GrantManagementService } from "@/services/grantManagementService";
+import { useCharityAnalytics } from "@/hooks/useCharityToolsData";
 
 interface OrganizationAnalyticsProps {
   organizationId: string;
 }
 
 const OrganizationAnalytics = ({ organizationId }: OrganizationAnalyticsProps) => {
-  const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState<any>({
-    donor: null,
-    volunteer: null,
-    grant: null
-  });
-
-  useEffect(() => {
-    loadAnalyticsData();
-  }, [organizationId]);
-
-  const loadAnalyticsData = async () => {
-    try {
-      setLoading(true);
-      const [donorAnalytics, volunteerAnalytics, grantAnalytics] = await Promise.all([
-        DonorManagementService.getDonorAnalytics(organizationId),
-        VolunteerManagementService.getVolunteerAnalytics(organizationId),
-        GrantManagementService.getGrantAnalytics(organizationId)
-      ]);
-
-      setAnalyticsData({
-        donor: donorAnalytics,
-        volunteer: volunteerAnalytics,
-        grant: grantAnalytics
-      });
-    } catch (error) {
-      console.error('Error loading analytics data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: analyticsData, isLoading: loading } = useCharityAnalytics(organizationId);
 
   // Mock data for charts (in a real app, this would come from your analytics service)
   const monthlyDonations = [
