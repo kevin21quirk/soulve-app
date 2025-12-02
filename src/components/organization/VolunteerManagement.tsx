@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +21,9 @@ import {
   Eye
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { VolunteerManagementService, VolunteerOpportunity, VolunteerApplication } from "@/services/volunteerManagementService";
+import { useVolunteerOpportunities, charityToolsKeys } from "@/hooks/useCharityToolsData";
 
 interface VolunteerManagementProps {
   organizationId: string;
@@ -30,11 +31,13 @@ interface VolunteerManagementProps {
 
 const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
   const { toast } = useToast();
-  const [opportunities, setOpportunities] = useState<VolunteerOpportunity[]>([]);
-  const [applications, setApplications] = useState<Record<string, VolunteerApplication[]>>({});
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<string | null>(null);
+  
+  const { data, isLoading: loading } = useVolunteerOpportunities(organizationId);
+  const opportunities = data?.opportunities || [];
+  const applications = data?.applications || {};
   
   const [newOpportunity, setNewOpportunity] = useState({
     title: '',
@@ -52,39 +55,9 @@ const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
     training_required: false
   });
 
-  useEffect(() => {
-    loadVolunteerData();
-  }, [organizationId]);
-
-  const loadVolunteerData = async () => {
-    try {
-      setLoading(true);
-      const opportunityList = await VolunteerManagementService.getOpportunities(organizationId);
-      setOpportunities(opportunityList);
-      
-      // Load applications for each opportunity
-      const applicationPromises = opportunityList.map(async (opp) => {
-        const apps = await VolunteerManagementService.getApplications(opp.id);
-        return { opportunityId: opp.id, applications: apps };
-      });
-      
-      const applicationResults = await Promise.all(applicationPromises);
-      const applicationsMap: Record<string, VolunteerApplication[]> = {};
-      applicationResults.forEach(({ opportunityId, applications }) => {
-        applicationsMap[opportunityId] = applications;
-      });
-      setApplications(applicationsMap);
-      
-    } catch (error) {
-      console.error('Error loading volunteer data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load volunteer data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.volunteers(organizationId) });
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.stats(organizationId) });
   };
 
   const handleCreateOpportunity = async () => {
@@ -127,7 +100,7 @@ const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
         training_required: false
       });
       setShowCreateDialog(false);
-      loadVolunteerData();
+      refreshData();
     } catch (error) {
       console.error('Error creating opportunity:', error);
       toast({
@@ -147,7 +120,7 @@ const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
         description: `Application has been ${status}`,
       });
 
-      loadVolunteerData();
+      refreshData();
     } catch (error) {
       console.error('Error reviewing application:', error);
       toast({

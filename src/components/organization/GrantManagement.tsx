@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +20,9 @@ import {
   Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { GrantManagementService, Grant } from "@/services/grantManagementService";
+import { useGrants, useGrantAnalytics, charityToolsKeys } from "@/hooks/useCharityToolsData";
 
 interface GrantManagementProps {
   organizationId: string;
@@ -29,10 +30,12 @@ interface GrantManagementProps {
 
 const GrantManagement = ({ organizationId }: GrantManagementProps) => {
   const { toast } = useToast();
-  const [grants, setGrants] = useState<Grant[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [analytics, setAnalytics] = useState<any>(null);
+  
+  const { data: grants = [], isLoading: loadingGrants } = useGrants(organizationId);
+  const { data: analytics, isLoading: loadingAnalytics } = useGrantAnalytics(organizationId);
+  const loading = loadingGrants || loadingAnalytics;
   
   const [newGrant, setNewGrant] = useState({
     funder_name: '',
@@ -53,30 +56,10 @@ const GrantManagement = ({ organizationId }: GrantManagementProps) => {
     reporting_requirements: ''
   });
 
-  useEffect(() => {
-    loadGrantData();
-  }, [organizationId]);
-
-  const loadGrantData = async () => {
-    try {
-      setLoading(true);
-      const [grantList, grantAnalytics] = await Promise.all([
-        GrantManagementService.getGrants(organizationId),
-        GrantManagementService.getGrantAnalytics(organizationId)
-      ]);
-      
-      setGrants(grantList);
-      setAnalytics(grantAnalytics);
-    } catch (error) {
-      console.error('Error loading grant data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load grant data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.grants(organizationId) });
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.grantAnalytics(organizationId) });
+    queryClient.invalidateQueries({ queryKey: charityToolsKeys.stats(organizationId) });
   };
 
   const handleCreateGrant = async () => {
@@ -124,7 +107,7 @@ const GrantManagement = ({ organizationId }: GrantManagementProps) => {
         reporting_requirements: ''
       });
       setShowCreateDialog(false);
-      loadGrantData();
+      refreshData();
     } catch (error) {
       console.error('Error creating grant:', error);
       toast({
