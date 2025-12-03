@@ -67,11 +67,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     );
   }
 
-  // Don't render if not admin (will redirect)
-  if (!isAdmin) {
-    return null;
-  }
-
+  // Always render children - redirect handles non-admin case
   return <>{children}</>;
 };
 

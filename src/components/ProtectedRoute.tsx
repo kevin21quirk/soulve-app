@@ -64,11 +64,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       </div>
     );
   }
-
-  if (!user) {
-    return null;
-  }
-
+  // Always render children if checks passed - redirect handles no-user case
   return <>{children}</>;
 };
 
