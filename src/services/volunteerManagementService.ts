@@ -45,6 +45,14 @@ export interface VolunteerApplication {
     first_name: string;
     last_name: string;
     avatar_url?: string;
+    location?: string;
+    bio?: string;
+    skills?: string[];
+  };
+  metrics?: {
+    trust_score?: number;
+    volunteer_hours?: number;
+    impact_score?: number;
   };
 }
 
@@ -145,23 +153,37 @@ export class VolunteerManagementService {
 
     if (error) throw error;
     
-    // Get profiles for all applicants
+    // Get profiles for all applicants with full details
     const applicationData = data || [];
     const userIds = applicationData.map(application => application.user_id);
     
     if (userIds.length === 0) return [];
     
+    // Fetch full profile data including location, bio, skills
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')
-      .select('id, first_name, last_name, avatar_url')
+      .select('id, first_name, last_name, avatar_url, location, bio, skills')
       .in('id', userIds);
     
     if (profileError) throw profileError;
     
+    // Fetch impact metrics including trust score
+    const { data: metrics, error: metricsError } = await supabase
+      .from('impact_metrics')
+      .select('user_id, trust_score, volunteer_hours, impact_score')
+      .in('user_id', userIds);
+    
+    if (metricsError) {
+      console.warn('Failed to fetch impact metrics:', metricsError);
+    }
+    
     const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || []);
+    const metricsMap = new Map(metrics?.map(m => [m.user_id, m]) || []);
     
     return applicationData.map(application => {
       const profile = profileMap.get(application.user_id);
+      const userMetrics = metricsMap.get(application.user_id);
+      
       return {
         ...application,
         emergency_contact: typeof application.emergency_contact === 'string' 
@@ -170,7 +192,15 @@ export class VolunteerManagementService {
         profile: profile ? {
           first_name: profile.first_name || '',
           last_name: profile.last_name || '',
-          avatar_url: profile.avatar_url
+          avatar_url: profile.avatar_url,
+          location: profile.location,
+          bio: profile.bio,
+          skills: profile.skills || []
+        } : undefined,
+        metrics: userMetrics ? {
+          trust_score: userMetrics.trust_score,
+          volunteer_hours: userMetrics.volunteer_hours,
+          impact_score: userMetrics.impact_score
         } : undefined
       };
     });
