@@ -186,18 +186,19 @@ export class RealtimeManager {
   private setupConnectionsSubscription() {
     if (!this.userId) return;
 
-    const channel = supabase
-      .channel('realtime-connections')
+    // Fix: Use proper OR filter syntax for Supabase realtime
+    // Create two separate subscriptions for requester and addressee
+    const requesterChannel = supabase
+      .channel('realtime-connections-requester')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'connections',
-          filter: `requester_id=eq.${this.userId},addressee_id=eq.${this.userId}`,
+          filter: `requester_id=eq.${this.userId}`,
         },
         () => {
-          // Mark queries as stale but don't refetch immediately
           this.queryClient?.invalidateQueries({ 
             queryKey: ['real-connections'],
             refetchType: 'none'
@@ -210,7 +211,31 @@ export class RealtimeManager {
       )
       .subscribe();
 
-    this.channels.set('connections', channel);
+    const addresseeChannel = supabase
+      .channel('realtime-connections-addressee')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+          filter: `addressee_id=eq.${this.userId}`,
+        },
+        () => {
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['real-connections'],
+            refetchType: 'none'
+          });
+          this.queryClient?.invalidateQueries({ 
+            queryKey: ['suggested-connections'],
+            refetchType: 'none'
+          });
+        }
+      )
+      .subscribe();
+
+    this.channels.set('connections-requester', requesterChannel);
+    this.channels.set('connections-addressee', addresseeChannel);
   }
 
   private setupInteractionsSubscription() {

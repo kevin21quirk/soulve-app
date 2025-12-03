@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthAccessCheck } from '@/hooks/useAuthCache';
 
@@ -9,63 +9,74 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const { user, isAdmin, onboardingCompleted, waitlistStatus, isLoading } = useAuthAccessCheck();
-  const [hasChecked, setHasChecked] = useState(false);
+  const [authVerified, setAuthVerified] = useState(false);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
+    // Don't do anything while loading
     if (isLoading) return;
+
+    // Prevent multiple redirects
+    if (hasRedirected.current) return;
 
     // If no user, redirect to auth page
     if (!user) {
+      hasRedirected.current = true;
       navigate('/auth', { replace: true });
-      setHasChecked(true);
       return;
     }
 
     // If admin, allow access immediately
     if (isAdmin) {
-      setHasChecked(true);
+      setAuthVerified(true);
       return;
     }
 
     // Check onboarding
     if (!onboardingCompleted) {
+      hasRedirected.current = true;
       navigate('/profile-registration', { replace: true });
-      setHasChecked(true);
       return;
     }
 
     // Check waitlist status
     if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+      hasRedirected.current = true;
       navigate('/waitlist', { replace: true });
-      setHasChecked(true);
       return;
     }
 
     // All checks passed
-    setHasChecked(true);
+    setAuthVerified(true);
   }, [user, isAdmin, onboardingCompleted, waitlistStatus, isLoading, navigate]);
 
-  // Show loading while checking
-  if (isLoading || !hasChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary mx-auto"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-6 w-6 rounded-full bg-primary/20 animate-pulse"></div>
+  // Reset redirect flag when user changes
+  useEffect(() => {
+    hasRedirected.current = false;
+  }, [user?.id]);
+
+  // SKELETON-FIRST RENDERING: Always show children with overlay during loading
+  // This eliminates the blank screen and provides instant visual feedback
+  return (
+    <div className="relative">
+      {/* Always render children for instant content display */}
+      <div className={authVerified ? '' : 'pointer-events-none'}>
+        {children}
+      </div>
+      
+      {/* Loading overlay - only shows during initial auth check */}
+      {(isLoading || (!authVerified && user)) && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary/30 border-t-primary mx-auto"></div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Verifying access...</p>
-            <p className="text-xs text-muted-foreground">Please wait</p>
+            <p className="text-sm text-muted-foreground">Verifying access...</p>
           </div>
         </div>
-      </div>
-    );
-  }
-  // Always render children if checks passed - redirect handles no-user case
-  return <>{children}</>;
+      )}
+    </div>
+  );
 };
 
 export default ProtectedRoute;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,113 +51,20 @@ const Auth = () => {
     };
   }, []);
 
-  // Handle redirect when auth state is ready and user is logged in
+  // Simple redirect - let ProtectedRoute handle detailed checks
   useEffect(() => {
-    let mounted = true;
-    
-    if (loading || !user || !session) return;
-
-    const redirectUser = async () => {
-      try {
-        // Check if user is admin FIRST - admins bypass all checks
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
-
-        if (!mounted) return;
-
-        if (isAdminUser) {
-          navigate('/dashboard', { replace: true });
-          return;
-        }
-
-        // Check if user has completed onboarding
-        const { data: questionnaireData } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle();
-
-        if (!mounted) return;
-        
-        if (questionnaireData) {
-          navigate("/dashboard", { replace: true });
-        } else {
-          navigate("/profile-registration", { replace: true });
-        }
-      } catch (error) {
-        // Stay on auth page if check fails
-      }
-    };
-
-    redirectUser();
-    
-    return () => {
-      mounted = false;
-    };
+    if (!loading && user && session) {
+      navigate('/dashboard', { replace: true });
+    }
   }, [user, session, loading, navigate]);
 
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
   };
 
-  const handleAuthSuccess = async () => {
-    try {
-      // Check if user has completed onboarding
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !user) {
-        console.error('Error getting user:', userError);
-        return;
-      }
-
-      // Check if user is admin FIRST - admins bypass all checks
-      const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-        user_uuid: user.id 
-      });
-
-      if (isAdminUser) {
-        navigate("/dashboard", { replace: true });
-        return;
-      }
-
-      // Check for questionnaire completion
-      const { data: questionnaireData, error: questionnaireError } = await supabase
-        .from('questionnaire_responses')
-        .select('id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle();
-      
-      if (questionnaireError) {
-        console.error('Error checking questionnaire:', questionnaireError);
-      }
-      
-      if (questionnaireData) {
-        // User has completed onboarding - check waitlist status
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('waitlist_status')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        const waitlistStatus = profileData?.waitlist_status;
-        
-        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
-          // User is not approved, redirect to waitlist
-          navigate("/waitlist", { replace: true });
-        } else {
-          // User is approved, go to dashboard
-          navigate("/dashboard", { replace: true });
-        }
-      } else {
-        // New user, needs to complete profile
-        navigate("/profile-registration", { replace: true });
-      }
-    } catch (error) {
-      console.error('Error in handleAuthSuccess:', error);
-    }
+  // Simple auth success - just navigate, let ProtectedRoute handle routing
+  const handleAuthSuccess = () => {
+    navigate("/dashboard", { replace: true });
   };
 
   if (loading) {

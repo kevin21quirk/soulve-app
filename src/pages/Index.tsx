@@ -1,6 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import HomeHeader from "@/components/HomeHeader";
 import SEOHead from "@/components/seo/SEOHead";
@@ -20,54 +19,11 @@ const Index = () => {
   const { user, session, loading } = useAuth();
 
   useEffect(() => {
-    let mounted = true;
-    
-    // Only redirect if we have an authenticated user
-    if (loading || !user || !session) return;
-
-    const checkAuthAndRedirect = async () => {
-      try {
-        // Check if user is admin FIRST - admins bypass all checks
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
-
-        if (!mounted) return;
-
-        if (isAdminUser) {
-          navigate("/dashboard", { replace: true });
-          return;
-        }
-
-        // User is authenticated, check if they've completed onboarding
-        const { data: questionnaireData } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle();
-        
-        if (!mounted) return;
-
-        if (questionnaireData) {
-          // User is authenticated and has completed onboarding, redirect to dashboard
-          navigate("/dashboard", { replace: true });
-          return;
-        } else {
-          // User is authenticated but hasn't completed onboarding
-          navigate("/profile-registration", { replace: true });
-          return;
-        }
-      } catch (error) {
-        console.error('[Index] Error checking auth status:', error);
-      }
-    };
-
-    checkAuthAndRedirect();
-    
-    return () => {
-      mounted = false;
-    };
+    // Simple redirect - let ProtectedRoute handle all the detailed auth checks
+    // This eliminates duplicate database calls
+    if (!loading && user && session) {
+      navigate("/dashboard", { replace: true });
+    }
   }, [user, session, loading, navigate]);
 
   return (
