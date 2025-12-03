@@ -5222,9 +5222,11 @@ export type Database = {
           import_source: string | null
           imported_at: string | null
           is_active: boolean
+          latitude: number | null
           link_preview_data: Json | null
           link_preview_url: string | null
           location: string | null
+          longitude: number | null
           media_urls: string[] | null
           organization_id: string | null
           tags: string[] | null
@@ -5244,9 +5246,11 @@ export type Database = {
           import_source?: string | null
           imported_at?: string | null
           is_active?: boolean
+          latitude?: number | null
           link_preview_data?: Json | null
           link_preview_url?: string | null
           location?: string | null
+          longitude?: number | null
           media_urls?: string[] | null
           organization_id?: string | null
           tags?: string[] | null
@@ -5266,9 +5270,11 @@ export type Database = {
           import_source?: string | null
           imported_at?: string | null
           is_active?: boolean
+          latitude?: number | null
           link_preview_data?: Json | null
           link_preview_url?: string | null
           location?: string | null
+          longitude?: number | null
           media_urls?: string[] | null
           organization_id?: string | null
           tags?: string[] | null
@@ -8096,6 +8102,38 @@ export type Database = {
         Returns: undefined
       }
       encrypt_message: { Args: { message_text: string }; Returns: string }
+      find_nearby_posts: {
+        Args: {
+          limit_count?: number
+          offset_count?: number
+          radius_km?: number
+          user_lat: number
+          user_lon: number
+        }
+        Returns: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          distance_km: number
+          external_id: string
+          id: string
+          import_metadata: Json
+          import_source: string
+          imported_at: string
+          is_active: boolean
+          latitude: number
+          location: string
+          longitude: number
+          media_urls: string[]
+          organization_id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          urgency: string
+          visibility: string
+        }[]
+      }
       find_nearby_users: {
         Args: {
           limit_count?: number
