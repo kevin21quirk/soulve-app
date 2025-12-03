@@ -42,6 +42,8 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     reactions: [],
     feeling: socialPost.feeling,
     visibility: socialPost.visibility || 'public',
+    organization_id: socialPost.organization_id || null,
+    organization_name: socialPost.organization_name || null,
     import_source: socialPost.import_source || null,
     external_id: socialPost.external_id || null,
     import_metadata: socialPost.import_metadata || null,

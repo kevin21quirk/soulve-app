@@ -55,10 +55,11 @@ const fetchSocialFeed = async (
 
   // Filter by organization context
   if (organizationId) {
+    // When viewing org-specific feed, only show that org's posts
     postsQuery = postsQuery.eq('organization_id', organizationId);
-  } else {
-    postsQuery = postsQuery.is('organization_id', null);
   }
+  // When in personal context, show ALL public posts (including org posts)
+  // This ensures volunteer opportunities, grants, etc. appear in everyone's feed
 
   // Add pagination
   postsQuery = postsQuery

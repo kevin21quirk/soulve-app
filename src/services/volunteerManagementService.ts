@@ -91,30 +91,26 @@ export class VolunteerManagementService {
     if (error) throw error;
 
     // Create a corresponding post in the social feed
-    try {
-      await createUnifiedPost({
-        title: opportunityData.title || 'Volunteer Opportunity',
-        content: opportunityData.description || '',
-        category: 'volunteer',
-        urgency: 'medium',
-        location: opportunityData.location || '',
-        tags: [...(opportunityData.skills_needed || []), 'volunteer-opportunity'],
-        visibility: 'public',
-        organizationId: organizationId,
-        importedContent: {
-          sourcePlatform: 'volunteer_opportunity',
-          sourceUrl: data.id, // Store opportunity ID in external_id
-          sourceAuthor: '',
-          sourceTitle: opportunityData.title || '',
-          importedAt: new Date()
-        }
-      });
+    // This MUST succeed for opportunity to be visible in feed
+    const postId = await createUnifiedPost({
+      title: opportunityData.title || 'Volunteer Opportunity',
+      content: opportunityData.description || '',
+      category: 'volunteer',
+      urgency: 'medium',
+      location: opportunityData.location || '',
+      tags: [...(opportunityData.skills_needed || []), 'volunteer-opportunity'],
+      visibility: 'public',
+      organizationId: organizationId,
+      importedContent: {
+        sourcePlatform: 'volunteer_opportunity',
+        sourceUrl: data.id, // Store opportunity ID in external_id
+        sourceAuthor: '',
+        sourceTitle: opportunityData.title || '',
+        importedAt: new Date()
+      }
+    });
 
-      console.log('Volunteer opportunity auto-published to feed:', data.id);
-    } catch (postError) {
-      console.error('Failed to auto-publish volunteer opportunity to feed:', postError);
-      // Don't fail the whole operation if post creation fails
-    }
+    console.log('Volunteer opportunity auto-published to feed:', data.id, 'Post ID:', postId);
 
     return data;
   }
