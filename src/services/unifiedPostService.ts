@@ -9,6 +9,8 @@ interface CreatePostData {
   category: string;
   urgency?: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
   tags?: string[];
   visibility?: string;
   media_urls?: string[];
@@ -55,6 +57,8 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     content: postData.content,
     category: postData.category,
     location: postData.location || '',
+    latitude: postData.latitude || null,
+    longitude: postData.longitude || null,
     urgency: postData.urgency || 'medium',
     tags: postData.tags || [],
     visibility: postData.visibility || 'public',

@@ -1,14 +1,17 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useNearbyPosts, useUserLocation } from '@/hooks/useNearbyPosts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Plus, Loader2 } from 'lucide-react';
+import { RefreshCw, Plus, Loader2, MapPin } from 'lucide-react';
 import CreatePost from './CreatePost';
 import SocialPostCard from './SocialPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
+import LocationFilter from '@/components/feed/LocationFilter';
+import { SocialPost } from '@/services/socialFeedService';
 
 interface RealSocialFeedProps {
   organizationId?: string | null;
@@ -16,9 +19,12 @@ interface RealSocialFeedProps {
 
 const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [locationFilter, setLocationFilter] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [selectedRadius, setSelectedRadius] = useState(25);
+
   const { 
-    posts, 
-    loading, 
+    posts: regularPosts, 
+    loading: regularLoading, 
     refreshing, 
     refreshFeed, 
     handleLike, 
@@ -28,6 +34,57 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
     loadMore,
     hasMore
   } = useRealSocialFeed(organizationId);
+
+  // Nearby posts query (only active when location filter is enabled)
+  const { data: nearbyPosts = [], isLoading: nearbyLoading } = useNearbyPosts(
+    locationFilter?.latitude ?? null,
+    locationFilter?.longitude ?? null,
+    selectedRadius
+  );
+
+  // Determine which posts to show and loading state
+  const isLocationActive = locationFilter !== null;
+  const loading = isLocationActive ? nearbyLoading : regularLoading;
+  
+  // Transform nearby posts to SocialPost format for consistent rendering
+  const transformedNearbyPosts: SocialPost[] = useMemo(() => {
+    if (!isLocationActive || !nearbyPosts.length) return [];
+    
+    return nearbyPosts.map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      author_id: post.author_id,
+      author_name: 'Loading...', // Will be populated by card component
+      author_avatar: '',
+      organization_id: post.organization_id,
+      category: post.category,
+      urgency: post.urgency,
+      location: post.location,
+      tags: post.tags || [],
+      media_urls: post.media_urls || [],
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      likes_count: 0,
+      comments_count: 0,
+      shares_count: 0,
+      is_liked: false,
+      is_bookmarked: false,
+      import_source: post.import_source,
+      external_id: post.external_id,
+      import_metadata: post.import_metadata,
+      imported_at: post.imported_at,
+      // Add distance for display
+      distance_km: post.distance_km
+    }));
+  }, [nearbyPosts, isLocationActive]);
+
+  const posts = isLocationActive ? transformedNearbyPosts : regularPosts;
+
+  const handleLocationChange = (location: { latitude: number; longitude: number } | null, radius: number) => {
+    setLocationFilter(location);
+    setSelectedRadius(radius);
+  };
 
   // Infinite scroll hook
   const { isFetching } = useInfiniteScroll({
@@ -104,30 +161,46 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
       <CreatePost onPostCreated={handlePostCreated} />
 
       {/* Feed Header with enhanced status info */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Community Feed</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Real-time updates enabled • Including campaigns and posts
+          <h2 className="text-2xl font-bold text-foreground">Community Feed</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isLocationActive 
+              ? `Showing posts within ${selectedRadius} km of your location`
+              : 'Real-time updates enabled • Including campaigns and posts'
+            }
           </p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={refreshFeed}
-          disabled={refreshing}
-          className="flex items-center space-x-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <LocationFilter
+            isActive={isLocationActive}
+            onLocationChange={handleLocationChange}
+            selectedRadius={selectedRadius}
+          />
+          <Button 
+            variant="outline" 
+            onClick={refreshFeed}
+            disabled={refreshing}
+            className="flex items-center space-x-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </Button>
+        </div>
       </div>
 
       {/* Enhanced Posts Count with breakdown */}
       {posts.length > 0 && (
-        <div className="text-sm text-gray-500">
-          {posts.length} {posts.length === 1 ? 'item' : 'items'} in your feed
-          {posts.filter(p => p.id.startsWith('campaign_')).length > 0 && (
-            <span className="ml-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <span>{posts.length} {posts.length === 1 ? 'item' : 'items'} in your feed</span>
+          {isLocationActive && (
+            <span className="flex items-center gap-1 text-primary">
+              <MapPin className="h-3 w-3" />
+              Location filter active
+            </span>
+          )}
+          {!isLocationActive && posts.filter(p => p.id.startsWith('campaign_')).length > 0 && (
+            <span>
               ({posts.filter(p => p.id.startsWith('campaign_')).length} campaigns, {posts.filter(p => !p.id.startsWith('campaign_')).length} posts)
             </span>
           )}
