@@ -1,4 +1,3 @@
-
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -6,14 +5,11 @@ import { HelmetProvider } from 'react-helmet-async';
 import * as Sentry from "@sentry/react";
 import ReactGA from 'react-ga4';
 import { Toaster } from '@/components/ui/toaster'
-import { ErrorProvider } from '@/contexts/ErrorContext'
-import ErrorBoundary from '@/components/ui/error-boundary'
 import { createOptimizedQueryClient } from '@/utils/queryConfig';
 import App from './App.tsx'
 import './index.css'
 
 // Initialize Sentry for error tracking
-// Set VITE_SENTRY_DSN in your environment or Supabase secrets
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 
 if (SENTRY_DSN && import.meta.env.PROD) {
@@ -31,7 +27,6 @@ if (SENTRY_DSN && import.meta.env.PROD) {
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
     beforeSend(event, hint) {
-      // Filter out non-critical errors
       if (event.exception) {
         const error = hint.originalException;
         if (error instanceof Error && error.message.includes('Network request failed')) {
@@ -44,7 +39,6 @@ if (SENTRY_DSN && import.meta.env.PROD) {
 }
 
 // Initialize Google Analytics 4
-// Set VITE_GA4_MEASUREMENT_ID in your environment or Supabase secrets
 const GA4_MEASUREMENT_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
 
 if (GA4_MEASUREMENT_ID) {
@@ -57,22 +51,30 @@ if (GA4_MEASUREMENT_ID) {
 
 const queryClient = createOptimizedQueryClient();
 
+// Hide the initial loading spinner once React mounts
+const hideInitialLoader = () => {
+  const loader = document.getElementById('initial-loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 300);
+  }
+};
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error('Root element not found');
 }
 
 createRoot(rootElement).render(
-  <ErrorBoundary>
-    <HelmetProvider>
-      <HashRouter>
-        <QueryClientProvider client={queryClient}>
-          <ErrorProvider>
-            <App />
-            <Toaster />
-          </ErrorProvider>
-        </QueryClientProvider>
-      </HashRouter>
-    </HelmetProvider>
-  </ErrorBoundary>
+  <HelmetProvider>
+    <HashRouter>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster />
+      </QueryClientProvider>
+    </HashRouter>
+  </HelmetProvider>
 );
+
+// Remove loader after React renders
+hideInitialLoader();

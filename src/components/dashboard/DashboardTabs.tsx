@@ -40,8 +40,10 @@ const DashboardTabs = ({ activeTab, onTabChange, organizationId }: DashboardTabs
     }
   }, [activeTab, visitedTabs]);
 
+  // On mobile, Dashboard.tsx renders MobileDashboard instead - but we still
+  // render skeleton to prevent white flash during transition
   if (isMobile) {
-    return null;
+    return <TabSkeleton />;
   }
 
   // Helper to check if tab should render content
