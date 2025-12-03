@@ -138,8 +138,8 @@ const PollCreator = ({ onPollCreate, onClose, initialPoll }: PollCreatorProps) =
   ];
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="pb-3">
+    <Card className="w-full max-w-md max-h-[85vh] flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <BarChart3 className="h-5 w-5 text-blue-500" />
@@ -151,7 +151,7 @@ const PollCreator = ({ onPollCreate, onClose, initialPoll }: PollCreatorProps) =
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 overflow-y-auto flex-1">
         {/* Poll Question */}
         <div>
           <label className="text-sm font-medium text-gray-700 mb-1 block">

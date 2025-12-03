@@ -591,31 +591,37 @@ export const ModernPostComposer = ({ isOpen, onClose, onSubmit, isSubmitting }: 
 
         {/* GIF Picker Dialog */}
         {showGifPicker && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <GifPicker
-              onGifSelect={handleGifSelect}
-              onClose={() => setShowGifPicker(false)}
-            />
+          <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <GifPicker
+                onGifSelect={handleGifSelect}
+                onClose={() => setShowGifPicker(false)}
+              />
+            </div>
           </div>
         )}
 
         {/* Poll Creator Dialog */}
         {showPollCreator && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <PollCreator
-              onPollCreate={handlePollCreate}
-              onClose={() => setShowPollCreator(false)}
-            />
+          <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <PollCreator
+                onPollCreate={handlePollCreate}
+                onClose={() => setShowPollCreator(false)}
+              />
+            </div>
           </div>
         )}
 
         {/* Event Creator Dialog */}
         {showEventCreator && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <EventCreator
-              onEventCreate={handleEventCreate}
-              onClose={() => setShowEventCreator(false)}
-            />
+          <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+            <div className="min-h-full flex items-center justify-center py-8 px-4">
+              <EventCreator
+                onEventCreate={handleEventCreate}
+                onClose={() => setShowEventCreator(false)}
+              />
+            </div>
           </div>
         )}
       </DialogContent>

@@ -98,8 +98,8 @@ const EventCreator = ({ onEventCreate, onClose, initialEvent }: EventCreatorProp
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <Card className="w-full max-w-lg">
-      <CardHeader className="pb-3">
+    <Card className="w-full max-w-lg max-h-[85vh] flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Calendar className="h-5 w-5 text-purple-500" />
@@ -111,7 +111,7 @@ const EventCreator = ({ onEventCreate, onClose, initialEvent }: EventCreatorProp
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 overflow-y-auto flex-1">
         {/* Event Title */}
         <div>
           <label className="text-sm font-medium text-gray-700 mb-1 block">
