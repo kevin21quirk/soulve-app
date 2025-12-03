@@ -36,6 +36,7 @@ import { DonorAvatarList } from '@/components/campaign/DonorAvatarList';
 import { CampaignImpactPreview } from '@/components/campaign/CampaignImpactPreview';
 import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions';
 import { useCampaignStats } from '@/hooks/useCampaignStats';
+import VolunteerOpportunityCard from '@/components/volunteer/VolunteerOpportunityCard';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -560,8 +561,8 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
           </div>
         ) : null}
 
-        {/* Imported Content Badge (non-YouTube) */}
-        {post.import_source && post.import_source !== 'youtube' && post.external_id && (
+        {/* Imported Content Badge (non-YouTube, non-volunteer) */}
+        {post.import_source && post.import_source !== 'youtube' && post.import_source !== 'volunteer_opportunity' && post.external_id && (
           <div className="mb-4 px-4 py-2 bg-primary/5 border-l-4 border-primary flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <Share2 className="h-4 w-4 text-primary" />
@@ -618,6 +619,13 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
             </div>
           )}
         </div>
+
+        {/* Volunteer Opportunity Card */}
+        {post.import_source === 'volunteer_opportunity' && post.external_id && (
+          <div className="mb-4">
+            <VolunteerOpportunityCard opportunityId={post.external_id} />
+          </div>
+        )}
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
