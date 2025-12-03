@@ -1,22 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import MobileDashboard from "@/components/mobile/MobileDashboard";
-import { useToast } from "@/hooks/use-toast";
+import { LoadingState } from "@/components/ui/loading-state";
+
 const Dashboard = () => {
   const isMobile = useIsMobile();
-  const {
-    user,
-    loading
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
-  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const context = searchParams.get('context') || 'personal';
   const orgId = searchParams.get('orgId');
@@ -24,8 +18,6 @@ const Dashboard = () => {
     return searchParams.get("tab") || "feed";
   }, [searchParams]);
   const [currentOrgName, setCurrentOrgName] = useState<string>('');
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   // Header overlay states
   const [showSearch, setShowSearch] = useState(false);
@@ -36,62 +28,17 @@ const Dashboard = () => {
   useEffect(() => {
     const loadOrgName = async () => {
       if (context === 'org' && orgId) {
-        const {
-          data
-        } = await supabase.from('organizations').select('name').eq('id', orgId).single();
+        const { data } = await supabase.from('organizations').select('name').eq('id', orgId).single();
         if (data) setCurrentOrgName(data.name);
       }
     };
     loadOrgName();
   }, [context, orgId]);
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user) return;
-
-      // Skip if already checked to prevent re-runs on token refresh
-      if (onboardingChecked) return;
-      try {
-        const {
-          data
-        } = await supabase.from('questionnaire_responses').select('id').eq('user_id', user.id).maybeSingle();
-        const completed = !!data;
-        setHasCompletedOnboarding(completed);
-        setOnboardingChecked(true);
-        if (!completed) {
-          navigate('/profile-registration', {
-            replace: true
-          });
-          return;
-        }
-
-        // Show welcome message for new users
-        if (completed && !localStorage.getItem('welcomeShown')) {
-          setTimeout(() => {
-            toast({
-              title: "Welcome to SouLVE! 🎉",
-              description: "Your community dashboard is ready. Start exploring and making connections!"
-            });
-            localStorage.setItem('welcomeShown', 'true');
-          }, 1000);
-        }
-      } catch (error) {
-        console.error('Error checking onboarding status:', error);
-        // Default to allowing access if there's an error
-        setHasCompletedOnboarding(true);
-        setOnboardingChecked(true);
-      }
-    };
-    if (!loading && user?.id) {
-      checkOnboardingStatus();
-    }
-  }, [user?.id, loading, toast, navigate, onboardingChecked]);
   const handleNavigateToTab = (tab: string) => {
     setSearchParams({
       tab,
       context,
-      ...(orgId ? {
-        orgId
-      } : {})
+      ...(orgId ? { orgId } : {})
     });
     // Close any open overlays when navigating
     setShowSearch(false);
@@ -99,19 +46,13 @@ const Dashboard = () => {
     setShowActivity(false);
   };
 
-  // Show loading while checking onboarding status
-  if (loading || hasCompletedOnboarding === null) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>;
-  }
-
-  // Don't render dashboard if user hasn't completed onboarding
-  if (!hasCompletedOnboarding) {
-    return null;
+  // Show loading state - NEVER return null
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingState message="Loading your dashboard..." size="lg" />
+      </div>
+    );
   }
   if (isMobile) {
     return <MobileDashboard />;
