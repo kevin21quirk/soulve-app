@@ -36,7 +36,7 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   } = useRealSocialFeed(organizationId);
 
   // Nearby posts query (only active when location filter is enabled)
-  const { data: nearbyPosts = [], isLoading: nearbyLoading } = useNearbyPosts(
+  const { data: nearbyPosts = [], isLoading: nearbyLoading, error: nearbyError } = useNearbyPosts(
     locationFilter?.latitude ?? null,
     locationFilter?.longitude ?? null,
     selectedRadius
@@ -48,38 +48,43 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   
   // Transform nearby posts to SocialPost format for consistent rendering
   const transformedNearbyPosts: SocialPost[] = useMemo(() => {
-    if (!isLocationActive || !nearbyPosts.length) return [];
+    if (!isLocationActive || !nearbyPosts || !nearbyPosts.length) return [];
     
-    return nearbyPosts.map(post => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      author_id: post.author_id,
-      author_name: 'Loading...', // Will be populated by card component
-      author_avatar: '',
-      organization_id: post.organization_id,
-      category: post.category,
-      urgency: post.urgency,
-      location: post.location,
-      tags: post.tags || [],
-      media_urls: post.media_urls || [],
-      created_at: post.created_at,
-      updated_at: post.updated_at,
-      likes_count: 0,
-      comments_count: 0,
-      shares_count: 0,
-      is_liked: false,
-      is_bookmarked: false,
-      import_source: post.import_source,
-      external_id: post.external_id,
-      import_metadata: post.import_metadata,
-      imported_at: post.imported_at,
-      // Add distance for display
-      distance_km: post.distance_km
-    }));
+    try {
+      return nearbyPosts.map(post => ({
+        id: post.id,
+        title: post.title || '',
+        content: post.content || '',
+        author_id: post.author_id,
+        author_name: 'Loading...',
+        author_avatar: '',
+        organization_id: post.organization_id,
+        category: post.category || 'general',
+        urgency: post.urgency || 'normal',
+        location: post.location,
+        tags: post.tags || [],
+        media_urls: post.media_urls || [],
+        created_at: post.created_at,
+        updated_at: post.updated_at,
+        likes_count: 0,
+        comments_count: 0,
+        shares_count: 0,
+        is_liked: false,
+        is_bookmarked: false,
+        import_source: post.import_source,
+        external_id: post.external_id,
+        import_metadata: post.import_metadata,
+        imported_at: post.imported_at,
+        distance_km: post.distance_km
+      }));
+    } catch (err) {
+      console.error('Error transforming nearby posts:', err);
+      return [];
+    }
   }, [nearbyPosts, isLocationActive]);
 
-  const posts = isLocationActive ? transformedNearbyPosts : regularPosts;
+  // If nearby query failed, fall back to regular posts
+  const posts = (isLocationActive && !nearbyError) ? transformedNearbyPosts : regularPosts;
 
   const handleLocationChange = (location: { latitude: number; longitude: number } | null, radius: number) => {
     setLocationFilter(location);

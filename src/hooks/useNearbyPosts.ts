@@ -86,23 +86,30 @@ export const useNearbyPosts = (
         return [];
       }
 
-      const { data, error } = await supabase.rpc('find_nearby_posts', {
-        user_lat: latitude,
-        user_lon: longitude,
-        radius_km: radiusKm,
-        limit_count: limit,
-        offset_count: offset,
-      });
+      try {
+        const { data, error } = await supabase.rpc('find_nearby_posts', {
+          user_lat: latitude,
+          user_lon: longitude,
+          radius_km: radiusKm,
+          limit_count: limit,
+          offset_count: offset,
+        });
 
-      if (error) {
-        console.error('Error fetching nearby posts:', error);
-        throw error;
+        if (error) {
+          console.error('Error fetching nearby posts:', error);
+          // Return empty array instead of throwing to prevent crashes
+          return [];
+        }
+
+        return (data || []) as NearbyPost[];
+      } catch (err) {
+        console.error('Exception in nearby posts query:', err);
+        return [];
       }
-
-      return (data || []) as NearbyPost[];
     },
     enabled: latitude !== null && longitude !== null,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry on error
   });
 };
 
