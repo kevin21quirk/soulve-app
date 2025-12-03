@@ -233,19 +233,37 @@ export const useRealNetworkAnalytics = () => {
   useEffect(() => {
     if (!userId) return;
 
-    // Subscribe to connections changes
-    const connectionsChannel = supabase
-      .channel('network-connections-realtime')
+    // Subscribe to connections where user is requester
+    const connectionsRequesterChannel = supabase
+      .channel('network-connections-requester')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'connections',
-          filter: `requester_id=eq.${userId},addressee_id=eq.${userId}`
+          filter: `requester_id=eq.${userId}`
         },
         () => {
-          console.log('Connection change detected, refreshing network analytics');
+          console.log('Connection change detected (requester), refreshing network analytics');
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to connections where user is addressee
+    const connectionsAddresseeChannel = supabase
+      .channel('network-connections-addressee')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+          filter: `addressee_id=eq.${userId}`
+        },
+        () => {
+          console.log('Connection change detected (addressee), refreshing network analytics');
           fetchData();
         }
       )
@@ -288,7 +306,8 @@ export const useRealNetworkAnalytics = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(connectionsChannel);
+      supabase.removeChannel(connectionsRequesterChannel);
+      supabase.removeChannel(connectionsAddresseeChannel);
       supabase.removeChannel(orgMembersChannel);
       supabase.removeChannel(activitiesChannel);
     };
