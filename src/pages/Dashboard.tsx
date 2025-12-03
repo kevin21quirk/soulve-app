@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,9 +8,10 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import MobileDashboard from "@/components/mobile/MobileDashboard";
 import { LoadingState } from "@/components/ui/loading-state";
-
+import { preloadTabBundles, prefetchCriticalData } from "@/hooks/usePrefetchTabData";
 const Dashboard = () => {
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const { user, loading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const context = searchParams.get('context') || 'personal';
@@ -34,6 +36,12 @@ const Dashboard = () => {
     };
     loadOrgName();
   }, [context, orgId]);
+
+  // Preload tab bundles and critical data on mount
+  useEffect(() => {
+    preloadTabBundles();
+    prefetchCriticalData(queryClient);
+  }, [queryClient]);
   const handleNavigateToTab = (tab: string) => {
     setSearchParams({
       tab,
