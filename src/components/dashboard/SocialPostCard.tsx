@@ -499,17 +499,22 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
             </Avatar>
             
             <div className="flex-1">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center flex-wrap gap-2">
                 <h3 
-                  className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                  className="font-semibold text-foreground cursor-pointer hover:underline"
                   onClick={handleProfileClick}
                 >
                   {post.author}
                 </h3>
-                {(post as any).organization_id && (
-                  <Badge variant="secondary" className="gap-1">
+                {(post as any).organization_name && (
+                  <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
                     <Building className="h-3 w-3" />
-                    <span className="text-xs">Organization</span>
+                    <span className="text-xs">{(post as any).organization_name}</span>
+                  </Badge>
+                )}
+                {post.import_source === 'volunteer_opportunity' && (
+                  <Badge className="bg-green-600 text-white hover:bg-green-700">
+                    🙋 Volunteer Opportunity
                   </Badge>
                 )}
                 <Badge variant="outline" className={getCategoryColor(post.category)}>

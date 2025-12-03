@@ -62,11 +62,12 @@ export const createUnifiedPost = async (postData: CreatePostData) => {
     is_active: true
   };
 
-  // Set either author_id OR organization_id, not both
+  // ALWAYS set author_id (required by database NOT NULL constraint)
+  postToInsert.author_id = user.id;
+
+  // ADDITIONALLY set organization_id when posting on behalf of org
   if (postData.organizationId) {
     postToInsert.organization_id = postData.organizationId;
-  } else {
-    postToInsert.author_id = user.id;
   }
 
   // Add imported content fields if present (Phase 2)

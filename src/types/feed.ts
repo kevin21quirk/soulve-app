@@ -22,6 +22,8 @@ export interface FeedPost {
   reactions?: Reaction[];
   feeling?: string;
   visibility?: string;
+  organization_id?: string | null;
+  organization_name?: string | null;
   import_source?: string | null;
   external_id?: string | null;
   import_metadata?: {
