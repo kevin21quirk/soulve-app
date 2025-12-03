@@ -95,7 +95,7 @@ export class VolunteerManagementService {
     const postId = await createUnifiedPost({
       title: opportunityData.title || 'Volunteer Opportunity',
       content: opportunityData.description || '',
-      category: 'volunteer',
+      category: 'help-needed',
       urgency: 'medium',
       location: opportunityData.location || '',
       tags: [...(opportunityData.skills_needed || []), 'volunteer-opportunity'],
