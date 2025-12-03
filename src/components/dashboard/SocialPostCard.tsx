@@ -37,6 +37,7 @@ import { CampaignImpactPreview } from '@/components/campaign/CampaignImpactPrevi
 import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions';
 import { useCampaignStats } from '@/hooks/useCampaignStats';
 import VolunteerOpportunityCard from '@/components/volunteer/VolunteerOpportunityCard';
+import FeedAttachments from '@/components/feed/FeedAttachments';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -631,6 +632,9 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
             <VolunteerOpportunityCard opportunityId={post.external_id} />
           </div>
         )}
+
+        {/* Poll, Event, GIF Attachments */}
+        <FeedAttachments postId={post.id} />
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (

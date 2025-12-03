@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createUnifiedPost } from '@/services/unifiedPostService';
@@ -13,6 +12,48 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { organizationId } = useAccount();
+
+  const storeGifData = async (postId: string, gifData: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from('post_interactions')
+      .insert({
+        post_id: postId,
+        user_id: user.id,
+        interaction_type: 'gif_attachment',
+        content: JSON.stringify(gifData)
+      });
+  };
+
+  const storePollData = async (postId: string, pollData: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from('post_interactions')
+      .insert({
+        post_id: postId,
+        user_id: user.id,
+        interaction_type: 'poll_data',
+        content: JSON.stringify(pollData)
+      });
+  };
+
+  const storeEventData = async (postId: string, eventData: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from('post_interactions')
+      .insert({
+        post_id: postId,
+        user_id: user.id,
+        interaction_type: 'event_data',
+        content: JSON.stringify(eventData)
+      });
+  };
 
   const createPost = async (postData: any) => {
     setIsCreating(true);
@@ -65,8 +106,24 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         media_urls: mediaUrls,
         importedContent: postData.importedContent,
         organizationId: organizationId || undefined,
-        tagged_user_ids: postData.taggedUserIds || []
+        tagged_user_ids: postData.taggedUserIds || postData.taggedUsers || []
       });
+
+      // Store additional attachment data (GIF, Poll, Event)
+      if (postData.hasGif && postData.selectedGif) {
+        console.log('Storing GIF data:', postData.selectedGif);
+        await storeGifData(postId, postData.selectedGif);
+      }
+
+      if (postData.hasPoll && postData.pollData) {
+        console.log('Storing Poll data:', postData.pollData);
+        await storePollData(postId, postData.pollData);
+      }
+
+      if (postData.isEvent && postData.eventData) {
+        console.log('Storing Event data:', postData.eventData);
+        await storeEventData(postId, postData.eventData);
+      }
 
       // Show success message
       toast({
