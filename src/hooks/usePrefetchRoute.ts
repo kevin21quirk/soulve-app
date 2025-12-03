@@ -23,6 +23,11 @@ export const prefetchRoute = (routePath: string) => {
     try {
       // Map route paths to their component files
       const routeMap: Record<string, () => Promise<any>> = {
+        // Core authenticated routes
+        '/dashboard': () => import('@/pages/Dashboard'),
+        '/auth': () => import('@/pages/Auth'),
+        
+        // Public pages
         '/about': () => import('@/pages/About'),
         '/how-it-works': () => import('@/pages/HowItWorks'),
         '/faq': () => import('@/pages/FAQ'),

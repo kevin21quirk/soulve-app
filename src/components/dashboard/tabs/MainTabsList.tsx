@@ -1,4 +1,3 @@
-
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
@@ -13,9 +12,11 @@ import {
 } from "lucide-react";
 import { NotificationBadge } from "@/components/ui/notification-badge";
 import { useNotificationCounts } from "@/hooks/useNotificationCounts";
+import { usePrefetchTabData } from "@/hooks/usePrefetchTabData";
 
 const MainTabsList = () => {
   const { counts } = useNotificationCounts();
+  const { createHoverHandlers } = usePrefetchTabData();
 
   const tabs = [
     { value: "feed", icon: Rss, label: "Feed", badgeCount: 0 },
@@ -33,12 +34,14 @@ const MainTabsList = () => {
       <TabsList className="flex w-full bg-transparent border-none p-2 gap-1 rounded-lg h-auto overflow-x-auto">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
+          const hoverHandlers = createHoverHandlers(tab.value);
           return (
             <Tooltip key={tab.value}>
               <TooltipTrigger asChild>
               <TabsTrigger 
                 value={tab.value}
                 className="flex items-center justify-center rounded-md px-4 py-3 transition-all duration-200 flex-1 min-w-0 relative border border-border text-muted-foreground bg-muted/50 hover:bg-gradient-to-r hover:from-[hsl(var(--soulve-teal))] hover:to-[hsl(var(--soulve-blue))] hover:text-white hover:border-transparent hover:shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(var(--soulve-teal))] data-[state=active]:to-[hsl(var(--soulve-blue))] data-[state=active]:text-white data-[state=active]:border-transparent data-[state=active]:shadow-xl data-[state=active]:scale-105"
+                {...hoverHandlers}
               >
                   <IconComponent className="h-5 w-5" />
                   <NotificationBadge count={tab.badgeCount} />
