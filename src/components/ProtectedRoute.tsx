@@ -1,87 +1,52 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthAccessCheck } from '@/hooks/useAuthCache';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
+  const { user, isAdmin, onboardingCompleted, waitlistStatus, isLoading } = useAuthAccessCheck();
+  const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
-    const checkAccess = async () => {
-      // Wait for auth to be ready
-      if (authLoading) return;
+    if (isLoading) return;
 
-      setChecking(true);
+    // If no user, redirect to auth page
+    if (!user) {
+      navigate('/auth', { replace: true });
+      setHasChecked(true);
+      return;
+    }
 
-      // If no user, redirect to auth page
-      if (!user) {
-        navigate('/auth', { replace: true });
-        setChecking(false);
-        return;
-      }
+    // If admin, allow access immediately
+    if (isAdmin) {
+      setHasChecked(true);
+      return;
+    }
 
-      try {
-        // Check if user is an admin - admins bypass all checks
-        // Use security definer function for consistent and secure admin verification
-        const { data: isAdmin } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
+    // Check onboarding
+    if (!onboardingCompleted) {
+      navigate('/profile-registration', { replace: true });
+      setHasChecked(true);
+      return;
+    }
 
-        // If admin, allow access
-        if (isAdmin) {
-          setChecking(false);
-          return;
-        }
+    // Check waitlist status
+    if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
+      navigate('/waitlist', { replace: true });
+      setHasChecked(true);
+      return;
+    }
 
-        // Check if user has completed the questionnaire
-        const { data: questionnaireData } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
+    // All checks passed
+    setHasChecked(true);
+  }, [user, isAdmin, onboardingCompleted, waitlistStatus, isLoading, navigate]);
 
-        if (!questionnaireData) {
-          // User hasn't completed onboarding
-          navigate('/profile-registration', { replace: true });
-          return;
-        }
-
-        // For non-admin users who completed questionnaire, check waitlist status
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('waitlist_status')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        const waitlistStatus = profileData?.waitlist_status;
-        
-        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
-          // User is not approved, redirect to waitlist
-          navigate('/waitlist', { replace: true });
-          return;
-        }
-
-        // User has completed onboarding and is approved, allow access
-        setChecking(false);
-      } catch (error) {
-        console.error('Error checking access:', error);
-        // On error, still allow access but log it
-        setChecking(false);
-      }
-    };
-
-    checkAccess();
-  }, [user, navigate, authLoading]);
-
-  // Show loading while checking auth status
-  if (authLoading || checking) {
+  // Show loading while checking
+  if (isLoading || !hasChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
         <div className="text-center space-y-4">
@@ -100,7 +65,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Don't render anything if no user (will redirect)
   if (!user) {
     return null;
   }
