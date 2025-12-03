@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useNearbyPosts, useUserLocation } from '@/hooks/useNearbyPosts';
+import { useNearbyPosts } from '@/hooks/useNearbyPosts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Plus, Loader2, MapPin } from 'lucide-react';
