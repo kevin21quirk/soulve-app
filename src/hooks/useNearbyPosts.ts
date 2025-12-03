@@ -41,7 +41,7 @@ export const useUserLocation = () => {
 
   const requestLocation = async (): Promise<{ latitude: number; longitude: number } | null> => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+      setError('Geolocation is not supported by your browser. Try searching for a location instead.');
       return null;
     }
 
@@ -60,7 +60,20 @@ export const useUserLocation = () => {
           resolve(coords);
         },
         (err) => {
-          setError(err.message);
+          // Provide user-friendly error messages
+          let errorMessage = 'Could not detect location.';
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied. You can search for a location instead.';
+              break;
+            case err.POSITION_UNAVAILABLE:
+              errorMessage = 'Location unavailable. Try searching for a location.';
+              break;
+            case err.TIMEOUT:
+              errorMessage = 'Location request timed out. Try again or search for a location.';
+              break;
+          }
+          setError(errorMessage);
           setLoading(false);
           resolve(null);
         },
@@ -69,7 +82,9 @@ export const useUserLocation = () => {
     });
   };
 
-  return { location, loading, error, requestLocation, setLocation };
+  const clearError = () => setError(null);
+
+  return { location, loading, error, requestLocation, setLocation, clearError };
 };
 
 export const useNearbyPosts = (
