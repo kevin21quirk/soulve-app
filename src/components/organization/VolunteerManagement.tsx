@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +19,17 @@ import {
   User,
   CheckCircle,
   AlertCircle,
-  Eye
+  Eye,
+  MessageCircle,
+  Shield
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { VolunteerManagementService, VolunteerOpportunity, VolunteerApplication } from "@/services/volunteerManagementService";
 import { useVolunteerOpportunities, charityToolsKeys } from "@/hooks/useCharityToolsData";
+import ApplicantMiniProfile from "@/components/volunteer/ApplicantMiniProfile";
+import ApplicationDetailDialog from "@/components/volunteer/ApplicationDetailDialog";
+import { getTrustScoreColor } from "@/utils/trustScoreUtils";
 
 interface VolunteerManagementProps {
   organizationId: string;
@@ -31,13 +37,22 @@ interface VolunteerManagementProps {
 
 const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<string | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<VolunteerApplication | null>(null);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   
   const { data, isLoading: loading } = useVolunteerOpportunities(organizationId);
   const opportunities = data?.opportunities || [];
   const applications = data?.applications || {};
+  
+  // Get the title of the opportunity for the selected application
+  const getOpportunityTitle = (opportunityId: string) => {
+    const opp = opportunities.find(o => o.id === opportunityId);
+    return opp?.title || 'Volunteer Opportunity';
+  };
   
   const [newOpportunity, setNewOpportunity] = useState({
     title: '',
@@ -379,33 +394,60 @@ const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
                     
                     <div className="space-y-3">
                       {opportunityApplications.slice(0, 3).map((application) => (
-                        <div key={application.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] rounded-full flex items-center justify-center">
-                              <span className="text-white text-sm font-semibold">
-                                {application.profile?.first_name?.[0] || 'U'}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-medium text-sm">
-                                {application.profile?.first_name} {application.profile?.last_name}
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                Applied {new Date(application.applied_at).toLocaleDateString()}
-                              </p>
-                            </div>
+                        <div key={application.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
+                          <div className="flex-1 mr-4">
+                            <ApplicantMiniProfile
+                              userId={application.user_id}
+                              profile={application.profile ? {
+                                id: application.user_id,
+                                first_name: application.profile.first_name,
+                                last_name: application.profile.last_name,
+                                avatar_url: application.profile.avatar_url,
+                                location: application.profile.location,
+                                bio: application.profile.bio,
+                                skills: application.profile.skills
+                              } : undefined}
+                              metrics={application.metrics}
+                              compact={true}
+                              showMessageButton={application.status !== 'pending'}
+                              onMessage={() => navigate(`/dashboard?tab=messaging&userId=${application.user_id}`)}
+                            />
                           </div>
                           
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 flex-shrink-0">
+                            {/* Trust Score Badge */}
+                            {application.metrics?.trust_score && application.metrics.trust_score > 0 && (
+                              <Badge 
+                                variant="outline" 
+                                className={`hidden sm:flex ${getTrustScoreColor(application.metrics.trust_score)}`}
+                              >
+                                <Shield className="h-3 w-3 mr-1" />
+                                {application.metrics.trust_score}
+                              </Badge>
+                            )}
+                            
                             <Badge className={getStatusColor(application.status)}>
                               <div className="flex items-center space-x-1">
                                 {getStatusIcon(application.status)}
-                                <span>{application.status}</span>
+                                <span className="hidden sm:inline">{application.status}</span>
                               </div>
                             </Badge>
                             
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedApplication(application);
+                                setShowApplicationDialog(true);
+                              }}
+                              className="h-8 px-3 text-xs"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
+                            
                             {application.status === 'pending' && (
-                              <div className="flex space-x-1">
+                              <div className="hidden md:flex space-x-1">
                                 <Button
                                   size="sm"
                                   onClick={() => handleReviewApplication(application.id, 'approved')}
@@ -458,6 +500,15 @@ const VolunteerManagement = ({ organizationId }: VolunteerManagementProps) => {
           </Card>
         )}
       </div>
+
+      {/* Application Detail Dialog */}
+      <ApplicationDetailDialog
+        application={selectedApplication}
+        opportunityTitle={selectedApplication ? getOpportunityTitle(selectedApplication.opportunity_id) : ''}
+        open={showApplicationDialog}
+        onOpenChange={setShowApplicationDialog}
+        onStatusChange={refreshData}
+      />
     </div>
   );
 };
