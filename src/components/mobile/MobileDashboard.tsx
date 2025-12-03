@@ -1,18 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import MobileNavigation from "./MobileNavigation";
-import FeedTab from "@/components/dashboard/tabs/FeedTab";
-import DiscoverTab from "@/components/dashboard/tabs/DiscoverTab";
-import MessagingTab from "@/components/dashboard/tabs/MessagingTab";
-import CampaignsTab from "@/components/dashboard/tabs/CampaignsTab";
-import OrganizationTab from "@/components/tabs/OrganizationTab";
-import CombinedImpactAnalyticsTab from "@/components/dashboard/tabs/CombinedImpactAnalyticsTab";
-import EnhancedHelpCenterTab from "@/components/dashboard/tabs/EnhancedHelpCenterTab";
-import ProfileTab from "@/components/dashboard/tabs/ProfileTab";
 import { Badge } from "@/components/ui/badge";
 import { Building } from "lucide-react";
 import { ProfileSwitcher } from "@/components/profile/ProfileSwitcher";
 import { supabase } from "@/integrations/supabase/client";
+import { LoadingState } from "@/components/ui/loading-state";
+
+// Lazy load all tab components - only FeedTab loads immediately
+const FeedTab = lazy(() => import("@/components/dashboard/tabs/FeedTab"));
+const DiscoverTab = lazy(() => import("@/components/dashboard/tabs/DiscoverTab"));
+const MessagingTab = lazy(() => import("@/components/dashboard/tabs/MessagingTab"));
+const CampaignsTab = lazy(() => import("@/components/dashboard/tabs/CampaignsTab"));
+const OrganizationTab = lazy(() => import("@/components/tabs/OrganizationTab"));
+const CombinedImpactAnalyticsTab = lazy(() => import("@/components/dashboard/tabs/CombinedImpactAnalyticsTab"));
+const EnhancedHelpCenterTab = lazy(() => import("@/components/dashboard/tabs/EnhancedHelpCenterTab"));
+const ProfileTab = lazy(() => import("@/components/dashboard/tabs/ProfileTab"));
+
+const TabSkeleton = () => (
+  <div className="p-4">
+    <LoadingState message="Loading..." size="md" />
+  </div>
+);
 
 const MobileDashboard = () => {
   const [searchParams] = useSearchParams();
@@ -20,6 +29,9 @@ const MobileDashboard = () => {
   const context = searchParams.get('context') || 'personal';
   const orgId = searchParams.get('orgId');
   const [orgName, setOrgName] = useState<string>('');
+  
+  // Track visited tabs to only render them once visited
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set(['feed']));
 
   // Load organization name if in org context
   useEffect(() => {
@@ -36,66 +48,16 @@ const MobileDashboard = () => {
     loadOrgName();
   }, [context, orgId]);
 
-  const renderTabContent = () => {
-    const organizationId = context === 'org' ? orgId : null;
-    
-    switch (activeTab) {
-      case "feed":
-        return (
-          <div className="pb-20">
-            <FeedTab organizationId={organizationId} />
-          </div>
-        );
-      case "discover":
-        return (
-          <div className="pb-20">
-            <DiscoverTab />
-          </div>
-        );
-      case "messaging":
-        return (
-          <div className="pb-20">
-            <MessagingTab />
-          </div>
-        );
-      case "campaigns":
-        return (
-          <div className="pb-20">
-            <CampaignsTab />
-          </div>
-        );
-      case "organisation-tools":
-        return (
-          <div className="pb-20">
-            <OrganizationTab />
-          </div>
-        );
-      case "impact":
-        return (
-          <div className="pb-20">
-            <CombinedImpactAnalyticsTab />
-          </div>
-        );
-      case "help-center":
-        return (
-          <div className="pb-20">
-            <EnhancedHelpCenterTab />
-          </div>
-        );
-      case "profile":
-        return (
-          <div className="pb-20">
-            <ProfileTab />
-          </div>
-        );
-      default:
-        return (
-          <div className="pb-20">
-            <FeedTab organizationId={organizationId} />
-          </div>
-        );
+  // Track visited tabs
+  useEffect(() => {
+    if (!visitedTabs.has(activeTab)) {
+      setVisitedTabs(prev => new Set([...prev, activeTab]));
     }
-  };
+  }, [activeTab, visitedTabs]);
+
+  const organizationId = context === 'org' ? orgId : null;
+
+  const shouldRenderTab = (tabName: string) => visitedTabs.has(tabName);
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,9 +75,57 @@ const MobileDashboard = () => {
         </div>
       )}
 
-      {/* Content */}
+      {/* Content - Only render visited tabs, hide inactive ones */}
       <div className="w-full">
-        {renderTabContent()}
+        <Suspense fallback={<TabSkeleton />}>
+          {/* Feed Tab - Always rendered first */}
+          <div className={activeTab === 'feed' ? 'pb-20' : 'hidden'}>
+            <FeedTab organizationId={organizationId} />
+          </div>
+
+          {/* Other tabs - Only render when visited */}
+          {shouldRenderTab('discover') && (
+            <div className={activeTab === 'discover' ? 'pb-20' : 'hidden'}>
+              <DiscoverTab />
+            </div>
+          )}
+
+          {shouldRenderTab('messaging') && (
+            <div className={activeTab === 'messaging' ? 'pb-20' : 'hidden'}>
+              <MessagingTab />
+            </div>
+          )}
+
+          {shouldRenderTab('campaigns') && (
+            <div className={activeTab === 'campaigns' ? 'pb-20' : 'hidden'}>
+              <CampaignsTab />
+            </div>
+          )}
+
+          {shouldRenderTab('organisation-tools') && (
+            <div className={activeTab === 'organisation-tools' ? 'pb-20' : 'hidden'}>
+              <OrganizationTab />
+            </div>
+          )}
+
+          {shouldRenderTab('impact') && (
+            <div className={activeTab === 'impact' ? 'pb-20' : 'hidden'}>
+              <CombinedImpactAnalyticsTab />
+            </div>
+          )}
+
+          {shouldRenderTab('help-center') && (
+            <div className={activeTab === 'help-center' ? 'pb-20' : 'hidden'}>
+              <EnhancedHelpCenterTab />
+            </div>
+          )}
+
+          {shouldRenderTab('profile') && (
+            <div className={activeTab === 'profile' ? 'pb-20' : 'hidden'}>
+              <ProfileTab />
+            </div>
+          )}
+        </Suspense>
       </div>
 
       {/* Bottom Navigation */}

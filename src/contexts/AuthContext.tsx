@@ -184,7 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 5 seconds, force completion
+  // Timeout fallback: If loading state doesn't resolve within 3 seconds, force completion
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (loading) {
@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setOrganizationId(null);
         setInitialized(true);
       }
-    }, 5000); // 5 second timeout
+    }, 3000); // 3 second timeout - faster fallback
     
     return () => clearTimeout(timeout);
   }, [loading]);
