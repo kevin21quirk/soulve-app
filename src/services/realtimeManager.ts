@@ -22,30 +22,56 @@ export class RealtimeManager {
   }
 
   initialize(queryClient: QueryClient, userId: string) {
+    // Cleanup existing subscriptions first to prevent duplicates
+    this.cleanup();
+    
     this.queryClient = queryClient;
     this.userId = userId;
-    this.setupSubscriptions();
+    
+    try {
+      this.setupSubscriptions();
+    } catch (error) {
+      console.error('[RealtimeManager] Error setting up subscriptions:', error);
+    }
   }
 
   cleanup() {
-    this.channels.forEach((channel) => {
-      supabase.removeChannel(channel);
-    });
-    this.channels.clear();
-    this.userId = null;
+    try {
+      this.channels.forEach((channel) => {
+        try {
+          supabase.removeChannel(channel);
+        } catch (e) {
+          console.warn('[RealtimeManager] Error removing channel:', e);
+        }
+      });
+      this.channels.clear();
+      this.userId = null;
+    } catch (error) {
+      console.error('[RealtimeManager] Error during cleanup:', error);
+    }
   }
 
   private setupSubscriptions() {
     if (!this.userId || !this.queryClient) return;
 
-    // Single subscription for posts and campaigns
-    this.setupPostsSubscription();
+    // Wrap each subscription in try-catch to prevent one failure from breaking all
+    try {
+      this.setupPostsSubscription();
+    } catch (error) {
+      console.error('[RealtimeManager] Error setting up posts subscription:', error);
+    }
     
-    // Single subscription for connections
-    this.setupConnectionsSubscription();
+    try {
+      this.setupConnectionsSubscription();
+    } catch (error) {
+      console.error('[RealtimeManager] Error setting up connections subscription:', error);
+    }
     
-    // Single subscription for interactions
-    this.setupInteractionsSubscription();
+    try {
+      this.setupInteractionsSubscription();
+    } catch (error) {
+      console.error('[RealtimeManager] Error setting up interactions subscription:', error);
+    }
   }
 
   private setupPostsSubscription() {
