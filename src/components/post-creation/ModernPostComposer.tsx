@@ -160,19 +160,30 @@ export const ModernPostComposer = ({ isOpen, onClose, onSubmit, isSubmitting }: 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
+          const { latitude, longitude } = position.coords;
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
             );
             const data = await response.json();
             const location = data.address?.city || data.address?.town || data.address?.village || 
                            data.display_name?.split(',')[0] || 'Your Location';
-            setFormData(prev => ({ ...prev, location }));
+            setFormData(prev => ({ 
+              ...prev, 
+              location,
+              latitude,
+              longitude
+            }));
           } catch {
-            setFormData(prev => ({ ...prev, location: 'Current Location' }));
+            setFormData(prev => ({ 
+              ...prev, 
+              location: 'Current Location',
+              latitude,
+              longitude
+            }));
           }
         },
-        () => setFormData(prev => ({ ...prev, location: '' }))
+        () => setFormData(prev => ({ ...prev, location: '', latitude: undefined, longitude: undefined }))
       );
     }
   };

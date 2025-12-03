@@ -533,6 +533,16 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
                   <div className="flex items-center space-x-1">
                     <MapPin className="h-3 w-3" />
                     <span>{post.location}</span>
+                    {post.distance_km !== undefined && (
+                      <span className="text-primary font-medium">
+                        ({post.distance_km < 1 
+                          ? `${Math.round(post.distance_km * 1000)}m` 
+                          : post.distance_km < 10 
+                            ? `${post.distance_km.toFixed(1)} km`
+                            : `${Math.round(post.distance_km)} km`
+                        } away)
+                      </span>
+                    )}
                   </div>
                 )}
                 

@@ -10,6 +10,9 @@ export interface FeedPost {
   category: string;
   urgency: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
+  distance_km?: number;
   tags?: string[];
   media?: MediaItem[];
   likes: number;

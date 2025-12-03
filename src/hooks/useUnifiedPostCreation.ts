@@ -101,6 +101,8 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
         category: postData.category,
         urgency: postData.urgency || 'medium',
         location: postData.location,
+        latitude: postData.latitude,
+        longitude: postData.longitude,
         tags: postData.tags || [],
         visibility: postData.visibility || 'public',
         media_urls: mediaUrls,
@@ -140,6 +142,7 @@ export const useUnifiedPostCreation = (onPostCreated?: () => void) => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['social-feed'] });
       queryClient.invalidateQueries({ queryKey: ['social-feed-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['nearby-posts'] });
 
       // Invalidate user-specific queries with correct keys
       if (userId) {

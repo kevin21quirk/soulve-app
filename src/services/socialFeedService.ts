@@ -15,6 +15,8 @@ export interface SocialPost {
   category: string;
   urgency: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
   tags: string[];
   media_urls: string[];
   created_at: string;
@@ -33,6 +35,7 @@ export interface SocialPost {
     thumbnailUrl?: string;
   } | null;
   imported_at?: string | null;
+  distance_km?: number;
 }
 
 const POSTS_PER_PAGE = 20;

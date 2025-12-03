@@ -62,6 +62,8 @@ export interface PostFormData {
   description: string;
   category: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   urgency: 'low' | 'medium' | 'high' | 'urgent';
   feeling: string;
   tags: string[];
