@@ -7,8 +7,10 @@ import StructuredData from "@/components/seo/StructuredData";
 import FAQSchema from "@/components/seo/FAQSchema";
 import { LoadingState } from "@/components/ui/loading-state";
 
-// Lazy load below-the-fold sections for faster initial load
-const HeroSection = lazy(() => import("@/components/HeroSection"));
+// HeroSection is above-the-fold - load immediately for faster LCP
+import HeroSection from "@/components/HeroSection";
+
+// Lazy load below-the-fold sections
 const ImpactStoriesSection = lazy(() => import("@/components/ImpactStoriesSection"));
 const FeaturesSection = lazy(() => import("@/components/FeaturesSection"));
 const UserTypesSection = lazy(() => import("@/components/UserTypesSection"));
@@ -61,13 +63,7 @@ const Index = () => {
         ]}
       />
       <HomeHeader />
-      <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <LoadingState message="Loading..." />
-        </div>
-      }>
-        <HeroSection />
-      </Suspense>
+      <HeroSection />
       <Suspense fallback={
         <div className="min-h-[400px] flex items-center justify-center">
           <LoadingState message="Loading content..." />

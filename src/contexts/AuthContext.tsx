@@ -184,11 +184,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 3 seconds, force completion
+  // Timeout fallback: If loading state doesn't resolve within 1.5 seconds, force completion
   useEffect(() => {
+    const startTime = performance.now();
+    
     const timeout = setTimeout(() => {
       if (loading) {
-        logger.error('⏰ Auth initialization timeout - forcing load completion and clearing stale storage');
+        const elapsed = performance.now() - startTime;
+        logger.error(`⏰ Auth initialization timeout after ${elapsed.toFixed(0)}ms - forcing load completion`);
         
         // Aggressively clear all Supabase-related localStorage
         try {
@@ -208,7 +211,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setOrganizationId(null);
         setInitialized(true);
       }
-    }, 3000); // 3 second timeout - faster fallback
+    }, 1500); // 1.5 second timeout - faster fallback for better UX
     
     return () => clearTimeout(timeout);
   }, [loading]);
