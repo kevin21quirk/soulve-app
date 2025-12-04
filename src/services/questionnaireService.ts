@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { RecommendationService } from './recommendationService';
 
 export interface QuestionnaireResponse {
   user_type: string;
@@ -15,6 +16,7 @@ export const saveQuestionnaireResponse = async (data: QuestionnaireResponse) => 
     throw new Error('User not authenticated');
   }
 
+  // Save questionnaire response - trigger will sync to profile automatically
   const { error } = await supabase
     .from('questionnaire_responses')
     .insert({
@@ -28,6 +30,15 @@ export const saveQuestionnaireResponse = async (data: QuestionnaireResponse) => 
   if (error) {
     console.error('Error saving questionnaire response:', error);
     throw error;
+  }
+
+  // Also manually sync preferences to ensure they're ready immediately
+  // The trigger handles this too, but this ensures immediate availability
+  try {
+    await RecommendationService.syncUserPreferences(user.user.id);
+    console.log('[questionnaireService] Synced user preferences after questionnaire save');
+  } catch (syncError) {
+    console.warn('[questionnaireService] Error syncing preferences (non-critical):', syncError);
   }
 };
 

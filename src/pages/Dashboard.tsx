@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import MobileDashboard from "@/components/mobile/MobileDashboard";
+import PersonalizedWelcome from "@/components/dashboard/PersonalizedWelcome";
 import { LoadingState } from "@/components/ui/loading-state";
 import { preloadTabBundles, prefetchCriticalData } from "@/hooks/usePrefetchTabData";
 const Dashboard = () => {
@@ -69,6 +70,11 @@ const Dashboard = () => {
       <DashboardHeader showSearch={showSearch} setShowSearch={setShowSearch} showShortcuts={showShortcuts} setShowShortcuts={setShowShortcuts} showActivity={showActivity} setShowActivity={setShowActivity} onNavigateToTab={handleNavigateToTab} context={context} orgId={orgId || undefined} orgName={currentOrgName} />
       
       <main className="container mx-auto px-4 py-2 ">
+        {/* Personalized welcome based on user type */}
+        {context === 'personal' && (
+          <PersonalizedWelcome onNavigateToTab={handleNavigateToTab} />
+        )}
+        
         <DashboardTabs activeTab={activeTab} onTabChange={tab => {
         setSearchParams({
           tab,
