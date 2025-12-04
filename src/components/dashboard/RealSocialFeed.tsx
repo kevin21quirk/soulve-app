@@ -3,14 +3,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRealSocialFeed } from '@/hooks/useRealSocialFeed';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
+import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Plus, Loader2, MapPin } from 'lucide-react';
+import { RefreshCw, Plus, Loader2, MapPin, Sparkles, List } from 'lucide-react';
 import CreatePost from './CreatePost';
 import SocialPostCard from './SocialPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { transformSocialPostToFeedPost } from '@/utils/socialPostTransformers';
 import LocationFilter from '@/components/feed/LocationFilter';
+import ForYouFeedToggle from '@/components/feed/ForYouFeedToggle';
 import { SocialPost } from '@/services/socialFeedService';
 
 interface RealSocialFeedProps {
@@ -21,6 +23,7 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [locationFilter, setLocationFilter] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selectedRadius, setSelectedRadius] = useState(25);
+  const [isPersonalized, setIsPersonalized] = useState(false);
 
   const { 
     posts: regularPosts, 
@@ -35,6 +38,12 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
     hasMore
   } = useRealSocialFeed(organizationId);
 
+  // Personalized feed query (only active when toggle is on)
+  const { data: personalizedPosts = [], isLoading: personalizedLoading } = usePersonalizedFeed({
+    enabled: isPersonalized && !locationFilter,
+    organizationId
+  });
+
   // Nearby posts query (only active when location filter is enabled)
   const { data: nearbyPosts = [], isLoading: nearbyLoading, error: nearbyError } = useNearbyPosts(
     locationFilter?.latitude ?? null,
@@ -44,7 +53,11 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
 
   // Determine which posts to show and loading state
   const isLocationActive = locationFilter !== null;
-  const loading = isLocationActive ? nearbyLoading : regularLoading;
+  const loading = isLocationActive 
+    ? nearbyLoading 
+    : isPersonalized 
+      ? personalizedLoading 
+      : regularLoading;
   
   // Transform nearby posts to SocialPost format for consistent rendering
   const transformedNearbyPosts: SocialPost[] = useMemo(() => {
@@ -84,7 +97,16 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   }, [nearbyPosts, isLocationActive]);
 
   // If nearby query failed, fall back to regular posts
-  const posts = (isLocationActive && !nearbyError) ? transformedNearbyPosts : regularPosts;
+  // Priority: location > personalized > regular
+  const posts = useMemo(() => {
+    if (isLocationActive && !nearbyError) {
+      return transformedNearbyPosts;
+    }
+    if (isPersonalized && personalizedPosts.length > 0) {
+      return personalizedPosts;
+    }
+    return regularPosts;
+  }, [isLocationActive, nearbyError, transformedNearbyPosts, isPersonalized, personalizedPosts, regularPosts]);
 
   const handleLocationChange = (location: { latitude: number; longitude: number } | null, radius: number) => {
     setLocationFilter(location);
@@ -172,7 +194,9 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
           <p className="text-sm text-muted-foreground mt-1">
             {isLocationActive 
               ? `Showing posts within ${selectedRadius} km of your location`
-              : 'Real-time updates enabled • Including campaigns and posts'
+              : isPersonalized
+                ? 'Showing posts matching your interests and skills'
+                : 'Real-time updates enabled • Including campaigns and posts'
             }
           </p>
         </div>
@@ -193,6 +217,14 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
           </Button>
         </div>
       </div>
+
+      {/* Personalized Feed Toggle */}
+      {!isLocationActive && (
+        <ForYouFeedToggle
+          isPersonalized={isPersonalized}
+          onToggle={setIsPersonalized}
+        />
+      )}
 
       {/* Enhanced Posts Count with breakdown */}
       {posts.length > 0 && (

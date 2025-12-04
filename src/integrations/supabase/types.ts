@@ -5321,6 +5321,7 @@ export type Database = {
           skills: string[] | null
           twitter: string | null
           updated_at: string | null
+          user_type: string | null
           waitlist_approved_by: string | null
           waitlist_notes: string | null
           waitlist_status: Database["public"]["Enums"]["waitlist_status"] | null
@@ -5353,6 +5354,7 @@ export type Database = {
           skills?: string[] | null
           twitter?: string | null
           updated_at?: string | null
+          user_type?: string | null
           waitlist_approved_by?: string | null
           waitlist_notes?: string | null
           waitlist_status?:
@@ -5387,6 +5389,7 @@ export type Database = {
           skills?: string[] | null
           twitter?: string | null
           updated_at?: string | null
+          user_type?: string | null
           waitlist_approved_by?: string | null
           waitlist_notes?: string | null
           waitlist_status?:
