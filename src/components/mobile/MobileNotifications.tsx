@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem 
 } from "@/components/ui/dropdown-menu";
-import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { useRealTimeNotifications } from "@/hooks/useRealTimeNotifications";
 import MobileNotificationItem from "./MobileNotificationItem";
 import MobileNotificationFilters from "./MobileNotificationFilters";
 import MobileNotificationSearch from "./MobileNotificationSearch";
@@ -29,7 +29,7 @@ const MobileNotifications = () => {
     markAllAsRead,
     deleteNotification,
     filterNotifications
-  } = useRealtimeNotifications();
+  } = useRealTimeNotifications();
 
   // Convert notifications to mobile format
   const convertToMobileFormat = (notification: any): MobileNotificationProps => ({

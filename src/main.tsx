@@ -78,3 +78,21 @@ createRoot(rootElement).render(
 
 // Remove loader after React renders
 hideInitialLoader();
+
+// Preload critical routes during browser idle time for faster navigation
+const preloadCriticalRoutes = () => {
+  const routes = [
+    () => import('@/pages/Index'),
+    () => import('@/pages/Dashboard'),
+    () => import('@/pages/Auth'),
+  ];
+  
+  routes.forEach(route => route().catch(() => {}));
+};
+
+// Use requestIdleCallback for Safari compatibility
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => preloadCriticalRoutes(), { timeout: 3000 });
+} else {
+  setTimeout(preloadCriticalRoutes, 200);
+}

@@ -15,7 +15,9 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
     // Skip if already initializing or no user
     if (!user?.id || initializingRef.current) return;
 
-    const initializeRealtime = async () => {
+    let cleanupId: number | ReturnType<typeof setTimeout>;
+
+    const initializeRealtime = () => {
       try {
         initializingRef.current = true;
         console.log('[RealtimeProvider] Initializing real-time subscriptions for user:', user.id);
@@ -30,9 +32,22 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
       }
     };
 
-    initializeRealtime();
+    // Defer initialization to browser idle time - don't block initial render
+    if ('requestIdleCallback' in window) {
+      cleanupId = requestIdleCallback(() => initializeRealtime(), { timeout: 2000 });
+    } else {
+      // Safari fallback
+      cleanupId = setTimeout(() => initializeRealtime(), 100);
+    }
 
     return () => {
+      // Cancel pending initialization
+      if ('requestIdleCallback' in window) {
+        cancelIdleCallback(cleanupId as number);
+      } else {
+        clearTimeout(cleanupId as ReturnType<typeof setTimeout>);
+      }
+      
       try {
         console.log('[RealtimeProvider] Cleaning up real-time subscriptions');
         realtimeManager.cleanup();
