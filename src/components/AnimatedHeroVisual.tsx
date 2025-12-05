@@ -13,10 +13,10 @@ const floatingIcons = [
 
 const AnimatedHeroVisual = () => {
   return (
-    <div className="relative w-full h-[400px] lg:h-[500px] flex items-start justify-center pt-4">
+    <div className="relative w-full h-[450px] lg:h-[550px] flex items-start justify-center pt-4">
       {/* Orbiting icons container */}
       <motion.div
-        className="absolute w-80 h-80 lg:w-[420px] lg:h-[420px] top-8"
+        className="absolute w-96 h-96 lg:w-[500px] lg:h-[500px] top-4"
         animate={{ rotate: 360 }}
         transition={{ 
           duration: 30,
@@ -26,7 +26,7 @@ const AnimatedHeroVisual = () => {
       >
         {floatingIcons.map(({ Icon, color, delay }, index) => {
           const angle = (index / floatingIcons.length) * 360;
-          const radius = 170; // Distance from center - increased for larger icon
+          const radius = 210; // Distance from center - increased for larger icon
           const x = Math.cos((angle * Math.PI) / 180) * radius;
           const y = Math.sin((angle * Math.PI) / 180) * radius;
           
@@ -64,11 +64,11 @@ const AnimatedHeroVisual = () => {
         })}
       </motion.div>
 
-      {/* Central logo with pulsing glow emanating from icon */}
+      {/* Central logo with gradient-matching pulsing glow */}
       <motion.div
-        className="relative z-10 mt-8"
+        className="relative z-10 mt-4"
         animate={{ 
-          y: [0, -12, 0],
+          y: [0, -10, 0],
         }}
         transition={{ 
           duration: 4,
@@ -76,44 +76,71 @@ const AnimatedHeroVisual = () => {
           ease: "easeInOut"
         }}
       >
-        {/* Outer pulsing glow - radiates from icon */}
+        {/* Outer emerald glow - top of heart */}
         <motion.div
-          className="absolute inset-[-40%] blur-3xl bg-cyan-300/20 rounded-full"
+          className="absolute inset-[-50%] blur-3xl rounded-full"
+          style={{ 
+            background: 'radial-gradient(ellipse at 50% 30%, rgba(52, 211, 153, 0.5) 0%, transparent 60%)'
+          }}
           animate={{ 
-            opacity: [0.2, 0.5, 0.2],
-            scale: [1, 1.4, 1]
+            opacity: [0.4, 0.7, 0.4],
+            scale: [1, 1.2, 1]
           }}
           transition={{ 
-            duration: 3,
+            duration: 3.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
         
-        {/* Middle pulsing glow */}
+        {/* Cyan glow - middle */}
         <motion.div
-          className="absolute inset-[-20%] blur-2xl bg-white/30 rounded-full"
+          className="absolute inset-[-45%] blur-2xl rounded-full"
+          style={{ 
+            background: 'radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.45) 0%, transparent 55%)'
+          }}
           animate={{ 
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.25, 1]
+            opacity: [0.35, 0.65, 0.35],
+            scale: [1, 1.15, 1]
           }}
           transition={{ 
-            duration: 2.5,
+            duration: 3,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 0.3
           }}
         />
         
-        {/* Inner glow - close to icon */}
+        {/* Blue glow - bottom */}
         <motion.div
-          className="absolute inset-0 blur-xl bg-white/40 rounded-full scale-110"
+          className="absolute inset-[-50%] blur-3xl rounded-full"
+          style={{ 
+            background: 'radial-gradient(ellipse at 50% 70%, rgba(59, 130, 246, 0.5) 0%, transparent 60%)'
+          }}
           animate={{ 
             opacity: [0.4, 0.7, 0.4],
-            scale: [1.1, 1.2, 1.1]
+            scale: [1, 1.2, 1]
           }}
           transition={{ 
-            duration: 2,
+            duration: 3.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        />
+        
+        {/* Edge warming effect - slow pulse from heart edges */}
+        <motion.div
+          className="absolute inset-[-8%] blur-md rounded-full"
+          style={{
+            background: 'conic-gradient(from 180deg, rgba(52, 211, 153, 0.6), rgba(34, 211, 238, 0.6), rgba(59, 130, 246, 0.6), rgba(52, 211, 153, 0.6))'
+          }}
+          animate={{ 
+            opacity: [0.5, 0.8, 0.5],
+            scale: [1.02, 1.08, 1.02]
+          }}
+          transition={{ 
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -122,10 +149,13 @@ const AnimatedHeroVisual = () => {
         <motion.img
           src={soulveIcon}
           alt="SouLVE - Connecting Communities"
-          className="w-48 h-48 lg:w-64 lg:h-64 object-contain relative z-10 drop-shadow-2xl"
+          className="w-72 h-72 lg:w-96 lg:h-96 object-contain relative z-10"
+          style={{ 
+            filter: 'drop-shadow(0 0 30px rgba(34, 211, 238, 0.5)) drop-shadow(0 0 60px rgba(52, 211, 153, 0.3))'
+          }}
           whileHover={{ 
-            scale: 1.08,
-            rotate: [0, -5, 5, 0]
+            scale: 1.05,
+            rotate: [0, -3, 3, 0]
           }}
           transition={{ duration: 0.4 }}
         />
