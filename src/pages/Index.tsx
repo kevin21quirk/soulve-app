@@ -24,7 +24,7 @@ const Index = () => {
     // Simple redirect - let ProtectedRoute handle all the detailed auth checks
     // This eliminates duplicate database calls
     if (!loading && user && session) {
-      navigate("/dashboard", { replace: true });
+      window.location.hash = "#/dashboard";
     }
   }, [user, session, loading, navigate]);
 
