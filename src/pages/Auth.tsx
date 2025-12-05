@@ -54,9 +54,9 @@ const Auth = () => {
   // Simple redirect - let ProtectedRoute handle detailed checks
   useEffect(() => {
     if (!loading && user && session) {
-      window.location.hash = "#/dashboard";
+      navigate("/dashboard", { replace: true });
     }
-  }, [user, session, loading]);
+  }, [user, session, loading, navigate]);
 
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
@@ -64,7 +64,7 @@ const Auth = () => {
 
   // Simple auth success - just navigate, let ProtectedRoute handle routing
   const handleAuthSuccess = () => {
-    window.location.hash = "#/dashboard";
+    navigate("/dashboard", { replace: true });
   };
 
   if (loading) {
@@ -85,7 +85,7 @@ const Auth = () => {
         <div className="max-w-md mx-auto px-4">
             <Button
               variant="ghost"
-              onClick={() => { window.location.hash = "#/"; }}
+              onClick={() => navigate("/")}
               className="text-white hover:text-teal-200 hover:bg-white/10 mb-4"
             >
             <ArrowLeft className="h-5 w-5 mr-2" />
