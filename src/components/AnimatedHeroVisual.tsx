@@ -64,28 +64,12 @@ const AnimatedHeroVisual = () => {
         })}
       </motion.div>
 
-      {/* Central logo - FIXED position, warming pulse via drop-shadow */}
+      {/* Central logo - FIXED position, CSS animation for reliable glow */}
       <div className="relative z-10">
-        <motion.img
+        <img
           src={soulveIcon}
           alt="SouLVE - Connecting Communities"
-          className="w-96 h-96 lg:w-[500px] lg:h-[500px] object-contain"
-          animate={{
-            filter: [
-              'drop-shadow(0 0 20px rgba(52, 211, 153, 0.3)) drop-shadow(0 0 40px rgba(34, 211, 238, 0.2)) drop-shadow(0 0 60px rgba(59, 130, 246, 0.15))',
-              'drop-shadow(0 0 60px rgba(52, 211, 153, 0.9)) drop-shadow(0 0 100px rgba(34, 211, 238, 0.7)) drop-shadow(0 0 140px rgba(59, 130, 246, 0.6))',
-              'drop-shadow(0 0 20px rgba(52, 211, 153, 0.3)) drop-shadow(0 0 40px rgba(34, 211, 238, 0.2)) drop-shadow(0 0 60px rgba(59, 130, 246, 0.15))'
-            ]
-          }}
-          transition={{ 
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          whileHover={{ 
-            scale: 1.05,
-            rotate: [0, -3, 3, 0]
-          }}
+          className="w-96 h-96 lg:w-[500px] lg:h-[500px] object-contain animate-heart-glow"
         />
       </div>
 
