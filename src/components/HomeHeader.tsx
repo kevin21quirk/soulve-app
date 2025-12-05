@@ -67,14 +67,14 @@ const HomeHeader = () => {
             ) : (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Button 
-                  onClick={() => navigate("/auth")} 
+                  onClick={() => { window.location.hash = "#/auth"; }} 
                   variant="outline"
                   className="border-primary text-primary hover:bg-primary/10"
                 >
                   Sign In
                 </Button>
                 <Button 
-                  onClick={() => navigate("/auth")} 
+                  onClick={() => { window.location.hash = "#/auth"; }} 
                   className="bg-gradient-to-r from-primary via-secondary to-[hsl(var(--soulve-purple))] hover:opacity-90 text-primary-foreground shadow-lg border-none"
                 >
                   Join Beta
