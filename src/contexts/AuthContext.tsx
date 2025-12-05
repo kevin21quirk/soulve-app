@@ -184,34 +184,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 1.5 seconds, force completion
+  // Timeout fallback: If loading state doesn't resolve within 10 seconds, stop waiting but DON'T clear tokens
   useEffect(() => {
-    const startTime = performance.now();
-    
     const timeout = setTimeout(() => {
       if (loading) {
-        const elapsed = performance.now() - startTime;
-        logger.error(`⏰ Auth initialization timeout after ${elapsed.toFixed(0)}ms - forcing load completion`);
-        
-        // Aggressively clear all Supabase-related localStorage
-        try {
-          localStorage.removeItem('supabase.auth.token');
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('sb-')) {
-              localStorage.removeItem(key);
-            }
-          });
-        } catch (e) {
-          // Ignore localStorage errors in incognito/restricted modes
-        }
-        
+        logger.warn('⏰ Auth initialization taking longer than expected - stopping spinner');
+        // DON'T clear tokens - they may be valid, just slow to load
         setLoading(false);
-        setSession(null);
-        setUser(null);
-        setOrganizationId(null);
         setInitialized(true);
       }
-    }, 1500); // 1.5 second timeout - faster fallback for better UX
+    }, 10000); // 10 seconds - be patient with slow networks
     
     return () => clearTimeout(timeout);
   }, [loading]);
