@@ -107,32 +107,6 @@ const HeroSection = () => {
         }}
       />
       
-      {/* Floating background orbs */}
-      <motion.div
-        className="absolute top-20 left-10 w-64 h-64 rounded-full bg-white/5 blur-3xl"
-        animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-white/5 blur-3xl"
-        animate={{
-          x: [0, -40, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2,
-        }}
-      />
       
       {/* Main Hero Content */}
       <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
