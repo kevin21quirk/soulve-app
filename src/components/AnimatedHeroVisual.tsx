@@ -13,10 +13,10 @@ const floatingIcons = [
 
 const AnimatedHeroVisual = () => {
   return (
-    <div className="relative w-full h-[450px] lg:h-[550px] flex items-start justify-center pt-4">
+    <div className="relative w-full h-[500px] lg:h-[650px] flex items-start justify-center pt-4">
       {/* Orbiting icons container */}
       <motion.div
-        className="absolute w-96 h-96 lg:w-[500px] lg:h-[500px] top-4"
+        className="absolute w-[450px] h-[450px] lg:w-[600px] lg:h-[600px] top-4"
         animate={{ rotate: 360 }}
         transition={{ 
           duration: 30,
@@ -24,9 +24,9 @@ const AnimatedHeroVisual = () => {
           ease: "linear"
         }}
       >
-        {floatingIcons.map(({ Icon, color, delay }, index) => {
+      {floatingIcons.map(({ Icon, color, delay }, index) => {
           const angle = (index / floatingIcons.length) * 360;
-          const radius = 210; // Distance from center - increased for larger icon
+          const radius = 280; // Distance from center - increased for larger icon
           const x = Math.cos((angle * Math.PI) / 180) * radius;
           const y = Math.sin((angle * Math.PI) / 180) * radius;
           
@@ -129,35 +129,26 @@ const AnimatedHeroVisual = () => {
           }}
         />
         
-        {/* Edge warming effect - slow pulse from heart edges */}
-        <motion.div
-          className="absolute inset-[-8%] blur-md rounded-full"
-          style={{
-            background: 'conic-gradient(from 180deg, rgba(52, 211, 153, 0.6), rgba(34, 211, 238, 0.6), rgba(59, 130, 246, 0.6), rgba(52, 211, 153, 0.6))'
-          }}
-          animate={{ 
-            opacity: [0.5, 0.8, 0.5],
-            scale: [1.02, 1.08, 1.02]
+        <motion.img
+          src={soulveIcon}
+          alt="SouLVE - Connecting Communities"
+          className="w-96 h-96 lg:w-[500px] lg:h-[500px] object-contain relative z-10"
+          animate={{
+            filter: [
+              'drop-shadow(0 0 25px rgba(52, 211, 153, 0.5)) drop-shadow(0 0 50px rgba(34, 211, 238, 0.4)) drop-shadow(0 0 75px rgba(59, 130, 246, 0.3))',
+              'drop-shadow(0 0 50px rgba(52, 211, 153, 0.8)) drop-shadow(0 0 90px rgba(34, 211, 238, 0.6)) drop-shadow(0 0 120px rgba(59, 130, 246, 0.5))',
+              'drop-shadow(0 0 25px rgba(52, 211, 153, 0.5)) drop-shadow(0 0 50px rgba(34, 211, 238, 0.4)) drop-shadow(0 0 75px rgba(59, 130, 246, 0.3))'
+            ]
           }}
           transition={{ 
             duration: 4,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-        />
-        
-        <motion.img
-          src={soulveIcon}
-          alt="SouLVE - Connecting Communities"
-          className="w-72 h-72 lg:w-96 lg:h-96 object-contain relative z-10"
-          style={{ 
-            filter: 'drop-shadow(0 0 30px rgba(34, 211, 238, 0.5)) drop-shadow(0 0 60px rgba(52, 211, 153, 0.3))'
-          }}
           whileHover={{ 
             scale: 1.05,
             rotate: [0, -3, 3, 0]
           }}
-          transition={{ duration: 0.4 }}
         />
       </motion.div>
 
