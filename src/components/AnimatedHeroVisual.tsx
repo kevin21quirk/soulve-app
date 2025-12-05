@@ -13,54 +13,10 @@ const floatingIcons = [
 
 const AnimatedHeroVisual = () => {
   return (
-    <div className="relative w-full h-[400px] lg:h-[500px] flex items-center justify-center">
-      {/* Outer pulsing ring */}
-      <motion.div
-        className="absolute w-80 h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-r from-white/10 to-white/5"
-        animate={{ 
-          scale: [1, 1.15, 1],
-          opacity: [0.3, 0.1, 0.3]
-        }}
-        transition={{ 
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      
-      {/* Middle pulsing ring */}
-      <motion.div
-        className="absolute w-64 h-64 lg:w-80 lg:h-80 rounded-full bg-gradient-to-r from-white/15 to-white/5"
-        animate={{ 
-          scale: [1, 1.1, 1],
-          opacity: [0.4, 0.15, 0.4]
-        }}
-        transition={{ 
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.5
-        }}
-      />
-      
-      {/* Inner glowing ring */}
-      <motion.div
-        className="absolute w-48 h-48 lg:w-64 lg:h-64 rounded-full bg-gradient-to-r from-white/20 to-white/10 blur-sm"
-        animate={{ 
-          scale: [1, 1.05, 1],
-          opacity: [0.5, 0.25, 0.5]
-        }}
-        transition={{ 
-          duration: 2.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
-
+    <div className="relative w-full h-[400px] lg:h-[500px] flex items-start justify-center pt-4">
       {/* Orbiting icons container */}
       <motion.div
-        className="absolute w-72 h-72 lg:w-96 lg:h-96"
+        className="absolute w-80 h-80 lg:w-[420px] lg:h-[420px] top-8"
         animate={{ rotate: 360 }}
         transition={{ 
           duration: 30,
@@ -70,7 +26,7 @@ const AnimatedHeroVisual = () => {
       >
         {floatingIcons.map(({ Icon, color, delay }, index) => {
           const angle = (index / floatingIcons.length) * 360;
-          const radius = 140; // Distance from center
+          const radius = 170; // Distance from center - increased for larger icon
           const x = Math.cos((angle * Math.PI) / 180) * radius;
           const y = Math.sin((angle * Math.PI) / 180) * radius;
           
@@ -108,9 +64,9 @@ const AnimatedHeroVisual = () => {
         })}
       </motion.div>
 
-      {/* Central logo with floating animation */}
+      {/* Central logo with pulsing glow emanating from icon */}
       <motion.div
-        className="relative z-10"
+        className="relative z-10 mt-8"
         animate={{ 
           y: [0, -12, 0],
         }}
@@ -120,12 +76,12 @@ const AnimatedHeroVisual = () => {
           ease: "easeInOut"
         }}
       >
-        {/* Glow effect behind logo */}
+        {/* Outer pulsing glow - radiates from icon */}
         <motion.div
-          className="absolute inset-0 blur-2xl bg-white/30 rounded-full scale-110"
+          className="absolute inset-[-40%] blur-3xl bg-cyan-300/20 rounded-full"
           animate={{ 
-            opacity: [0.4, 0.7, 0.4],
-            scale: [1.1, 1.2, 1.1]
+            opacity: [0.2, 0.5, 0.2],
+            scale: [1, 1.4, 1]
           }}
           transition={{ 
             duration: 3,
@@ -134,10 +90,39 @@ const AnimatedHeroVisual = () => {
           }}
         />
         
+        {/* Middle pulsing glow */}
+        <motion.div
+          className="absolute inset-[-20%] blur-2xl bg-white/30 rounded-full"
+          animate={{ 
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.25, 1]
+          }}
+          transition={{ 
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.3
+          }}
+        />
+        
+        {/* Inner glow - close to icon */}
+        <motion.div
+          className="absolute inset-0 blur-xl bg-white/40 rounded-full scale-110"
+          animate={{ 
+            opacity: [0.4, 0.7, 0.4],
+            scale: [1.1, 1.2, 1.1]
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
         <motion.img
           src={soulveIcon}
           alt="SouLVE - Connecting Communities"
-          className="w-32 h-32 lg:w-44 lg:h-44 object-contain relative z-10 drop-shadow-2xl"
+          className="w-48 h-48 lg:w-64 lg:h-64 object-contain relative z-10 drop-shadow-2xl"
           whileHover={{ 
             scale: 1.08,
             rotate: [0, -5, 5, 0]
