@@ -304,10 +304,8 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
     ));
   };
 
-  console.log('[LOGIN DEBUG] Component rendered, isLogin:', isLogin);
-  
   return (
-    <form onSubmit={(e) => { console.log('[LOGIN DEBUG] Form onSubmit triggered'); handleSubmit(e); }} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {!isLogin && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -425,7 +423,6 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         type="submit" 
         className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600" 
         disabled={isLoading}
-        onClick={() => console.log('[LOGIN DEBUG] Button clicked')}
       >
         {isLoading ? (
           <div className="flex items-center space-x-2">
