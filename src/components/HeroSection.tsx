@@ -81,7 +81,7 @@ const HeroSection = () => {
         navigate("/profile-registration");
       }
     } else {
-      window.location.hash = "#/auth";
+      navigate("/auth");
     }
   };
 
