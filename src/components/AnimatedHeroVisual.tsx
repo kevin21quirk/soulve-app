@@ -2,7 +2,7 @@ import soulveIcon from "@/assets/soulve-icon.png";
 
 const AnimatedHeroVisual = () => {
   return (
-    <div className="relative -mt-32">
+    <div className="relative -mt-56">
       <img
         src={soulveIcon}
         alt="SouLVE - Connecting Communities"
