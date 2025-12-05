@@ -8354,6 +8354,7 @@ export type Database = {
       }
       has_white_label_access: { Args: { user_id: string }; Returns: boolean }
       is_admin: { Args: { user_uuid: string }; Returns: boolean }
+      is_admin_raw: { Args: { user_uuid: string }; Returns: boolean }
       is_campaign_creator: {
         Args: { campaign_uuid: string; user_uuid: string }
         Returns: boolean
