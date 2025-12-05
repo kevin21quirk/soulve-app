@@ -6,7 +6,7 @@ const AnimatedHeroVisual = () => {
       <img
         src={soulveIcon}
         alt="SouLVE - Connecting Communities"
-        className="w-[400px] h-[400px] lg:w-[650px] lg:h-[650px] object-contain animate-heart-glow"
+        className="w-[400px] h-[400px] lg:w-[750px] lg:h-[750px] object-contain animate-heart-glow"
       />
     </div>
   );
