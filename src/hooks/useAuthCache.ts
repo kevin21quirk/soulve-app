@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Cached admin status check - 10 minute cache
+// Cached admin status check - 10 minute cache with error handling
 export const useIsAdmin = () => {
   const { user } = useAuth();
   
@@ -10,12 +10,23 @@ export const useIsAdmin = () => {
     queryKey: ['is-admin', user?.id],
     queryFn: async () => {
       if (!user?.id) return false;
-      const { data } = await supabase.rpc('is_admin', { user_uuid: user.id });
-      return !!data;
+      try {
+        const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+        if (error) {
+          console.error('Error checking admin status:', error);
+          return false;
+        }
+        return !!data;
+      } catch (err) {
+        console.error('Failed to check admin status:', err);
+        return false;
+      }
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
+    retry: 1,
+    retryDelay: 500,
   });
 };
 
@@ -27,16 +38,27 @@ export const useOnboardingStatus = () => {
     queryKey: ['onboarding-status', user?.id],
     queryFn: async () => {
       if (!user?.id) return { completed: false };
-      const { data } = await supabase
-        .from('questionnaire_responses')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      return { completed: !!data };
+      try {
+        const { data, error } = await supabase
+          .from('questionnaire_responses')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (error) {
+          console.error('Error checking onboarding status:', error);
+          return { completed: false };
+        }
+        return { completed: !!data };
+      } catch (err) {
+        console.error('Failed to check onboarding status:', err);
+        return { completed: false };
+      }
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    retry: 1,
+    retryDelay: 500,
   });
 };
 
@@ -48,16 +70,27 @@ export const useWaitlistStatus = () => {
     queryKey: ['waitlist-status', user?.id],
     queryFn: async () => {
       if (!user?.id) return { status: null };
-      const { data } = await supabase
-        .from('profiles')
-        .select('waitlist_status')
-        .eq('id', user.id)
-        .maybeSingle();
-      return { status: data?.waitlist_status || null };
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('waitlist_status')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (error) {
+          console.error('Error checking waitlist status:', error);
+          return { status: null };
+        }
+        return { status: data?.waitlist_status || null };
+      } catch (err) {
+        console.error('Failed to check waitlist status:', err);
+        return { status: null };
+      }
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    retry: 1,
+    retryDelay: 500,
   });
 };
 
@@ -65,11 +98,13 @@ export const useWaitlistStatus = () => {
 export const useAuthAccessCheck = () => {
   const { user, loading: authLoading } = useAuth();
   
-  const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
-  const { data: onboarding, isLoading: onboardingLoading } = useOnboardingStatus();
-  const { data: waitlist, isLoading: waitlistLoading } = useWaitlistStatus();
+  const { data: isAdmin, isLoading: adminLoading, isError: adminError } = useIsAdmin();
+  const { data: onboarding, isLoading: onboardingLoading, isError: onboardingError } = useOnboardingStatus();
+  const { data: waitlist, isLoading: waitlistLoading, isError: waitlistError } = useWaitlistStatus();
   
-  const isLoading = authLoading || (!!user && (adminLoading || onboardingLoading || waitlistLoading));
+  // If any query errors, don't block loading - use defaults
+  const hasErrors = adminError || onboardingError || waitlistError;
+  const isLoading = authLoading || (!!user && !hasErrors && (adminLoading || onboardingLoading || waitlistLoading));
   
   return {
     user,
