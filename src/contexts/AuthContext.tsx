@@ -57,8 +57,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If session becomes null (sign out, expired, or invalid)
         if (!newSession) {
           logger.log('🔓 Session cleared - user signed out or session expired');
-          // Clear potentially corrupted tokens from localStorage
-          localStorage.removeItem('supabase.auth.token');
+          // DON'T clear localStorage here - let Supabase manage its own tokens
+          // Only clear state
           setSession(null);
           setUser(null);
           setOrganizationId(null);
