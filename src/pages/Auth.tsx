@@ -54,9 +54,9 @@ const Auth = () => {
   // Simple redirect - let ProtectedRoute handle detailed checks
   useEffect(() => {
     if (!loading && user && session) {
-      navigate('/dashboard', { replace: true });
+      window.location.hash = "#/dashboard";
     }
-  }, [user, session, loading, navigate]);
+  }, [user, session, loading]);
 
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
@@ -64,7 +64,7 @@ const Auth = () => {
 
   // Simple auth success - just navigate, let ProtectedRoute handle routing
   const handleAuthSuccess = () => {
-    navigate("/dashboard", { replace: true });
+    window.location.hash = "#/dashboard";
   };
 
   if (loading) {
@@ -83,11 +83,11 @@ const Auth = () => {
       {/* Branded Header */}
       <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-4 mb-8">
         <div className="max-w-md mx-auto px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="text-white hover:text-teal-200 hover:bg-white/10 mb-4"
-          >
+            <Button
+              variant="ghost"
+              onClick={() => { window.location.hash = "#/"; }}
+              className="text-white hover:text-teal-200 hover:bg-white/10 mb-4"
+            >
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Button>
