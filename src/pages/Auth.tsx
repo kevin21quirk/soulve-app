@@ -53,7 +53,9 @@ const Auth = () => {
 
   // Simple redirect - let ProtectedRoute handle detailed checks
   useEffect(() => {
+    console.log('[AUTH PAGE] useEffect triggered:', { loading, hasUser: !!user, hasSession: !!session });
     if (!loading && user && session) {
+      console.log('[AUTH PAGE] User authenticated, navigating to dashboard');
       navigate("/dashboard", { replace: true });
     }
   }, [user, session, loading, navigate]);
@@ -64,6 +66,7 @@ const Auth = () => {
 
   // Simple auth success - just navigate, let ProtectedRoute handle routing
   const handleAuthSuccess = () => {
+    console.log('[AUTH PAGE] handleAuthSuccess called - navigating to dashboard');
     navigate("/dashboard", { replace: true });
   };
 

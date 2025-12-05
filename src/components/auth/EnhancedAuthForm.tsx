@@ -106,8 +106,10 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[LOGIN DEBUG] 1. Form submitted', { isLogin, email: formData.email });
     
     if (!validateForm()) {
+      console.log('[LOGIN DEBUG] 2. Form validation FAILED', errors);
       toast({
         title: "Form validation failed",
         description: "Please fix the errors below",
@@ -116,15 +118,24 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
       return;
     }
 
+    console.log('[LOGIN DEBUG] 3. Form validation PASSED, starting auth...');
     setIsLoading(true);
     try {
       if (isLogin) {
+        console.log('[LOGIN DEBUG] 4. Calling signInWithPassword...');
         const { data, error} = await supabase.auth.signInWithPassword({
           email: formData.email.trim(),
           password: formData.password,
         });
+        console.log('[LOGIN DEBUG] 5. signInWithPassword response:', { 
+          hasData: !!data, 
+          hasUser: !!data?.user,
+          hasSession: !!data?.session,
+          error: error?.message 
+        });
 
         if (error) {
+          console.log('[LOGIN DEBUG] 6. Login ERROR:', error);
           
           // Check for connection/service errors
           const isConnectionError = 
@@ -168,11 +179,15 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
         }
 
         if (data.user) {
+          console.log('[LOGIN DEBUG] 7. Login SUCCESS, user:', data.user.id);
+          console.log('[LOGIN DEBUG] 8. Session:', data.session ? 'EXISTS' : 'MISSING');
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
           });
+          console.log('[LOGIN DEBUG] 9. Calling onSuccess()...');
           onSuccess();
+          console.log('[LOGIN DEBUG] 10. onSuccess() called');
         }
       } else {
         const redirectUrl = window.location.origin.includes('lovable') 
