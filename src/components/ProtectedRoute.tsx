@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     // If no user, redirect to auth page
     if (!user) {
       hasRedirected.current = true;
-      navigate('/auth', { replace: true });
+      window.location.hash = "#/auth";
       return;
     }
 
@@ -35,14 +35,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     // Check onboarding
     if (!onboardingCompleted) {
       hasRedirected.current = true;
-      navigate('/profile-registration', { replace: true });
+      window.location.hash = "#/profile-registration";
       return;
     }
 
     // Check waitlist status
     if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
       hasRedirected.current = true;
-      navigate('/waitlist', { replace: true });
+      window.location.hash = "#/waitlist";
       return;
     }
 
