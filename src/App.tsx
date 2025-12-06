@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AccountProvider } from "@/contexts/AccountContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import { RealtimeProvider } from "@/contexts/RealtimeContext";
+import { PostCreationProvider } from "@/contexts/PostCreationContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -103,6 +104,7 @@ function App() {
         <AuthProvider>
           <RealtimeProvider>
             <AccountProvider>
+              <PostCreationProvider>
               <Suspense fallback={<LoadingState message="Loading application..." />}>
                 <GoogleAnalytics />
                 <Routes>
@@ -254,6 +256,7 @@ function App() {
             <FloatingFeedbackButton />
             <CookieConsent />
             <Toaster />
+              </PostCreationProvider>
           </AccountProvider>
           </RealtimeProvider>
         </AuthProvider>
