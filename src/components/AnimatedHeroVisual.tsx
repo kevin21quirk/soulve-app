@@ -5,7 +5,7 @@ const AnimatedHeroVisual = () => {
     <div className="relative -mt-56">
       {/* Subtle white haze behind heart */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-[250px] h-[250px] lg:w-[450px] lg:h-[450px] bg-white/15 rounded-full blur-3xl" />
+        <div className="w-[300px] h-[300px] lg:w-[550px] lg:h-[550px] bg-white/25 rounded-full blur-3xl" />
       </div>
       
       <img
