@@ -39,7 +39,7 @@ export class EnhancedPointsService {
       .eq('user_id', userId)
       .maybeSingle();
     
-    const trustScore = metrics?.trust_score || 50;
+    const trustScore = metrics?.trust_score ?? 0;
     
     // Determine points state based on trust score (TRUST-BASED SYSTEM)
     let pointsState = 'active';
