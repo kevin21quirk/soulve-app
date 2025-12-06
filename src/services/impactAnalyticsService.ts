@@ -97,7 +97,7 @@ export class ImpactAnalyticsService {
         communitiesJoined: userGroups?.length || 0,
         connectionsCount: metrics.connections_count || 0,
         responsesTime: Number(metrics.response_time_hours) || 2.5,
-        trustScore: metrics.trust_score || 50,
+        trustScore: metrics.trust_score ?? 0,
         impactScore: metrics.impact_score || 0,
         rank,
         percentile
@@ -480,7 +480,7 @@ export class ImpactAnalyticsService {
       communitiesJoined: 0,
       connectionsCount: 0,
       responsesTime: 0,
-      trustScore: 50,
+      trustScore: 0,
       impactScore: 0,
       rank: 1,
       percentile: 50

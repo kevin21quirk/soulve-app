@@ -39,7 +39,7 @@ const GamificationPanel = () => {
     connectionsCount: metrics?.connections_count || 0,
     postsCount: 0,
     likesReceived: 0,
-    trustScore: metrics?.trust_score || 50,
+    trustScore: metrics?.trust_score ?? 0,
     trustLevel: (metrics?.trust_score || 0) > 80 ? 'trusted_helper' : (metrics?.trust_score || 0) > 60 ? 'verified_helper' : 'new_user' as any
   };
 

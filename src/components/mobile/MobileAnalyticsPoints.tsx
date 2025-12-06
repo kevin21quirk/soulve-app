@@ -32,7 +32,7 @@ const MobileAnalyticsPoints = () => {
     connectionsCount: 0, // This would come from connections table
     postsCount: 0, // This would come from posts table
     likesReceived: 0, // This would come from post interactions
-    trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
+    trustScore: Math.min(Math.floor(totalPoints / 10), 100),
     trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any
   };
   

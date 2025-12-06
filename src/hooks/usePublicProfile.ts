@@ -102,7 +102,7 @@ export const usePublicProfile = (userId: string) => {
             month: 'short', 
             year: 'numeric' 
           }),
-          trustScore: impactMetrics?.trust_score || 50,
+          trustScore: impactMetrics?.trust_score ?? 0,
           helpCount: impactMetrics?.help_provided_count || 0,
           skills: profile.skills || [],
           interests: profile.interests || [],

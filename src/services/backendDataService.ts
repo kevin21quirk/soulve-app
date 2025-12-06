@@ -73,7 +73,7 @@ export class BackendDataService {
       connectionsCount: 42,
       postsCount: 15,
       likesReceived: 89,
-      trustScore: Math.min(50 + (totalPoints / 10), 100),
+      trustScore: Math.min(totalPoints / 10, 100),
       trustLevel: totalPoints >= 3000 ? 'impact_champion' : 
                   totalPoints >= 1500 ? 'community_leader' :
                   totalPoints >= 500 ? 'trusted_helper' :

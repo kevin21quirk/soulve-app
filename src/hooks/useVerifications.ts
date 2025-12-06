@@ -9,7 +9,7 @@ export const useVerifications = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [verifications, setVerifications] = useState<UserVerification[]>([]);
-  const [trustScore, setTrustScore] = useState<number>(50);
+  const [trustScore, setTrustScore] = useState<number>(0);
   const [trustHistory, setTrustHistory] = useState<TrustScoreHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -121,10 +121,10 @@ export const useVerifications = () => {
         throw error;
       }
       
-      setTrustScore(data || 50);
+      setTrustScore(data ?? 0);
     } catch (error) {
       console.error('Error in fetchTrustScore:', error);
-      setTrustScore(50);
+      setTrustScore(0);
     } finally {
       setLoading(false);
     }
