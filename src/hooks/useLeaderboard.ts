@@ -82,7 +82,7 @@ export const useLeaderboard = (timeframe: 'weekly' | 'monthly' | 'all-time' = 'a
           userName,
           avatar: profile?.avatar_url || '',
           totalPoints: userData.impact_score || 0,
-          trustLevel: getTrustLevelFromScore(userData.trust_score || 50),
+          trustLevel: getTrustLevelFromScore(userData.trust_score || 0),
           rank: index + 1,
           weeklyPoints: timeframe === 'weekly' ? (periodPoints[userData.user_id] || 0) : 0,
           monthlyPoints: timeframe === 'monthly' ? (periodPoints[userData.user_id] || 0) : 0

@@ -26,6 +26,7 @@ import { useEnhancedPoints } from '@/hooks/useEnhancedPoints';
 import { useRealTimePoints } from '@/hooks/useRealTimePoints';
 import { useUserAchievements } from '@/hooks/useUserAchievements';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
 import ImpactTrendsChart from './ImpactTrendsChart';
 import GoalsManager from './GoalsManager';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,7 @@ const SimplifiedImpactDashboard = () => {
   const { recentTransactions, totalPoints } = useRealTimePoints();
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const { refreshImpactMetrics } = useImpactTracking();
+  const { leaderboard, userRank, loading: leaderboardLoading } = useLeaderboard('all-time', 10);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [goals, setGoals] = useState<ImpactGoal[]>([]);
@@ -440,37 +442,61 @@ const SimplifiedImpactDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {[
-                  { rank: 1, name: 'Emma Thompson', points: 2450 },
-                  { rank: 2, name: 'James Wilson', points: 2100 },
-                  { rank: 3, name: 'You', points: totalPoints },
-                  { rank: 4, name: 'Sophie Brown', points: 1600 },
-                  { rank: 5, name: 'Oliver Davies', points: 1400 }
-                ].sort((a, b) => b.points - a.points).map((entry, index) => (
-                  <div 
-                    key={entry.name}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      entry.name === 'You' ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/30'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                        index === 0 ? 'bg-yellow-500 text-white' :
-                        index === 1 ? 'bg-gray-400 text-white' :
-                        index === 2 ? 'bg-orange-500 text-white' :
-                        'bg-muted text-muted-foreground'
-                      }`}>
-                        {index + 1}
+              {leaderboardLoading ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-12 bg-muted rounded-lg animate-pulse"></div>
+                  ))}
+                </div>
+              ) : leaderboard.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="font-medium">No leaderboard data yet</p>
+                  <p className="text-sm">Be the first to make an impact!</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {leaderboard.slice(0, 5).map((entry, index) => {
+                    const isCurrentUser = entry.userId === user?.id;
+                    return (
+                      <div 
+                        key={entry.userId}
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          isCurrentUser ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/30'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                            index === 0 ? 'bg-yellow-500 text-white' :
+                            index === 1 ? 'bg-gray-400 text-white' :
+                            index === 2 ? 'bg-orange-500 text-white' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {entry.rank}
+                          </div>
+                          <span className={`font-medium ${isCurrentUser ? 'text-primary' : ''}`}>
+                            {isCurrentUser ? 'You' : entry.userName}
+                          </span>
+                        </div>
+                        <span className="font-semibold">{entry.totalPoints.toLocaleString()} pts</span>
                       </div>
-                      <span className={`font-medium ${entry.name === 'You' ? 'text-primary' : ''}`}>
-                        {entry.name}
-                      </span>
+                    );
+                  })}
+                  {userRank && userRank > 5 && (
+                    <div className="pt-2 border-t mt-2">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-muted text-muted-foreground">
+                            {userRank}
+                          </div>
+                          <span className="font-medium text-primary">You</span>
+                        </div>
+                        <span className="font-semibold">{totalPoints.toLocaleString()} pts</span>
+                      </div>
                     </div>
-                    <span className="font-semibold">{entry.points.toLocaleString()} pts</span>
-                  </div>
-                ))}
-              </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

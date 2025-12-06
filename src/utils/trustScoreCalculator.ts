@@ -136,7 +136,7 @@ export class TrustScoreCalculator {
   }
 
   static calculateTrustScore(verifications: any[], activities: any[], ratings: number[]): number {
-    let score = 50; // Base score
+    let score = 0; // Start at zero - trust is earned, not given
 
     // Verification bonuses
     const verificationBonuses = {
