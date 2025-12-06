@@ -1,10 +1,9 @@
-
-import InteractiveImpactDashboard from '@/components/impact/InteractiveImpactDashboard';
+import SimplifiedImpactDashboard from '@/components/impact/SimplifiedImpactDashboard';
 
 const ImpactTab = () => {
   return (
     <div className="space-y-6">
-      <InteractiveImpactDashboard />
+      <SimplifiedImpactDashboard />
     </div>
   );
 };

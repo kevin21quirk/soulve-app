@@ -15,7 +15,7 @@ import {
   BarChart3,
   Heart,
   Clock,
-  DollarSign,
+  PoundSterling,
   Zap,
   RefreshCw,
   Map,
@@ -317,8 +317,8 @@ const InteractiveImpactDashboard = () => {
             />
             <ImpactMetricsCard
               title="Donations Made"
-              value={`$${impactData.donationAmount}`}
-              icon={DollarSign}
+              value={`£${impactData.donationAmount}`}
+              icon={PoundSterling}
               color="text-green-500"
               bgColor="bg-green-50"
               description="Financial support"
