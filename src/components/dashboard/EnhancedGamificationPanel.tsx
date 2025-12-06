@@ -61,7 +61,7 @@ const EnhancedGamificationPanel = () => {
         connectionsCount: 0,
         postsCount: 0,
         likesReceived: 0,
-        trustScore: Math.min(50 + Math.floor(totalPoints / 10), 100),
+        trustScore: Math.min(Math.floor(totalPoints / 10), 100),
         trustLevel: totalPoints > 500 ? 'trusted_helper' : totalPoints > 200 ? 'verified_helper' : 'new_user' as any,
         donationAmount: recentTransactions
           .filter(t => t.category === 'donation')

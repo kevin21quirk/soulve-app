@@ -19,7 +19,7 @@ export const createDefaultProfile = (user: any): UserProfileData => {
       month: 'short', 
       year: 'numeric' 
     }),
-    trustScore: 95,
+    trustScore: 0,
     helpCount: 0,
     skills: [],
     interests: [],
@@ -67,7 +67,7 @@ export const mapDatabaseProfileToUserProfile = (user: any, profile?: DatabasePro
       month: 'short', 
       year: 'numeric' 
     }),
-    trustScore: 95,
+    trustScore: 0,
     helpCount: 0,
     skills: profile?.skills || [],
     interests: profile?.interests || [],

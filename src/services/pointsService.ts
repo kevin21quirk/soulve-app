@@ -185,7 +185,7 @@ export class PointsCalculator {
       connectionsCount: 0, // Would be calculated from connections data
       postsCount: 0, // Would be calculated from posts data
       likesReceived: 0, // Would be calculated from likes data
-      trustScore: Math.min(50 + (totalPoints / 50), 100), // Convert points to trust score
+      trustScore: Math.min(totalPoints / 50, 100), // Convert points to trust score (starts at 0)
       trustLevel
     };
   }
