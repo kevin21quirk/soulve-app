@@ -46,6 +46,9 @@ const PersonalizedWelcome = ({ onNavigateToTab }: PersonalizedWelcomeProps) => {
     // Map actions to tabs or trigger post composer with appropriate options
     switch (action) {
       case 'discover':
+        // Navigate to discover-connect tab (the actual tab name in DashboardTabs)
+        onNavigateToTab('discover-connect');
+        break;
       case 'feed':
       case 'connect':
       case 'campaigns':
