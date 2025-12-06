@@ -43,18 +43,29 @@ interface ModernPostComposerProps {
   onClose: () => void;
   onSubmit: (data: PostFormData) => Promise<void>;
   isSubmitting: boolean;
+  initialCategory?: string;
+  initialUrgency?: 'low' | 'medium' | 'high' | 'urgent';
+  openEventCreator?: boolean;
 }
 
-export const ModernPostComposer = ({ isOpen, onClose, onSubmit, isSubmitting }: ModernPostComposerProps) => {
+export const ModernPostComposer = ({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  isSubmitting,
+  initialCategory = '',
+  initialUrgency = 'medium',
+  openEventCreator = false
+}: ModernPostComposerProps) => {
   const { user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
     description: '',
-    category: '',
+    category: initialCategory,
     location: '',
-    urgency: 'medium',
+    urgency: initialUrgency,
     feeling: '',
     tags: [],
     visibility: 'public',
@@ -68,7 +79,7 @@ export const ModernPostComposer = ({ isOpen, onClose, onSubmit, isSubmitting }: 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
-  const [showEventCreator, setShowEventCreator] = useState(false);
+  const [showEventCreator, setShowEventCreator] = useState(openEventCreator);
   const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [tagInput, setTagInput] = useState('');
 
@@ -76,11 +87,20 @@ export const ModernPostComposer = ({ isOpen, onClose, onSubmit, isSubmitting }: 
   const charPercentage = (charCount / MAX_CHARS) * 100;
   const isOverLimit = charCount > MAX_CHARS;
 
+  // Reset form with initial values when modal opens
   useEffect(() => {
-    if (isOpen && textareaRef.current) {
-      textareaRef.current.focus();
+    if (isOpen) {
+      setFormData(prev => ({
+        ...prev,
+        category: initialCategory,
+        urgency: initialUrgency,
+      }));
+      setShowEventCreator(openEventCreator);
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, initialCategory, initialUrgency, openEventCreator]);
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

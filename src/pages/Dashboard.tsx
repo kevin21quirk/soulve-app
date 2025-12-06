@@ -10,6 +10,7 @@ import MobileDashboard from "@/components/mobile/MobileDashboard";
 import PersonalizedWelcome from "@/components/dashboard/PersonalizedWelcome";
 import { LoadingState } from "@/components/ui/loading-state";
 import { preloadTabBundles, prefetchCriticalData } from "@/hooks/usePrefetchTabData";
+import { GlobalPostComposer } from "@/components/post-creation/GlobalPostComposer";
 const Dashboard = () => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
@@ -66,25 +67,44 @@ const Dashboard = () => {
   if (isMobile) {
     return <MobileDashboard />;
   }
-  return <div className="min-h-screen bg-gray-50">
-      <DashboardHeader showSearch={showSearch} setShowSearch={setShowSearch} showShortcuts={showShortcuts} setShowShortcuts={setShowShortcuts} showActivity={showActivity} setShowActivity={setShowActivity} onNavigateToTab={handleNavigateToTab} context={context} orgId={orgId || undefined} orgName={currentOrgName} />
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <DashboardHeader 
+        showSearch={showSearch} 
+        setShowSearch={setShowSearch} 
+        showShortcuts={showShortcuts} 
+        setShowShortcuts={setShowShortcuts} 
+        showActivity={showActivity} 
+        setShowActivity={setShowActivity} 
+        onNavigateToTab={handleNavigateToTab} 
+        context={context} 
+        orgId={orgId || undefined} 
+        orgName={currentOrgName} 
+      />
       
-      <main className="container mx-auto px-4 py-2 ">
+      <main className="container mx-auto px-4 py-2">
         {/* Personalized welcome based on user type */}
         {context === 'personal' && (
           <PersonalizedWelcome onNavigateToTab={handleNavigateToTab} />
         )}
         
-        <DashboardTabs activeTab={activeTab} onTabChange={tab => {
-        setSearchParams({
-          tab,
-          context,
-          ...(orgId ? {
-            orgId
-          } : {})
-        });
-      }} organizationId={context === 'org' ? orgId : null} />
+        <DashboardTabs 
+          activeTab={activeTab} 
+          onTabChange={tab => {
+            setSearchParams({
+              tab,
+              context,
+              ...(orgId ? { orgId } : {})
+            });
+          }} 
+          organizationId={context === 'org' ? orgId : null} 
+        />
       </main>
-    </div>;
+      
+      {/* Global Post Composer - accessible from quick action buttons */}
+      <GlobalPostComposer />
+    </div>
+  );
 };
+
 export default Dashboard;

@@ -1,5 +1,6 @@
 import { useUserType, getUserTypeLabel, getDashboardConfig, UserType } from '@/hooks/useUserType';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePostCreation } from '@/contexts/PostCreationContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,6 @@ import {
   Search, Heart, HelpCircle, Users, Plus, Target, BarChart, 
   Building2, FileText, Calendar, MessageSquare, Handshake, HandHeart 
 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
 
 const iconMap: Record<string, React.ReactNode> = {
   Search: <Search className="h-4 w-4" />,
@@ -32,7 +32,7 @@ interface PersonalizedWelcomeProps {
 const PersonalizedWelcome = ({ onNavigateToTab }: PersonalizedWelcomeProps) => {
   const { user } = useAuth();
   const { data: userTypeData, isLoading } = useUserType();
-  const [searchParams] = useSearchParams();
+  const { openPostComposer } = usePostCreation();
 
   if (isLoading || !userTypeData) {
     return null;
@@ -43,7 +43,7 @@ const PersonalizedWelcome = ({ onNavigateToTab }: PersonalizedWelcomeProps) => {
   const firstName = user?.user_metadata?.first_name || 'there';
 
   const handleQuickAction = (action: string) => {
-    // Map actions to tabs or trigger modals
+    // Map actions to tabs or trigger post composer with appropriate options
     switch (action) {
       case 'discover':
       case 'feed':
@@ -58,11 +58,20 @@ const PersonalizedWelcome = ({ onNavigateToTab }: PersonalizedWelcomeProps) => {
         onNavigateToTab(action);
         break;
       case 'create-post':
+        // Open post composer with "help-offered" category for offering help
+        openPostComposer({ category: 'help-offered' });
+        break;
       case 'create-help':
+        // Open post composer with "help-needed" category and high urgency
+        openPostComposer({ category: 'help-needed', urgency: 'high' });
+        break;
       case 'create-opportunity':
+        // Open post composer with "volunteer" category for posting opportunities
+        openPostComposer({ category: 'volunteer' });
+        break;
       case 'create-event':
-        // These would open modals - navigate to feed for now
-        onNavigateToTab('feed');
+        // Open post composer with event creator dialog open
+        openPostComposer({ openWithEvent: true });
         break;
       default:
         onNavigateToTab('feed');
