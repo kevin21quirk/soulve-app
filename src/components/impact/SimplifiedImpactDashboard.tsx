@@ -19,7 +19,8 @@ import {
   Calendar,
   Star,
   Zap,
-  Shield
+  Shield,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedPoints } from '@/hooks/useEnhancedPoints';
@@ -27,8 +28,12 @@ import { useRealTimePoints } from '@/hooks/useRealTimePoints';
 import { useUserAchievements } from '@/hooks/useUserAchievements';
 import { useImpactTracking } from '@/hooks/useImpactTracking';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { useActivityStreak } from '@/hooks/useActivityStreak';
 import ImpactTrendsChart from './ImpactTrendsChart';
 import GoalsManager from './GoalsManager';
+import StreakDetailSheet from '@/components/gamification/StreakDetailSheet';
+import AchievementsCatalog from '@/components/gamification/AchievementsCatalog';
+import TrustScoreExplainer from '@/components/gamification/TrustScoreExplainer';
 import { supabase } from '@/integrations/supabase/client';
 import { ImpactAnalyticsService, ImpactGoal } from '@/services/impactAnalyticsService';
 
@@ -39,8 +44,10 @@ const SimplifiedImpactDashboard = () => {
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const { refreshImpactMetrics } = useImpactTracking();
   const { leaderboard, userRank, loading: leaderboardLoading } = useLeaderboard('all-time', 10);
+  const { streakData, nextMilestone, streakMultiplier, loading: streakLoading } = useActivityStreak();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [streakSheetOpen, setStreakSheetOpen] = useState(false);
   const [goals, setGoals] = useState<ImpactGoal[]>([]);
   const [goalsLoading, setGoalsLoading] = useState(true);
 
@@ -321,7 +328,7 @@ const SimplifiedImpactDashboard = () => {
 
         {/* Points & Rewards Tab */}
         <TabsContent value="rewards" className="space-y-6 mt-6">
-          {/* Points Breakdown */}
+          {/* Points and Streak Summary */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -331,108 +338,77 @@ const SimplifiedImpactDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg">
                   <span className="font-medium">Impact Points</span>
                   <span className="text-xl font-bold text-yellow-600">{metrics?.impact_score?.toLocaleString() || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
                   <span className="font-medium">XP Points</span>
                   <span className="text-xl font-bold text-purple-600">{metrics?.xp_points?.toLocaleString() || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                   <span className="font-medium">Trust Score</span>
                   <span className="text-xl font-bold text-blue-600">{metrics?.trust_score || 0}%</span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Activity Streak - Now Clickable */}
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setStreakSheetOpen(true)}
+            >
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Flame className="h-5 w-5 text-orange-600" />
-                  <span>Activity Streak</span>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Flame className="h-5 w-5 text-orange-600" />
+                    <span>Activity Streak</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-4">
                   <div className="text-4xl font-bold text-orange-600">
-                    {recentTransactions.length > 0 ? 
-                      Math.min(7, recentTransactions.length) : 0} days
+                    {streakData?.currentStreak || 0} days
                   </div>
-                  <p className="text-sm text-muted-foreground">Current streak</p>
+                  <p className="text-sm text-muted-foreground">
+                    {streakMultiplier > 1 ? (
+                      <Badge className="bg-orange-500 text-white">
+                        <Zap className="h-3 w-3 mr-1" />
+                        {streakMultiplier}x Points Multiplier
+                      </Badge>
+                    ) : (
+                      'Current streak'
+                    )}
+                  </p>
                   <div className="flex justify-center space-x-1">
-                    {[...Array(7)].map((_, i) => (
+                    {streakData?.activityHistory.slice(-7).map((day, i) => (
                       <div 
                         key={i} 
-                        className={`w-8 h-8 rounded ${i < Math.min(7, recentTransactions.length) ? 'bg-orange-500' : 'bg-muted'}`}
+                        className={`w-8 h-8 rounded ${day.hasActivity ? 'bg-orange-500' : 'bg-muted'}`}
+                        title={day.date}
                       />
+                    )) || [...Array(7)].map((_, i) => (
+                      <div key={i} className="w-8 h-8 rounded bg-muted" />
                     ))}
                   </div>
+                  {nextMilestone && (
+                    <div className="pt-2 text-xs text-muted-foreground">
+                      <span className="font-medium">{nextMilestone.days - (streakData?.currentStreak || 0)} days</span> to {nextMilestone.title}
+                    </div>
+                  )}
+                  <p className="text-xs text-primary">Tap for details →</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Achievements */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Award className="h-5 w-5 text-primary" />
-                  <span>Achievements</span>
-                </div>
-                <Badge variant="secondary">{unlockedAchievements}/{achievements.length}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {achievements.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Trophy className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>Achievements will appear as you make an impact</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {achievements.slice(0, 6).map((achievement) => (
-                    <div 
-                      key={achievement.id} 
-                      className={`p-3 rounded-lg border ${
-                        achievement.unlocked 
-                          ? 'bg-green-50 border-green-200' 
-                          : 'bg-muted/50'
-                      }`}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-full ${achievement.unlocked ? 'bg-green-200' : 'bg-muted'}`}>
-                          <Trophy className={`h-4 w-4 ${achievement.unlocked ? 'text-green-700' : 'text-muted-foreground'}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-sm truncate">{achievement.title}</p>
-                            {achievement.unlocked && (
-                              <Badge className="bg-green-500 text-white text-xs">Unlocked</Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
-                          {!achievement.unlocked && (
-                            <div className="mt-2">
-                              <Progress 
-                                value={(achievement.progress / achievement.maxProgress) * 100} 
-                                className="h-1"
-                              />
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {achievement.progress}/{achievement.maxProgress}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Trust Score Explainer */}
+          <TrustScoreExplainer />
 
+          {/* Full Achievements Catalog */}
+          <AchievementsCatalog achievements={achievements} />
           {/* Leaderboard Preview */}
           <Card>
             <CardHeader>
@@ -506,6 +482,9 @@ const SimplifiedImpactDashboard = () => {
           <GoalsManager goals={goals} onGoalsChange={setGoals} />
         </TabsContent>
       </Tabs>
+
+      {/* Streak Detail Sheet */}
+      <StreakDetailSheet open={streakSheetOpen} onOpenChange={setStreakSheetOpen} />
     </div>
   );
 };

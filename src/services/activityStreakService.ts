@@ -42,16 +42,19 @@ export class ActivityStreakService {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const result = await supabase
-        .from('impact_activities')
-        .select('created_at, points_earned')
+      // Avoid deep type instantiation by using any temporarily
+      const query = supabase.from('impact_activities').select('created_at, points_earned');
+      const filtered = (query as any)
         .eq('user_id', userId)
         .eq('is_active', true)
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false });
+      
+      const { data, error } = await filtered;
 
-      const activities = result.data as { created_at: string; points_earned: number }[] | null;
-      const error = result.error;
+      if (error) throw error;
+      
+      const activities = data as { created_at: string; points_earned: number }[] | null;
 
       if (error) throw error;
 
