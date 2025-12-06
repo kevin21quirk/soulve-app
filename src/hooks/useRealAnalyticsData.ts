@@ -192,7 +192,7 @@ export const useRealAnalyticsData = () => {
         },
         {
           title: "Trust Score",
-          value: `${metrics?.trust_score || 50}%`,
+          value: `${metrics?.trust_score ?? 0}%`,
           change: "+0%",
           trend: "up" as const
         },

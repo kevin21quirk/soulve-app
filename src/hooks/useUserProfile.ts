@@ -92,7 +92,7 @@ export const useUserProfile = () => {
       banner: profile.banner_url || '',
       bannerType: (profile.banner_type as "video" | "image") || null,
       joinDate: profile.created_at || new Date().toISOString(),
-      trustScore: metrics?.trust_score || 50,
+      trustScore: metrics?.trust_score ?? 0,
       helpCount: metrics?.help_provided_count || 0,
       skills: profile.skills || [],
       interests: profile.interests || [],

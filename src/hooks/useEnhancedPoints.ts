@@ -36,7 +36,7 @@ export const useEnhancedPoints = () => {
       setMetrics(userMetrics || {
         user_id: user.id,
         impact_score: 0,
-        trust_score: 50,
+        trust_score: 0,
         help_provided_count: 0,
         help_received_count: 0,
         volunteer_hours: 0,
