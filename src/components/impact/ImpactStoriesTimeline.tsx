@@ -30,8 +30,8 @@ const ImpactStoriesTimeline = () => {
   const { toast } = useToast();
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
 
-  // Convert transactions to impact stories
-  const impactStories: ImpactStory[] = recentTransactions.map((transaction, index) => ({
+  // Convert transactions to impact stories with real data (no fake multipliers)
+  const impactStories: ImpactStory[] = recentTransactions.map((transaction) => ({
     id: transaction.id,
     title: transaction.description,
     description: `You made a positive impact in your community`,
@@ -40,10 +40,11 @@ const ImpactStoriesTimeline = () => {
     location: transaction.metadata?.location || 'Local Community',
     category: transaction.category,
     points: transaction.points,
+    // Real ripple effect based on actual points earned
     rippleEffect: {
       directImpact: 1,
-      secondaryImpact: Math.floor(Math.random() * 3) + 1,
-      communityReach: Math.floor(Math.random() * 10) + 5
+      secondaryImpact: Math.ceil(transaction.points / 20),
+      communityReach: Math.ceil(transaction.points / 10)
     }
   }));
 

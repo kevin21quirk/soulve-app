@@ -12,7 +12,7 @@ import {
   Zap,
   Clock,
   Award,
-  DollarSign,
+  PoundSterling,
   Heart
 } from 'lucide-react';
 
@@ -141,7 +141,7 @@ const EnhancedPointsDisplay = () => {
               </div>
             )}
             <div className="mt-2 text-xs text-green-600 flex items-center space-x-1">
-              <DollarSign className="h-3 w-3" />
+              <PoundSterling className="h-3 w-3" />
               <span>Campaign points never decay</span>
             </div>
           </CardContent>

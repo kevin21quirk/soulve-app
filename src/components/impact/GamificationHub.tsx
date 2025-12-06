@@ -22,13 +22,13 @@ const GamificationHub = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('achievements');
 
-  // Mock data for demonstration
+  // British-localised data
   const achievements = [
     {
       id: '1',
       title: 'First Helper',
       description: 'Help your first person in need',
-      icon: '🤝',
+      icon: Award,
       progress: 1,
       maxProgress: 1,
       points: 50,
@@ -40,7 +40,7 @@ const GamificationHub = () => {
       id: '2',
       title: 'Community Champion',
       description: 'Help 100 people in your community',
-      icon: '👑',
+      icon: Crown,
       progress: 67,
       maxProgress: 100,
       points: 500,
@@ -51,7 +51,7 @@ const GamificationHub = () => {
       id: '3',
       title: 'Trust Builder',
       description: 'Achieve 90% trust score',
-      icon: '🛡️',
+      icon: Trophy,
       progress: 85,
       maxProgress: 90,
       points: 200,
@@ -89,23 +89,23 @@ const GamificationHub = () => {
       title: 'Daily Login',
       current: 12,
       best: 25,
-      icon: '📅'
+      icon: Calendar
     },
     {
       id: '2',
       title: 'Weekly Help',
       current: 3,
       best: 8,
-      icon: '🤝'
+      icon: Users
     }
   ];
 
   const leaderboard = [
-    { rank: 1, name: 'Sarah Johnson', points: 2450, avatar: '👩‍💼' },
-    { rank: 2, name: 'Mike Chen', points: 2100, avatar: '👨‍💻' },
-    { rank: 3, name: 'You', points: 1850, avatar: '👤' },
-    { rank: 4, name: 'Emma Wilson', points: 1600, avatar: '👩‍🎓' },
-    { rank: 5, name: 'Alex Garcia', points: 1400, avatar: '👨‍🏫' }
+    { rank: 1, name: 'Emma Thompson', points: 2450 },
+    { rank: 2, name: 'James Wilson', points: 2100 },
+    { rank: 3, name: 'You', points: 1850 },
+    { rank: 4, name: 'Sophie Brown', points: 1600 },
+    { rank: 5, name: 'Oliver Davies', points: 1400 }
   ];
 
   const getRarityColor = (rarity: string) => {
@@ -175,56 +175,61 @@ const GamificationHub = () => {
 
         <TabsContent value="achievements" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {achievements.map((achievement) => (
-              <Card key={achievement.id} className={`transition-all duration-200 ${
-                achievement.unlocked 
-                  ? 'bg-green-50 border-green-200 hover:shadow-lg' 
-                  : achievement.progress >= achievement.maxProgress
-                  ? 'bg-yellow-50 border-yellow-200 animate-pulse'
-                  : 'hover:shadow-md'
-              }`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <div className="text-2xl">{achievement.icon}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-medium">{achievement.title}</h4>
-                          <Badge className={getRarityColor(achievement.rarity)}>
-                            {achievement.rarity}
-                          </Badge>
+            {achievements.map((achievement) => {
+              const IconComponent = achievement.icon;
+              return (
+                <Card key={achievement.id} className={`transition-all duration-200 ${
+                  achievement.unlocked 
+                    ? 'bg-green-50 border-green-200 hover:shadow-lg' 
+                    : achievement.progress >= achievement.maxProgress
+                    ? 'bg-yellow-50 border-yellow-200 animate-pulse'
+                    : 'hover:shadow-md'
+                }`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 rounded-full bg-primary/10">
+                          <IconComponent className="h-5 w-5 text-primary" />
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {achievement.description}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                          <Star className="h-4 w-4 text-yellow-500" />
-                          <span className="text-sm font-medium">{achievement.points} points</span>
-                        </div>
-                        {!achievement.unlocked && (
-                          <div className="mt-2">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Progress</span>
-                              <span>{achievement.progress}/{achievement.maxProgress}</span>
-                            </div>
-                            <Progress 
-                              value={(achievement.progress / achievement.maxProgress) * 100} 
-                              className="h-2"
-                            />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h4 className="font-medium">{achievement.title}</h4>
+                            <Badge className={getRarityColor(achievement.rarity)}>
+                              {achievement.rarity}
+                            </Badge>
                           </div>
-                        )}
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {achievement.description}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <Star className="h-4 w-4 text-yellow-500" />
+                            <span className="text-sm font-medium">{achievement.points} points</span>
+                          </div>
+                          {!achievement.unlocked && (
+                            <div className="mt-2">
+                              <div className="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>{achievement.progress}/{achievement.maxProgress}</span>
+                              </div>
+                              <Progress 
+                                value={(achievement.progress / achievement.maxProgress) * 100} 
+                                className="h-2"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
+                      {achievement.unlocked && (
+                        <Badge className="bg-green-500 text-white">
+                          <Award className="h-3 w-3 mr-1" />
+                          Unlocked
+                        </Badge>
+                      )}
                     </div>
-                    {achievement.unlocked && (
-                      <Badge className="bg-green-500 text-white">
-                        <Award className="h-3 w-3 mr-1" />
-                        Unlocked
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
@@ -270,28 +275,33 @@ const GamificationHub = () => {
 
         <TabsContent value="streaks" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {streaks.map((streak) => (
-              <Card key={streak.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="text-center space-y-3">
-                    <div className="text-3xl">{streak.icon}</div>
-                    <h4 className="font-medium">{streak.title}</h4>
-                    <div className="space-y-2">
-                      <div className="text-2xl font-bold text-orange-600">
-                        {streak.current} days
+            {streaks.map((streak) => {
+              const IconComponent = streak.icon;
+              return (
+                <Card key={streak.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="text-center space-y-3">
+                      <div className="p-3 rounded-full bg-orange-100 inline-block">
+                        <IconComponent className="h-6 w-6 text-orange-600" />
                       </div>
-                      <div className="text-sm text-gray-600">
-                        Current streak
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-gray-500">Best: </span>
-                        <span className="font-medium">{streak.best} days</span>
+                      <h4 className="font-medium">{streak.title}</h4>
+                      <div className="space-y-2">
+                        <div className="text-2xl font-bold text-orange-600">
+                          {streak.current} days
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Current streak
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Best: </span>
+                          <span className="font-medium">{streak.best} days</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
@@ -313,33 +323,34 @@ const GamificationHub = () => {
                     key={entry.rank} 
                     className={`flex items-center justify-between p-3 rounded-lg ${
                       entry.name === 'You' 
-                        ? 'bg-blue-50 border border-blue-200' 
-                        : 'bg-gray-50'
+                        ? 'bg-primary/10 border border-primary/20' 
+                        : 'bg-secondary/30'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                         entry.rank === 1 ? 'bg-yellow-500 text-white' :
                         entry.rank === 2 ? 'bg-gray-400 text-white' :
                         entry.rank === 3 ? 'bg-orange-500 text-white' :
-                        'bg-gray-200 text-gray-700'
+                        'bg-muted text-muted-foreground'
                       }`}>
                         {entry.rank}
                       </div>
-                      <div className="text-2xl">{entry.avatar}</div>
                       <div>
-                        <div className={`font-medium ${entry.name === 'You' ? 'text-blue-700' : ''}`}>
+                        <div className={`font-medium ${entry.name === 'You' ? 'text-primary' : ''}`}>
                           {entry.name}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-muted-foreground">
                           {entry.points.toLocaleString()} points
                         </div>
                       </div>
                     </div>
                     {entry.rank <= 3 && (
-                      <div className="text-2xl">
-                        {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
-                      </div>
+                      <Trophy className={`h-5 w-5 ${
+                        entry.rank === 1 ? 'text-yellow-500' :
+                        entry.rank === 2 ? 'text-gray-400' :
+                        'text-orange-500'
+                      }`} />
                     )}
                   </div>
                 ))}
