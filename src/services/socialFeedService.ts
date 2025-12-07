@@ -111,12 +111,12 @@ const fetchSocialFeed = async (
   const postOrgIds = postsData.map(post => post.organization_id).filter(Boolean);
   const orgIds = [...new Set([...postOrgIds])] as string[];
 
-  // Fetch profiles and organizations in parallel
-  const [profilesData, orgsData] = await Promise.all([
+  // Fetch profiles, organizations, and trust scores in parallel
+  const [profilesData, orgsData, trustScoresData] = await Promise.all([
     authorIds.length > 0
       ? supabase
           .from('profiles')
-          .select('id, first_name, last_name, avatar_url, trust_score')
+          .select('id, first_name, last_name, avatar_url')
           .in('id', authorIds)
           .then(({ data, error }) => {
             if (error) logger.error('[socialFeedService] Profiles query error', error);
@@ -132,6 +132,16 @@ const fetchSocialFeed = async (
             if (error) logger.error('[socialFeedService] Organizations query error', error);
             return data || [];
           })
+      : Promise.resolve([]),
+    authorIds.length > 0
+      ? supabase
+          .from('impact_metrics')
+          .select('user_id, trust_score')
+          .in('user_id', authorIds)
+          .then(({ data, error }) => {
+            if (error) logger.error('[socialFeedService] Trust scores query error', error);
+            return data || [];
+          })
       : Promise.resolve([])
   ]);
 
@@ -144,6 +154,11 @@ const fetchSocialFeed = async (
   const orgsMap = new Map();
   orgsData.forEach(org => {
     orgsMap.set(org.id, org);
+  });
+
+  const trustScoresMap = new Map();
+  trustScoresData.forEach(metric => {
+    trustScoresMap.set(metric.user_id, metric.trust_score);
   });
 
   // Transform posts
@@ -169,7 +184,7 @@ const fetchSocialFeed = async (
       author_id: post.author_id,
       author_name: authorName,
       author_avatar: avatarUrl,
-      author_trust_score: profile?.trust_score ?? 0,
+      author_trust_score: trustScoresMap.get(post.author_id) ?? 0,
       organization_id: post.organization_id || null,
       organization_name: org?.name,
       organization_logo: org?.avatar_url,
@@ -210,7 +225,7 @@ const fetchSocialFeed = async (
       author_id: campaign.creator_id,
       author_name: authorName,
       author_avatar: avatarUrl,
-      author_trust_score: profile?.trust_score ?? 0,
+      author_trust_score: trustScoresMap.get(campaign.creator_id) ?? 0,
       category: 'campaign',
       urgency: 'normal',
       location: campaign.location,
