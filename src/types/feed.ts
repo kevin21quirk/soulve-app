@@ -3,6 +3,7 @@ export interface FeedPost {
   id: string;
   author: string;
   authorId: string;
+  authorTrustScore?: number;
   avatar: string;
   timestamp: string;
   title: string;
