@@ -23,6 +23,7 @@ export const transformSocialPostToFeedPost = (socialPost: any): FeedPost => {
     id: socialPost.id,
     author: socialPost.author_name || 'Anonymous',
     authorId: socialPost.author_id,
+    authorTrustScore: socialPost.author_trust_score ?? 0,
     avatar: socialPost.author_avatar || '',
     timestamp: formatTimestamp(socialPost.created_at),
     title: socialPost.title,

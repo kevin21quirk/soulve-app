@@ -11,6 +11,7 @@ import { useVerifications } from "@/hooks/useVerifications";
 import VerificationBadges from "@/components/dashboard/verification/VerificationBadges";
 import ConnectionButton from "../connections/ConnectionButton";
 import { getTrustScoreColor } from "@/utils/trustScoreUtils";
+import UserTrustLevelBadge from "@/components/trust/UserTrustLevelBadge";
 
 interface PublicProfileViewProps {
   profileData: UserProfileData;
@@ -45,7 +46,10 @@ const PublicProfileView = ({
           
           <div className="flex-1 space-y-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{profileData.name}</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-gray-900">{profileData.name}</h1>
+                <UserTrustLevelBadge trustScore={finalTrustScore} size="md" />
+              </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mt-1">
                 <div className="flex items-center space-x-1">
                   <MapPin className="h-4 w-4" />

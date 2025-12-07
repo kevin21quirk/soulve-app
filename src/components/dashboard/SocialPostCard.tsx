@@ -38,6 +38,7 @@ import { CampaignQuickActions } from '@/components/campaign/CampaignQuickActions
 import { useCampaignStats } from '@/hooks/useCampaignStats';
 import VolunteerOpportunityCard from '@/components/volunteer/VolunteerOpportunityCard';
 import FeedAttachments from '@/components/feed/FeedAttachments';
+import UserTrustLevelBadge from '@/components/trust/UserTrustLevelBadge';
 
 interface SocialPostCardProps {
   post: FeedPost;
@@ -286,12 +287,15 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               </Avatar>
               
               <div className="flex-1">
-                <h3 
-                  className="font-semibold text-foreground cursor-pointer hover:underline"
-                  onClick={handleProfileClick}
-                >
-                  {post.author}
-                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 
+                    className="font-semibold text-foreground cursor-pointer hover:underline"
+                    onClick={handleProfileClick}
+                  >
+                    {post.author}
+                  </h3>
+                  <UserTrustLevelBadge trustScore={post.authorTrustScore ?? 0} size="sm" />
+                </div>
                 
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <div className="flex items-center space-x-1">
@@ -507,6 +511,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
                 >
                   {post.author}
                 </h3>
+                <UserTrustLevelBadge trustScore={post.authorTrustScore ?? 0} size="sm" />
                 {(post as any).organization_name && (
                   <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
                     <Building className="h-3 w-3" />

@@ -9,6 +9,7 @@ export interface SocialPost {
   author_id: string;
   author_name: string;
   author_avatar: string;
+  author_trust_score?: number;
   organization_id?: string | null;
   organization_name?: string;
   organization_logo?: string;
@@ -115,7 +116,7 @@ const fetchSocialFeed = async (
     authorIds.length > 0
       ? supabase
           .from('profiles')
-          .select('id, first_name, last_name, avatar_url')
+          .select('id, first_name, last_name, avatar_url, trust_score')
           .in('id', authorIds)
           .then(({ data, error }) => {
             if (error) logger.error('[socialFeedService] Profiles query error', error);
@@ -168,6 +169,7 @@ const fetchSocialFeed = async (
       author_id: post.author_id,
       author_name: authorName,
       author_avatar: avatarUrl,
+      author_trust_score: profile?.trust_score ?? 0,
       organization_id: post.organization_id || null,
       organization_name: org?.name,
       organization_logo: org?.avatar_url,
@@ -208,6 +210,7 @@ const fetchSocialFeed = async (
       author_id: campaign.creator_id,
       author_name: authorName,
       author_avatar: avatarUrl,
+      author_trust_score: profile?.trust_score ?? 0,
       category: 'campaign',
       urgency: 'normal',
       location: campaign.location,
