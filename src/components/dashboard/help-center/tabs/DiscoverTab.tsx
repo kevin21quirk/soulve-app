@@ -36,6 +36,7 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
   // Modal states for discovery
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const { data: urgentRequests, isLoading: loadingUrgent } = useUrgentHelpRequests();
   const { data: volunteerOpportunities, isLoading: loadingVolunteer } = useVolunteerOpportunities();
@@ -258,6 +259,15 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
         title="Support a Cause"
         description="Find campaigns to donate to and support causes you care about"
         contentType="campaigns"
+      />
+
+      <ContentDiscoveryModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title="Share a Cause"
+        description="Find causes and campaigns to share with your network"
+        contentType="campaigns"
+        showShareActions
       />
     </div>
   );
