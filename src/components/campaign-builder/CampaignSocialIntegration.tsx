@@ -58,8 +58,7 @@ const CampaignSocialIntegration = ({
             </div>
             <SocialShareButton 
               campaign={campaign}
-              variant="default"
-              className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white border-none hover:from-[#0ce4af]/90 hover:to-[#18a5fe]/90"
+              variant="gradient"
             />
           </div>
 

@@ -199,7 +199,7 @@ const CampaignModerationPanel = () => {
                     ) : (
                       <Button
                         size="sm"
-                        variant="default"
+                        variant="gradient"
                         onClick={() => handleUpdateStatus(campaign.id, 'active')}
                       >
                         <CheckCircle className="h-4 w-4" />

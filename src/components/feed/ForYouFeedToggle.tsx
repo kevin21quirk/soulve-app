@@ -18,7 +18,7 @@ const ForYouFeedToggle = ({ isPersonalized, onToggle }: ForYouFeedToggleProps) =
   return (
     <div className="flex items-center gap-2 mb-4">
       <Button
-        variant={isPersonalized ? "default" : "outline"}
+        variant={isPersonalized ? "gradient" : "outline"}
         size="sm"
         onClick={() => onToggle(true)}
         className="gap-1"
@@ -32,7 +32,7 @@ const ForYouFeedToggle = ({ isPersonalized, onToggle }: ForYouFeedToggleProps) =
         )}
       </Button>
       <Button
-        variant={!isPersonalized ? "default" : "outline"}
+        variant={!isPersonalized ? "gradient" : "outline"}
         size="sm"
         onClick={() => onToggle(false)}
         className="gap-1"

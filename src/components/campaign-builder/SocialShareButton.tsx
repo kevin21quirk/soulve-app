@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface SocialShareButtonProps {
   campaign: any;
-  variant?: "default" | "outline" | "ghost";
+  variant?: "default" | "outline" | "ghost" | "gradient";
   className?: string;
 }
 

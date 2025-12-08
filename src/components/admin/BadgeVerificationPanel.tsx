@@ -210,7 +210,7 @@ const BadgeVerificationPanel = () => {
                           <Button
                             onClick={() => handleVerification(award.id, 'verified')}
                             className="flex-1"
-                            variant="default"
+                            variant="gradient"
                           >
                             <CheckCircle2 className="h-4 w-4 mr-2" />
                             Approve Badge

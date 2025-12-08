@@ -100,7 +100,7 @@ const SeasonalChallengesCard = ({ challenges }: SeasonalChallengesCardProps) => 
                 </div>
 
                 {isCompleted && (
-                  <Button className="w-full" variant="default">
+                  <Button className="w-full" variant="gradient">
                     <Gift className="h-4 w-4 mr-2" />
                     Claim Reward
                   </Button>

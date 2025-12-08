@@ -283,7 +283,7 @@ export const SafeguardingAlertsDashboard = () => {
                         </Button>
                       )}
                       {['pending', 'acknowledged', 'reviewing'].includes(alert.status) && (
-                        <Button onClick={() => setSelectedAlert(alert)} variant="default">
+                        <Button onClick={() => setSelectedAlert(alert)} variant="gradient">
                           Resolve Alert
                         </Button>
                       )}
@@ -332,7 +332,7 @@ export const SafeguardingAlertsDashboard = () => {
                 }}>
                   Cancel
                 </Button>
-                <Button onClick={() => resolveAlert(selectedAlert.id)}>
+                <Button variant="gradient" onClick={() => resolveAlert(selectedAlert.id)}>
                   Mark as Resolved
                 </Button>
               </div>
