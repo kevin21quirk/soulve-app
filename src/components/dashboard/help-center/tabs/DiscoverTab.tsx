@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ import {
   useVolunteerOpportunities, 
   getRelativeTime 
 } from "@/hooks/useHelpCenterData";
+import ContentDiscoveryModal from "../ContentDiscoveryModal";
 
 interface DiscoverTabProps {
   handleHelpAction: (type: string, target: string) => void;
@@ -31,24 +33,19 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
   const navigate = useNavigate();
   const { openPostComposer } = usePostCreation();
 
+  // Modal states for discovery
+  const [showVolunteerModal, setShowVolunteerModal] = useState(false);
+  const [showDonationModal, setShowDonationModal] = useState(false);
+
   const { data: urgentRequests, isLoading: loadingUrgent } = useUrgentHelpRequests();
   const { data: volunteerOpportunities, isLoading: loadingVolunteer } = useVolunteerOpportunities();
 
   const handleVolunteerToday = () => {
-    // Navigate to feed filtered by volunteer opportunities
-    navigate('/dashboard?tab=feed&filter=volunteer');
-    toast({
-      title: "Finding opportunities",
-      description: "Showing volunteer opportunities near you",
-    });
+    setShowVolunteerModal(true);
   };
 
   const handleMakeDonation = () => {
-    navigate('/dashboard?tab=campaigns');
-    toast({
-      title: "Browse campaigns",
-      description: "Find causes to support with donations",
-    });
+    setShowDonationModal(true);
   };
 
   const handleShareCause = () => {
@@ -244,6 +241,24 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
           )}
         </CardContent>
       </Card>
+
+      {/* Discovery Modals */}
+      <ContentDiscoveryModal
+        isOpen={showVolunteerModal}
+        onClose={() => setShowVolunteerModal(false)}
+        title="Find Volunteer Opportunities"
+        description="Discover volunteer opportunities that match your skills and interests"
+        contentType="posts"
+        initialCategory="volunteer"
+      />
+
+      <ContentDiscoveryModal
+        isOpen={showDonationModal}
+        onClose={() => setShowDonationModal(false)}
+        title="Support a Cause"
+        description="Find campaigns to donate to and support causes you care about"
+        contentType="campaigns"
+      />
     </div>
   );
 };
