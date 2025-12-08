@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { usePostCreation } from "@/contexts/PostCreationContext";
 import { 
   useUrgentHelpRequests, 
   useVolunteerOpportunities, 
@@ -31,7 +30,6 @@ interface DiscoverTabProps {
 const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { openPostComposer } = usePostCreation();
 
   // Modal states for discovery
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
@@ -50,7 +48,7 @@ const DiscoverTab = ({ handleHelpAction }: DiscoverTabProps) => {
   };
 
   const handleShareCause = () => {
-    openPostComposer({ category: 'announcement' });
+    setShowShareModal(true);
   };
 
   const handleOfferHelp = (requestId: string, title: string) => {
