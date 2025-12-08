@@ -30,11 +30,14 @@ import {
   ExternalLink,
   Filter,
   X,
+  Share2,
+  Check,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface ContentDiscoveryModalProps {
   isOpen: boolean;
@@ -44,6 +47,7 @@ interface ContentDiscoveryModalProps {
   contentType: "posts" | "campaigns";
   initialCategory?: string;
   initialUrgency?: string;
+  showShareActions?: boolean;
 }
 
 interface PostResult {
@@ -78,8 +82,50 @@ const ContentDiscoveryModal = ({
   contentType,
   initialCategory,
   initialUrgency,
+  showShareActions = false,
 }: ContentDiscoveryModalProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleShare = async (item: any, type: 'post' | 'campaign') => {
+    const shareUrl = `${window.location.origin}/dashboard?tab=${type === 'post' ? 'feed' : 'campaigns'}&${type}=${item.id}`;
+    const shareText = type === 'post' 
+      ? `Check out this: ${item.title || item.content?.substring(0, 50)}...`
+      : `Support this campaign: ${item.title}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: item.title || 'Check this out',
+          text: shareText,
+          url: shareUrl
+        });
+      } catch (err) {
+        // User cancelled or share failed, fall back to copy
+        await copyToClipboard(item.id, shareUrl);
+      }
+    } else {
+      await copyToClipboard(item.id, shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (id: string, url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      toast({
+        title: "Link copied!",
+        description: "Share this link with your network"
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        variant: "destructive"
+      });
+    }
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState(initialCategory || "all");
   const [urgency, setUrgency] = useState(initialUrgency || "all");
@@ -419,10 +465,30 @@ const ContentDiscoveryModal = ({
                           {formatDistanceToNow(new Date(campaign.created_at), { addSuffix: true })}
                         </span>
                       </div>
-                      <Button size="sm" className="text-xs bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-                        <PoundSterling className="h-3 w-3 mr-1" />
-                        Donate
-                      </Button>
+                      <div className="flex gap-2">
+                        {showShareActions ? (
+                          <Button 
+                            size="sm" 
+                            className="text-xs bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShare(campaign, 'campaign');
+                            }}
+                          >
+                            {copiedId === campaign.id ? (
+                              <Check className="h-3 w-3 mr-1" />
+                            ) : (
+                              <Share2 className="h-3 w-3 mr-1" />
+                            )}
+                            {copiedId === campaign.id ? 'Copied!' : 'Share'}
+                          </Button>
+                        ) : (
+                          <Button size="sm" className="text-xs bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                            <PoundSterling className="h-3 w-3 mr-1" />
+                            Donate
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
