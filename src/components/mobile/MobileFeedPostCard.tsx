@@ -118,7 +118,7 @@ const MobileFeedPostCard = ({
             onClick={handleProfileClick}
           >
             <AvatarImage src={post.avatar} alt={post.author} />
-            <AvatarFallback className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-sm">
+            <AvatarFallback className="bg-muted text-muted-foreground font-medium text-sm">
               {post.author.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
