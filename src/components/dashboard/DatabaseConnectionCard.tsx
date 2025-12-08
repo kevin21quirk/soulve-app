@@ -100,8 +100,8 @@ const DatabaseConnectionCard = ({
             {variant === "suggested" && onSendRequest && (
               <Button 
                 onClick={() => onSendRequest(profile.id)}
-                variant="default"
-                className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:from-[#0ce4af] hover:to-[#18a5fe]"
+                variant="gradient"
+                className="flex-1"
                 size="sm"
               >
                 <UserPlus className="h-4 w-4 mr-1" />
@@ -113,8 +113,8 @@ const DatabaseConnectionCard = ({
               <>
                 <Button 
                   onClick={() => onAccept(profile.id)}
-                  variant="default"
-                  className="flex-1 bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:from-[#0ce4af] hover:to-[#18a5fe]"
+                  variant="gradient"
+                  className="flex-1"
                   size="sm"
                 >
                   <UserCheck className="h-4 w-4 mr-1" />

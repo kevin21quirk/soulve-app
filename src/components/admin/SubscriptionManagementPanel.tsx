@@ -281,7 +281,7 @@ const SubscriptionManagementPanel = () => {
                       </Button>
                     ) : (
                       <Button
-                        variant="default"
+                        variant="gradient"
                         size="sm"
                         onClick={() => {
                           setSelectedUser(user);
@@ -352,7 +352,7 @@ const SubscriptionManagementPanel = () => {
             <Button variant="outline" onClick={() => setShowGrantDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleGrantFoundingMember}>
+            <Button variant="gradient" onClick={handleGrantFoundingMember}>
               <Crown className="h-4 w-4 mr-2" />
               Grant Status
             </Button>
@@ -457,7 +457,7 @@ const SubscriptionManagementPanel = () => {
             <Button variant="outline" onClick={() => setShowAssignDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAssignSubscription} disabled={!selectedPlan}>
+            <Button variant="gradient" onClick={handleAssignSubscription} disabled={!selectedPlan}>
               Assign Subscription
             </Button>
           </DialogFooter>

@@ -157,10 +157,10 @@ const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notification
           {notification.type === 'help_completion_request' && notification.metadata?.request_id && (
             <div className="mt-2 flex gap-2">
               <Button
-                variant="default"
+                variant="gradient"
                 size="sm"
                 onClick={() => setShowQuickConfirm(true)}
-                className="text-xs bg-green-600 hover:bg-green-700 text-white"
+                className="text-xs"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Confirm ✓

@@ -197,7 +197,7 @@ const OrganizationVerificationPanel = () => {
                         <>
                           <Button
                             size="sm"
-                            variant="default"
+                            variant="gradient"
                             onClick={() => handleVerify(verification.id, 'approved')}
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
