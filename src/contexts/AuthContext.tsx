@@ -184,7 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 10 seconds, stop waiting but DON'T clear tokens
+  // Timeout fallback: If loading state doesn't resolve within 3 seconds, stop waiting but DON'T clear tokens
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (loading) {
@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
         setInitialized(true);
       }
-    }, 10000); // 10 seconds - be patient with slow networks
+    }, 3000); // 3 seconds - faster fallback for better UX
     
     return () => clearTimeout(timeout);
   }, [loading]);

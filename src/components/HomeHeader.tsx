@@ -8,21 +8,7 @@ const HomeHeader = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <header className="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-muted rounded-lg animate-pulse" />
-            </div>
-            <div className="h-10 w-24 bg-muted rounded animate-pulse" />
-          </div>
-        </div>
-      </header>
-    );
-  }
-
+  // Render header immediately - no skeleton flash
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,9 +36,12 @@ const HomeHeader = () => {
             </motion.div>
           </motion.button>
 
-          {/* Auth Section */}
+          {/* Auth Section - show buttons immediately, just adjust based on auth state */}
           <div className="flex items-center space-x-3 sm:space-x-4">
-            {user ? (
+            {loading ? (
+              // Minimal placeholder while loading - keeps layout stable
+              <div className="h-10 w-24 bg-muted/50 rounded animate-pulse" />
+            ) : user ? (
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-muted-foreground hidden sm:inline font-medium">
                   Welcome back!
