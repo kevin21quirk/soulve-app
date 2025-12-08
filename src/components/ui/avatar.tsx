@@ -21,21 +21,44 @@ const Avatar = React.forwardRef<
 ))
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
+// Custom AvatarImage using native img for better loading behavior
 const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn(
-      "aspect-square h-full w-full rounded-full object-cover",
-      "bg-white",
-      className
-    )}
-    {...props}
-  />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
+  HTMLImageElement,
+  React.ImgHTMLAttributes<HTMLImageElement> & { src?: string }
+>(({ className, src, alt, ...props }, ref) => {
+  const [hasError, setHasError] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  // Reset error state when src changes
+  React.useEffect(() => {
+    setHasError(false);
+    setIsLoaded(false);
+  }, [src]);
+
+  // Don't render if no src or if there was an error
+  if (!src || hasError) {
+    return null;
+  }
+
+  return (
+    <img
+      ref={ref}
+      src={src}
+      alt={alt}
+      className={cn(
+        "aspect-square h-full w-full rounded-full object-cover",
+        "bg-background",
+        !isLoaded && "opacity-0",
+        isLoaded && "opacity-100 transition-opacity duration-200",
+        className
+      )}
+      onLoad={() => setIsLoaded(true)}
+      onError={() => setHasError(true)}
+      {...props}
+    />
+  );
+});
+AvatarImage.displayName = "AvatarImage"
 
 const AvatarFallback = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Fallback>,

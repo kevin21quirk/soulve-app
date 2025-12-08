@@ -281,7 +281,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
                 onClick={handleProfileClick}
               >
                 <AvatarImage src={post.avatar} />
-                <AvatarFallback>
+                <AvatarFallback className="bg-muted text-muted-foreground font-medium">
                   {post.author.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
@@ -498,7 +498,7 @@ const SocialPostCard = memo(({ post, onLike, onShare, onBookmark, onComment, onR
               onClick={handleProfileClick}
             >
               <AvatarImage src={post.avatar} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-muted text-muted-foreground font-medium">
                 {post.author.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
