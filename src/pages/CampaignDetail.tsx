@@ -53,6 +53,21 @@ const CampaignDetail = () => {
     enabled: !!campaignId
   });
 
+  // Fetch creator profile - must be before early returns to avoid hooks violation
+  const { data: creator } = useQuery({
+    queryKey: ['creator', campaign?.creator_id],
+    queryFn: async () => {
+      if (!campaign?.creator_id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .eq('id', campaign.creator_id)
+        .single();
+      return data;
+    },
+    enabled: !!campaign?.creator_id
+  });
+
   const { stats } = useCampaignStats(
     campaignId || '',
     campaign?.goal_amount || 0,
@@ -62,6 +77,10 @@ const CampaignDetail = () => {
 
   const { interactions, refetch: refetchInteractions } = useCampaignInteractions(campaignId || '');
   usePostComments(`campaign_${campaignId}`);
+
+  const creatorName = creator
+    ? `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || 'Anonymous'
+    : 'Anonymous';
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -101,25 +120,6 @@ const CampaignDetail = () => {
       </div>
     );
   }
-
-  // Fetch creator profile separately
-  const { data: creator } = useQuery({
-    queryKey: ['creator', campaign?.creator_id],
-    queryFn: async () => {
-      if (!campaign?.creator_id) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, avatar_url')
-        .eq('id', campaign.creator_id)
-        .single();
-      return data;
-    },
-    enabled: !!campaign?.creator_id
-  });
-
-  const creatorName = creator
-    ? `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || 'Anonymous'
-    : 'Anonymous';
 
   // Transform campaign to FeedPost format for social interactions
   const galleryImages = campaign?.gallery_images 
