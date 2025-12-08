@@ -167,14 +167,14 @@ const fetchSocialFeed = async (
     const org = post.organization_id ? orgsMap.get(post.organization_id) : null;
     
     let authorName = 'Anonymous';
-    let avatarUrl = '';
+    let avatarUrl: string | undefined = undefined;
 
     if (org) {
       authorName = org.name || 'Organization';
-      avatarUrl = org.avatar_url || '';
+      avatarUrl = org.avatar_url || undefined;
     } else if (profile) {
       authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
-      avatarUrl = profile.avatar_url || '';
+      avatarUrl = profile.avatar_url || undefined;
     }
 
     return {
@@ -211,11 +211,11 @@ const fetchSocialFeed = async (
   const transformedCampaigns: SocialPost[] = campaignsData.map(campaign => {
     const profile = profilesMap.get(campaign.creator_id);
     let authorName = 'Anonymous';
-    let avatarUrl = '';
+    let avatarUrl: string | undefined = undefined;
 
     if (profile) {
       authorName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Anonymous';
-      avatarUrl = profile.avatar_url || '';
+      avatarUrl = profile.avatar_url || undefined;
     }
 
     return {
