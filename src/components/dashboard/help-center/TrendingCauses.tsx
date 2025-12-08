@@ -10,7 +10,7 @@ const TrendingCauses = () => {
   const navigate = useNavigate();
 
   const handleCauseClick = (causeId: string) => {
-    navigate(`/dashboard?tab=campaigns&campaign=${causeId}`);
+    navigate(`/campaigns/${causeId}`);
   };
 
   if (isLoading) {

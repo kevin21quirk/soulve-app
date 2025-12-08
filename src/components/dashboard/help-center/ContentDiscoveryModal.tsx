@@ -227,7 +227,7 @@ const ContentDiscoveryModal = ({
 
   const handleViewCampaign = (campaignId: string) => {
     onClose();
-    navigate(`/dashboard?tab=campaigns&campaign=${campaignId}`);
+    navigate(`/campaigns/${campaignId}`);
   };
 
   const getUrgencyColor = (urgencyLevel: string | null) => {
