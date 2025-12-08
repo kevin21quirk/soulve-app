@@ -115,16 +115,16 @@ const HeroSection = () => {
           {/* Left Column - Content */}
           <motion.div 
             className="text-center lg:text-left space-y-6 lg:space-y-8"
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0.6, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           >
             <div className="space-y-5">
               <motion.div 
                 className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-white/25 shadow-lg"
-                initial={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0.7, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.05, duration: 0.2 }}
               >
                 <Crown className="h-4 w-4 text-amber-300" />
                 <span>Limited Access - Founding SouLVERs</span>
@@ -138,9 +138,9 @@ const HeroSection = () => {
               
               <motion.h1 
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0.7, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.08, duration: 0.25 }}
               >
                 Social Media
                 <br />
@@ -153,9 +153,9 @@ const HeroSection = () => {
               
               <motion.p 
                 className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0.7, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.1, duration: 0.25 }}
               >
                 Join the social media platform where your activity fixes your real life community. Connect like you always do, but with purpose.
               </motion.p>
@@ -163,18 +163,18 @@ const HeroSection = () => {
               {/* Feature Pills - Replace emojis */}
               <motion.div 
                 className="flex flex-wrap gap-2 justify-center lg:justify-start"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.12, duration: 0.2 }}
               >
                 {featurePills.map((pill, index) => (
                   <motion.span
                     key={pill.label}
                     className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium border border-white/20 hover:bg-white/20 transition-colors cursor-default"
                     whileHover={{ scale: 1.05 }}
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0.8, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
+                    transition={{ delay: 0.12 + index * 0.03, duration: 0.15 }}
                   >
                     {pill.label}
                   </motion.span>
@@ -185,9 +185,9 @@ const HeroSection = () => {
             {/* CTA Buttons */}
             <motion.div 
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0.7, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.15, duration: 0.2 }}
             >
               <Button 
                 size="lg"
@@ -221,9 +221,9 @@ const HeroSection = () => {
             {/* Founder's Circle Benefits */}
             <motion.div 
               className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 max-w-xl mx-auto lg:mx-0 border border-white/20 shadow-xl"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0.7, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.18, duration: 0.2 }}
             >
               <p className="text-sm text-white/90 mb-4 font-semibold flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-amber-300" />
@@ -265,9 +265,9 @@ const HeroSection = () => {
           {/* Right Column - Animated Visual */}
           <motion.div 
             className="hidden lg:block"
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0.6, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
           >
             <AnimatedHeroVisual />
           </motion.div>
