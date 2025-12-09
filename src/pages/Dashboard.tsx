@@ -68,7 +68,7 @@ const Dashboard = () => {
     return <MobileDashboard />;
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/30">
       <DashboardHeader 
         showSearch={showSearch} 
         setShowSearch={setShowSearch} 

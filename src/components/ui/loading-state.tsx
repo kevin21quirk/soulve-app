@@ -19,7 +19,10 @@ export const LoadingState = ({
   };
 
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 py-8", className)}>
+    <div className={cn(
+      "flex flex-col items-center justify-center gap-3 py-8 min-h-[200px]",
+      className
+    )}>
       <Loader2 className={cn("animate-spin text-primary", sizeClasses[size])} />
       {message && (
         <p className="text-sm text-muted-foreground animate-pulse">{message}</p>

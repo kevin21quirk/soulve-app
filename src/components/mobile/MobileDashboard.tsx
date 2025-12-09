@@ -18,7 +18,7 @@ const EnhancedHelpCenterTab = lazy(() => import("@/components/dashboard/tabs/Enh
 const ProfileTab = lazy(() => import("@/components/dashboard/tabs/ProfileTab"));
 
 const TabSkeleton = () => (
-  <div className="p-4">
+  <div className="p-4 min-h-[calc(100vh-120px)]">
     <LoadingState message="Loading..." size="md" />
   </div>
 );
@@ -75,8 +75,8 @@ const MobileDashboard = () => {
         </div>
       )}
 
-      {/* Content - Only render visited tabs, hide inactive ones */}
-      <div className="w-full">
+      {/* Content - Only render visited tabs, hide inactive ones. Min height prevents layout shift */}
+      <div className="w-full min-h-[calc(100vh-80px)]">
         <Suspense fallback={<TabSkeleton />}>
           {/* Feed Tab - Always rendered first */}
           <div className={activeTab === 'feed' ? 'pb-20' : 'hidden'}>
