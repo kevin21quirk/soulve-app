@@ -94,18 +94,8 @@ const HeroSection = () => {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-[hsl(var(--soulve-purple))] text-white min-h-[90vh]">
-      {/* Animated background gradient overlay */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10"
-        animate={{
-          opacity: [0.5, 0.3, 0.5],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      {/* Static background gradient overlay - removed animation for scroll performance */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
       
       
       {/* Main Hero Content */}
@@ -121,7 +111,7 @@ const HeroSection = () => {
           >
             <div className="space-y-5">
               <motion.div 
-                className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-white/25 shadow-lg"
+                className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-white/25 shadow-lg"
                 initial={{ opacity: 0.7, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05, duration: 0.2 }}
@@ -170,7 +160,7 @@ const HeroSection = () => {
                 {featurePills.map((pill, index) => (
                   <motion.span
                     key={pill.label}
-                    className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium border border-white/20 hover:bg-white/20 transition-colors cursor-default"
+                    className="px-4 py-2 bg-white/15 rounded-full text-sm font-medium border border-white/20 hover:bg-white/25 transition-colors cursor-default"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0.8, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -201,7 +191,7 @@ const HeroSection = () => {
               
               <Button 
                 size="lg"
-                className="bg-white/15 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/25 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
+                className="bg-white/20 border-2 border-white/30 text-white hover:bg-white/30 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
                 onClick={handleLearnMore}
               >
                 <Heart className="mr-2 h-5 w-5" />
@@ -210,7 +200,7 @@ const HeroSection = () => {
               
               <Button 
                 size="lg"
-                className="bg-white/15 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/25 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
+                className="bg-white/20 border-2 border-white/30 text-white hover:bg-white/30 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
                 onClick={() => setShowDemoModal(true)}
               >
                 <Calendar className="mr-2 h-5 w-5" />
@@ -218,9 +208,9 @@ const HeroSection = () => {
               </Button>
             </motion.div>
 
-            {/* Founder's Circle Benefits */}
+            {/* Founder's Circle Benefits - removed backdrop-blur for scroll performance */}
             <motion.div 
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 max-w-xl mx-auto lg:mx-0 border border-white/20 shadow-xl"
+              className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 sm:p-6 max-w-xl mx-auto lg:mx-0 border border-white/20 shadow-xl"
               initial={{ opacity: 0.7, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18, duration: 0.2 }}

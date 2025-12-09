@@ -64,34 +64,43 @@ const Index = () => {
       />
       <HomeHeader />
       <HeroSection />
-      <Suspense fallback={
-        <div className="min-h-[400px] flex items-center justify-center">
-          <LoadingState message="Loading content..." />
-        </div>
-      }>
-        <ImpactStoriesSection />
-      </Suspense>
-      <Suspense fallback={
-        <div className="min-h-[400px] flex items-center justify-center">
-          <LoadingState message="Loading features..." />
-        </div>
-      }>
-        <FeaturesSection />
-      </Suspense>
-      <Suspense fallback={
-        <div className="min-h-[400px] flex items-center justify-center">
-          <LoadingState message="Loading..." />
-        </div>
-      }>
-        <UserTypesSection />
-      </Suspense>
-      <Suspense fallback={
-        <div className="min-h-[200px] flex items-center justify-center">
-          <LoadingState size="sm" />
-        </div>
-      }>
-        <Footer />
-      </Suspense>
+      {/* Reserved heights prevent layout shift during lazy load */}
+      <div className="content-defer">
+        <Suspense fallback={
+          <div className="min-h-[600px] flex items-center justify-center">
+            <LoadingState message="Loading content..." />
+          </div>
+        }>
+          <ImpactStoriesSection />
+        </Suspense>
+      </div>
+      <div className="content-defer">
+        <Suspense fallback={
+          <div className="min-h-[800px] flex items-center justify-center">
+            <LoadingState message="Loading features..." />
+          </div>
+        }>
+          <FeaturesSection />
+        </Suspense>
+      </div>
+      <div className="content-defer">
+        <Suspense fallback={
+          <div className="min-h-[500px] flex items-center justify-center">
+            <LoadingState message="Loading..." />
+          </div>
+        }>
+          <UserTypesSection />
+        </Suspense>
+      </div>
+      <div className="content-defer">
+        <Suspense fallback={
+          <div className="min-h-[300px] flex items-center justify-center">
+            <LoadingState size="sm" />
+          </div>
+        }>
+          <Footer />
+        </Suspense>
+      </div>
     </div>
   );
 };

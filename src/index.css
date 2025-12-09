@@ -109,7 +109,7 @@
   /* Prevent layout shift from scrollbar appearing/disappearing */
   html {
     overflow-y: scroll;
-    scroll-behavior: smooth;
+    /* Removed scroll-behavior: smooth - causes sticky/janky scrolling */
   }
 
   body {
@@ -158,23 +158,27 @@
     display: none;
   }
 
-  /* Heart glow pulse animation - SouLVE brand colors breathing effect */
+  /* Heart glow pulse animation - simplified for better scroll performance */
   @keyframes heart-glow-pulse {
     0%, 100% {
-      filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1))
-              drop-shadow(0 0 20px rgba(12, 228, 175, 0.2)) 
-              drop-shadow(0 0 40px rgba(24, 165, 254, 0.15)) 
-              drop-shadow(0 0 60px rgba(76, 61, 251, 0.1));
+      filter: drop-shadow(0 0 20px rgba(12, 228, 175, 0.3)) 
+              drop-shadow(0 0 40px rgba(24, 165, 254, 0.2));
     }
     50% {
-      filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.6))
-              drop-shadow(0 0 60px rgba(12, 228, 175, 0.95)) 
-              drop-shadow(0 0 120px rgba(24, 165, 254, 0.85)) 
-              drop-shadow(0 0 180px rgba(76, 61, 251, 0.75));
+      filter: drop-shadow(0 0 50px rgba(12, 228, 175, 0.8)) 
+              drop-shadow(0 0 100px rgba(24, 165, 254, 0.6));
     }
   }
 
   .animate-heart-glow {
     animation: heart-glow-pulse 4s ease-in-out infinite;
+    transform: translateZ(0); /* Force GPU layer */
+    will-change: filter;
+  }
+
+  /* Content visibility for below-fold sections - improves scroll performance */
+  .content-defer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
   }
 }
