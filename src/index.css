@@ -106,8 +106,16 @@
     @apply border-border;
   }
 
+  /* Prevent layout shift from scrollbar appearing/disappearing */
+  html {
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    /* Prevent horizontal overflow causing wobble */
+    overflow-x: hidden;
   }
 }
 
