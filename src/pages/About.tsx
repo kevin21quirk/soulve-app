@@ -87,27 +87,26 @@ const About = () => {
       <FAQSchema faqs={faqs} />
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary to-secondary text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center bg-white hover:bg-gray-50 px-4 py-2 rounded-lg mb-6 transition-colors shadow-sm">
-            <ArrowLeft className="h-5 w-5 mr-2 text-primary" />
-            <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent font-medium">
-              Back to Home
-            </span>
+      <header className="bg-gradient-to-r from-primary to-secondary text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
           </Link>
-          <div className="flex items-center justify-center -mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[300px] h-[300px] lg:w-[550px] lg:h-[550px] bg-white/25 rounded-full blur-2xl" />
-              </div>
-              <img
-                src={soulveIcon}
-                alt="SouLVE - Connecting Communities"
-                className="relative z-10 w-[400px] h-[400px] lg:w-[750px] lg:h-[750px] object-contain animate-heart-glow will-change-[filter]"
-              />
-            </div>
-          </div>
           <div className="text-center">
+            {/* Heart icon with hero-style glow - sized to fit header */}
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] bg-white/25 rounded-full blur-2xl" />
+                </div>
+                <img
+                  src={soulveIcon}
+                  alt="SouLVE"
+                  className="relative z-10 w-[80px] h-[80px] md:w-[100px] md:h-[100px] object-contain animate-heart-glow will-change-[filter]"
+                />
+              </div>
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">About SouLVE</h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
               We connect people with purpose. A UK platform where communities support one another—through volunteering, fundraising, and genuine connection.
