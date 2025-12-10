@@ -102,16 +102,23 @@ const About = () => {
               We connect people with purpose. A UK platform where communities support one another—through volunteering, fundraising, and genuine connection.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Button size="lg" variant="gradient" onClick={() => navigate("/auth")}>
-                Join SouLVE
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/auth")}
+                className="bg-white hover:bg-gray-50 border border-white/20 shadow-lg"
+              >
+                <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent font-semibold">
+                  Join SouLVE
+                </span>
               </Button>
               <Button 
                 size="lg"
-                variant="outline"
                 onClick={() => navigate("/how-it-works")}
-                className="bg-white text-gray-900 border-white hover:bg-gray-100 hover:text-gray-900"
+                className="bg-white hover:bg-gray-50 border border-white/20 shadow-lg"
               >
-                How It Works
+                <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent font-semibold">
+                  How It Works
+                </span>
               </Button>
             </div>
           </div>
