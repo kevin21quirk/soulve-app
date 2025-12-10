@@ -95,15 +95,15 @@ const About = () => {
               Back to Home
             </span>
           </Link>
-          <div className="flex items-center justify-center mb-8 py-8">
+          <div className="flex items-center justify-center my-4">
             <div className="relative">
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[280px] h-[280px] md:w-[400px] md:h-[400px] bg-white/25 rounded-full blur-2xl" />
+                <div className="w-[200px] h-[200px] md:w-[280px] md:h-[280px] bg-white/20 rounded-full blur-2xl" />
               </div>
               <img
                 src={soulveIcon}
                 alt="SouLVE - Connecting Communities"
-                className="relative z-10 w-[220px] h-[220px] md:w-[320px] md:h-[320px] object-contain animate-heart-glow"
+                className="relative z-10 w-[180px] h-[180px] md:w-[240px] md:h-[240px] object-contain animate-heart-glow"
               />
             </div>
           </div>
