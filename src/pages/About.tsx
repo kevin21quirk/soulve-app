@@ -89,7 +89,7 @@ const About = () => {
       {/* Header */}
       <header className="bg-gradient-to-r from-primary to-secondary text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center text-white hover:text-teal-200 mb-6 transition-colors">
+          <Link to="/" className="inline-flex items-center bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg mb-6 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
@@ -98,17 +98,18 @@ const About = () => {
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">About SouLVE</h1>
-            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
               We connect people with purpose. A UK platform where communities support one another—through volunteering, fundraising, and genuine connection.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
+              <Button size="lg" variant="gradient" onClick={() => navigate("/auth")}>
                 Join SouLVE
               </Button>
               <Button 
                 size="lg"
+                variant="outline"
                 onClick={() => navigate("/how-it-works")}
-                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+                className="bg-white text-gray-900 border-white hover:bg-gray-100 hover:text-gray-900"
               >
                 How It Works
               </Button>
@@ -121,9 +122,9 @@ const About = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-3 gap-4 md:gap-8">
           {stats.map((stat, index) => (
-            <Card key={index} className="p-4 md:p-6 text-center">
-              <p className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</p>
-              <p className="font-medium text-sm md:text-base">{stat.label}</p>
+            <Card key={index} className="p-4 md:p-6 text-center shadow-sm">
+              <p className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</p>
+              <p className="font-medium text-sm md:text-base text-foreground">{stat.label}</p>
               <p className="text-xs md:text-sm text-muted-foreground">{stat.sublabel}</p>
             </Card>
           ))}
