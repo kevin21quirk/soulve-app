@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Users, Heart, Shield, TrendingUp, ArrowLeft, MapPin, Building2, Award, CheckCircle, Globe } from "lucide-react";
+import { Users, Heart, Shield, TrendingUp, ArrowLeft, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import SEOHead from "@/components/seo/SEOHead";
@@ -13,23 +13,19 @@ const About = () => {
   const faqs = [
     {
       question: "What is SouLVE?",
-      answer: "SouLVE is a UK-based social impact platform that connects individuals, charities, businesses, and community groups. Whether you're volunteering, fundraising, or seeking support, SouLVE makes it simple to find opportunities, track your impact, and build genuine connections in your community."
+      answer: "SouLVE is a community platform that connects people who want to help with people who need it. Whether you're offering your skills to neighbours, asking for support when life gets tough, volunteering with local charities, or fundraising for causes you care about—SouLVE makes it simple to find opportunities near you."
     },
     {
       question: "Who can use SouLVE?",
-      answer: "Anyone can join SouLVE. Individuals use it to volunteer and donate. Charities use it to recruit volunteers and raise funds. Businesses use it for CSR programmes and employee engagement. Community groups use it to organise events and connect with supporters."
+      answer: "Anyone can join SouLVE. Individuals use it to offer help in their neighbourhood, ask for support when needed, and find local volunteer opportunities. Charities use it to recruit volunteers and raise funds. Businesses use it for CSR programmes and employee engagement. Community groups use it to organise events and connect with supporters."
     },
     {
       question: "Is SouLVE free to use?",
-      answer: "Yes, SouLVE is free for individuals, charities, and community groups. Businesses have access to premium features for ESG reporting and employee engagement programmes. All donations reach charities with zero platform fees."
+      answer: "SouLVE is free for individuals to join and use. Charities and community groups can create accounts at no cost. Businesses have access to premium features for ESG reporting and employee engagement programmes."
     },
     {
       question: "How does the trust system work?",
       answer: "Your trust score reflects your verified contributions—volunteering hours, donations, profile verification, and community engagement. Higher trust unlocks additional features and helps others feel confident connecting with you."
-    },
-    {
-      question: "Where is SouLVE based?",
-      answer: "SouLVE Ltd is a registered company in England and Wales. We're headquartered in the UK and built specifically for UK communities, charities, and businesses."
     },
     {
       question: "How is my data protected?",
@@ -38,8 +34,8 @@ const About = () => {
   ];
 
   const stats = [
-    { value: "100%", label: "Donations to charities", sublabel: "Zero platform fees" },
-    { value: "UK", label: "Based & registered", sublabel: "England and Wales" },
+    { value: "Local", label: "Community focused", sublabel: "Help near you" },
+    { value: "Verified", label: "Trusted profiles", sublabel: "Real people, real impact" },
     { value: "GDPR", label: "Fully compliant", sublabel: "Your data protected" },
   ];
 
@@ -141,13 +137,13 @@ const About = () => {
         </div>
         <Card className="p-8">
           <p className="text-lg text-muted-foreground mb-4">
-            SouLVE exists to make social good simple. We believe everyone has something to give—whether it's time, money, skills, or support—and everyone deserves access to help when they need it.
+            SouLVE exists to connect people who want to help with people who need it. We believe everyone has something to give—whether it's time, skills, or practical support—and everyone deserves access to help when life gets difficult.
           </p>
           <p className="text-lg text-muted-foreground mb-4">
-            We're building a platform where charities find dedicated volunteers, individuals discover meaningful opportunities, businesses demonstrate genuine social impact, and communities come together to support their own.
+            We're building a platform where you can offer your skills to neighbours who need them, ask for help without judgment when you're struggling, find volunteer opportunities on your doorstep, and connect with people in your community who share your values.
           </p>
           <p className="text-lg text-muted-foreground">
-            No complicated applications. No hidden fees. Just people helping people, with the technology to track and celebrate every contribution.
+            Charities find dedicated volunteers. Individuals discover meaningful ways to contribute. Communities come together to support their own. Just people helping people, with the technology to make it happen.
           </p>
         </Card>
       </section>
@@ -186,53 +182,53 @@ const About = () => {
         <div className="space-y-6">
           <Card className="p-8">
             <p className="text-lg text-muted-foreground mb-4">
-              SouLVE was born from a simple observation: good people want to help, but finding the right opportunities is frustratingly difficult. Charities struggle to recruit volunteers. Businesses want meaningful CSR but lack the tools. Individuals seeking support don't know where to turn.
+              SouLVE was born from a simple observation: good people want to help, but finding the right opportunities is frustratingly difficult. At the same time, people who need support often don't know where to turn or feel uncomfortable asking.
             </p>
             <p className="text-lg text-muted-foreground mb-4">
-              We set out to solve this—not with another directory or database, but with a platform that genuinely connects people. Where a retiree in Manchester can find a local food bank that needs their skills. Where a business in Birmingham can sponsor community initiatives with full transparency. Where someone facing hardship can request help without stigma.
+              We set out to solve both problems—not with another directory or database, but with a platform that genuinely connects neighbours. Where someone with DIY skills can help an elderly neighbour fix a fence. Where a single parent can ask for help with school pickups without stigma. Where a retiree can find a local food bank that needs their experience.
             </p>
             <p className="text-lg text-muted-foreground">
-              Today, SouLVE connects individuals, charities, businesses, and community groups across the UK. Every volunteer hour is tracked. Every donation reaches its destination. Every act of kindness is celebrated. Because when good is measured, good multiplies.
+              SouLVE connects individuals, charities, businesses, and community groups. Every volunteer hour is tracked. Every act of kindness is celebrated. Because when good is visible, good multiplies.
             </p>
           </Card>
         </div>
       </section>
 
-      {/* Company Info Section */}
+      {/* How It Works Section */}
       <section className="bg-muted/50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Company Information</h2>
-            <p className="text-muted-foreground">
-              SouLVE is a registered company committed to transparency and accountability.
+            <h2 className="text-3xl font-bold mb-4">How People Use SouLVE</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Whether you're offering help or asking for it, SouLVE connects you with your local community.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="p-6 text-center">
-              <div className="rounded-full bg-blue-100 dark:bg-blue-900/20 p-3 w-fit mx-auto mb-4">
-                <Building2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="rounded-full bg-teal-100 dark:bg-teal-900/20 p-3 w-fit mx-auto mb-4">
+                <Heart className="h-6 w-6 text-teal-600 dark:text-teal-400" />
               </div>
-              <h3 className="font-semibold mb-2">UK Registered</h3>
+              <h3 className="font-semibold mb-2">Offer Help</h3>
               <p className="text-sm text-muted-foreground">
-                SouLVE Ltd is registered in England and Wales, operating under UK law and regulations.
+                Share your skills and time with neighbours who need them. From gardening to admin support, every skill matters.
               </p>
             </Card>
             <Card className="p-6 text-center">
-              <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-3 w-fit mx-auto mb-4">
-                <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <div className="rounded-full bg-blue-100 dark:bg-blue-900/20 p-3 w-fit mx-auto mb-4">
+                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="font-semibold mb-2">GDPR Compliant</h3>
+              <h3 className="font-semibold mb-2">Ask for Help</h3>
               <p className="text-sm text-muted-foreground">
-                Your data is protected. We follow strict GDPR guidelines and never sell personal information.
+                Life gets difficult sometimes. Request support from your community without judgment—someone nearby wants to help.
               </p>
             </Card>
             <Card className="p-6 text-center">
               <div className="rounded-full bg-purple-100 dark:bg-purple-900/20 p-3 w-fit mx-auto mb-4">
                 <MapPin className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="font-semibold mb-2">Built for the UK</h3>
+              <h3 className="font-semibold mb-2">Connect Locally</h3>
               <p className="text-sm text-muted-foreground">
-                Designed specifically for UK charities, businesses, and communities. Local focus, national reach.
+                Find volunteer opportunities, community events, and people near you who share your values.
               </p>
             </Card>
           </div>
@@ -255,9 +251,9 @@ const About = () => {
       {/* Final CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Card className="p-12 text-center bg-gradient-to-r from-primary to-secondary text-white border-0">
-          <h2 className="text-3xl font-bold mb-4">Ready to Make a Difference?</h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to Connect With Your Community?</h2>
           <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of people using SouLVE to volunteer, fundraise, and support their communities.
+            Start offering help, asking for support, or finding volunteer opportunities near you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
@@ -272,7 +268,7 @@ const About = () => {
             </Button>
           </div>
           <p className="text-sm text-teal-100 mt-6">
-            ✓ Free for individuals &nbsp; ✓ UK-based company &nbsp; ✓ Zero donation fees &nbsp; ✓ GDPR compliant
+            ✓ Free for individuals &nbsp; ✓ GDPR compliant &nbsp; ✓ Location-based discovery
           </p>
         </Card>
       </section>
