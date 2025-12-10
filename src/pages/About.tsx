@@ -89,9 +89,11 @@ const About = () => {
       {/* Header */}
       <header className="bg-gradient-to-r from-primary to-secondary text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg mb-6 transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Home
+          <Link to="/" className="inline-flex items-center bg-white hover:bg-gray-50 px-4 py-2 rounded-lg mb-6 transition-colors shadow-sm">
+            <ArrowLeft className="h-5 w-5 mr-2 text-primary" />
+            <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent font-medium">
+              Back to Home
+            </span>
           </Link>
           <div className="flex items-center justify-center mb-6">
             <SouLVELogo size="small" />
