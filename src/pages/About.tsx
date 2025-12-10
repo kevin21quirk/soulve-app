@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import SEOHead from "@/components/seo/SEOHead";
 import FAQSchema from "@/components/seo/FAQSchema";
-import SouLVELogo from "@/components/SouLVELogo";
+import soulveIcon from "@/assets/soulve-icon.png";
 import Footer from "@/components/Footer";
 
 const About = () => {
@@ -95,8 +95,17 @@ const About = () => {
               Back to Home
             </span>
           </Link>
-          <div className="flex items-center justify-center mb-6">
-            <SouLVELogo size="small" />
+          <div className="flex items-center justify-center mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] bg-white/30 rounded-full blur-xl" />
+              </div>
+              <img
+                src={soulveIcon}
+                alt="SouLVE - Connecting Communities"
+                className="relative z-10 w-[120px] h-[120px] md:w-[160px] md:h-[160px] object-contain animate-heart-glow"
+              />
+            </div>
           </div>
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">About SouLVE</h1>
