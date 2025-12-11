@@ -85,7 +85,7 @@ const CompactESGImpact = () => {
           
           <CollapsibleContent className="mt-4 space-y-2">
             <div className="text-sm text-muted-foreground">
-              Average ESG score across your organizations
+              Average ESG score across your organisations
             </div>
             <div className="text-xs text-muted-foreground">
               {esgData.totalActivities} verified impact activities
