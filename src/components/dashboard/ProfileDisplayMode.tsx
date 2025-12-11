@@ -41,8 +41,8 @@ const ProfileDisplayMode = ({ profileData, onViewPointsDetails, onPostsClick }: 
         {/* Badge Showcase */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Badges & Recognition</h3>
+            <Award className="h-5 w-5 text-[#0ce4af]" />
+            <h3 className="text-lg font-semibold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Badges & Recognition</h3>
           </div>
           <ProfileBadgeShowcase userId={profileData.id} maxDisplay={5} />
         </div>
