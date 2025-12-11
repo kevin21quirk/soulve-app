@@ -1,34 +1,51 @@
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserProfileData } from "./UserProfileTypes";
 import UserProfileTabs from "./UserProfileTabs";
 import UserProfilePointsDetails from "./UserProfilePointsDetails";
-import { CompactVerificationButton } from "./verification/CompactVerificationButton";
 import ProfileManagementTabs from "../profile/ProfileManagementTabs";
 import UserPostsTimeline from "./profile/UserPostsTimeline";
 import RealImpactJourney from "./profile/RealImpactJourney";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { User, Settings, MessageSquare, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { ProfileSwitcher } from "../profile/ProfileSwitcher";
-import CompactESGImpact from "./CompactESGImpact";
-import ProfileBadgeShowcase from "../profile/ProfileBadgeShowcase";
-import { Award } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import ProfileNavBar from "./profile/ProfileNavBar";
+import { useQuery } from "@tanstack/react-query";
 
 const UserProfile = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { profileData, loading, updating, error, updateProfile } = useUserProfile();
   const [showPointsDetails, setShowPointsDetails] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const postsTabsRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState("profile");
+
+  // Fetch ESG score
+  const { data: esgData } = useQuery({
+    queryKey: ['esg-score', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id);
+      
+      if (!data?.length) return { avgScore: 0 };
+      
+      const orgIds = data.map(m => m.organization_id);
+      const { data: scores } = await supabase
+        .from('organization_trust_scores')
+        .select('esg_score')
+        .in('organization_id', orgIds);
+      
+      const avgScore = scores?.length 
+        ? Math.round(scores.reduce((sum, s) => sum + (s.esg_score || 0), 0) / scores.length)
+        : 0;
+      
+      return { avgScore };
+    },
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -69,20 +86,11 @@ const UserProfile = () => {
     setShowPointsDetails(false);
   };
 
-  const handlePostsClick = () => {
-    if (postsTabsRef.current) {
-      postsTabsRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  };
-
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
     );
@@ -90,106 +98,60 @@ const UserProfile = () => {
 
   if (error || !profileData) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="text-center py-12">
-          <p className="text-red-600">Failed to load profile data</p>
-          <p className="text-gray-500 text-sm mt-2">{error}</p>
+          <p className="text-destructive">Failed to load profile data</p>
+          <p className="text-muted-foreground text-sm mt-2">{error}</p>
         </div>
       </div>
     );
   }
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'posts':
+        return <UserPostsTimeline />;
+      case 'impact':
+        return <RealImpactJourney />;
+      case 'settings':
+        return (
+          <ProfileManagementTabs
+            profileData={profileData}
+            onProfileUpdate={handleProfileUpdate}
+          />
+        );
+      default:
+        return (
+          <UserProfileTabs
+            profileData={profileData}
+            onProfileUpdate={handleProfileUpdate}
+            onViewPointsDetails={handleViewPointsDetails}
+            onPostsClick={() => setActiveSection('posts')}
+          />
+        );
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Show subtle updating indicator */}
+    <div className="space-y-4">
       {updating && (
         <div className="fixed top-4 right-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm z-50">
           Updating profile...
         </div>
       )}
-      
-      <Tabs defaultValue="view" className="w-full">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <ProfileSwitcher currentView="personal" />
-          <TabsList className="grid flex-1 grid-cols-2 gap-1 bg-muted p-1">
-            <TabsTrigger 
-              value="view" 
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200 rounded-md"
-            >
-              <User className="h-4 w-4" />
-              View Profile
-            </TabsTrigger>
-            <TabsTrigger 
-              value="manage" 
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200 rounded-md"
-            >
-              <Settings className="h-4 w-4" />
-              Manage Profile
-            </TabsTrigger>
-          </TabsList>
-          {isAdmin && (
-            <Button
-              onClick={() => navigate('/admin')}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none hover:opacity-90 transition-opacity whitespace-nowrap"
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Admin Dashboard
-            </Button>
-          )}
-        </div>
 
-        <TabsContent value="view" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <CompactVerificationButton />
-            <CompactESGImpact />
-          </div>
-          
-          {/* Profile Information - Full width */}
-          <UserProfileTabs
-            profileData={profileData}
-            onProfileUpdate={handleProfileUpdate}
-            onViewPointsDetails={handleViewPointsDetails}
-            onPostsClick={handlePostsClick}
-          />
-          
-          {/* Profile Content Tabs */}
-          <div ref={postsTabsRef}>
-            <Tabs defaultValue="posts" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-muted">
-                <TabsTrigger 
-                  value="posts"
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Posts & Updates
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="impact"
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-                >
-                  <TrendingUp className="h-4 w-4" />
-                  Impact Journey
-                </TabsTrigger>
-              </TabsList>
+      {/* Unified Navigation Bar */}
+      <ProfileNavBar
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        isAdmin={isAdmin}
+        esgScore={esgData?.avgScore}
+      />
 
-              <TabsContent value="posts" className="mt-6">
-                <UserPostsTimeline />
-              </TabsContent>
-
-              <TabsContent value="impact" className="mt-6">
-                <RealImpactJourney />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="manage" className="space-y-6">
-          <ProfileManagementTabs
-            profileData={profileData}
-            onProfileUpdate={handleProfileUpdate}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* Content Section */}
+      <div className="mt-4">
+        {renderContent()}
+      </div>
 
       <UserProfilePointsDetails
         profileData={profileData}
