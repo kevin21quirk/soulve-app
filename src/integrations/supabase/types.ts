@@ -8394,10 +8394,11 @@ export type Database = {
         Args: {
           p_issue_category: string
           p_requester_id: string
-          p_urgency_level: string
+          p_urgency_level?: string
         }
         Returns: string
       }
+      process_safe_space_queue: { Args: never; Returns: undefined }
       process_scheduled_notifications: { Args: never; Returns: undefined }
       render_notification_template: {
         Args: { template_id_input: string; variables?: Json }
