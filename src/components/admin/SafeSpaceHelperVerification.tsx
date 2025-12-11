@@ -86,22 +86,43 @@ const SafeSpaceHelperVerification = () => {
         .select('id, first_name, last_name, avatar_url')
         .in('id', userIds);
 
+      // Fetch training progress for all users
+      const { data: allTrainingProgress } = await supabase
+        .from('safe_space_helper_training_progress')
+        .select('user_id, status')
+        .in('user_id', userIds);
+
+      // Fetch total required modules
+      const { data: requiredModules } = await supabase
+        .from('safe_space_training_modules')
+        .select('id')
+        .eq('is_required', true);
+      
+      const totalModules = requiredModules?.length || 0;
+
       // Enrich applications with related data
-      const enrichedApplications: HelperApplication[] = (applicationsData || []).map(app => ({
-        id: app.id,
-        user_id: app.user_id,
-        application_status: app.application_status,
-        personal_statement: app.personal_statement,
-        experience_description: app.experience_description,
-        preferred_specializations: app.preferred_specializations,
-        qualifications: app.qualifications,
-        reference_contacts: app.reference_contacts,
-        submitted_at: app.submitted_at,
-        created_at: app.created_at,
-        profile: profilesData?.find(p => p.id === app.user_id),
-        training_progress: { completed: 0, total: 0 },
-        documents: []
-      }));
+      const enrichedApplications: HelperApplication[] = (applicationsData || []).map(app => {
+        const userProgress = allTrainingProgress?.filter(p => p.user_id === app.user_id && p.status === 'completed') || [];
+        
+        return {
+          id: app.id,
+          user_id: app.user_id,
+          application_status: app.application_status,
+          personal_statement: app.personal_statement,
+          experience_description: app.experience_description,
+          preferred_specializations: app.preferred_specializations,
+          qualifications: app.qualifications,
+          reference_contacts: app.reference_contacts,
+          submitted_at: app.submitted_at,
+          created_at: app.created_at,
+          profile: profilesData?.find(p => p.id === app.user_id),
+          training_progress: { 
+            completed: userProgress.length, 
+            total: totalModules 
+          },
+          documents: []
+        };
+      });
       
       setApplications(enrichedApplications);
     } catch (error) {

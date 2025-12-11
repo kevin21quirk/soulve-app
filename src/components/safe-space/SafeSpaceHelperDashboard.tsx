@@ -62,12 +62,13 @@ const SafeSpaceHelperDashboard = () => {
       // Check for existing application
       const { data: application } = await supabase
         .from('safe_space_helper_applications')
-        .select('id, application_status')
+        .select('id, application_status, reference_contacts')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
+      // Get required training modules
       const { data: trainingModules } = await supabase
         .from('safe_space_training_modules')
         .select('id')
@@ -75,13 +76,26 @@ const SafeSpaceHelperDashboard = () => {
 
       const totalRequired = trainingModules?.length || 0;
 
+      // Get completed training progress for this user
+      const { data: trainingProgress } = await supabase
+        .from('safe_space_helper_training_progress')
+        .select('id, module_id, status')
+        .eq('user_id', user.id)
+        .eq('status', 'completed');
+
+      const completedCount = trainingProgress?.length || 0;
+
+      // Count references submitted
+      const references = application?.reference_contacts;
+      const referencesCount = Array.isArray(references) ? references.length : 0;
+
       setApplicationProgress({
         hasApplication: !!application,
         applicationStatus: application?.application_status || 'none',
-        trainingCompleted: 0,
+        trainingCompleted: completedCount,
         trainingTotal: totalRequired,
         documentsUploaded: 0,
-        referencesSubmitted: 0
+        referencesSubmitted: referencesCount
       });
     } catch (error) {
       console.error('Error loading progress:', error);
