@@ -128,7 +128,7 @@ const SimplifiedImpactDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">
             Your Impact
           </h1>
           <p className="text-muted-foreground text-sm">Track your contributions and community impact</p>
@@ -148,19 +148,19 @@ const SimplifiedImpactDashboard = () => {
         <TabsList className="grid w-full grid-cols-3 bg-secondary/20">
           <TabsTrigger 
             value="overview"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Overview
           </TabsTrigger>
           <TabsTrigger 
             value="rewards"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Points & Rewards
           </TabsTrigger>
           <TabsTrigger 
             value="goals"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white"
           >
             Goals
           </TabsTrigger>
