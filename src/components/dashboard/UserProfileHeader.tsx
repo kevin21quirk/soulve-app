@@ -41,118 +41,82 @@ const UserProfileHeader = ({
     : 100;
   
   return (
-    <div className="space-y-0 -mt-32">
-      {/* Avatar - Positioned to overlap banner */}
-      <div className="relative px-6">
-        <div className="relative inline-block">
-          {isEditing && onAvatarUpdate ? (
-            <AvatarUpload 
-              currentAvatar={profileData.avatar}
-              userName={profileData.name}
-              onAvatarUpdate={onAvatarUpdate}
-              isEditing={true}
-            />
-          ) : (
-            <Avatar className="h-40 w-40 border-[6px] border-white shadow-2xl">
-              <AvatarImage src={profileData.avatar} alt={profileData.name} />
-              <AvatarFallback className="text-4xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
-                {profileData.name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          )}
-        </div>
-      </div>
-
-      {/* Two-column layout: Profile Info + Trust Score */}
-      <div className="px-6 pt-4 pb-4">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-          {/* Left Column: Name and Basic Info */}
-          <div className="space-y-3">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{profileData.name}</h1>
-              <div className="flex flex-wrap items-center gap-2 mt-2 text-gray-600">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{profileData.location}</span>
-                </div>
-                <span>·</span>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>Joined {format(new Date(profileData.joinDate), 'MMM yyyy')}</span>
-                </div>
-              </div>
-
-              {/* Compact Stats Row */}
-              <div className="flex flex-wrap items-center gap-2 mt-3 text-sm text-gray-700">
-                <button className="hover:underline font-medium">
-                  <span className="font-semibold text-gray-900">{profileData.followerCount}</span> followers
-                </button>
-                <span>·</span>
-                <button className="hover:underline font-medium">
-                  <span className="font-semibold text-gray-900">{profileData.followingCount}</span> following
-                </button>
-                <span>·</span>
-                <button className="hover:underline font-medium" onClick={onPostsClick}>
-                  <span className="font-semibold text-gray-900">{profileData.postCount}</span> posts
-                </button>
-                <span>·</span>
-                <button className="hover:underline font-medium">
-                  <span className="font-semibold text-gray-900">{profileData.helpCount}</span> helped
-                </button>
-              </div>
-            </div>
-
-            {/* Verification Badges */}
-            {verifications.filter(v => v.status === 'approved').length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Award className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-gray-700">Achievements & Badges</span>
-                </div>
-                <VerificationBadges verifications={verifications} size="md" />
-              </div>
+    <div className="space-y-0 -mt-20">
+      {/* Compact Header Row */}
+      <div className="px-6 pt-2 pb-4">
+        <div className="flex items-start gap-4">
+          {/* Avatar - Smaller, cleaner */}
+          <div className="flex-shrink-0">
+            {isEditing && onAvatarUpdate ? (
+              <AvatarUpload 
+                currentAvatar={profileData.avatar}
+                userName={profileData.name}
+                onAvatarUpdate={onAvatarUpdate}
+                isEditing={true}
+              />
+            ) : (
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                <AvatarImage src={profileData.avatar} alt={profileData.name} />
+                <AvatarFallback className="text-2xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                  {profileData.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
             )}
           </div>
 
-          {/* Right Column: Trust Score Hero Section */}
-          <div className="bg-gradient-to-br from-[#0ce4af]/10 via-[#18a5fe]/10 to-[#0ce4af]/5 rounded-2xl p-6 border-2 border-[#0ce4af]/20 shadow-sm h-fit">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-white p-3 rounded-xl shadow-sm">
-                  <Shield className="h-8 w-8 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 font-medium">Trust Score</div>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-4xl font-bold text-gray-900">{profileData.trustScore}</span>
-                    <span className="text-lg text-gray-500">/100</span>
-                  </div>
-                </div>
-              </div>
-              {onViewPointsDetails && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onViewPointsDetails}
-                  className="text-blue-600 hover:bg-blue-100"
-                >
-                  View Details
-                </Button>
-              )}
+          {/* Main Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold text-foreground">{profileData.name}</h1>
+              {/* Inline Trust Badge */}
+              <button 
+                onClick={onViewPointsDetails}
+                className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-[#0ce4af]/10 to-[#18a5fe]/10 border border-[#0ce4af]/20 hover:border-[#0ce4af]/40 transition-colors"
+              >
+                <Shield className="h-4 w-4 text-[#0ce4af]" />
+                <span className="text-sm font-semibold text-foreground">{profileData.trustScore}</span>
+                <span className={`text-xs ${trustLevel.color}`}>{trustLevel.name}</span>
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5" />
+                {profileData.location}
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" />
+                Joined {format(new Date(profileData.joinDate), 'MMM yyyy')}
+              </span>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className={`font-semibold ${trustLevel.color}`}>{trustLevel.name}</span>
-                <span className="text-gray-600">{trustLevel.next - profileData.trustScore} pts to next</span>
-              </div>
-              <Progress value={progressToNext} className="h-2 bg-white" />
+            {/* Compact Stats */}
+            <div className="flex items-center gap-4 mt-2 text-sm">
+              <button className="hover:underline">
+                <span className="font-semibold text-foreground">{profileData.followerCount}</span>
+                <span className="text-muted-foreground ml-1">followers</span>
+              </button>
+              <button className="hover:underline">
+                <span className="font-semibold text-foreground">{profileData.followingCount}</span>
+                <span className="text-muted-foreground ml-1">following</span>
+              </button>
+              <button className="hover:underline" onClick={onPostsClick}>
+                <span className="font-semibold text-foreground">{profileData.postCount}</span>
+                <span className="text-muted-foreground ml-1">posts</span>
+              </button>
+              <button className="hover:underline">
+                <span className="font-semibold text-foreground">{profileData.helpCount}</span>
+                <span className="text-muted-foreground ml-1">helped</span>
+              </button>
             </div>
 
-            <div className="flex items-center space-x-1 mt-3 text-xs text-gray-600">
-              <TrendingUp className="h-3 w-3 text-green-600" />
-              <span>Keep helping to increase your score</span>
-            </div>
+            {/* Verification Badges - Inline */}
+            {verifications.filter(v => v.status === 'approved').length > 0 && (
+              <div className="mt-2">
+                <VerificationBadges verifications={verifications} size="sm" />
+              </div>
+            )}
           </div>
         </div>
       </div>
