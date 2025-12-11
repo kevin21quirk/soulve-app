@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import SEOHead from "@/components/seo/SEOHead";
 import FAQSchema from "@/components/seo/FAQSchema";
-import soulveIcon from "@/assets/soulve-icon.png";
+
 import Footer from "@/components/Footer";
 
 const About = () => {
@@ -94,19 +94,6 @@ const About = () => {
             Back to Home
           </Link>
           <div className="text-center">
-            {/* Heart icon with hero-style glow - sized to fit header */}
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] bg-white/25 rounded-full blur-2xl" />
-                </div>
-                <img
-                  src={soulveIcon}
-                  alt="SouLVE"
-                  className="relative z-10 w-[80px] h-[80px] md:w-[100px] md:h-[100px] object-contain animate-heart-glow will-change-[filter]"
-                />
-              </div>
-            </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">About SouLVE</h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
               We connect people with purpose. A UK platform where communities support one another—through volunteering, fundraising, and genuine connection.
