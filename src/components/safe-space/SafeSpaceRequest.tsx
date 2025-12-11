@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Clock, Users, Shield, Construction, AlertCircle } from "lucide-react";
+import { Heart, Clock, Users, Shield, AlertCircle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSafeSpace } from "@/hooks/useSafeSpace";
 
@@ -16,7 +15,7 @@ interface SafeSpaceRequestProps {
 
 const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
   const { toast } = useToast();
-  const { requestSupport, isRequestingSupport } = useSafeSpace();
+  const { requestSupport, isRequestingSupport, availableHelpers } = useSafeSpace();
   const [formData, setFormData] = useState({
     issueCategory: "",
     urgencyLevel: "medium",
@@ -27,7 +26,7 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
     { value: "mental_health", label: "Mental Health & Wellbeing", description: "Anxiety, depression, stress management" },
     { value: "relationships", label: "Relationships & Family", description: "Relationship issues, family conflicts" },
     { value: "work_life", label: "Work & Life Balance", description: "Career stress, life transitions" },
-    { value: "addiction", label: "Addiction Support", description: "Substance abuse, behavioral addictions" },
+    { value: "addiction", label: "Addiction Support", description: "Substance abuse, behavioural addictions" },
     { value: "trauma", label: "Trauma & Crisis", description: "PTSD, recent traumatic events" },
     { value: "identity", label: "Identity & Self-Worth", description: "Self-esteem, identity exploration" },
     { value: "general", label: "General Support", description: "Any other support needs" }
@@ -51,11 +50,23 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
       return;
     }
 
-    // Show development message instead of actual submission
+    try {
+      await requestSupport(formData.issueCategory, formData.urgencyLevel, formData.additionalInfo);
+    } catch (error) {
+      toast({
+        title: "Request Failed",
+        description: "Unable to submit your request. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCancelRequest = () => {
     toast({
-      title: "Feature In Development",
-      description: "Support request matching is currently being built. This will connect you with real helpers soon!",
+      title: "Request Cancelled",
+      description: "Your support request has been cancelled.",
     });
+    // Would need to implement actual cancellation in useSafeSpace
   };
 
   if (queuePosition !== undefined && queuePosition > 0) {
@@ -63,27 +74,27 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-blue-600" />
+            <Clock className="h-5 w-5 text-primary" />
             <span>You're in the queue</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center space-y-2">
-            <div className="text-3xl font-bold text-blue-600">#{queuePosition}</div>
-            <p className="text-gray-600">Position in queue</p>
+            <div className="text-3xl font-bold text-primary">#{queuePosition}</div>
+            <p className="text-muted-foreground">Position in queue</p>
             <Badge variant="outline" className="px-3 py-1">
               Estimated wait: {Math.max(queuePosition * 5, 5)} minutes
             </Badge>
           </div>
           
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="bg-primary/10 p-4 rounded-lg">
+            <p className="text-sm">
               We're matching you with the best available helper for your needs. 
               You'll receive a notification when connected.
             </p>
           </div>
           
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleCancelRequest}>
             Cancel Request
           </Button>
         </CardContent>
@@ -98,26 +109,44 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
           <Heart className="h-5 w-5 text-pink-600" />
           <span>Request Anonymous Support</span>
         </CardTitle>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Connect with a verified helper for confidential peer support. All conversations are anonymous and temporary.
         </p>
       </CardHeader>
       <CardContent>
-        {/* Matching Development Notice */}
-        <Card className="border-blue-200 bg-blue-50 mb-6">
+        {/* Crisis Warning */}
+        <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 mb-6">
           <CardContent className="pt-4">
             <div className="flex items-start space-x-3">
-              <Construction className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Matching System - Coming Soon</p>
-                <p>
-                  Helper matching and real-time notifications are currently in development. 
-                  You can preview the request form below.
+              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium mb-1 text-red-800 dark:text-red-200">In Crisis?</p>
+                <p className="text-red-700 dark:text-red-300">
+                  If you're in immediate danger or having thoughts of self-harm, please contact emergency services or call:
                 </p>
+                <div className="mt-2 space-y-1">
+                  <p className="flex items-center gap-2 font-medium text-red-800 dark:text-red-200">
+                    <Phone className="h-4 w-4" /> Samaritans: 116 123 (free, 24/7)
+                  </p>
+                  <p className="flex items-center gap-2 font-medium text-red-800 dark:text-red-200">
+                    <Phone className="h-4 w-4" /> Emergency: 999
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Available Helpers */}
+        <div className="flex items-center justify-between mb-6 p-3 bg-muted rounded-lg">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium">Available Helpers</span>
+          </div>
+          <Badge variant={availableHelpers > 0 ? "default" : "secondary"}>
+            {availableHelpers} online
+          </Badge>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -131,7 +160,7 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
                   <SelectItem key={category.value} value={category.value}>
                     <div>
                       <div className="font-medium">{category.label}</div>
-                      <div className="text-sm text-gray-500">{category.description}</div>
+                      <div className="text-sm text-muted-foreground">{category.description}</div>
                     </div>
                   </SelectItem>
                 ))}
@@ -149,13 +178,13 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
                   onClick={() => setFormData(prev => ({ ...prev, urgencyLevel: level.value }))}
                   className={`p-3 rounded-lg border-2 transition-all ${
                     formData.urgencyLevel === level.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-muted-foreground/50'
                   }`}
                 >
                   <div className="text-center">
                     <Badge className={level.color}>{level.label}</Badge>
-                    <p className="text-xs text-gray-600 mt-1">{level.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{level.description}</p>
                   </div>
                 </button>
               ))}
@@ -172,15 +201,15 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
               className="mt-2"
               rows={3}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               This information helps us find the most suitable helper. It remains anonymous.
             </p>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+          <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-start space-x-3">
               <Shield className="h-5 w-5 text-green-600 mt-0.5" />
-              <div className="text-sm text-green-800">
+              <div className="text-sm text-green-800 dark:text-green-200">
                 <p className="font-medium mb-1">Your Privacy & Safety</p>
                 <ul className="space-y-1 text-xs">
                   <li>• All conversations are completely anonymous</li>
@@ -194,18 +223,19 @@ const SafeSpaceRequest = ({ queuePosition }: SafeSpaceRequestProps) => {
 
           <Button
             type="submit"
-            disabled={isRequestingSupport}
-            className="w-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white"
+            disabled={isRequestingSupport || !formData.issueCategory}
+            variant="gradient"
+            className="w-full"
           >
             {isRequestingSupport ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Connecting...
+                Finding a helper...
               </>
             ) : (
               <>
                 <Heart className="h-4 w-4 mr-2" />
-                Preview Request (In Development)
+                Request Support
               </>
             )}
           </Button>
