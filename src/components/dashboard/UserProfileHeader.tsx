@@ -45,7 +45,7 @@ const UserProfileHeader = ({
       {/* Compact Header Row */}
       <div className="px-6 pt-2 pb-4">
         <div className="flex items-start gap-4">
-          {/* Avatar - Smaller, cleaner */}
+          {/* Avatar - Larger, prominent */}
           <div className="flex-shrink-0">
             {isEditing && onAvatarUpdate ? (
               <AvatarUpload 
@@ -55,9 +55,9 @@ const UserProfileHeader = ({
                 isEditing={true}
               />
             ) : (
-              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+              <Avatar className="h-36 w-36 border-[5px] border-background shadow-xl ring-2 ring-border/20">
                 <AvatarImage src={profileData.avatar} alt={profileData.name} />
-                <AvatarFallback className="text-2xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
+                <AvatarFallback className="text-4xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white">
                   {profileData.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -91,23 +91,26 @@ const UserProfileHeader = ({
               </span>
             </div>
 
-            {/* Compact Stats */}
-            <div className="flex items-center gap-4 mt-2 text-sm">
-              <button className="hover:underline">
-                <span className="font-semibold text-foreground">{profileData.followerCount}</span>
-                <span className="text-muted-foreground ml-1">followers</span>
+            {/* Stats Row with Background for Visibility */}
+            <div className="flex items-center gap-1 mt-3 px-3 py-2 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 w-fit shadow-sm">
+              <button className="px-3 py-1 rounded-full hover:bg-muted/50 transition-colors">
+                <span className="font-bold text-foreground">{profileData.followerCount}</span>
+                <span className="text-muted-foreground text-sm ml-1">followers</span>
               </button>
-              <button className="hover:underline">
-                <span className="font-semibold text-foreground">{profileData.followingCount}</span>
-                <span className="text-muted-foreground ml-1">following</span>
+              <span className="text-border">·</span>
+              <button className="px-3 py-1 rounded-full hover:bg-muted/50 transition-colors">
+                <span className="font-bold text-foreground">{profileData.followingCount}</span>
+                <span className="text-muted-foreground text-sm ml-1">following</span>
               </button>
-              <button className="hover:underline" onClick={onPostsClick}>
-                <span className="font-semibold text-foreground">{profileData.postCount}</span>
-                <span className="text-muted-foreground ml-1">posts</span>
+              <span className="text-border">·</span>
+              <button className="px-3 py-1 rounded-full hover:bg-muted/50 transition-colors" onClick={onPostsClick}>
+                <span className="font-bold text-foreground">{profileData.postCount}</span>
+                <span className="text-muted-foreground text-sm ml-1">posts</span>
               </button>
-              <button className="hover:underline">
-                <span className="font-semibold text-foreground">{profileData.helpCount}</span>
-                <span className="text-muted-foreground ml-1">helped</span>
+              <span className="text-border">·</span>
+              <button className="px-3 py-1 rounded-full hover:bg-muted/50 transition-colors">
+                <span className="font-bold text-foreground">{profileData.helpCount}</span>
+                <span className="text-muted-foreground text-sm ml-1">helped</span>
               </button>
             </div>
 
