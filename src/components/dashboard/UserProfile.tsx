@@ -139,53 +139,47 @@ const UserProfile = () => {
         </div>
 
         <TabsContent value="view" className="space-y-6">
-          <CompactVerificationButton />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <CompactVerificationButton />
+            <CompactESGImpact />
+          </div>
           
+          {/* Profile Information - Full width */}
+          <UserProfileTabs
+            profileData={profileData}
+            onProfileUpdate={handleProfileUpdate}
+            onViewPointsDetails={handleViewPointsDetails}
+            onPostsClick={handlePostsClick}
+          />
           
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              {/* Profile Information */}
-              <UserProfileTabs
-                profileData={profileData}
-                onProfileUpdate={handleProfileUpdate}
-                onViewPointsDetails={handleViewPointsDetails}
-                onPostsClick={handlePostsClick}
-              />
-              
-              {/* Profile Content Tabs */}
-              <div ref={postsTabsRef}>
-                <Tabs defaultValue="posts" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-gray-100">
-                  <TabsTrigger 
-                    value="posts"
-                    className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Posts & Updates
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="impact"
-                    className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
-                  >
-                    <TrendingUp className="h-4 w-4" />
-                    Impact Journey
-                  </TabsTrigger>
-                </TabsList>
+          {/* Profile Content Tabs */}
+          <div ref={postsTabsRef}>
+            <Tabs defaultValue="posts" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-muted">
+                <TabsTrigger 
+                  value="posts"
+                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Posts & Updates
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="impact"
+                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0ce4af] data-[state=active]:to-[#18a5fe] data-[state=active]:text-white hover:bg-gradient-to-r hover:from-[#0ce4af] hover:to-[#18a5fe] hover:text-white transition-all duration-200"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  Impact Journey
+                </TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="posts" className="mt-6">
-                  <UserPostsTimeline />
-                </TabsContent>
+              <TabsContent value="posts" className="mt-6">
+                <UserPostsTimeline />
+              </TabsContent>
 
-                <TabsContent value="impact" className="mt-6">
-                  <RealImpactJourney />
-                </TabsContent>
-              </Tabs>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <CompactESGImpact />
-            </div>
+              <TabsContent value="impact" className="mt-6">
+                <RealImpactJourney />
+              </TabsContent>
+            </Tabs>
           </div>
         </TabsContent>
 
