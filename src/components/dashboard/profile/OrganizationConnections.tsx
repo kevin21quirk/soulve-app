@@ -1,7 +1,5 @@
-
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, Award } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { OrganizationConnection } from "../UserProfileTypes";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +8,7 @@ interface OrganizationConnectionsProps {
   isEditing?: boolean;
 }
 
-const OrganizationConnections = ({ connections, isEditing = false }: OrganizationConnectionsProps) => {
+const OrganizationConnections = ({ connections }: OrganizationConnectionsProps) => {
   const navigate = useNavigate();
 
   if (!connections || connections.length === 0) {
@@ -27,71 +25,32 @@ const OrganizationConnections = ({ connections, isEditing = false }: Organizatio
     ).join(' ');
   };
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'soulve-purple';
-      case 'staff':
-        return 'soulve-blue';
-      case 'board_member':
-        return 'soulve';
-      case 'volunteer':
-        return 'soulve-teal';
-      default:
-        return 'secondary';
-    }
-  };
-
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-[#0ce4af]" />
-          <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Organisations</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {connections.map((connection) => (
-            <div
-              key={connection.id}
-              className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 
-                    className="font-medium text-gray-900 cursor-pointer hover:text-primary hover:underline transition-colors"
-                    onClick={() => handleOrgClick(connection.organizationId)}
-                  >
-                    {connection.organizationName}
-                  </h4>
-                  {connection.isCurrent && (
-                    <Badge variant="soulve-teal" className="text-xs">
-                      Current
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Badge variant={getRoleBadgeVariant(connection.role)} className="text-xs">
-                    <Users className="h-3 w-3 mr-1" />
-                    {formatRole(connection.role)}
-                  </Badge>
-                  
-                  {connection.title && (
-                    <span className="flex items-center gap-1">
-                      <Award className="h-3 w-3" />
-                      {connection.title}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="pt-2 border-t">
+      <h4 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+        <Building2 className="h-4 w-4" />
+        Organisations
+      </h4>
+      <div className="flex flex-wrap gap-2">
+        {connections.map((connection) => (
+          <button
+            key={connection.id}
+            onClick={() => handleOrgClick(connection.organizationId)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border hover:bg-accent transition-colors text-sm"
+          >
+            <span className="font-medium">{connection.organizationName}</span>
+            <Badge variant="secondary" className="text-xs">
+              {formatRole(connection.role)}
+            </Badge>
+            {connection.isCurrent && (
+              <span className="w-2 h-2 rounded-full bg-green-500" title="Current" />
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 };
 
 export default OrganizationConnections;
+
