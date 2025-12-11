@@ -46,8 +46,8 @@ const OrganizationConnections = ({ connections, isEditing = false }: Organizatio
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-teal-600" />
-          Organizations
+          <Building2 className="h-5 w-5 text-[#0ce4af]" />
+          <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">Organisations</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

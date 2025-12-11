@@ -115,7 +115,7 @@ const UserProfileHeader = ({
           </div>
 
           {/* Right Column: Trust Score Hero Section */}
-          <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-blue-100 shadow-sm h-fit">
+          <div className="bg-gradient-to-br from-[#0ce4af]/10 via-[#18a5fe]/10 to-[#0ce4af]/5 rounded-2xl p-6 border-2 border-[#0ce4af]/20 shadow-sm h-fit">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="bg-white p-3 rounded-xl shadow-sm">

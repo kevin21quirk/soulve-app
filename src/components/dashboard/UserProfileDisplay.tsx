@@ -2,8 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, MapPin, Mail, Phone, Globe, Users, FileText, Target, Eye, Shield, Award } from "lucide-react";
+import { Calendar, MapPin, Mail, Phone, Globe, Target, Eye, Shield } from "lucide-react";
 import { UserProfileData } from "./UserProfileTypes";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -55,40 +54,6 @@ const UserProfileDisplay = ({ profileData, onPostsClick }: UserProfileDisplayPro
 
   return (
     <div className="space-y-6">
-      {/* Profile Header */}
-      <div className="flex items-start space-x-6 pb-6 border-b">
-        <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-          <AvatarImage src={profileData.avatar} alt={profileData.name} />
-          <AvatarFallback className="text-2xl">
-            {profileData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1">
-          <div className="flex items-center space-x-3 mb-2">
-            <h1 className="text-3xl font-bold">{profileData.name}</h1>
-            {profileData.isVerified && (
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                <Shield className="h-3 w-3 mr-1" />
-                Verified
-              </Badge>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-2 text-muted-foreground mb-3">
-            <Award className="h-4 w-4" />
-            <span className="text-sm">Trust Score: {profileData.trustScore}%</span>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {profileData.verificationBadges.map((badge, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {badge}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Contact Information */}
       <div>
@@ -169,10 +134,10 @@ const UserProfileDisplay = ({ profileData, onPostsClick }: UserProfileDisplayPro
         </div>
       )}
 
-      {/* Organization Information */}
+      {/* Organisation Information */}
       {profileData.organizationInfo.organizationType && profileData.organizationInfo.organizationType !== 'individual' && (
         <div>
-          <h4 className="text-lg font-semibold mb-4">Organization Details</h4>
+          <h4 className="text-lg font-semibold mb-4">Organisation Details</h4>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

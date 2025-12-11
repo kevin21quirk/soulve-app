@@ -141,18 +141,6 @@ const UserProfile = () => {
         <TabsContent value="view" className="space-y-6">
           <CompactVerificationButton />
           
-          {/* Badge Showcase Card */}
-          {profileData && (
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Badges & Recognition</h3>
-                </div>
-                <ProfileBadgeShowcase userId={profileData.id} maxDisplay={6} />
-              </div>
-            </Card>
-          )}
           
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">

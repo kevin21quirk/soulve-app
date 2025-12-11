@@ -39,7 +39,7 @@ const UserProfileTabs = ({
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-2xl bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">
             {isEditing ? "Edit Profile" : "Profile"}
           </CardTitle>
           <ProfileActions
