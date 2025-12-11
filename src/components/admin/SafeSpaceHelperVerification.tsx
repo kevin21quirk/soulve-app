@@ -250,14 +250,14 @@ const SafeSpaceHelperVerification = () => {
                               Submitted: {app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : 'Draft'}
                             </p>
                             <div className="flex gap-2 mt-2 flex-wrap">
-                              {app.areas_of_focus?.slice(0, 3).map((area) => (
+                              {app.preferred_specializations?.slice(0, 3).map((area) => (
                                 <Badge key={area} variant="secondary" className="text-xs">
                                   {area}
                                 </Badge>
                               ))}
-                              {(app.areas_of_focus?.length || 0) > 3 && (
+                              {(app.preferred_specializations?.length || 0) > 3 && (
                                 <Badge variant="outline" className="text-xs">
-                                  +{app.areas_of_focus!.length - 3} more
+                                  +{app.preferred_specializations!.length - 3} more
                                 </Badge>
                               )}
                             </div>
@@ -354,7 +354,7 @@ const SafeSpaceHelperVerification = () => {
                     Areas of Focus
                   </h4>
                   <div className="flex gap-2 flex-wrap">
-                    {selectedApp.areas_of_focus?.map((area) => (
+                    {selectedApp.preferred_specializations?.map((area) => (
                       <Badge key={area}>{area}</Badge>
                     ))}
                   </div>
@@ -371,14 +371,14 @@ const SafeSpaceHelperVerification = () => {
                 )}
 
                 {/* Experience */}
-                {selectedApp.experience_summary && (
+                {selectedApp.experience_description && (
                   <div>
                     <h4 className="font-medium mb-2 flex items-center gap-2">
                       <Briefcase className="h-4 w-4" />
                       Experience Summary
                     </h4>
                     <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                      {selectedApp.experience_summary}
+                      {selectedApp.experience_description}
                     </p>
                   </div>
                 )}
@@ -399,14 +399,14 @@ const SafeSpaceHelperVerification = () => {
                 )}
 
                 {/* References */}
-                {selectedApp.references && Array.isArray(selectedApp.references) && selectedApp.references.length > 0 && (
+                {selectedApp.reference_contacts && Array.isArray(selectedApp.reference_contacts) && selectedApp.reference_contacts.length > 0 && (
                   <div>
                     <h4 className="font-medium mb-2 flex items-center gap-2">
                       <Mail className="h-4 w-4" />
                       References
                     </h4>
                     <div className="space-y-2">
-                      {selectedApp.references.map((ref: any, idx: number) => (
+                      {selectedApp.reference_contacts.map((ref: any, idx: number) => (
                         <div key={idx} className="bg-muted p-3 rounded-md text-sm">
                           <p className="font-medium">{ref.name}</p>
                           <p className="text-muted-foreground">{ref.relationship}</p>
