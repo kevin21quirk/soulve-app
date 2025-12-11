@@ -48,6 +48,7 @@ const ProfileNavBar = ({
   );
 
   const navItems = [
+    { id: 'profile', label: 'Profile', icon: User },
     { id: 'posts', label: 'Posts', icon: MessageSquare },
     { id: 'impact', label: 'Impact', icon: TrendingUp },
     { id: 'settings', label: 'Settings', icon: Settings },
