@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  to: string;
+  userId: string;
   firstName: string;
   lastName: string;
   type: 'approved' | 'denied';
@@ -61,7 +61,32 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { to, firstName, lastName, type, reason }: EmailRequest = await req.json();
+    const { userId, firstName, lastName, type, reason }: EmailRequest = await req.json();
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'Missing userId' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role client to look up user email
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: { user: targetUser }, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+    
+    if (userError || !targetUser?.email) {
+      console.error('Failed to get user email:', userError);
+      return new Response(
+        JSON.stringify({ error: 'User email not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const to = targetUser.email;
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
