@@ -52,23 +52,23 @@ const UserBlocksPanel = () => {
           // Fetch blocker profile
           const { data: blockerProfile } = await supabase
             .from('profiles')
-            .select('first_name, last_name')
+            .select('first_name, last_name, email')
             .eq('id', block.blocker_id)
             .single();
 
           // Fetch blocked profile
           const { data: blockedProfile } = await supabase
             .from('profiles')
-            .select('first_name, last_name')
+            .select('first_name, last_name, email')
             .eq('id', block.blocked_id)
             .single();
 
           return {
             ...block,
             blocker_name: blockerProfile ? `${blockerProfile.first_name || ''} ${blockerProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
-            blocker_email: 'Via profile',
+            blocker_email: blockerProfile?.email || 'No email',
             blocked_name: blockedProfile ? `${blockedProfile.first_name || ''} ${blockedProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
-            blocked_email: 'Via profile',
+            blocked_email: blockedProfile?.email || 'No email',
           };
         })
       );

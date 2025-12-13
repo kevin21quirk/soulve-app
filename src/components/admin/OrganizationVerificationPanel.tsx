@@ -68,13 +68,13 @@ const OrganizationVerificationPanel = () => {
           // Fetch user profile
           const { data: profile } = await supabase
             .from('profiles')
-            .select('first_name, last_name')
+            .select('first_name, last_name, email')
             .eq('id', verification.user_id)
             .single();
 
           return {
             ...verification,
-            user_email: 'Via profile',
+            user_email: profile?.email || 'No email',
             user_name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User'
           };
         })

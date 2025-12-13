@@ -5302,6 +5302,7 @@ export type Database = {
           banner_url: string | null
           bio: string | null
           created_at: string | null
+          email: string | null
           facebook: string | null
           first_name: string | null
           founding_member_granted_at: string | null
@@ -5335,6 +5336,7 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           facebook?: string | null
           first_name?: string | null
           founding_member_granted_at?: string | null
@@ -5370,6 +5372,7 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           facebook?: string | null
           first_name?: string | null
           founding_member_granted_at?: string | null
