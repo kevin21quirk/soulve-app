@@ -170,6 +170,36 @@ export const useVerifications = () => {
     try {
       console.log('Requesting verification:', { verificationType, userId: user.id });
       
+      // Special handling for email verification - auto-approve if email is already confirmed
+      if (verificationType === 'email') {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (authUser?.email_confirmed_at) {
+          // Email is already confirmed in Supabase Auth - auto-approve
+          const { error } = await supabase
+            .from('user_verifications')
+            .insert({
+              user_id: user.id,
+              verification_type: 'email',
+              status: 'approved',
+              verified_at: new Date().toISOString(),
+              verification_data: { email: authUser.email, auto_verified: true }
+            });
+
+          if (error) throw error;
+
+          toast({
+            title: "Email Verified! ✓",
+            description: "Your email has been automatically verified."
+          });
+
+          fetchVerifications();
+          fetchTrustScore();
+          return;
+        }
+      }
+      
+      // Standard verification request for all other types
       const { error } = await supabase
         .from('user_verifications')
         .insert({
