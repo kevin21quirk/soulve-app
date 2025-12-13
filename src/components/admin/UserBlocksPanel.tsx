@@ -63,16 +63,12 @@ const UserBlocksPanel = () => {
             .eq('id', block.blocked_id)
             .single();
 
-          // Get emails from auth
-          const { data: { user: blockerUser } } = await supabase.auth.admin.getUserById(block.blocker_id);
-          const { data: { user: blockedUser } } = await supabase.auth.admin.getUserById(block.blocked_id);
-
           return {
             ...block,
-            blocker_name: blockerProfile ? `${blockerProfile.first_name} ${blockerProfile.last_name}`.trim() : 'Unknown',
-            blocker_email: blockerUser?.email || 'Unknown',
-            blocked_name: blockedProfile ? `${blockedProfile.first_name} ${blockedProfile.last_name}`.trim() : 'Unknown',
-            blocked_email: blockedUser?.email || 'Unknown',
+            blocker_name: blockerProfile ? `${blockerProfile.first_name || ''} ${blockerProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
+            blocker_email: 'Via profile',
+            blocked_name: blockedProfile ? `${blockedProfile.first_name || ''} ${blockedProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
+            blocked_email: 'Via profile',
           };
         })
       );

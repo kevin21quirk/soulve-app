@@ -72,13 +72,10 @@ const OrganizationVerificationPanel = () => {
             .eq('id', verification.user_id)
             .single();
 
-          // Get user email from auth
-          const { data: { user } } = await supabase.auth.admin.getUserById(verification.user_id);
-
           return {
             ...verification,
-            user_email: user?.email || 'Unknown',
-            user_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Unknown'
+            user_email: 'Via profile',
+            user_name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User'
           };
         })
       );
