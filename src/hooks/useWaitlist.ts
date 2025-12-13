@@ -82,15 +82,13 @@ export const useWaitlist = () => {
     setWaitlistUsers(data || []);
   };
 
-  // Send email notification
+  // Send email notification - uses edge function which has service role access
   const sendEmailNotification = async (userProfile: WaitlistUser, type: 'approved' | 'denied', reason?: string) => {
     try {
-      const { data: authUser } = await supabase.auth.admin.getUserById(userProfile.id);
-      if (!authUser.user?.email) return;
-
+      // Edge function will look up email using service role
       await supabase.functions.invoke('send-waitlist-email', {
         body: {
-          to: authUser.user.email,
+          userId: userProfile.id,
           firstName: userProfile.first_name || 'User',
           lastName: userProfile.last_name || '',
           type,
