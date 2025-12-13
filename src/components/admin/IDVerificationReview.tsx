@@ -97,16 +97,16 @@ export const IDVerificationReview = () => {
 
           if (docError) console.error('Error fetching docs:', docError);
 
-          // Fetch user profile (email is stored in profiles table)
+          // Fetch user profile
           const { data: profile } = await supabase
             .from('profiles')
-            .select('first_name, last_name, email')
+            .select('first_name, last_name')
             .eq('id', verification.user_id)
             .single();
 
           return {
             ...verification,
-            user_email: profile?.email || 'Email not available',
+            user_email: 'Via profile',
             user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Unknown User',
             documents: docs || []
           };
