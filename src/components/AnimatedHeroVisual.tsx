@@ -13,7 +13,6 @@ const AnimatedHeroVisual = () => {
         alt="SouLVE - Connecting Communities"
         loading="eager"
         decoding="async"
-        fetchPriority="high"
         className="relative z-10 w-[400px] h-[400px] lg:w-[750px] lg:h-[750px] object-contain animate-heart-glow will-change-[filter]"
       />
     </div>

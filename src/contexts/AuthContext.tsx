@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { devLogger as logger } from '@/utils/logger';
@@ -22,12 +22,28 @@ export const useAuth = () => {
   return context;
 };
 
+// Clear corrupted Supabase tokens from localStorage
+const clearCorruptedTokens = () => {
+  try {
+    localStorage.removeItem('supabase.auth.token');
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    logger.log('🧹 Cleared corrupted auth tokens');
+  } catch (e) {
+    // Ignore localStorage errors in incognito/restricted modes
+  }
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  const hasCleared = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -57,8 +73,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If session becomes null (sign out, expired, or invalid)
         if (!newSession) {
           logger.log('🔓 Session cleared - user signed out or session expired');
-          // DON'T clear localStorage here - let Supabase manage its own tokens
-          // Only clear state
           setSession(null);
           setUser(null);
           setOrganizationId(null);
@@ -120,8 +134,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (error) {
             logger.error('Error getting initial session:', error);
             // If session is invalid, clear it
-            if (error.message?.includes('session') || error.message?.includes('JWT')) {
+            const isTokenError = 
+              error.message?.includes('session') || 
+              error.message?.includes('JWT') ||
+              error.message?.includes('token') ||
+              error.message?.includes('Refresh');
+              
+            if (isTokenError && !hasCleared.current) {
               logger.error('🔴 Invalid session detected, clearing...');
+              hasCleared.current = true;
+              clearCorruptedTokens();
               await supabase.auth.signOut();
               setSession(null);
               setUser(null);
@@ -143,26 +165,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error: any) {
         logger.error('❌ Error in auth initialization:', error);
         
-        // Check if it's a connection error
-        const isConnectionError = 
-          error.message?.includes('upstream') || 
-          error.message?.includes('503') ||
-          error.message?.includes('connect') ||
-          error.name === 'NetworkError';
-          
-        if (isConnectionError) {
-          logger.error('🔴 Backend connection error detected - Supabase backend may be down or experiencing issues');
-        }
-        
-        // Check for session/token errors
-        const isSessionError = 
-          error.message?.includes('session') ||
+        // Check for token/refresh errors - clear corrupted state
+        const isTokenError = 
+          error.message?.includes('Refresh') ||
+          error.message?.includes('token') ||
           error.message?.includes('JWT') ||
-          error.message?.includes('token');
+          error.code === 'refresh_token_not_found';
           
-        if (isSessionError) {
-          logger.error('🔴 Session error detected, clearing invalid session');
-          await supabase.auth.signOut();
+        if (isTokenError && !hasCleared.current) {
+          logger.error('🔴 Token error detected, clearing corrupted state');
+          hasCleared.current = true;
+          clearCorruptedTokens();
         }
         
         if (mounted) {
@@ -184,16 +197,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Timeout fallback: If loading state doesn't resolve within 3 seconds, stop waiting but DON'T clear tokens
+  // Faster timeout fallback: 1.5 seconds max wait
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (loading) {
         logger.warn('⏰ Auth initialization taking longer than expected - stopping spinner');
-        // DON'T clear tokens - they may be valid, just slow to load
         setLoading(false);
         setInitialized(true);
       }
-    }, 3000); // 3 seconds - faster fallback for better UX
+    }, 1500); // 1.5 seconds - faster fallback
     
     return () => clearTimeout(timeout);
   }, [loading]);
