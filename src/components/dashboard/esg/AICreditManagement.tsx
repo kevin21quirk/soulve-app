@@ -161,15 +161,8 @@ export function AICreditManagement({ organizationId }: AICreditManagementProps) 
           )}
         </div>
 
-        <Button variant="outline" className="w-full" asChild>
-          <a
-            href="https://docs.lovable.dev/features/ai"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn About AI Credits
-            <ExternalLink className="h-4 w-4 ml-2" />
-          </a>
+        <Button variant="outline" className="w-full" disabled>
+          <span>Learn About AI Credits</span>
         </Button>
       </div>
     </Card>

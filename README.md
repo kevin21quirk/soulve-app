@@ -1,73 +1,78 @@
-# Welcome to your Lovable project
+# SouLVE - Community Support Platform
 
-## Project info
+A modern community support platform built with React, TypeScript, and Supabase. This application enables users to connect, contribute, and create lasting social impact through ESG tracking, campaign support, and community engagement.
 
-**URL**: https://lovable.dev/projects/bf52b470-070e-4c4a-ac1a-978a0d3d9af7
+## Project Repository
 
-## How can I edit this code?
+**GitHub**: https://github.com/kevin21quirk/soulve-app
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/bf52b470-070e-4c4a-ac1a-978a0d3d9af7) and start prompting.
+- Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Git for version control
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/kevin21quirk/soulve-app.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd soulve-app
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies (use --legacy-peer-deps due to date-fns peer dependency)
+npm install --legacy-peer-deps
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Vite** - Fast build tool and dev server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI framework
+- **shadcn-ui** - Component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Supabase** - Backend and database
+- **Capacitor** - Mobile app framework
+- **React Query** - Data fetching and caching
+- **React Router** - Client-side routing
 
-## How can I deploy this project?
+## Available Scripts
 
-Simply open [Lovable](https://lovable.dev/projects/bf52b470-070e-4c4a-ac1a-978a0d3d9af7) and click on Share -> Publish.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build in development mode
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
 
-## Can I connect a custom domain to my Lovable project?
+## Development
 
-Yes, you can!
+This project is managed and developed using **Windsurf IDE**. All code changes, amendments, and updates are version controlled through Git and synced with the GitHub repository.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Project Structure
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `/src` - Application source code
+- `/public` - Static assets
+- `/supabase` - Supabase functions and configurations
+- `/docs` - Project documentation
+- `/scripts` - Build and deployment scripts
+
+## Contributing
+
+1. Create a feature branch from `main`
+2. Make your changes
+3. Commit with descriptive messages
+4. Push to your branch
+5. Create a pull request
+
+## License
+
+Private project - All rights reserved

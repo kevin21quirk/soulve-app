@@ -190,9 +190,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           console.log('[LOGIN DEBUG] 10. onSuccess() called');
         }
       } else {
-        const redirectUrl = window.location.origin.includes('lovable') 
-          ? `${window.location.origin}/#/dashboard`
-          : `${window.location.origin}/dashboard`;
+        const redirectUrl = `${window.location.origin}/dashboard`;
 
         const { data, error } = await supabase.auth.signUp({
           email: formData.email.trim(),

@@ -12,13 +12,13 @@
   "lang": "en-US",
   "icons": [
     {
-      "src": "/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png",
+      "src": "/assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/lovable-uploads/dd4b8f10-f8cb-4ecb-9968-65b10d0d485a.png",
+      "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -26,7 +26,7 @@
   ],
   "screenshots": [
     {
-      "src": "/lovable-uploads/25feaabf-2868-4cfc-a034-77054efffb53.png",
+      "src": "/assets/screenshot.png",
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow"
