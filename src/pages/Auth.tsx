@@ -82,26 +82,33 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-blue-100 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+      </div>
+      
       {/* Branded Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-4 mb-8">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-1 mb-6 shadow-2xl relative">
         <div className="max-w-md mx-auto px-4">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
-              className="text-white hover:text-teal-200 hover:bg-white/10 mb-4"
+              className="text-white hover:text-teal-200 hover:bg-white/10 mb-1"
             >
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Button>
           <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
+            <div className="flex items-center justify-center mb-0">
               <SouLVEIcon size="large" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-4xl font-bold mb-0 drop-shadow-lg leading-tight" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
               {isLogin ? "Welcome Back" : "Join Our Testing Community"}
             </h1>
-            <p className="text-teal-100">
+            <p className="text-lg text-teal-50 drop-shadow-md leading-tight">
               {isLogin 
                 ? "Sign in to continue helping your community" 
                 : "Be part of our exclusive beta program"
@@ -135,9 +142,10 @@ const Auth = () => {
           </Alert>
         )}
         
-        <Card>
+        <Card className="shadow-2xl border-2 border-white/20 backdrop-blur-sm bg-white/95 transform transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.02]" style={{perspective: '1000px'}}>
+          <div className="relative" style={{transformStyle: 'preserve-3d'}}>
           <AuthHeader isLogin={isLogin} />
-          <CardContent>
+          <CardContent className="relative z-10">
             <EnhancedAuthForm
               isLogin={isLogin}
               onToggleMode={handleToggleMode}
@@ -145,6 +153,7 @@ const Auth = () => {
             />
             <AuthToggle isLogin={isLogin} onToggle={handleToggleMode} />
           </CardContent>
+          </div>
         </Card>
         </div>
       </div>
