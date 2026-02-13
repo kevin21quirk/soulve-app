@@ -2,9 +2,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Use environment variables for production, fallback to dev database for local development
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://anuvztvypsihzlbkewci.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFudXZ6dHZ5cHNpaHpsYmtld2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0MTc4ODUsImV4cCI6MjA2Mzk5Mzg4NX0.YA4ZwsRj9t-0YllEQA_NTZvrir3TJGtCb8raCsFn1k0";
+// Use production database for all environments (local and deployed)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://btwuqhrkhbblszuipumg.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_qJHjWrPXzQFhSNsuAqYD_Q_O6d_XN41";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
