@@ -94,15 +94,11 @@ const HeroSection = () => {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-[hsl(var(--soulve-purple))] text-white min-h-[90vh]">
-      {/* Static background gradient overlay - removed animation for scroll performance */}
       <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
       
-      
-      {/* Main Hero Content */}
       <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start pt-4">
           
-          {/* Left Column - Content */}
           <motion.div 
             className="text-center lg:text-left space-y-6 lg:space-y-8"
             initial={{ opacity: 0.6, x: -15 }}
@@ -150,7 +146,6 @@ const HeroSection = () => {
                 Join the social media platform where your activity fixes your real life community. Connect like you always do, but with purpose.
               </motion.p>
               
-              {/* Feature Pills - Replace emojis */}
               <motion.div 
                 className="flex flex-wrap gap-2 justify-center lg:justify-start"
                 initial={{ opacity: 0.7 }}
@@ -172,7 +167,6 @@ const HeroSection = () => {
               </motion.div>
             </div>
             
-            {/* CTA Buttons */}
             <motion.div 
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
               initial={{ opacity: 0.7, y: 10 }}
@@ -208,7 +202,6 @@ const HeroSection = () => {
               </Button>
             </motion.div>
 
-            {/* Founder's Circle Benefits - removed backdrop-blur for scroll performance */}
             <motion.div 
               className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 sm:p-6 max-w-xl mx-auto lg:mx-0 border border-white/20 shadow-xl"
               initial={{ opacity: 0.7, y: 10 }}
@@ -252,7 +245,6 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
           
-          {/* Right Column - Animated Visual */}
           <motion.div 
             className="hidden lg:block"
             initial={{ opacity: 0.6, x: 15 }}
@@ -264,7 +256,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Bottom Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/20 to-transparent" />
       
       <BookDemoModal open={showDemoModal} onOpenChange={setShowDemoModal} />
