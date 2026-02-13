@@ -21,18 +21,40 @@ const SouLVEIcon = ({ size = "large", clickable = false }: SouLVEIconProps) => {
       dimensions: "w-40 h-40"
     },
     xlarge: {
-      dimensions: "w-32 h-32"
+      dimensions: "w-48 h-48"
     }
   };
 
   const config = sizeConfig[size];
 
   const iconElement = (
-    <img
-      src={soulveIcon}
-      alt="SouLVE Icon - Connecting Communities"
-      className={`${config.dimensions} object-contain rounded-lg`}
-    />
+    <div className="relative">
+      <img
+        src={soulveIcon}
+        alt="SouLVE Icon - Connecting Communities"
+        className={`${config.dimensions} object-contain rounded-lg animate-[pulse_2s_ease-in-out_infinite] drop-shadow-2xl`}
+        style={{
+          filter: 'drop-shadow(0 0 20px rgba(12, 228, 175, 0.4))',
+          animation: 'heartbeat 2s ease-in-out infinite'
+        }}
+      />
+      <style>{`
+        @keyframes heartbeat {
+          0%, 100% {
+            transform: scale(1);
+          }
+          25% {
+            transform: scale(1.2);
+          }
+          50% {
+            transform: scale(1);
+          }
+          75% {
+            transform: scale(1.15);
+          }
+        }
+      `}</style>
+    </div>
   );
 
   if (clickable) {
