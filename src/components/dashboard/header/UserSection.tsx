@@ -1,12 +1,13 @@
 
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Building } from "lucide-react";
+import { LogOut, Building, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileSwitcher } from "@/components/profile/ProfileSwitcher";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserSectionProps {
   context?: string;
@@ -18,7 +19,28 @@ const UserSection = ({ context = 'personal', orgId, orgName }: UserSectionProps)
   const [searchParams] = useSearchParams();
   const { signOut, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user?.id) {
+        console.log('[ADMIN CHECK] No user ID, skipping admin check');
+        return;
+      }
+      console.log('[ADMIN CHECK] Checking admin status for user:', user.id);
+      const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      console.log('[ADMIN CHECK] RPC result:', { data, error });
+      if (!error && data === true) {
+        console.log('[ADMIN CHECK] User is admin, setting isAdmin to true');
+        setIsAdmin(true);
+      } else {
+        console.log('[ADMIN CHECK] User is NOT admin or error occurred');
+      }
+    };
+    checkAdmin();
+  }, [user?.id]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -54,6 +76,19 @@ const UserSection = ({ context = 'personal', orgId, orgName }: UserSectionProps)
         currentView={context === 'org' ? 'organization' : 'personal'}
         currentOrgId={orgId}
       />
+      
+      {/* Admin Button */}
+      {isAdmin && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/admin')}
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+        >
+          <Shield className="h-5 w-5" />
+          <span className="ml-1 hidden sm:inline">Admin</span>
+        </Button>
+      )}
       
       <span className="text-sm text-muted-foreground hidden lg:inline">
         {user?.email}

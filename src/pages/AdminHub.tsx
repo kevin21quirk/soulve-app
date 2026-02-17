@@ -30,6 +30,7 @@ import { SystemHealthPanel } from '@/components/admin/SystemHealthPanel';
 import AdminDemoControls from '@/components/admin/AdminDemoControls';
 import SubscriptionManagementPanel from '@/components/admin/SubscriptionManagementPanel';
 import BlogManagementPanel from '@/components/admin/blog/BlogManagementPanel';
+import SchematicPanel from '@/components/admin/SchematicPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Shield, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -332,6 +333,7 @@ const AdminHub = () => {
             <Route path="safeguarding/dbs" element={<AdminSafeguardingDBS />} />
             <Route path="safeguarding/keywords" element={<AdminSafeguardingKeywords />} />
             <Route path="subscriptions" element={<SubscriptionManagementPanel />} />
+            <Route path="schematic" element={<SchematicPanel />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>

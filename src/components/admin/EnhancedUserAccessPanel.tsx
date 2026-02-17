@@ -25,8 +25,13 @@ interface UserProfile {
   id: string;
   first_name?: string;
   last_name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  user_type?: string;
+  bio?: string;
   avatar_url?: string;
-  waitlist_status: 'pending' | 'approved' | 'denied'; // Changed to match database
+  waitlist_status: 'pending' | 'approved' | 'denied';
   created_at: string;
   approved_at?: string;
   waitlist_approved_by?: string;
@@ -328,22 +333,54 @@ const EnhancedUserAccessPanel = () => {
                         </AvatarFallback>
                       </Avatar>
                       
-                      <div>
-                        <h3 className="font-semibold">
-                          {user.first_name || user.last_name 
-                            ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
-                            : 'Anonymous User'
-                          }
-                        </h3>
-                        <p className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</p>
-                        <p className="text-xs text-gray-400">
-                          Registered: {new Date(user.created_at).toLocaleDateString()}
-                        </p>
-                        {user.approved_at && (
-                          <p className="text-xs text-green-600">
-                            Approved: {new Date(user.approved_at).toLocaleDateString()}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">
+                            {user.first_name || user.last_name 
+                              ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+                              : user.email 
+                                ? user.email.split('@')[0]
+                                : 'Anonymous User'
+                            }
+                          </h3>
+                          {user.user_type && (
+                            <Badge variant="outline" className="text-xs">
+                              {user.user_type}
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+                          {user.email && (
+                            <p className="text-sm text-gray-600">
+                              📧 {user.email}
+                            </p>
+                          )}
+                          {user.phone && (
+                            <p className="text-sm text-gray-600">
+                              📱 {user.phone}
+                            </p>
+                          )}
+                          {user.location && (
+                            <p className="text-sm text-gray-600">
+                              📍 {user.location}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-500">
+                            🆔 {user.id.slice(0, 12)}...
                           </p>
-                        )}
+                        </div>
+                        
+                        <div className="flex gap-4 mt-2">
+                          <p className="text-xs text-gray-400">
+                            Registered: {new Date(user.created_at).toLocaleDateString()}
+                          </p>
+                          {user.approved_at && (
+                            <p className="text-xs text-green-600">
+                              Approved: {new Date(user.approved_at).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
 

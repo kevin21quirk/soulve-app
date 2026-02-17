@@ -30,7 +30,7 @@ const MainTabsList = () => {
   ];
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={200}>
       <TabsList className="flex w-full bg-transparent border-none p-2 gap-1 rounded-lg h-auto overflow-x-auto">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
@@ -47,8 +47,11 @@ const MainTabsList = () => {
                   <NotificationBadge count={tab.badgeCount} />
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>{tab.label}</p>
+              <TooltipContent 
+                side="bottom"
+                className="bg-gradient-to-r from-[hsl(var(--soulve-teal))] to-[hsl(var(--soulve-blue))] text-white border-none shadow-2xl px-4 py-2.5 rounded-lg font-semibold text-sm tracking-wide"
+              >
+                <p className="drop-shadow-sm">{tab.label}</p>
               </TooltipContent>
             </Tooltip>
           );

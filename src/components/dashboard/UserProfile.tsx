@@ -49,10 +49,18 @@ const UserProfile = () => {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.log('[ADMIN CHECK] No user ID, skipping admin check');
+        return;
+      }
+      console.log('[ADMIN CHECK] Checking admin status for user:', user.id);
       const { data, error } = await supabase.rpc('is_admin', { user_uuid: user.id });
+      console.log('[ADMIN CHECK] RPC result:', { data, error });
       if (!error && data === true) {
+        console.log('[ADMIN CHECK] User is admin, setting isAdmin to true');
         setIsAdmin(true);
+      } else {
+        console.log('[ADMIN CHECK] User is NOT admin or error occurred');
       }
     };
     checkAdmin();
