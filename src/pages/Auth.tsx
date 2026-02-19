@@ -142,8 +142,8 @@ const Auth = () => {
           </Alert>
         )}
         
-        <Card className="shadow-2xl border-2 border-white/20 backdrop-blur-sm bg-white/95 transform transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.02]" style={{perspective: '1000px'}}>
-          <div className="relative" style={{transformStyle: 'preserve-3d'}}>
+        <Card className="shadow-2xl border-2 border-white/20 bg-white transition-shadow duration-300 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
+          <div className="relative">
           <AuthHeader isLogin={isLogin} />
           <CardContent className="relative z-10">
             <EnhancedAuthForm

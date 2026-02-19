@@ -185,7 +185,11 @@ const RealSocialFeed = ({ organizationId }: RealSocialFeedProps) => {
   return (
     <div className="space-y-6">
       {/* Create Post Section - Always rendered to listen for share events */}
-      <CreatePost onPostCreated={handlePostCreated} />
+      <CreatePost 
+        onPostCreated={handlePostCreated}
+        isOpen={showCreatePost}
+        onOpenChange={setShowCreatePost}
+      />
 
       {/* Feed Header with enhanced status info */}
       <div className="flex items-center justify-between flex-wrap gap-4">

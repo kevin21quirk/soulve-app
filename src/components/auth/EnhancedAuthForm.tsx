@@ -329,7 +329,10 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName" className="flex items-center space-x-2">
+              <User className="h-4 w-4" />
+              <span>Last Name</span>
+            </Label>
             <Input
               id="lastName"
               type="text"

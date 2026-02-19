@@ -12,9 +12,11 @@ import ModernPostComposer from "@/components/post-creation/ModernPostComposer";
 
 interface CreatePostProps {
   onPostCreated?: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const CreatePost = ({ onPostCreated }: CreatePostProps) => {
+const CreatePost = ({ onPostCreated, isOpen, onOpenChange }: CreatePostProps) => {
   const { user } = useAuth();
   const { accountType, organizationId } = useAccount();
   const { createPost, isCreating } = useUnifiedPostCreation(onPostCreated);
@@ -24,6 +26,19 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     name: string;
     avatar_url: string | null;
   } | null>(null);
+
+  // Sync external isOpen prop with internal state
+  useEffect(() => {
+    if (isOpen !== undefined) {
+      setShowModal(isOpen);
+    }
+  }, [isOpen]);
+
+  // Notify parent when modal state changes
+  const handleModalChange = (open: boolean) => {
+    setShowModal(open);
+    onOpenChange?.(open);
+  };
 
   useEffect(() => {
     const fetchOrgData = async () => {
@@ -46,7 +61,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const handlePostSubmit = async (data: any) => {
     try {
       await createPost(data);
-      setShowModal(false);
+      handleModalChange(false);
       setSharedPost(null);
     } catch (error) {
       // Error is handled by useUnifiedPostCreation hook
@@ -70,7 +85,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
           tags: Array.isArray(originalPost.tags) ? originalPost.tags : []
         };
         setSharedPost(processedPost);
-        setShowModal(true);
+        handleModalChange(true);
       } catch (error) {
         // Silent error handling for share events
       }
@@ -102,7 +117,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               <Button 
                 variant="outline" 
                 className="w-full justify-start text-muted-foreground hover:bg-background/60 hover:text-foreground transition-colors" 
-                onClick={() => setShowModal(true)} 
+                onClick={() => handleModalChange(true)} 
                 disabled={isCreating}
               >
                 {isCreating ? "Creating post..." : "What's happening in your community?"}
@@ -115,7 +130,7 @@ const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       <ModernPostComposer
         isOpen={showModal}
         onClose={() => {
-          setShowModal(false);
+          handleModalChange(false);
           setSharedPost(null);
         }}
         onSubmit={handlePostSubmit}
