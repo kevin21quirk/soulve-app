@@ -102,8 +102,8 @@ const Auth = () => {
             Back to Home
           </Button>
           <div className="text-center py-1">
-            <div className="flex items-center justify-center mb-1">
-              <SouLVEIcon size="medium" />
+            <div className="flex items-center justify-center mb-0">
+              <SouLVEIcon size="large" />
             </div>
             <h1 className="text-2xl font-bold mb-1 drop-shadow-lg leading-tight" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
               {isLogin ? "Welcome Back" : "Join Our Testing Community"}
