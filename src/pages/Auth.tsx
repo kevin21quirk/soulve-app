@@ -105,10 +105,10 @@ const Auth = () => {
             <div className="flex items-center justify-center mb-0">
               <SouLVEIcon size="large" />
             </div>
-            <h1 className="text-2xl font-bold mb-1 drop-shadow-lg leading-tight" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
+            <h1 className="text-3xl font-bold mb-1 drop-shadow-lg leading-none" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
               {isLogin ? "Welcome Back" : "Join Our Testing Community"}
             </h1>
-            <p className="text-sm text-teal-50 drop-shadow-md leading-tight">
+            <p className="text-base text-teal-50 drop-shadow-md leading-tight">
               {isLogin 
                 ? "Sign in to continue helping your community" 
                 : "Be part of our exclusive beta program"
