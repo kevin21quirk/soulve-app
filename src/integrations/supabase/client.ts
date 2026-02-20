@@ -4,7 +4,7 @@ import type { Database } from './types';
 
 // Use production database for all environments (local and deployed)
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://btwuqhrkhbblszuipumg.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_qJHjWrPXzQFhSNsuAqYD_Q_O6d_XN41";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_lPZSDy9TO63MMVlrT6IxpQ_CVinox2l";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

@@ -91,24 +91,24 @@ const Auth = () => {
       </div>
       
       {/* Branded Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-1 mb-6 shadow-2xl relative">
+      <div className="bg-gradient-to-r from-teal-600 to-blue-600 text-white py-2 mb-4 shadow-2xl relative">
         <div className="max-w-md mx-auto px-4">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
-              className="text-white hover:text-teal-200 hover:bg-white/10 mb-1"
+              className="text-white hover:text-teal-200 hover:bg-white/10 mb-1 h-8 text-sm"
             >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home
           </Button>
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-0">
-              <SouLVEIcon size="large" />
+          <div className="text-center py-1">
+            <div className="flex items-center justify-center mb-1">
+              <SouLVEIcon size="medium" />
             </div>
-            <h1 className="text-4xl font-bold mb-0 drop-shadow-lg leading-tight" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
+            <h1 className="text-2xl font-bold mb-1 drop-shadow-lg leading-tight" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
               {isLogin ? "Welcome Back" : "Join Our Testing Community"}
             </h1>
-            <p className="text-lg text-teal-50 drop-shadow-md leading-tight">
+            <p className="text-sm text-teal-50 drop-shadow-md leading-tight">
               {isLogin 
                 ? "Sign in to continue helping your community" 
                 : "Be part of our exclusive beta program"
