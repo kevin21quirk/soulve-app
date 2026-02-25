@@ -137,7 +137,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const isTokenError = 
               error.message?.includes('session') || 
               error.message?.includes('JWT') ||
+              error.message?.includes('InvalidJWTToken') ||
               error.message?.includes('token') ||
+              error.message?.includes('exp') ||
               error.message?.includes('Refresh');
               
             if (isTokenError && !hasCleared.current) {
@@ -170,6 +172,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           error.message?.includes('Refresh') ||
           error.message?.includes('token') ||
           error.message?.includes('JWT') ||
+          error.message?.includes('InvalidJWTToken') ||
+          error.message?.includes('exp') ||
           error.code === 'refresh_token_not_found';
           
         if (isTokenError && !hasCleared.current) {
