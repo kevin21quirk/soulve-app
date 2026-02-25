@@ -1,12 +1,17 @@
-import { Clock, Mail, CheckCircle, Users, Heart, Crown, Sparkles, Target, TrendingUp, ExternalLink } from "lucide-react";
+import { Clock, Mail, CheckCircle, Users, Heart, Crown, Sparkles, Target, TrendingUp, ExternalLink, LogOut } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import SouLVELogo from "@/components/SouLVELogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const WaitlistPendingPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [applicationDate, setApplicationDate] = useState<string>("");
   const [checklistItems, setChecklistItems] = useState(() => {
@@ -18,6 +23,25 @@ const WaitlistPendingPage = () => {
       community: false
     };
   });
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.clear(); // Clear all cached data
+      toast({
+        title: "Signed out successfully",
+        description: "You've been signed out. See you soon!",
+      });
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -73,9 +97,20 @@ const WaitlistPendingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-2xl w-full space-y-8">
-        {/* Logo */}
-        <div className="flex justify-center">
-          <SouLVELogo size="large" clickable={false} />
+        {/* Logo and Sign Out */}
+        <div className="flex justify-between items-center">
+          <div className="flex-1 flex justify-center">
+            <SouLVELogo size="large" clickable={false} />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSignOut}
+            className="flex items-center gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
         </div>
 
         {/* Hero Message */}
