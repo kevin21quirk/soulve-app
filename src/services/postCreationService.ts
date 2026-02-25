@@ -189,7 +189,7 @@ export const getUserProfile = async (userId: string) => {
       .from('profiles')
       .select('id, first_name, last_name, avatar_url')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching user profile:', error);

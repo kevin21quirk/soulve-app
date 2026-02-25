@@ -62,7 +62,7 @@ export const getConversations = async (userId: string): Promise<UnifiedConversat
           .from('profiles')
           .select('first_name, last_name, avatar_url')
           .eq('id', partnerId)
-          .single();
+          .maybeSingle();
 
         const partnerName = profile 
           ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User'
@@ -146,7 +146,7 @@ export const getMessages = async (
     .from('profiles')
     .select('first_name, last_name, avatar_url')
     .eq('id', partnerId)
-    .single();
+    .maybeSingle();
 
   const partnerName = profile 
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown'
@@ -288,7 +288,7 @@ export const getUserProfile = async (userId: string) => {
     .from('profiles')
     .select('id, first_name, last_name, avatar_url')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;

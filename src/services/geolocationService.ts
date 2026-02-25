@@ -47,7 +47,7 @@ export const getUserLocation = async (userId: string) => {
     .from('profiles')
     .select('latitude, longitude, location, location_sharing_enabled')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching user location:', error);

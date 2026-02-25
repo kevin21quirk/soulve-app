@@ -32,7 +32,7 @@ const Dashboard = () => {
   useEffect(() => {
     const loadOrgName = async () => {
       if (context === 'org' && orgId) {
-        const { data } = await supabase.from('organizations').select('name').eq('id', orgId).single();
+        const { data } = await supabase.from('organizations').select('name').eq('id', orgId).maybeSingle();
         if (data) setCurrentOrgName(data.name);
       }
     };

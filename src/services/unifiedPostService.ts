@@ -257,7 +257,7 @@ async function createTagNotifications(taggedUserIds: string[], postId: string, t
       .from('profiles')
       .select('first_name, last_name')
       .eq('id', taggerId)
-      .single();
+      .maybeSingle();
 
     const taggerName = taggerProfile 
       ? `${taggerProfile.first_name} ${taggerProfile.last_name}`.trim()

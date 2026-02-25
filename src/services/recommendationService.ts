@@ -31,7 +31,7 @@ export class RecommendationService {
         .from('profiles')
         .select('skills, interests, location')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (!profile) return;
 
