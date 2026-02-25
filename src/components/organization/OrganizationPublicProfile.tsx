@@ -186,7 +186,7 @@ export const OrganizationPublicProfile = () => {
       .eq('organization_id', organizationId)
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .single();
+      .maybeSingle();
     
     setIsAdmin(data?.role === 'admin' || data?.role === 'owner');
   };

@@ -94,7 +94,7 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
         .eq('organization_id', organizationId)
         .eq('user_id', data.user.id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
       
       if (membership && ['admin', 'owner'].includes(membership.role)) {
         setIsOrgAdmin(true);
