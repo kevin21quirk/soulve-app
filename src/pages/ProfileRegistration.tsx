@@ -56,12 +56,13 @@ const ProfileRegistration = () => {
             .eq('id', user.id)
             .maybeSingle();
 
-          const waitlistStatus = profileData?.waitlist_status;
+          // Default to 'pending' if status is null/undefined to ensure waitlist enforcement
+          const waitlistStatus = profileData?.waitlist_status || 'pending';
 
-          if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
-            navigate('/waitlist', { replace: true });
-          } else {
+          if (waitlistStatus === 'approved') {
             navigate('/dashboard', { replace: true });
+          } else {
+            navigate('/waitlist', { replace: true });
           }
           return;
         }
@@ -155,22 +156,23 @@ const ProfileRegistration = () => {
           .eq('id', user.id)
           .maybeSingle();
 
-        const waitlistStatus = profileData?.waitlist_status;
+        // Default to 'pending' if status is null/undefined to ensure waitlist enforcement
+        const waitlistStatus = profileData?.waitlist_status || 'pending';
 
-        if (waitlistStatus === 'pending' || waitlistStatus === 'denied') {
-          toast({
-            title: "Profile Complete! ⏳",
-            description: "Thank you for joining! Your application is under review. We'll notify you once you're approved.",
-          });
-          // Redirect to waitlist page
-          navigate('/waitlist', { replace: true });
-        } else {
+        if (waitlistStatus === 'approved') {
           toast({
             title: "Welcome to SouLVE! 🎉",
             description: "Your profile has been successfully created. Let's start building community together!",
           });
           // User is approved, go to dashboard
           navigate('/dashboard', { replace: true });
+        } else {
+          toast({
+            title: "Profile Complete! ⏳",
+            description: "Thank you for joining! Your application is under review. We'll notify you once you're approved.",
+          });
+          // Redirect to waitlist page (pending or denied)
+          navigate('/waitlist', { replace: true });
         }
       }
     } catch (error) {
