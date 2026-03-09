@@ -258,9 +258,27 @@ const CompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps, isSub
             />
             <Label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed">
               I agree to the{" "}
-              <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-teal-600 underline">Terms</a>{" "}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open('/#/terms-of-service', '_blank', 'noopener,noreferrer');
+                }}
+                className="text-teal-600 underline hover:text-teal-700 cursor-pointer bg-transparent border-none p-0 font-inherit"
+              >
+                Terms
+              </button>{" "}
               and{" "}
-              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-teal-600 underline">Privacy Policy</a>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open('/#/privacy-policy', '_blank', 'noopener,noreferrer');
+                }}
+                className="text-teal-600 underline hover:text-teal-700 cursor-pointer bg-transparent border-none p-0 font-inherit"
+              >
+                Privacy Policy
+              </button>
             </Label>
           </div>
         </div>
