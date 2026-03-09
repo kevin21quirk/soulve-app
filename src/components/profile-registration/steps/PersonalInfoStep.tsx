@@ -139,7 +139,7 @@ const PersonalInfoStep = ({ onNext, onPrevious, currentStep, totalSteps, userTyp
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-700">
+              <Label htmlFor="lastName" className="text-gray-700 flex items-center">
                 {userType === "individual" ? "Last Name" : "Your Last Name"}
               </Label>
               <Input
