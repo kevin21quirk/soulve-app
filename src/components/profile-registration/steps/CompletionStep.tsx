@@ -258,9 +258,9 @@ const CompletionStep = ({ onComplete, onPrevious, currentStep, totalSteps, isSub
             />
             <Label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed">
               I agree to the{" "}
-              <a href="/terms" className="text-teal-600 underline">Terms</a>{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-teal-600 underline">Terms</a>{" "}
               and{" "}
-              <a href="/privacy" className="text-teal-600 underline">Privacy Policy</a>
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-teal-600 underline">Privacy Policy</a>
             </Label>
           </div>
         </div>
