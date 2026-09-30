@@ -6,13 +6,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BookDemoModal } from "@/components/BookDemoModal";
 import { motion } from "framer-motion";
-import AnimatedHeroVisual from "./AnimatedHeroVisual";
+import HeroFeedVisual from "./HeroFeedVisual";
+
+const founderStack = [
+  { initials: "JD", gradient: "from-[#0ce4af] to-[#18a5fe]" },
+  { initials: "AK", gradient: "from-[#18a5fe] to-[#4c3dfb]" },
+  { initials: "RW", gradient: "from-[#0ce4af] to-teal-600" },
+  { initials: "EL", gradient: "from-[#4c3dfb] to-[#18a5fe]" },
+  { initials: "MO", gradient: "from-sky-400 to-[#18a5fe]" },
+];
 
 const featurePills = [
-  { label: "Social Feed", icon: "feed" },
-  { label: "Real Impact", icon: "impact" },
-  { label: "Community", icon: "community" },
-  { label: "Purpose-Driven", icon: "purpose" },
+  { label: "Social Feed", icon: Heart },
+  { label: "Real Impact", icon: Zap },
+  { label: "Community", icon: Users },
+  { label: "Purpose-Driven", icon: Sparkles },
+];
+
+const benefits = [
+  { icon: Crown, color: "text-amber-500", title: "Founding SouLVER Badge", sub: "Permanent recognition" },
+  { icon: Users, color: "text-sky-600", title: "Direct Team Access", sub: "Shape the platform" },
+  { icon: Sparkles, color: "text-[#4c3dfb]", title: "Lifetime Benefits", sub: "Premium features free" },
+  { icon: Zap, color: "text-emerald-600", title: "First Access", sub: "Every new feature" },
 ];
 
 const HeroSection = () => {
@@ -39,7 +54,7 @@ const HeroSection = () => {
         
         setHasCompletedOnboarding(!!data);
       } catch (error) {
-        console.error('Error checking onboarding status:', error);
+        console.error('Error checking onboarding status:', JSON.stringify(error));
         setHasCompletedOnboarding(false);
       }
     };
@@ -52,7 +67,7 @@ const HeroSection = () => {
         
         setApplicantCount(count || 0);
       } catch (error) {
-        console.error('Error fetching applicant count:', error);
+        console.error('Error fetching applicant count:', JSON.stringify(error));
       }
     };
 
@@ -93,173 +108,196 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-[hsl(var(--soulve-purple))] text-white min-h-[90vh]">
-      <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
-      
-      <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start pt-4">
-          
-          <motion.div 
-            className="text-center lg:text-left space-y-6 lg:space-y-8"
-            initial={{ opacity: 0.6, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+    <section className="relative overflow-hidden bg-white min-h-[92vh] flex items-center">
+      {/* Ambient background */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        <motion.div
+          className="absolute -top-40 -left-32 h-[540px] w-[540px] rounded-full bg-[#0ce4af]/20 blur-[130px]"
+          animate={{ x: [0, 40, 0], y: [0, -24, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute top-1/4 -right-40 h-[580px] w-[580px] rounded-full bg-[#18a5fe]/20 blur-[130px]"
+          animate={{ x: [0, -36, 0], y: [0, 28, 0] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -bottom-44 left-1/3 h-[440px] w-[440px] rounded-full bg-[#4c3dfb]/10 blur-[130px]"
+          animate={{ x: [0, 24, 0], y: [0, -16, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.05)_1px,transparent_0)] bg-[length:32px_32px]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-50 to-transparent" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 w-full">
+        <div className="grid lg:grid-cols-2 gap-14 lg:gap-10 items-center">
+
+          {/* Copy */}
+          <motion.div
+            className="text-center lg:text-left space-y-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <div className="space-y-5">
-              <motion.div 
-                className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-white/25 shadow-lg"
-                initial={{ opacity: 0.7, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05, duration: 0.2 }}
-              >
-                <Crown className="h-4 w-4 text-amber-300" />
-                <span>Limited Access - Founding SouLVERs</span>
-                {applicantCount > 0 && (
-                  <>
-                    <span className="text-white/50">•</span>
-                    <span className="text-amber-200">{applicantCount} Founding SouLVERs</span>
-                  </>
-                )}
-              </motion.div>
-              
-              <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight"
-                initial={{ opacity: 0.7, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.08, duration: 0.25 }}
-              >
-                Social Media
-                <br />
-                <span className="bg-gradient-to-r from-cyan-200 via-white to-cyan-200 bg-clip-text text-transparent">
-                  That SouLVE's
-                </span>
-                <br />
-                Problems.
-              </motion.h1>
-              
-              <motion.p 
-                className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0"
-                initial={{ opacity: 0.7, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.25 }}
-              >
-                Join the social media platform where your activity fixes your real life community. Connect like you always do, but with purpose.
-              </motion.p>
-              
-              <motion.div 
-                className="flex flex-wrap gap-2 justify-center lg:justify-start"
-                initial={{ opacity: 0.7 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.12, duration: 0.2 }}
-              >
-                {featurePills.map((pill, index) => (
-                  <motion.span
-                    key={pill.label}
-                    className="px-4 py-2 bg-white/15 rounded-full text-sm font-medium border border-white/20 hover:bg-white/25 transition-colors cursor-default"
-                    whileHover={{ scale: 1.05 }}
-                    initial={{ opacity: 0.8, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.12 + index * 0.03, duration: 0.15 }}
-                  >
-                    {pill.label}
-                  </motion.span>
-                ))}
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
-              initial={{ opacity: 0.7, y: 10 }}
+            <motion.div
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur-md px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm"
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.2 }}
+              transition={{ delay: 0.05, duration: 0.3 }}
             >
-              <Button 
+              <Crown className="h-4 w-4 text-amber-500" />
+              <span>Limited Access · Founding SouLVERs</span>
+              {applicantCount > 0 && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-teal-600">{applicantCount.toLocaleString()} joined</span>
+                </>
+              )}
+            </motion.div>
+
+            <motion.h1
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-slate-950"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+            >
+              Social media
+              <br />
+              that{" "}
+              <span className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] bg-clip-text text-transparent">
+                SouLVEs
+              </span>
+              <br />
+              problems.
+            </motion.h1>
+
+            <motion.p
+              className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16, duration: 0.4 }}
+            >
+              The social platform where your everyday activity fixes real problems in your community. Scroll, connect, post — but with purpose.
+            </motion.p>
+
+            {/* Feature pills */}
+            <motion.div
+              className="flex flex-wrap gap-2 justify-center lg:justify-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
+              {featurePills.map((pill) => (
+                <span
+                  key={pill.label}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:border-[#0ce4af]/50 hover:text-slate-900 transition-colors cursor-default shadow-sm"
+                >
+                  <pill.icon className="h-3.5 w-3.5 text-teal-600" />
+                  {pill.label}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* Social proof */}
+            <motion.div
+              className="flex items-center gap-4 justify-center lg:justify-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.22, duration: 0.4 }}
+            >
+              <div className="flex -space-x-3">
+                {founderStack.map((f) => (
+                  <div
+                    key={f.initials}
+                    className={`h-10 w-10 rounded-full bg-gradient-to-br ${f.gradient} flex items-center justify-center text-[11px] font-bold text-white ring-2 ring-white shadow-md`}
+                  >
+                    {f.initials}
+                  </div>
+                ))}
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-[#0ce4af] opacity-60 animate-ping" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0ce4af]" />
+                  </span>
+                  Growing every day
+                </div>
+                <p className="text-xs text-slate-500">Founding members shaping the platform</p>
+              </div>
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div
+              className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.4 }}
+            >
+              <Button
                 size="lg"
-                className="bg-white text-secondary hover:bg-white/95 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-2xl rounded-xl group border-none"
+                className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] text-white text-base font-semibold px-7 py-6 rounded-full shadow-xl shadow-[#18a5fe]/30 group border-none transition-all hover:scale-[1.03] hover:opacity-95"
                 onClick={handleJoinBeta}
               >
                 <Crown className="mr-2 h-5 w-5" />
                 <span>Join the Founding SouLVERs</span>
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              
-              <Button 
+
+              <Button
                 size="lg"
-                className="bg-white/20 border-2 border-white/30 text-white hover:bg-white/30 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
+                className="bg-white border border-slate-200 text-slate-800 hover:border-[#18a5fe]/60 hover:text-[#0f7fd4] text-base font-semibold px-7 py-6 rounded-full shadow-sm transition-all hover:scale-[1.03]"
                 onClick={handleLearnMore}
               >
                 <Heart className="mr-2 h-5 w-5" />
                 <span>Discover the Vision</span>
               </Button>
-              
-              <Button 
+
+              <Button
                 size="lg"
-                className="bg-white/20 border-2 border-white/30 text-white hover:bg-white/30 transform hover:scale-105 transition-all duration-300 text-base sm:text-lg px-6 py-6 font-semibold shadow-xl rounded-xl"
+                variant="ghost"
+                className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-sm font-semibold px-5 py-3 rounded-full border border-slate-200"
                 onClick={() => setShowDemoModal(true)}
               >
-                <Calendar className="mr-2 h-5 w-5" />
+                <Calendar className="mr-2 h-4 w-4" />
                 <span>Book a Demo</span>
               </Button>
             </motion.div>
 
-            <motion.div 
-              className="bg-gradient-to-br from-white/15 to-white/5 rounded-2xl p-5 sm:p-6 max-w-xl mx-auto lg:mx-0 border border-white/20 shadow-xl"
-              initial={{ opacity: 0.7, y: 10 }}
+            {/* Benefits */}
+            <motion.div
+              className="grid grid-cols-2 gap-x-6 gap-y-4 max-w-md mx-auto lg:mx-0 pt-2"
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18, duration: 0.2 }}
+              transition={{ delay: 0.36, duration: 0.4 }}
             >
-              <p className="text-sm text-white/90 mb-4 font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-300" />
-                <span>Your Founding SouLVER Benefits:</span>
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex items-start space-x-3">
-                  <Crown className="h-5 w-5 text-amber-300 mt-0.5 flex-shrink-0" />
+              {benefits.map((b) => (
+                <div key={b.title} className="flex items-start gap-2.5">
+                  <b.icon className={`h-5 w-5 ${b.color} mt-0.5 shrink-0`} />
                   <div>
-                    <span className="text-sm text-white font-medium block">Founding SouLVER Badge</span>
-                    <span className="text-xs text-white/70">Permanent recognition</span>
+                    <span className="block text-sm font-medium text-slate-900">{b.title}</span>
+                    <span className="block text-xs text-slate-500">{b.sub}</span>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <Users className="h-5 w-5 text-cyan-300 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <span className="text-sm text-white font-medium block">Direct Team Access</span>
-                    <span className="text-xs text-white/70">Shape the platform</span>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Sparkles className="h-5 w-5 text-purple-300 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <span className="text-sm text-white font-medium block">Lifetime Benefits</span>
-                    <span className="text-xs text-white/70">Premium features free</span>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Zap className="h-5 w-5 text-emerald-300 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <span className="text-sm text-white font-medium block">First Access</span>
-                    <span className="text-xs text-white/70">Every new feature</span>
-                  </div>
-                </div>
-              </div>
+              ))}
             </motion.div>
           </motion.div>
-          
-          <motion.div 
+
+          {/* Heart visual */}
+          <motion.div
             className="hidden lg:block"
-            initial={{ opacity: 0.6, x: 15 }}
+            initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <AnimatedHeroVisual />
+            <HeroFeedVisual />
           </motion.div>
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/20 to-transparent" />
-      
       <BookDemoModal open={showDemoModal} onOpenChange={setShowDemoModal} />
-    </div>
+    </section>
   );
 };
 

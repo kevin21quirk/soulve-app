@@ -39,7 +39,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
   const validatePassword = (password: string) => {
     let score = 0;
-    let feedback = [];
+    const feedback = [];
 
     if (password.length >= 8) score++;
     else feedback.push("at least 8 characters");
@@ -249,16 +249,17 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           }, 1500);
         }
       }
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       
       // Check for network/connection errors
       const isNetworkError = 
-        error.message?.includes('upstream') || 
-        error.message?.includes('503') || 
-        error.message?.includes('connect') ||
-        error.message?.includes('network') ||
-        error.name === 'NetworkError' ||
-        error.name === 'FetchError';
+        err.message?.includes('upstream') || 
+        err.message?.includes('503') || 
+        err.message?.includes('connect') ||
+        err.message?.includes('network') ||
+        err.name === 'NetworkError' ||
+        err.name === 'FetchError';
 
       if (isNetworkError) {
         toast({
@@ -270,7 +271,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
       } else {
         toast({
           title: "Authentication error",
-          description: error.message || "An unexpected error occurred. Please try again or contact support if this persists.",
+          description: err.message || "An unexpected error occurred. Please try again or contact support if this persists.",
           variant: "destructive"
         });
       }
@@ -318,7 +319,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
               onChange={(e) => handleInputChange("firstName", e.target.value)}
               placeholder="Enter your first name"
               disabled={isLoading}
-              className={errors.firstName ? "border-red-300" : ""}
+              className={`h-11 rounded-xl bg-slate-50/60 ${errors.firstName ? "border-red-300" : "border-slate-200"}`}
             />
             {errors.firstName && (
               <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -340,7 +341,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
               onChange={(e) => handleInputChange("lastName", e.target.value)}
               placeholder="Enter your last name"
               disabled={isLoading}
-              className={errors.lastName ? "border-red-300" : ""}
+              className={`h-11 rounded-xl bg-slate-50/60 ${errors.lastName ? "border-red-300" : "border-slate-200"}`}
             />
             {errors.lastName && (
               <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -364,7 +365,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           onChange={(e) => handleInputChange("email", e.target.value)}
           placeholder="Enter your email"
           disabled={isLoading}
-          className={errors.email ? "border-red-300" : ""}
+          className={`h-11 rounded-xl bg-slate-50/60 ${errors.email ? "border-red-300" : "border-slate-200"}`}
         />
         {errors.email && (
           <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -387,7 +388,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
             onChange={(e) => handleInputChange("password", e.target.value)}
             placeholder={isLogin ? "Enter your password" : "Create a strong password"}
             disabled={isLoading}
-            className={`pr-10 ${errors.password ? "border-red-300" : ""}`}
+            className={`pr-10 h-11 rounded-xl bg-slate-50/60 ${errors.password ? "border-red-300" : "border-slate-200"}`}
           />
           <Button
             type="button"
@@ -422,7 +423,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
 
       <Button 
         type="submit" 
-        className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600" 
+        className="w-full h-11 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#18a5fe]/25 border-none" 
         disabled={isLoading}
       >
         {isLoading ? (
@@ -440,7 +441,7 @@ const EnhancedAuthForm = ({ isLogin, onToggleMode, onSuccess }: EnhancedAuthForm
           <Button
             type="button"
             variant="link"
-            className="text-sm text-teal-600 hover:text-teal-700"
+            className="text-sm text-[#0f7fd4] font-medium hover:text-[#18a5fe] hover:no-underline"
             onClick={() => setShowForgotPassword(true)}
           >
             Forgot your password?

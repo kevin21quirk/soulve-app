@@ -46,7 +46,7 @@ const HomeHeader = () => {
                 </span>
                 <Button 
                   onClick={() => navigate("/dashboard")} 
-                  className="bg-gradient-to-r from-primary via-secondary to-[hsl(var(--soulve-purple))] hover:opacity-90 text-primary-foreground shadow-lg border-none"
+                  className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90 text-primary-foreground shadow-lg shadow-[#18a5fe]/25 border-none rounded-full"
                 >
                   Dashboard
                 </Button>
@@ -56,13 +56,13 @@ const HomeHeader = () => {
                 <Button 
                   onClick={() => navigate("/auth")} 
                   variant="outline"
-                  className="border-primary text-primary hover:bg-primary/10"
+                  className="border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-full"
                 >
                   Sign In
                 </Button>
                 <Button 
                   onClick={() => navigate("/auth")} 
-                  className="bg-gradient-to-r from-primary via-secondary to-[hsl(var(--soulve-purple))] hover:opacity-90 text-primary-foreground shadow-lg border-none"
+                  className="bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90 text-primary-foreground shadow-lg shadow-[#18a5fe]/25 border-none rounded-full"
                 >
                   Join Beta
                 </Button>

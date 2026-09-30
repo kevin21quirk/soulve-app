@@ -6,11 +6,11 @@ interface AuthHeaderProps {
 
 const AuthHeader = ({ isLogin }: AuthHeaderProps) => {
   return (
-    <CardHeader className="text-center border-b border-teal-100 bg-gradient-to-b from-teal-50 to-transparent">
-      <CardTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+    <CardHeader className="text-center border-b border-slate-100 pb-6">
+      <CardTitle className="text-2xl font-bold tracking-tight text-slate-950">
         {isLogin ? "Sign In" : "Create Your Account"}
       </CardTitle>
-      <p className="text-gray-600 mt-2">
+      <p className="text-slate-500 mt-2 text-sm">
         {isLogin 
           ? "Enter your credentials to access your dashboard" 
           : "You'll be added to our waitlist for manual approval"

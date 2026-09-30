@@ -29,7 +29,7 @@ const Index = () => {
   }, [user, session, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
+    <div className="min-h-screen bg-white">
       <SEOHead
         title="SouLVE - Connect, Contribute, Create Impact"
         description="Join SouLVE to track your ESG contributions, support social impact campaigns, volunteer, and make a lasting difference in your community and beyond."
