@@ -145,8 +145,8 @@ profiles.patch('/me', requireAuth, zValidator('json', updateSchema), async (c) =
   `;
 
   const rows = await sql.query(updateSql, vals);
-  if (!rows.rows.length) return c.json({ error: 'Profile not found' }, 404);
-  return c.json(rows.rows[0]);
+  if (!rows.length) return c.json({ error: 'Profile not found' }, 404);
+  return c.json(rows[0]);
 });
 
 // GET /api/profiles  — search/list profiles
