@@ -181,18 +181,14 @@ export const usePersonalizedFeed = (options: PersonalizedFeedOptions = {}) => {
  * Hook to get user's interests-based feed suggestions
  */
 export const useFeedSuggestions = () => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
 
   return useQuery({
     queryKey: ['feed-suggestions', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { interests: [], skills: [], hasPreferences: false };
+      if (!user?.id || !api) return { interests: [], skills: [], hasPreferences: false };
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('interests, skills')
-        .eq('id', user.id)
-        .single();
+      const profile = await api.get<{ interests?: string[] | null; skills?: string[] | null }>('/profiles/me');
 
       return {
         interests: profile?.interests || [],

@@ -10,3 +10,119 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY |
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// ── Clerk bridge ─────────────────────────────────────────────────────────
+// The app authenticates with Clerk, not Supabase. Without this shim,
+// supabase.auth.getUser() returns null everywhere and ~90 legacy call sites
+// write null/empty user ids. This overrides the identity methods so they
+// return the Clerk-authenticated user (id = Neon profiles UUID) instead.
+// AuthContext keeps the snapshot in sync via setSupabaseAuthShim().
+//
+// NOTE: this only fixes *identity*. Supabase table reads still run
+// anonymously (no Supabase session → RLS sees anon) until those queries are
+// migrated to /api/* or Supabase is retired.
+
+interface ShimUser {
+  id: string;
+  email: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  [key: string]: unknown;
+}
+
+let shimUser: ShimUser | null = null;
+let shimToken: string | null = null;
+let signOutHandler: (() => Promise<unknown>) | null = null;
+
+type AuthListener = (event: string, session: unknown) => void;
+const authListeners = new Set<AuthListener>();
+
+const buildUser = () =>
+  shimUser && {
+    ...shimUser,
+    aud: 'authenticated',
+    role: 'authenticated',
+    app_metadata: {},
+    user_metadata: {
+      first_name: shimUser.first_name,
+      last_name: shimUser.last_name,
+    },
+    identities: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+const buildSession = () =>
+  shimUser
+    ? {
+        access_token: shimToken ?? '',
+        token_type: 'bearer',
+        expires_in: 3600,
+        refresh_token: '',
+        user: buildUser(),
+      }
+    : null;
+
+export function setSupabaseAuthShim(user: ShimUser | null, token: string | null) {
+  const prev = shimUser?.id ?? null;
+  shimUser = user;
+  shimToken = token;
+  const next = shimUser?.id ?? null;
+  if (prev !== next) {
+    const event = next ? 'SIGNED_IN' : 'SIGNED_OUT';
+    authListeners.forEach((fn) => {
+      try {
+        fn(event, buildSession());
+      } catch {
+        /* listener errors must not break auth */
+      }
+    });
+  }
+}
+
+export function registerSupabaseSignOut(fn: () => Promise<unknown>) {
+  signOutHandler = fn;
+}
+
+const sessionMissingError = {
+  name: 'AuthSessionMissingError',
+  message: 'Auth session missing!',
+  status: 400,
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const auth = supabase.auth as any;
+
+auth.getUser = async () => ({
+  data: { user: buildUser() },
+  error: shimUser ? null : sessionMissingError,
+});
+
+auth.getSession = async () => ({
+  data: { session: buildSession() },
+  error: null,
+});
+
+auth.refreshSession = async () => ({
+  data: { session: buildSession(), user: buildUser() },
+  error: shimUser ? null : sessionMissingError,
+});
+
+auth.onAuthStateChange = (callback: AuthListener) => {
+  authListeners.add(callback);
+  return {
+    data: {
+      subscription: {
+        id: `clerk-shim-${Math.random().toString(36).slice(2)}`,
+        callback,
+        unsubscribe: () => authListeners.delete(callback),
+      },
+    },
+    error: null,
+  };
+};
+
+auth.signOut = async () => {
+  if (signOutHandler) await signOutHandler();
+  return { error: null };
+};

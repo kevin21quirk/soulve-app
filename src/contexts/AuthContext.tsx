@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useUser, useAuth as useClerkAuth, useClerk } from '@clerk/react';
 import { createApiClient, type ApiClient } from '@/lib/apiClient';
+import { setSupabaseAuthShim, registerSupabaseSignOut } from '@/integrations/supabase/client';
 
 // ── Shape compatible with existing consumers ──────────────────────────────
 // `user.id` is the Neon profile UUID (not the Clerk ID)
@@ -63,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (!isSignedIn || !clerkUser) {
       setAppUser(null);
+      setSupabaseAuthShim(null, null);
       setSession(null);
       setOrganizationId(null);
       setApi(null);
@@ -98,6 +100,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           user_type:      profile.user_type,
           waitlist_status: profile.waitlist_status,
         });
+        setSupabaseAuthShim({
+          id:         profile.id,
+          email:      profile.email ?? clerkUser.primaryEmailAddress?.emailAddress ?? null,
+          first_name: profile.first_name,
+          last_name:  profile.last_name,
+        }, token);
 
         // Fetch first organization membership
         try {
@@ -114,6 +122,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email:    clerkUser.primaryEmailAddress?.emailAddress ?? null,
           clerkId:  clerkUser.id,
         });
+        // No Neon profile id → shim reports signed-out so legacy callers
+        // don't write empty-string uuids.
+        setSupabaseAuthShim(null, null);
       } finally {
         setLoading(false);
       }
@@ -128,8 +139,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => clearTimeout(t);
   }, []);
 
+  // Let legacy supabase.auth.signOut() callers end the real Clerk session
+  useEffect(() => {
+    registerSupabaseSignOut(() => clerkSignOut({ redirectUrl: '/' }));
+  }, [clerkSignOut]);
+
   const signOut = useCallback(async () => {
     try {
+      setSupabaseAuthShim(null, null);
       await clerkSignOut({ redirectUrl: '/' });
     } catch (err) {
       console.error('[AuthContext] Clerk signOut failed, forcing reload:', err);
