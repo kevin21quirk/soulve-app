@@ -2,16 +2,41 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { sql } from '../db';
-import { requireAuth } from '../middleware/clerk';
+import { requireAuth, clerkClient } from '../middleware/clerk';
 
 const profiles = new Hono();
 
-// GET /api/profiles/me  — return current user's profile
+// GET /api/profiles/me  — return current user's profile.
+// Lazy-provisions a Neon profile for Clerk users who signed up before the
+// webhook existed (same insert shape as the clerk user.created webhook).
 profiles.get('/me', requireAuth, async (c) => {
   const clerkUserId = c.get('clerkUserId');
-  const rows = await sql`
+  let rows = await sql`
     SELECT * FROM public.profiles WHERE clerk_user_id = ${clerkUserId} LIMIT 1
   `;
+
+  if (!rows.length) {
+    let email: string | null = null;
+    let firstName: string | null = null;
+    let lastName: string | null = null;
+    try {
+      const user = await clerkClient.users.getUser(clerkUserId);
+      email = user.emailAddresses?.[0]?.emailAddress ?? null;
+      firstName = user.firstName ?? null;
+      lastName = user.lastName ?? null;
+    } catch (err) {
+      console.error('Clerk getUser failed during profile provisioning:', err);
+    }
+    await sql`
+      INSERT INTO public.profiles (id, clerk_user_id, email, first_name, last_name, created_at, updated_at)
+      VALUES (gen_random_uuid(), ${clerkUserId}, ${email}, ${firstName}, ${lastName}, now(), now())
+      ON CONFLICT (clerk_user_id) DO NOTHING
+    `;
+    rows = await sql`
+      SELECT * FROM public.profiles WHERE clerk_user_id = ${clerkUserId} LIMIT 1
+    `;
+  }
+
   if (!rows.length) return c.json({ error: 'Profile not found' }, 404);
   return c.json(rows[0]);
 });

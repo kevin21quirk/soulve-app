@@ -1,7 +1,18 @@
 import { neon } from '@neondatabase/serverless';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 
-const DATABASE_URL = 'postgresql://neondb_owner:npg_psb3oVKHzgl2@ep-still-frog-zae224pk-pooler.c-2.eu-west-2.aws.neon.tech/neondb?sslmode=require';
+// Load env vars without extra dependencies (Node 21+).
+for (const f of ['.env.local', '.env']) {
+  if (existsSync(f)) {
+    try { process.loadEnvFile(f); } catch {}
+  }
+}
+
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is required (set it in .env.local)');
+  process.exit(1);
+}
 const db = neon(DATABASE_URL);
 
 const migrationFile = process.argv[2] ?? './neon_schema.sql';
