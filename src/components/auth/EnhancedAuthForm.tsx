@@ -70,7 +70,15 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm() || !isLoaded) return;
+    if (!isLoaded) {
+      toast({
+        title: "Authentication unavailable",
+        description: "Sign-in is still initialising — if this persists, the Clerk publishable key may be missing or invalid for this domain.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     try {
