@@ -75,7 +75,9 @@ const AvatarUploadManager = ({
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error((err as { error?: string }).error ?? res.statusText);
+        console.error('[avatar upload] server response:', err);
+        const e = err as { error?: string; detail?: string };
+        throw new Error(`${e.error ?? res.statusText}${e.detail ? ` — ${e.detail}` : ''}`);
       }
 
       const { url: publicUrl } = await res.json() as { url: string };
@@ -96,7 +98,7 @@ const AvatarUploadManager = ({
       console.error('Error uploading avatar:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload profile picture. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload profile picture. Please try again.",
         variant: "destructive"
       });
     } finally {

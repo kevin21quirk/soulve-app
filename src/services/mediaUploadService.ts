@@ -39,7 +39,9 @@ export const uploadMediaFiles = async (
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: res.statusText }));
-      throw new Error(`Failed to upload ${file.name}: ${(err as { error?: string }).error ?? res.statusText}`);
+      console.error('[media upload] server response:', err);
+      const e = err as { error?: string; detail?: string };
+      throw new Error(`Failed to upload ${file.name}: ${e.error ?? res.statusText}${e.detail ? ` — ${e.detail}` : ''}`);
     }
 
     const { url } = (await res.json()) as { url: string; pathname: string };
