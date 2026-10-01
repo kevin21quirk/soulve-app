@@ -1,6 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { lazy, Suspense } from "react";
 import HomeHeader from "@/components/HomeHeader";
 import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
@@ -17,16 +15,6 @@ const UserTypesSection = lazy(() => import("@/components/UserTypesSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { user, session, loading } = useAuth();
-
-  useEffect(() => {
-    // Simple redirect - let ProtectedRoute handle all the detailed auth checks
-    // This eliminates duplicate database calls
-    if (!loading && user && session) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [user, session, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-white">
