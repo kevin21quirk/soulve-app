@@ -15,7 +15,7 @@ interface EnhancedAuthFormProps {
 
 const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
   const { toast } = useToast();
-  const { signIn, isLoaded: signInLoaded }   = useSignIn();
+  const { signIn, setActive, isLoaded: signInLoaded }   = useSignIn();
   const { signUp, isLoaded: signUpLoaded }   = useSignUp();
   const isLoaded = signInLoaded && signUpLoaded;
 
@@ -25,6 +25,8 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
   const [errors, setErrors]                 = useState<Record<string, string>>({});
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: "" });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [awaitingVerification, setAwaitingVerification] = useState(false);
+  const [verificationCode, setVerificationCode]         = useState("");
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -89,6 +91,7 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
         });
 
         if (result.status === 'complete') {
+          if (result.createdSessionId) await setActive({ session: result.createdSessionId });
           toast({ title: "Welcome back!", description: "You have successfully signed in." });
           onSuccess();
         } else {
@@ -103,16 +106,17 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
         });
 
         if (result.status === 'complete') {
+          if (result.createdSessionId) await setActive({ session: result.createdSessionId });
           toast({ title: "Account Created! 🎉", description: "Welcome to SouLVE! Setting up your profile…" });
           onSuccess();
         } else if (result.status === 'missing_requirements') {
           // Email verification required — send verification email
           await signUp!.prepareEmailAddressVerification({ strategy: 'email_code' });
+          setAwaitingVerification(true);
           toast({
             title: "Verify your email",
             description: "We've sent a verification code to your email. Please check your inbox.",
           });
-          onSuccess();
         }
       }
     } catch (err) {
@@ -121,6 +125,26 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
         setErrors({ email: "Invalid email or password", password: "Invalid email or password" });
       }
       toast({ title: isLogin ? "Sign in failed" : "Sign up failed", description: msg, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verificationCode.trim() || !isLoaded) return;
+    setIsLoading(true);
+    try {
+      const result = await signUp!.attemptEmailAddressVerification({ code: verificationCode.trim() });
+      if (result.status === 'complete') {
+        if (result.createdSessionId) await setActive({ session: result.createdSessionId });
+        toast({ title: "Account Created! 🎉", description: "Welcome to SouLVE! Setting up your profile…" });
+        onSuccess();
+      } else {
+        toast({ title: "Verification incomplete", description: "Additional steps may be required.", variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Verification failed", description: clerkErrMessage(err), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +164,42 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
           : "bg-gray-200"
       }`} />
     ));
+
+  if (awaitingVerification) {
+    return (
+      <form onSubmit={handleVerifyCode} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="verificationCode" className="flex items-center space-x-2">
+            <Mail className="h-4 w-4" /><span>Verification code</span>
+          </Label>
+          <Input
+            id="verificationCode" type="text" inputMode="numeric" autoComplete="one-time-code"
+            value={verificationCode} onChange={e => setVerificationCode(e.target.value)}
+            placeholder="Enter the 6-digit code" disabled={isLoading}
+            className="h-11 rounded-xl bg-slate-50/60 border-slate-200 text-center tracking-widest text-lg"
+          />
+          <p className="text-xs text-slate-500">We sent a code to {formData.email}</p>
+        </div>
+        <Button type="submit"
+          className="w-full h-11 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#18a5fe]/25 border-none"
+          disabled={isLoading || !isLoaded || !verificationCode.trim()}>
+          {isLoading ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              <span>Verifying…</span>
+            </div>
+          ) : "Verify email"}
+        </Button>
+        <div className="text-center">
+          <Button type="button" variant="link"
+            className="text-sm text-[#0f7fd4] font-medium hover:text-[#18a5fe] hover:no-underline"
+            onClick={() => setAwaitingVerification(false)} disabled={isLoading}>
+            Back to sign up
+          </Button>
+        </div>
+      </form>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
