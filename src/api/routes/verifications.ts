@@ -52,6 +52,79 @@ router.post('/', zValidator('json', createSchema), async (c) => {
   return c.json(rows[0], 201);
 });
 
+// ── GET /api/verifications/me ─────────────────────────────────────────────
+// Caller's own verifications + trust score + recent history.
+router.get('/me', async (c) => {
+  const caller = await resolveCaller(c.get('clerkUserId'));
+  if (!caller) return c.json({ error: 'Profile not found' }, 401);
+
+  const verifications = await sql`
+    SELECT * FROM public.user_verifications
+    WHERE user_id = ${caller.profileId}::uuid
+    ORDER BY created_at DESC
+  `;
+
+  const scoreRows = await sql`
+    SELECT public.calculate_trust_score(${caller.profileId}::uuid) AS score
+  `;
+
+  const trustHistory = await sql`
+    SELECT * FROM public.trust_score_history
+    WHERE user_id = ${caller.profileId}::uuid
+    ORDER BY created_at DESC
+    LIMIT 10
+  `;
+
+  return c.json({
+    verifications,
+    trustScore: (scoreRows[0]?.score as number | null) ?? 0,
+    trustHistory,
+  });
+});
+
+// ── POST /api/verifications/me ────────────────────────────────────────────
+// Self-service verification request. 'email' auto-approves — Clerk has
+// already verified the address.
+const requestSchema = z.object({
+  verification_type: z.enum([
+    'email', 'phone', 'government_id', 'organization',
+    'community_leader', 'expert', 'background_check',
+  ]),
+  verification_data: z.record(z.unknown()).optional(),
+});
+
+router.post('/me', zValidator('json', requestSchema), async (c) => {
+  const caller = await resolveCaller(c.get('clerkUserId'));
+  if (!caller) return c.json({ error: 'Profile not found' }, 401);
+
+  const body = c.req.valid('json');
+
+  if (body.verification_type === 'email') {
+    const profiles = await sql`
+      SELECT email FROM public.profiles WHERE id = ${caller.profileId}::uuid LIMIT 1
+    `;
+    const rows = await sql`
+      INSERT INTO public.user_verifications
+        (user_id, verification_type, status, verified_at, verification_data)
+      VALUES
+        (${caller.profileId}::uuid, 'email', 'approved', now(),
+         ${JSON.stringify({ email: profiles[0]?.email ?? null, auto_verified: true })}::jsonb)
+      RETURNING *
+    `;
+    return c.json(rows[0], 201);
+  }
+
+  const rows = await sql`
+    INSERT INTO public.user_verifications
+      (user_id, verification_type, verification_data, status)
+    VALUES
+      (${caller.profileId}::uuid, ${body.verification_type},
+       ${JSON.stringify(body.verification_data ?? {})}::jsonb, 'pending')
+    RETURNING *
+  `;
+  return c.json(rows[0], 201);
+});
+
 // ── GET /api/verifications ────────────────────────────────────────────────
 router.get('/', async (c) => {
   const caller = await resolveCaller(c.get('clerkUserId'));
