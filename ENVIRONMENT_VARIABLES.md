@@ -22,7 +22,22 @@ Values marked `SECRET` must never be committed to the repository.
 | `DATABASE_URL` | **SECRET** Neon PostgreSQL connection string with `sslmode=require` | Neon Dashboard → Connection Details |
 | `CLERK_SECRET_KEY` | **SECRET** Clerk secret key (`sk_live_...` / `sk_test_...`) | Clerk Dashboard → API Keys |
 | `CLERK_WEBHOOK_SECRET` | **SECRET** Svix webhook signing secret | Clerk Dashboard → Webhooks → signing secret |
-| `BLOB_READ_WRITE_TOKEN` | **SECRET** Vercel Blob read/write token | Vercel Dashboard → Storage → Blob → Tokens |
+
+---
+
+## Vercel Blob storage (`soulve-storage`)
+
+The Blob store is connected to the project via OIDC. On Vercel (production and preview),
+`VERCEL_OIDC_TOKEN` and `BLOB_STORE_ID` are **automatically injected** by the runtime —
+no manual Blob variables need to be added to Vercel project settings.
+
+Vercel will have already created these in your project environment automatically:
+
+| Variable | Set by | Notes |
+|---|---|---|
+| `BLOB_STORE_ID` | Vercel (auto) | Injected when store is connected — do not set manually |
+| `BLOB_WEBHOOK_PUBLIC_KEY` | Vercel (auto) | Used to verify Blob webhook signatures |
+| `BLOB_READ_WRITE_TOKEN` | Vercel (auto, also needed for local dev) | Used in local development only; ignored on Vercel when OIDC is active |
 
 ---
 
@@ -68,5 +83,15 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 DATABASE_URL=postgresql://...?sslmode=require
 CLERK_SECRET_KEY=sk_test_...
 CLERK_WEBHOOK_SECRET=whsec_...
+
+# Vercel Blob — only needed for local dev (OIDC handles auth on Vercel automatically)
 BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 ```
+
+### Blob authentication by environment
+
+| Environment | Auth method | What you need |
+|---|---|---|
+| Vercel Production | OIDC (auto) | Nothing — Vercel injects `VERCEL_OIDC_TOKEN` + `BLOB_STORE_ID` |
+| Vercel Preview | OIDC (auto) | Nothing |
+| Local dev | Read-write token | `BLOB_READ_WRITE_TOKEN` in `.env.local` |

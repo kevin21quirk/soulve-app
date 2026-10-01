@@ -1,7 +1,7 @@
 import { optimizeImage } from './imageOptimization';
 
 /**
- * Blog image upload — routes through the /api/upload Vercel Blob endpoint.
+ * Blog image upload — proxies through the /api/upload Vercel Blob endpoint.
  * Pass the Clerk session token from useAuth().session.access_token.
  */
 
@@ -26,10 +26,10 @@ async function uploadViaApi(file: File, folder: string, token: string): Promise<
 }
 
 /**
- * Uploads a blog image via Vercel Blob after optimization.
- * @param file - The image file to upload
- * @param _userId - Kept for API compatibility
- * @param token - Clerk session access token
+ * Uploads a blog image via Vercel Blob after optimisation.
+ * @param file   - The image file to upload
+ * @param _userId - Kept for API compatibility; identity comes from the token
+ * @param token  - Clerk session access token
  */
 export const uploadBlogImage = async (file: File, _userId: string, token: string): Promise<string> => {
   const optimizedBlob = await optimizeImage(file, {
@@ -38,20 +38,36 @@ export const uploadBlogImage = async (file: File, _userId: string, token: string
     quality: 0.85,
     format: 'jpeg',
   });
-  const optimizedFile = new File([optimizedBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+  const optimizedFile = new File(
+    [optimizedBlob],
+    file.name.replace(/\.[^.]+$/, '.jpg'),
+    { type: 'image/jpeg' },
+  );
   return uploadViaApi(optimizedFile, 'blog-images', token);
 };
 
-/**
- * Uploads multiple blog images.
- */
+/** Uploads multiple blog images. */
 export const uploadBlogImages = async (files: File[], userId: string, token: string): Promise<string[]> =>
   Promise.all(files.map(f => uploadBlogImage(f, userId, token)));
 
 /**
- * Deletes a blog image. Note: Vercel Blob deletion requires a server-side
- * endpoint; this is a placeholder until that endpoint is implemented.
+ * Deletes a blog image via the server-side DELETE /api/upload endpoint.
+ * The server enforces ownership — the blob URL must belong to the authenticated user.
  */
-export const deleteBlogImage = async (imageUrl: string, _token?: string): Promise<void> => {
-  console.warn('[blogImageUpload] deleteBlogImage not yet implemented for Vercel Blob:', imageUrl);
+export const deleteBlogImage = async (imageUrl: string, token: string): Promise<void> => {
+  if (!token) throw new Error('User must be authenticated to delete files');
+
+  const res = await fetch('/api/upload', {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: imageUrl }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(`Failed to delete image: ${(err as { error?: string }).error ?? res.statusText}`);
+  }
 };

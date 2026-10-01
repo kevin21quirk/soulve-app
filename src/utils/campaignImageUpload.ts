@@ -1,5 +1,5 @@
 /**
- * Campaign image upload — routes through the /api/upload Vercel Blob endpoint.
+ * Campaign image upload — proxies through the /api/upload Vercel Blob endpoint.
  * Pass the Clerk session token from useAuth().session.access_token.
  */
 
@@ -25,18 +25,38 @@ async function uploadViaApi(file: File, folder: string, token: string): Promise<
 
 /**
  * Uploads a campaign image file via Vercel Blob.
- * @param file - The image file to upload
- * @param _userId - Kept for API compatibility; user identity comes from the token
- * @param token - Clerk session access token
+ * @param file    - The image file to upload
+ * @param _userId - Kept for API compatibility; identity comes from the token
+ * @param token   - Clerk session access token
  */
 export const uploadCampaignImage = async (file: File, _userId: string, token: string): Promise<string> =>
   uploadViaApi(file, 'campaign-images', token);
 
-/**
- * Uploads multiple campaign image files.
- */
+/** Uploads multiple campaign images. */
 export const uploadCampaignImages = async (files: File[], userId: string, token: string): Promise<string[]> =>
   Promise.all(files.map(f => uploadCampaignImage(f, userId, token)));
+
+/**
+ * Deletes a campaign image via the server-side DELETE /api/upload endpoint.
+ * The server enforces ownership — the blob URL must belong to the authenticated user.
+ */
+export const deleteCampaignImage = async (imageUrl: string, token: string): Promise<void> => {
+  if (!token) throw new Error('User must be authenticated to delete files');
+
+  const res = await fetch('/api/upload', {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: imageUrl }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(`Failed to delete campaign image: ${(err as { error?: string }).error ?? res.statusText}`);
+  }
+};
 
 /**
  * Converts a blob URL to a File object for upload.

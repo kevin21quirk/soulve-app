@@ -1,6 +1,6 @@
 /**
- * Media upload service — uploads files via the Vercel Blob API endpoint.
- * Requires a valid Clerk session token (obtained via useAuth().session.access_token).
+ * Media upload service — proxies through the /api/upload Vercel Blob endpoint.
+ * Passes the Clerk session token so the API can authenticate the caller.
  */
 
 export interface MediaUploadResult {
@@ -43,7 +43,6 @@ export const uploadMediaFiles = async (
     }
 
     const { url } = (await res.json()) as { url: string; pathname: string };
-
     return {
       url,
       filename: file.name,
@@ -55,14 +54,23 @@ export const uploadMediaFiles = async (
 };
 
 /**
- * Delete a Vercel Blob asset via the API.
- * Note: Vercel Blob deletion requires a server-side call — this sends
- * the URL to a delete endpoint when one is implemented.
+ * Deletes a Vercel Blob asset via the server-side DELETE /api/upload endpoint.
+ * The server enforces ownership — the blob must belong to the authenticated user.
  */
 export const deleteMediaFile = async (fileUrl: string, token: string): Promise<void> => {
   if (!token) throw new Error('User must be authenticated to delete files');
 
-  // Placeholder: the delete endpoint is not yet implemented.
-  // In the meantime, log the URL so it can be cleaned up manually.
-  console.warn('[mediaUploadService] deleteMediaFile not yet implemented for Vercel Blob:', fileUrl);
+  const res = await fetch('/api/upload', {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: fileUrl }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(`Failed to delete file: ${(err as { error?: string }).error ?? res.statusText}`);
+  }
 };
