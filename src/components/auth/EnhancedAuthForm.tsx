@@ -31,7 +31,7 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
   const validatePassword = (password: string) => {
     let score = 0;
     const feedback: string[] = [];
-    if (password.length >= 8) score++; else feedback.push("at least 8 characters");
+    if (password.length >= 15) score++; else feedback.push("at least 15 characters");
     if (/[A-Z]/.test(password)) score++; else feedback.push("an uppercase letter");
     if (/[a-z]/.test(password)) score++; else feedback.push("a lowercase letter");
     if (/[0-9]/.test(password)) score++; else feedback.push("a number");
@@ -50,7 +50,7 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
     if (!formData.email) newErrors.email = "Email is required";
     else if (!validateEmail(formData.email)) newErrors.email = "Please enter a valid email address";
     if (!formData.password) newErrors.password = "Password is required";
-    else if (!isLogin && formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
+    else if (!isLogin && formData.password.length < 15) newErrors.password = "Password must be at least 15 characters";
     if (!isLogin) {
       if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
       if (!formData.lastName.trim())  newErrors.lastName  = "Last name is required";
