@@ -1,5 +1,5 @@
 import { createMiddleware } from 'hono/factory';
-import { createClerkClient } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/backend';
 
 // Typed context extension
 declare module 'hono' {
@@ -25,7 +25,7 @@ export const requireAuth = createMiddleware(async (c, next) => {
 
   const token = authHeader.slice(7);
   try {
-    const payload = await clerkClient.verifyToken(token);
+    const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY });
     c.set('clerkUserId', payload.sub);
     // email_addresses[0].email_address is on the User object, not the token
     // We set it null here; routes that need it can fetch the user

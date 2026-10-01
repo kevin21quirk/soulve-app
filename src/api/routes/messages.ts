@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { sql } from '../db';
-import { requireAuth } from '../middleware/clerk';
+import { sql } from '../db.js';
+import { requireAuth } from '../middleware/clerk.js';
 
 const messages = new Hono();
 

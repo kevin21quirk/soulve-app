@@ -18,9 +18,9 @@
 
 import { Hono } from 'hono';
 import { issueSignedToken, presignUrl, del } from '@vercel/blob';
-import { requireAuth } from '../middleware/clerk';
-import { sql } from '../db';
-import { parseBlobPathname } from '../lib/blobUrl';
+import { requireAuth } from '../middleware/clerk.js';
+import { sql } from '../db.js';
+import { parseBlobPathname } from '../lib/blobUrl.js';
 import {
   resolveCaller,
   resolveDocument,
@@ -28,7 +28,7 @@ import {
   canDeletePrivateDocument,
   DOC_TYPES,
   DocType,
-} from '../lib/authz';
+} from '../lib/authz.js';
 
 const documents = new Hono();
 

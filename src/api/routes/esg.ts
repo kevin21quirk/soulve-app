@@ -14,9 +14,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { sql } from '../db';
-import { requireAuth } from '../middleware/clerk';
-import { resolveCaller, getOrgMembership, esgCanWrite } from '../lib/authz';
+import { sql } from '../db.js';
+import { requireAuth } from '../middleware/clerk.js';
+import { resolveCaller, getOrgMembership, esgCanWrite } from '../lib/authz.js';
 
 const router = new Hono();
 

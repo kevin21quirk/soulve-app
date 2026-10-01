@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { sql } from '../db';
-import { requireAuth, clerkClient } from '../middleware/clerk';
+import { sql } from '../db.js';
+import { requireAuth, clerkClient } from '../middleware/clerk.js';
 
 const profiles = new Hono();
 

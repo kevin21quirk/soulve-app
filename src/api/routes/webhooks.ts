@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { Webhook } from 'svix';
-import { sql } from '../db';
+import { sql } from '../db.js';
 
 const webhooks = new Hono();
 

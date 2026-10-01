@@ -2,19 +2,19 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 
-import webhooksRouter from './routes/webhooks';
-import profilesRouter from './routes/profiles';
-import postsRouter from './routes/posts';
-import campaignsRouter from './routes/campaigns';
-import organizationsRouter from './routes/organizations';
-import messagesRouter from './routes/messages';
-import notificationsRouter from './routes/notifications';
-import uploadRouter from './routes/upload';
-import documentsRouter from './routes/documents';
-import helperApplicationsRouter from './routes/helperApplications';
-import verificationsRouter from './routes/verifications';
-import feedbackRouter from './routes/feedback';
-import esgRouter from './routes/esg';
+import webhooksRouter from './routes/webhooks.js';
+import profilesRouter from './routes/profiles.js';
+import postsRouter from './routes/posts.js';
+import campaignsRouter from './routes/campaigns.js';
+import organizationsRouter from './routes/organizations.js';
+import messagesRouter from './routes/messages.js';
+import notificationsRouter from './routes/notifications.js';
+import uploadRouter from './routes/upload.js';
+import documentsRouter from './routes/documents.js';
+import helperApplicationsRouter from './routes/helperApplications.js';
+import verificationsRouter from './routes/verifications.js';
+import feedbackRouter from './routes/feedback.js';
+import esgRouter from './routes/esg.js';
 
 const app = new Hono().basePath('/api');
 

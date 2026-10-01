@@ -1,13 +1,13 @@
 import { Hono } from 'hono';
 import { put, del } from '@vercel/blob';
-import { requireAuth } from '../middleware/clerk';
-import { BLOB_HOSTNAME_RE } from '../lib/blobUrl';
-import { resolveCaller } from '../lib/authz';
+import { requireAuth } from '../middleware/clerk.js';
+import { BLOB_HOSTNAME_RE } from '../lib/blobUrl.js';
+import { resolveCaller } from '../lib/authz.js';
 import {
   authorizePrivateUpload,
   commitPrivateUpload,
   PrivateUploadError,
-} from '../lib/privateUpload';
+} from '../lib/privateUpload.js';
 
 const upload = new Hono();
 

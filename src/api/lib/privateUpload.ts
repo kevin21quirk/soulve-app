@@ -10,8 +10,8 @@
 //
 // recordId is always a real parent record UUID — never an organization id.
 
-import { sql } from '../db';
-import { Caller, getOrgMembership, esgCanWrite } from './authz';
+import { sql } from '../db.js';
+import { Caller, getOrgMembership, esgCanWrite } from './authz.js';
 
 export class PrivateUploadError extends Error {
   constructor(

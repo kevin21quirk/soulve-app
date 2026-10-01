@@ -10,7 +10,7 @@
 //                        WRITE: role='admin' OR esg_role IN ('esg_admin','esg_contributor')
 //                        DELETE report: role='admin' OR esg_role IN ('esg_admin','esg_approver')
 
-import { sql } from '../db';
+import { sql } from '../db.js';
 
 export interface Caller {
   clerkUserId: string;

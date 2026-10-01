@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { sql } from '../db';
-import { requireAuth } from '../middleware/clerk';
+import { sql } from '../db.js';
+import { requireAuth } from '../middleware/clerk.js';
 
 const notifications = new Hono();
 
