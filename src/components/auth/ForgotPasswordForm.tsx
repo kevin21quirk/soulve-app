@@ -79,6 +79,8 @@ const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) => {
             className="w-full"
           />
         </div>
+        {/* Required mount point for Clerk bot protection (CAPTCHA) on custom flows */}
+        <div id="clerk-captcha" />
         <Button type="submit" disabled={loading || !email.trim() || !isLoaded}
           className="w-full bg-teal-600 hover:bg-teal-700">
           {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending…</> : "Send reset code"}

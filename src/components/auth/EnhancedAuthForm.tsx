@@ -222,6 +222,9 @@ const EnhancedAuthForm = ({ isLogin, onSuccess }: EnhancedAuthFormProps) => {
         )}
       </div>
 
+      {/* Required mount point for Clerk bot protection (CAPTCHA) on custom flows */}
+      <div id="clerk-captcha" />
+
       <Button
         type="submit"
         className="w-full h-11 rounded-full bg-gradient-to-r from-[#0ce4af] to-[#18a5fe] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#18a5fe]/25 border-none"
