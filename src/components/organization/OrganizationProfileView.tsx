@@ -22,6 +22,7 @@ import {
   Edit,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuth as useClerkAuth } from '@clerk/react';
 import { fetchOrganizationProfile } from '@/services/organizationProfileService';
 import { supabase } from '@/integrations/supabase/client';
 import OrganizationTrustScoreDisplay from './OrganizationTrustScoreDisplay';
@@ -44,6 +45,7 @@ interface OrganizationProfileViewProps {
 export const OrganizationProfileView = ({ organizationId }: OrganizationProfileViewProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { getToken } = useClerkAuth();
   const { toast } = useToast();
   const [organization, setOrganization] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -263,7 +265,12 @@ export const OrganizationProfileView = ({ organizationId }: OrganizationProfileV
   };
 
   const handleBannerUpload = async (file: File) => {
-    const bannerUrl = await uploadOrganizationBanner(organizationId, file);
+    const token = await getToken();
+    if (!token) {
+      toast({ title: "Error", description: "Not authenticated", variant: "destructive" });
+      return;
+    }
+    const bannerUrl = await uploadOrganizationBanner(organizationId, file, token);
     if (bannerUrl) {
       toast({
         title: "Banner Updated",

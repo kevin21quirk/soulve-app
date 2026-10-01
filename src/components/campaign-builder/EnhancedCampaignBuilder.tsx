@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuth as useClerkAuth } from '@clerk/react';
 import { supabase } from '@/integrations/supabase/client';
 import { type CampaignTemplate } from '@/services/campaignTemplateService';
 import { CampaignFormData } from '@/services/campaignService';
@@ -12,6 +13,7 @@ import UpgradePrompt from '../subscription/UpgradePrompt';
 
 const EnhancedCampaignBuilder = () => {
   const { user } = useAuth();
+  const { getToken } = useClerkAuth();
   const { toast } = useToast();
   const { subscription, loading: subscriptionLoading, planName, canCreateCampaign, getRemainingCampaigns } = useSubscription();
   const [activeTab, setActiveTab] = useState("templates");
@@ -180,26 +182,31 @@ const EnhancedCampaignBuilder = () => {
           }
         }
         
-        // Upload all blob images to storage
+        // Upload all blob images to Vercel Blob via the server-side endpoint
         if (imagesToUpload.length > 0) {
+          const token = await getToken();
+          if (!token) throw new Error('Not authenticated');
+
           const uploadPromises = imagesToUpload.map(async (file) => {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${crypto.randomUUID()}.${fileExt}`;
-            const filePath = `${user.id}/${fileName}`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('campaign-images')
-              .upload(filePath, file);
-            
-            if (uploadError) throw uploadError;
-            
-            const { data: { publicUrl } } = supabase.storage
-              .from('campaign-images')
-              .getPublicUrl(filePath);
-            
+            const form = new FormData();
+            form.append('file', file);
+            form.append('folder', 'campaign-images');
+
+            const res = await fetch('/api/upload', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+              body: form,
+            });
+
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({ error: res.statusText }));
+              throw new Error((err as { error?: string }).error ?? res.statusText);
+            }
+
+            const { url: publicUrl } = (await res.json()) as { url: string };
             return publicUrl;
           });
-          
+
           uploadedGalleryImages = await Promise.all(uploadPromises);
         }
       }
@@ -211,21 +218,26 @@ const EnhancedCampaignBuilder = () => {
           const response = await fetch(formData.featured_image);
           const blob = await response.blob();
           const file = new File([blob], `featured-image-${Date.now()}.jpg`, { type: blob.type });
-          
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${crypto.randomUUID()}.${fileExt}`;
-          const filePath = `${user.id}/${fileName}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('campaign-images')
-            .upload(filePath, file);
-          
-          if (uploadError) throw uploadError;
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from('campaign-images')
-            .getPublicUrl(filePath);
-          
+
+          const token = await getToken();
+          if (!token) throw new Error('Not authenticated');
+
+          const form = new FormData();
+          form.append('file', file);
+          form.append('folder', 'campaign-images');
+
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: form,
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: res.statusText }));
+            throw new Error((err as { error?: string }).error ?? res.statusText);
+          }
+
+          const { url: publicUrl } = (await res.json()) as { url: string };
           uploadedFeaturedImage = publicUrl;
         } catch (err) {
           console.error('Failed to upload featured image:', err);

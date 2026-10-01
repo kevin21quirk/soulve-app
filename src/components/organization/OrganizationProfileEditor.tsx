@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth as useClerkAuth } from '@clerk/react';
 import {
   updateOrganizationProfile,
   uploadOrganizationAvatar,
@@ -30,6 +31,7 @@ export const OrganizationProfileEditor = ({
   onUpdate,
 }: OrganizationProfileEditorProps) => {
   const { toast } = useToast();
+  const { getToken } = useClerkAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<OrganizationProfileUpdate>({
     name: organization.name || '',
@@ -77,7 +79,13 @@ export const OrganizationProfileEditor = ({
     }
 
     setIsLoading(true);
-    const avatarUrl = await uploadOrganizationAvatar(organization.id, file);
+    const token = await getToken();
+    if (!token) {
+      toast({ title: 'Error', description: 'Not authenticated', variant: 'destructive' });
+      setIsLoading(false);
+      return;
+    }
+    const avatarUrl = await uploadOrganizationAvatar(organization.id, file, token);
     
     if (avatarUrl) {
       setFormData((prev) => ({ ...prev, avatar_url: avatarUrl }));
@@ -114,7 +122,13 @@ export const OrganizationProfileEditor = ({
     }
 
     setIsLoading(true);
-    const bannerUrl = await uploadOrganizationBanner(organization.id, file);
+    const token = await getToken();
+    if (!token) {
+      toast({ title: 'Error', description: 'Not authenticated', variant: 'destructive' });
+      setIsLoading(false);
+      return;
+    }
+    const bannerUrl = await uploadOrganizationBanner(organization.id, file, token);
     
     if (bannerUrl) {
       setFormData((prev) => ({ ...prev, banner_url: bannerUrl }));

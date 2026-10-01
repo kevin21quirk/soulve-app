@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Building, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { updateOrganizationProfile, uploadOrganizationAvatar, uploadOrganizationBanner } from '@/services/organizationProfileService';
+import { useAuth as useClerkAuth } from '@clerk/react';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrganizationProfileEditModeProps {
@@ -17,6 +18,7 @@ interface OrganizationProfileEditModeProps {
 
 export const OrganizationProfileEditMode = ({ organization, onSave, onCancel }: OrganizationProfileEditModeProps) => {
   const { toast } = useToast();
+  const { getToken } = useClerkAuth();
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: organization.name || '',
@@ -58,7 +60,9 @@ export const OrganizationProfileEditMode = ({ organization, onSave, onCancel }: 
     if (!file) return;
 
     try {
-      const avatarUrl = await uploadOrganizationAvatar(organization.id, file);
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      const avatarUrl = await uploadOrganizationAvatar(organization.id, file, token);
       if (avatarUrl) {
         toast({
           title: "Avatar Updated",
@@ -81,7 +85,9 @@ export const OrganizationProfileEditMode = ({ organization, onSave, onCancel }: 
     if (!file) return;
 
     try {
-      const bannerUrl = await uploadOrganizationBanner(organization.id, file);
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      const bannerUrl = await uploadOrganizationBanner(organization.id, file, token);
       if (bannerUrl) {
         toast({
           title: "Banner Updated",

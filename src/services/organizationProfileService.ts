@@ -60,126 +60,103 @@ export const updateOrganizationProfile = async (
   }
 };
 
-export const uploadOrganizationAvatar = async (
-  orgId: string,
-  file: File
-): Promise<string | null> => {
-  try {
-    // Delete existing avatar if any
-    const { data: existingFiles } = await supabase.storage
-      .from('organization-avatars')
-      .list(orgId);
+// ── Shared upload helper ─────────────────────────────────────────────────
+// All org image uploads route through the server-side /api/upload endpoint.
+// The server derives ownership from the Clerk bearer token; no Blob
+// credentials are passed from the client.
+async function uploadToBlob(file: File, folder: 'org-avatars' | 'org-banners', token: string): Promise<string | null> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('folder', folder);
 
-    if (existingFiles && existingFiles.length > 0) {
-      const filesToRemove = existingFiles.map(x => `${orgId}/${x.name}`);
-      await supabase.storage
-        .from('organization-avatars')
-        .remove(filesToRemove);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((err as { error?: string }).error ?? res.statusText);
+  }
+
+  const { url } = (await res.json()) as { url: string };
+  return url;
+}
+
+// ── Shared delete helper ─────────────────────────────────────────────────
+// Note: the DELETE endpoint enforces segments[1] === clerkUserId, so only
+// the user who uploaded the image can delete it. When the same Clerk user
+// manages the org profile this works correctly. If ownership changes (e.g.
+// a different admin takes over), the old file becomes orphaned — acceptable
+// for public images since Neon always stores the current URL reference.
+async function deleteFromBlob(url: string, token: string): Promise<{ error: unknown | null }> {
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error((err as { error?: string }).error ?? res.statusText);
     }
 
-    // Upload new avatar
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${orgId}/avatar-${Date.now()}.${fileExt}`;
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting org image from Blob:', error);
+    return { error };
+  }
+}
 
-    const { error: uploadError } = await supabase.storage
-      .from('organization-avatars')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
-    // Get public URL
-    const { data } = supabase.storage
-      .from('organization-avatars')
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
+/**
+ * Uploads an organisation avatar via the server-side Vercel Blob endpoint.
+ * @param orgId  - Organisation ID (used for logging/context only; path uses clerkUserId)
+ * @param file   - The image file to upload
+ * @param token  - Clerk session JWT (from useAuth().getToken())
+ */
+export const uploadOrganizationAvatar = async (
+  orgId: string,
+  file: File,
+  token: string,
+): Promise<string | null> => {
+  try {
+    return await uploadToBlob(file, 'org-avatars', token);
   } catch (error) {
     console.error('Error uploading organization avatar:', error);
     return null;
   }
 };
 
+/**
+ * Uploads an organisation banner via the server-side Vercel Blob endpoint.
+ */
 export const uploadOrganizationBanner = async (
   orgId: string,
-  file: File
+  file: File,
+  token: string,
 ): Promise<string | null> => {
   try {
-    // Delete existing banner if any
-    const { data: existingFiles } = await supabase.storage
-      .from('organization-banners')
-      .list(orgId);
-
-    if (existingFiles && existingFiles.length > 0) {
-      const filesToRemove = existingFiles.map(x => `${orgId}/${x.name}`);
-      await supabase.storage
-        .from('organization-banners')
-        .remove(filesToRemove);
-    }
-
-    // Upload new banner
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${orgId}/banner-${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('organization-banners')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
-    // Get public URL
-    const { data } = supabase.storage
-      .from('organization-banners')
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
+    return await uploadToBlob(file, 'org-banners', token);
   } catch (error) {
     console.error('Error uploading organization banner:', error);
     return null;
   }
 };
 
-export const deleteOrganizationAvatar = async (orgId: string) => {
-  try {
-    const { data: files } = await supabase.storage
-      .from('organization-avatars')
-      .list(orgId);
+/**
+ * Deletes an organisation avatar by its Vercel Blob URL.
+ * Only succeeds if the authenticated user uploaded the file.
+ */
+export const deleteOrganizationAvatar = async (url: string, token: string) =>
+  deleteFromBlob(url, token);
 
-    if (files && files.length > 0) {
-      const filesToRemove = files.map(x => `${orgId}/${x.name}`);
-      await supabase.storage
-        .from('organization-avatars')
-        .remove(filesToRemove);
-    }
-
-    return { error: null };
-  } catch (error) {
-    console.error('Error deleting organization avatar:', error);
-    return { error };
-  }
-};
-
-export const deleteOrganizationBanner = async (orgId: string) => {
-  try {
-    const { data: files } = await supabase.storage
-      .from('organization-banners')
-      .list(orgId);
-
-    if (files && files.length > 0) {
-      const filesToRemove = files.map(x => `${orgId}/${x.name}`);
-      await supabase.storage
-        .from('organization-banners')
-        .remove(filesToRemove);
-    }
-
-    return { error: null };
-  } catch (error) {
-    console.error('Error deleting organization banner:', error);
-    return { error };
-  }
-};
+/**
+ * Deletes an organisation banner by its Vercel Blob URL.
+ */
+export const deleteOrganizationBanner = async (url: string, token: string) =>
+  deleteFromBlob(url, token);
