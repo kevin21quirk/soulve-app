@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
 interface AdminRouteProps {
   children: React.ReactNode;
 }
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, api, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -24,26 +23,19 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
       }
 
       try {
-        // Server-side admin verification using security definer function
-        const { data, error } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
-
-        console.log('Admin check result:', { data, error, userId: user.id });
-
-        if (error) {
-          console.error('Error checking admin status:', error);
+        // Server-side admin verification via the Neon API
+        if (!api) {
           navigate('/dashboard', { replace: true });
           return;
         }
+        const me = await api.get<{ is_admin?: boolean }>('/profiles/me');
 
-        if (!data || data !== true) {
+        if (me.is_admin !== true) {
           console.log('User is not an admin, redirecting to dashboard');
           navigate('/dashboard', { replace: true });
           return;
         }
 
-        console.log('User is admin, granting access');
         setIsAdmin(true);
         setChecking(false);
       } catch (error) {
@@ -53,7 +45,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     };
 
     checkAdminAccess();
-  }, [user, authLoading, navigate]);
+  }, [user, api, authLoading, navigate]);
 
   // Show loading while checking
   if (authLoading || checking) {

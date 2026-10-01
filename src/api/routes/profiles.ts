@@ -91,6 +91,7 @@ const updateSchema = z.object({
   last_name:    z.string().max(100).optional(),
   bio:          z.string().max(2000).optional(),
   location:     z.string().max(200).optional(),
+  phone:        z.string().max(50).optional().nullable(),
   website:      z.string().url().optional().nullable(),
   facebook:     z.string().optional().nullable(),
   twitter:      z.string().optional().nullable(),
@@ -120,6 +121,7 @@ profiles.patch('/me', requireAuth, zValidator('json', updateSchema), async (c) =
   addField('last_name',   body.last_name);
   addField('bio',         body.bio);
   addField('location',    body.location);
+  addField('phone',       body.phone);
   addField('website',     body.website);
   addField('facebook',    body.facebook);
   addField('twitter',     body.twitter);

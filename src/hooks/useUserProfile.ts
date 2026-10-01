@@ -6,26 +6,17 @@ import { useToast } from '@/hooks/use-toast';
 import { UserProfileData } from '@/components/dashboard/UserProfileTypes';
 
 export const useUserProfile = () => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const fetchProfileData = useCallback(async (): Promise<UserProfileData | null> => {
-    if (!user?.id) {
+    if (!user?.id || !api) {
       throw new Error('User not authenticated');
     }
 
-    // Fetch profile data
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      console.error('Profile fetch error:', profileError);
-      throw new Error(profileError.message);
-    }
+    // Fetch profile data from the Neon-backed API
+    const profile = await api.get<Record<string, any>>('/profiles/me');
 
     // Fetch impact metrics
     const { data: metrics, error: metricsError } = await supabase
@@ -122,7 +113,7 @@ export const useUserProfile = () => {
     };
 
     return profileData;
-  }, [user?.id, user?.email]);
+  }, [user?.id, user?.email, api]);
 
   const { data: profileData, isLoading: loading, error } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -142,33 +133,28 @@ export const useUserProfile = () => {
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
-      // Update profile table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          first_name: firstName,
-          last_name: lastName,
-          phone: updatedData.phone,
-          location: updatedData.location,
-          bio: updatedData.bio,
-          avatar_url: updatedData.avatar,
-          banner_url: updatedData.banner,
-          banner_type: updatedData.bannerType,
-          skills: updatedData.skills,
-          interests: updatedData.interests,
-          website: updatedData.socialLinks?.website || '',
-          facebook: updatedData.socialLinks?.facebook || '',
-          twitter: updatedData.socialLinks?.twitter || '',
-          instagram: updatedData.socialLinks?.instagram || '',
-          linkedin: updatedData.socialLinks?.linkedin || '',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-        throw new Error(profileError.message);
+      if (!api) {
+        throw new Error('User not authenticated');
       }
+
+      // Update profile via the Neon-backed API
+      await api.patch('/profiles/me', {
+        first_name: firstName,
+        last_name: lastName,
+        phone: updatedData.phone || null,
+        bio: updatedData.bio,
+        location: updatedData.location,
+        website: updatedData.socialLinks?.website || null,
+        facebook: updatedData.socialLinks?.facebook || null,
+        twitter: updatedData.socialLinks?.twitter || null,
+        instagram: updatedData.socialLinks?.instagram || null,
+        linkedin: updatedData.socialLinks?.linkedin || null,
+        skills: updatedData.skills,
+        interests: updatedData.interests,
+        avatar_url: updatedData.avatar || null,
+        banner_url: updatedData.banner || null,
+        banner_type: updatedData.bannerType,
+      });
 
       return updatedData;
     },
