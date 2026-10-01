@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignIn, useSignUp } from "@clerk/react";
+import { useSignIn, useSignUp } from "@clerk/react/legacy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
