@@ -1,10 +1,9 @@
-
 import { useState } from "react";
+import { useSignIn } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Mail, Loader2 } from "lucide-react";
 
 interface ForgotPasswordFormProps {
@@ -12,49 +11,30 @@ interface ForgotPasswordFormProps {
 }
 
 const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { signIn, isLoaded } = useSignIn();
+  const [email, setEmail]       = useState("");
+  const [loading, setLoading]   = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email.trim()) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!email.trim() || !isLoaded) return;
 
     setLoading(true);
-
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      await signIn!.create({
+        strategy: 'reset_password_email_code',
+        identifier: email.trim(),
       });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        setEmailSent(true);
-        toast({
-          title: "Reset email sent",
-          description: "Check your email for password reset instructions",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Unexpected error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
+      setEmailSent(true);
+      toast({ title: "Reset email sent", description: "Check your email for the reset code." });
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'errors' in err
+          ? (err as { errors: Array<{ message: string }> }).errors?.[0]?.message
+          : 'Something went wrong. Please try again.';
+      toast({ title: "Error", description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -66,37 +46,19 @@ const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) => {
         <div className="mx-auto w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center">
           <Mail className="h-8 w-8 text-teal-600" />
         </div>
-        
         <div className="space-y-2">
           <h3 className="text-xl font-semibold text-gray-900">Check your email</h3>
-          <p className="text-gray-600">
-            We've sent password reset instructions to:
-          </p>
+          <p className="text-gray-600">We've sent a reset code to:</p>
           <p className="font-medium text-gray-900">{email}</p>
         </div>
-
-        <div className="space-y-4">
-          <p className="text-sm text-gray-500">
-            Didn't receive the email? Check your spam folder or try again.
-          </p>
-          
-          <div className="flex flex-col space-y-2">
-            <Button
-              variant="outline"
-              onClick={() => setEmailSent(false)}
-              className="w-full"
-            >
-              Try different email
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={onBackToLogin}
-              className="w-full text-teal-600 hover:text-teal-700"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to login
-            </Button>
-          </div>
+        <div className="flex flex-col space-y-2">
+          <Button variant="outline" onClick={() => setEmailSent(false)} className="w-full">
+            Try a different email
+          </Button>
+          <Button variant="ghost" onClick={onBackToLogin} className="w-full text-teal-600 hover:text-teal-700">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to login
+          </Button>
         </div>
       </div>
     );
@@ -106,49 +68,24 @@ const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2 text-center">
         <h3 className="text-xl font-semibold text-gray-900">Forgot your password?</h3>
-        <p className="text-gray-600">
-          Enter your email address and we'll send you a link to reset your password.
-        </p>
+        <p className="text-gray-600">Enter your email and we'll send you a reset code.</p>
       </div>
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="reset-email">Email address</Label>
           <Input
-            id="reset-email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
+            id="reset-email" type="email" placeholder="Enter your email"
+            value={email} onChange={e => setEmail(e.target.value)} disabled={loading}
             className="w-full"
           />
         </div>
-
-        <Button
-          type="submit"
-          disabled={loading || !email.trim()}
-          className="w-full bg-teal-600 hover:bg-teal-700"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Sending reset email...
-            </>
-          ) : (
-            "Send reset email"
-          )}
+        <Button type="submit" disabled={loading || !email.trim() || !isLoaded}
+          className="w-full bg-teal-600 hover:bg-teal-700">
+          {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending…</> : "Send reset code"}
         </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onBackToLogin}
-          className="w-full text-teal-600 hover:text-teal-700"
-          disabled={loading}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to login
+        <Button type="button" variant="ghost" onClick={onBackToLogin}
+          className="w-full text-teal-600 hover:text-teal-700" disabled={loading}>
+          <ArrowLeft className="h-4 w-4 mr-2" />Back to login
         </Button>
       </div>
     </form>

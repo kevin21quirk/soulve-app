@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Heart, Users, ArrowRight, Sparkles, Crown, Zap, Calendar } from "@/components/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BookDemoModal } from "@/components/BookDemoModal";
 import { motion } from "framer-motion";
@@ -38,54 +37,14 @@ const HeroSection = () => {
   const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user) {
-        setHasCompletedOnboarding(null);
-        return;
-      }
-
-      try {
-        const { data } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle();
-        
-        setHasCompletedOnboarding(!!data);
-      } catch (error) {
-        console.error('Error checking onboarding status:', JSON.stringify(error));
-        setHasCompletedOnboarding(false);
-      }
-    };
-
-    const fetchApplicantCount = async () => {
-      try {
-        const { count } = await supabase
-          .from('questionnaire_responses')
-          .select('*', { count: 'exact', head: true });
-        
-        setApplicantCount(count || 0);
-      } catch (error) {
-        console.error('Error fetching applicant count:', JSON.stringify(error));
-      }
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleCallback = requestIdleCallback(() => {
-        checkOnboardingStatus();
-        fetchApplicantCount();
-      });
-
-      return () => cancelIdleCallback(idleCallback);
+    // Onboarding status: default to false when user is signed in
+    // (will be determined via API once questionnaire endpoint is ready)
+    if (!user) {
+      setHasCompletedOnboarding(null);
     } else {
-      const timeoutId = setTimeout(() => {
-        checkOnboardingStatus();
-        fetchApplicantCount();
-      }, 100);
-
-      return () => clearTimeout(timeoutId);
+      setHasCompletedOnboarding(false);
     }
+    // Applicant count is cosmetic — keep at 0 until a stats API is available
   }, [user]);
 
   const handleJoinBeta = () => {

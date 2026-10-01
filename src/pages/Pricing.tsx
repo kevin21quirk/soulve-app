@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowLeft, Sparkles, Landmark, RefreshCcw, ShieldCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useUser } from "@clerk/react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
@@ -80,6 +80,7 @@ const Pricing = () => {
   const { subscription } = useSubscription();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     loadPlans();
@@ -88,28 +89,20 @@ const Pricing = () => {
 
   const loadPlans = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('subscription_plans')
-      .select('*')
-      .order('price_monthly');
-
-    if (error) {
-      toast({
-        title: "Couldn't load live plans",
-        description: "Showing standard pricing instead.",
-        variant: "destructive"
-      });
+    try {
+      const res = await fetch('/api/plans');
+      if (!res.ok) throw new Error('API unavailable');
+      const data: Plan[] = await res.json();
+      setPlans(data && data.length > 0 ? data : FALLBACK_PLANS);
+    } catch {
       setPlans(FALLBACK_PLANS);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setPlans(data && data.length > 0 ? data : FALLBACK_PLANS);
-    setLoading(false);
   };
 
   const handleSelectPlan = async (plan: Plan) => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = isSignedIn;
     
     if (!user) {
       navigate('/auth?redirect=/pricing');

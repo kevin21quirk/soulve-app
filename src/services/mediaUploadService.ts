@@ -1,6 +1,7 @@
-
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+/**
+ * Media upload service — uploads files via the Vercel Blob API endpoint.
+ * Requires a valid Clerk session token (obtained via useAuth().session.access_token).
+ */
 
 export interface MediaUploadResult {
   url: string;
@@ -8,103 +9,60 @@ export interface MediaUploadResult {
   type: 'image' | 'video';
 }
 
-export const uploadMediaFiles = async (files: File[]): Promise<MediaUploadResult[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User must be authenticated to upload files');
-  }
-
-  console.log('Starting media upload for', files.length, 'files');
+export const uploadMediaFiles = async (
+  files: File[],
+  token: string,
+  folder = 'post-media',
+): Promise<MediaUploadResult[]> => {
+  if (!token) throw new Error('User must be authenticated to upload files');
 
   const uploadPromises = files.map(async (file) => {
-    try {
-      // Validate file type and size
-      const isImage = file.type.startsWith('image/');
-      const isVideo = file.type.startsWith('video/');
-      
-      if (!isImage && !isVideo) {
-        throw new Error(`File ${file.name} is not a supported media type`);
-      }
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
 
-      // Check file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size > maxSize) {
-        throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
-      }
-
-      const fileExt = file.name.split('.').pop()?.toLowerCase();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-
-      console.log('Uploading file:', fileName, 'to path:', filePath);
-
-      const { data, error } = await supabase.storage
-        .from('post-media')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        console.error('Storage upload error:', error);
-        throw new Error(`Failed to upload ${file.name}: ${error.message}`);
-      }
-
-      console.log('File uploaded successfully:', data.path);
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('post-media')
-        .getPublicUrl(filePath);
-
-      console.log('Generated public URL:', publicUrl);
-
-      return {
-        url: publicUrl,
-        filename: file.name,
-        type: isImage ? 'image' as const : 'video' as const
-      };
-    } catch (error) {
-      console.error('Error uploading file:', file.name, error);
-      throw error;
+    if (!isImage && !isVideo) {
+      throw new Error(`File ${file.name} is not a supported media type`);
     }
+    if (file.size > 20 * 1024 * 1024) {
+      throw new Error(`File ${file.name} exceeds the 20 MB limit`);
+    }
+
+    const form = new FormData();
+    form.append('file', file);
+    form.append('folder', folder);
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(`Failed to upload ${file.name}: ${(err as { error?: string }).error ?? res.statusText}`);
+    }
+
+    const { url } = (await res.json()) as { url: string; pathname: string };
+
+    return {
+      url,
+      filename: file.name,
+      type: isImage ? ('image' as const) : ('video' as const),
+    };
   });
 
-  try {
-    const results = await Promise.all(uploadPromises);
-    console.log('All media files uploaded successfully:', results);
-    return results;
-  } catch (error) {
-    console.error('Error in media upload batch:', error);
-    throw error;
-  }
+  return Promise.all(uploadPromises);
 };
 
-export const deleteMediaFile = async (fileUrl: string): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User must be authenticated to delete files');
-  }
+/**
+ * Delete a Vercel Blob asset via the API.
+ * Note: Vercel Blob deletion requires a server-side call — this sends
+ * the URL to a delete endpoint when one is implemented.
+ */
+export const deleteMediaFile = async (fileUrl: string, token: string): Promise<void> => {
+  if (!token) throw new Error('User must be authenticated to delete files');
 
-  try {
-    // Extract file path from URL
-    const urlParts = fileUrl.split('/');
-    const fileName = urlParts[urlParts.length - 1];
-    const filePath = `${user.id}/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from('post-media')
-      .remove([filePath]);
-
-    if (error) {
-      console.error('Error deleting file:', error);
-      throw new Error(`Failed to delete file: ${error.message}`);
-    }
-
-    console.log('File deleted successfully:', filePath);
-  } catch (error) {
-    console.error('Error in deleteMediaFile:', error);
-    throw error;
-  }
+  // Placeholder: the delete endpoint is not yet implemented.
+  // In the meantime, log the URL so it can be cleaned up manually.
+  console.warn('[mediaUploadService] deleteMediaFile not yet implemented for Vercel Blob:', fileUrl);
 };

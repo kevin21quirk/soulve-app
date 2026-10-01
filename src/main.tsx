@@ -2,12 +2,15 @@ import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async';
+import { ClerkProvider } from '@clerk/react';
 import * as Sentry from "@sentry/react";
 import ReactGA from 'react-ga4';
 import { Toaster } from '@/components/ui/toaster'
 import { createOptimizedQueryClient } from '@/utils/queryConfig';
 import App from './App.tsx'
 import './index.css'
+
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 
 // Initialize Sentry for error tracking
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
@@ -66,14 +69,16 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <HelmetProvider>
-    <HashRouter>
-      <QueryClientProvider client={queryClient}>
-        <App />
-        <Toaster />
-      </QueryClientProvider>
-    </HashRouter>
-  </HelmetProvider>
+  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    <HelmetProvider>
+      <HashRouter>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <Toaster />
+        </QueryClientProvider>
+      </HashRouter>
+    </HelmetProvider>
+  </ClerkProvider>
 );
 
 // Remove loader after React renders

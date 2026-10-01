@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useApiClient } from "@/hooks/useApiClient";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import MobileDashboard from "@/components/mobile/MobileDashboard";
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const { user, loading } = useAuth();
+  const api = useApiClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const context = searchParams.get('context') || 'personal';
   const orgId = searchParams.get('orgId');
@@ -31,13 +32,17 @@ const Dashboard = () => {
   // Load organization name if in org context
   useEffect(() => {
     const loadOrgName = async () => {
-      if (context === 'org' && orgId) {
-        const { data } = await supabase.from('organizations').select('name').eq('id', orgId).maybeSingle();
-        if (data) setCurrentOrgName(data.name);
+      if (context === 'org' && orgId && api) {
+        try {
+          const org = await api.get<{ name: string }>(`/organizations/${orgId}`);
+          if (org) setCurrentOrgName(org.name);
+        } catch {
+          // org not found or API unavailable — leave name empty
+        }
       }
     };
     loadOrgName();
-  }, [context, orgId]);
+  }, [context, orgId, api]);
 
   // Preload tab bundles and critical data on mount
   useEffect(() => {

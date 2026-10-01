@@ -1,82 +1,57 @@
-import { supabase } from '@/integrations/supabase/client';
 import { optimizeImage } from './imageOptimization';
 
 /**
- * Uploads a blog image to Supabase Storage
+ * Blog image upload — routes through the /api/upload Vercel Blob endpoint.
+ * Pass the Clerk session token from useAuth().session.access_token.
  */
-export const uploadBlogImage = async (file: File, userId: string): Promise<string> => {
-  try {
-    // Optimize image before upload
-    const optimizedBlob = await optimizeImage(file, {
-      maxWidth: 1920,
-      maxHeight: 1080,
-      quality: 0.85,
-      format: 'jpeg',
-    });
 
-    // Generate unique file name
-    const fileExt = 'jpg'; // Always use jpg after optimization
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `${userId}/${fileName}`;
+async function uploadViaApi(file: File, folder: string, token: string): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('folder', folder);
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('blog-images')
-      .upload(filePath, optimizedBlob, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
 
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error(`Failed to upload image: ${error.message}`);
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('blog-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  } catch (error) {
-    console.error('Blog image upload failed:', error);
-    throw error;
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(`Failed to upload image: ${(err as { error?: string }).error ?? res.statusText}`);
   }
+
+  const { url } = (await res.json()) as { url: string };
+  return url;
+}
+
+/**
+ * Uploads a blog image via Vercel Blob after optimization.
+ * @param file - The image file to upload
+ * @param _userId - Kept for API compatibility
+ * @param token - Clerk session access token
+ */
+export const uploadBlogImage = async (file: File, _userId: string, token: string): Promise<string> => {
+  const optimizedBlob = await optimizeImage(file, {
+    maxWidth: 1920,
+    maxHeight: 1080,
+    quality: 0.85,
+    format: 'jpeg',
+  });
+  const optimizedFile = new File([optimizedBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+  return uploadViaApi(optimizedFile, 'blog-images', token);
 };
 
 /**
- * Uploads multiple blog images
+ * Uploads multiple blog images.
  */
-export const uploadBlogImages = async (files: File[], userId: string): Promise<string[]> => {
-  const uploadPromises = files.map(file => uploadBlogImage(file, userId));
-  return Promise.all(uploadPromises);
-};
+export const uploadBlogImages = async (files: File[], userId: string, token: string): Promise<string[]> =>
+  Promise.all(files.map(f => uploadBlogImage(f, userId, token)));
 
 /**
- * Deletes a blog image from storage
+ * Deletes a blog image. Note: Vercel Blob deletion requires a server-side
+ * endpoint; this is a placeholder until that endpoint is implemented.
  */
-export const deleteBlogImage = async (imageUrl: string): Promise<void> => {
-  try {
-    // Extract file path from URL
-    const url = new URL(imageUrl);
-    const pathMatch = url.pathname.match(/\/blog-images\/(.*)/);
-    
-    if (!pathMatch) {
-      throw new Error('Invalid blog image URL');
-    }
-
-    const filePath = pathMatch[1];
-
-    const { error } = await supabase.storage
-      .from('blog-images')
-      .remove([filePath]);
-
-    if (error) {
-      console.error('Delete error:', error);
-      throw new Error(`Failed to delete image: ${error.message}`);
-    }
-  } catch (error) {
-    console.error('Blog image deletion failed:', error);
-    throw error;
-  }
+export const deleteBlogImage = async (imageUrl: string, _token?: string): Promise<void> => {
+  console.warn('[blogImageUpload] deleteBlogImage not yet implemented for Vercel Blob:', imageUrl);
 };

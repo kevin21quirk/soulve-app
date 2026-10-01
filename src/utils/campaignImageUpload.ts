@@ -1,60 +1,47 @@
-import { supabase } from '@/integrations/supabase/client';
-
 /**
- * Uploads a campaign image file to Supabase Storage
- * @param file - The image file to upload
- * @param userId - The ID of the user uploading the image
- * @returns The public URL of the uploaded image
+ * Campaign image upload — routes through the /api/upload Vercel Blob endpoint.
+ * Pass the Clerk session token from useAuth().session.access_token.
  */
-export const uploadCampaignImage = async (file: File, userId: string): Promise<string> => {
-  try {
-    // Generate unique file name
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `${userId}/${fileName}`;
-    
-    // Upload file to storage
-    const { data, error } = await supabase.storage
-      .from('campaign-images')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-    
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error(`Failed to upload image: ${error.message}`);
-    }
-    
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('campaign-images')
-      .getPublicUrl(filePath);
-    
-    return publicUrl;
-  } catch (error) {
-    console.error('Campaign image upload failed:', error);
-    throw error;
+
+async function uploadViaApi(file: File, folder: string, token: string): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('folder', folder);
+
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(`Failed to upload image: ${(err as { error?: string }).error ?? res.statusText}`);
   }
-};
+
+  const { url } = (await res.json()) as { url: string };
+  return url;
+}
 
 /**
- * Uploads multiple campaign image files
- * @param files - Array of image files to upload
- * @param userId - The ID of the user uploading the images
- * @returns Array of public URLs for uploaded images
+ * Uploads a campaign image file via Vercel Blob.
+ * @param file - The image file to upload
+ * @param _userId - Kept for API compatibility; user identity comes from the token
+ * @param token - Clerk session access token
  */
-export const uploadCampaignImages = async (files: File[], userId: string): Promise<string[]> => {
-  const uploadPromises = files.map(file => uploadCampaignImage(file, userId));
-  return Promise.all(uploadPromises);
-};
+export const uploadCampaignImage = async (file: File, _userId: string, token: string): Promise<string> =>
+  uploadViaApi(file, 'campaign-images', token);
 
 /**
- * Converts blob URLs to actual file objects for upload
- * @param blobUrl - The blob URL to convert
- * @returns File object
+ * Uploads multiple campaign image files.
  */
-export const blobUrlToFile = async (blobUrl: string, fileName: string = 'image.jpg'): Promise<File> => {
+export const uploadCampaignImages = async (files: File[], userId: string, token: string): Promise<string[]> =>
+  Promise.all(files.map(f => uploadCampaignImage(f, userId, token)));
+
+/**
+ * Converts a blob URL to a File object for upload.
+ */
+export const blobUrlToFile = async (blobUrl: string, fileName = 'image.jpg'): Promise<File> => {
   const response = await fetch(blobUrl);
   const blob = await response.blob();
   return new File([blob], fileName, { type: blob.type });
