@@ -50,11 +50,13 @@ export const useSystemStatus = () => {
 
   const checkStorageHealth = async (): Promise<'healthy' | 'degraded' | 'down'> => {
     try {
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .list('', { limit: 1 });
-      
-      return error ? 'degraded' : 'healthy';
+      // Any HTTP response (including 401) means the upload API and Vercel Blob
+      // infrastructure are reachable. Only a network-level failure returns 'down'.
+      await fetch('/api/upload', {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000),
+      });
+      return 'healthy';
     } catch {
       return 'down';
     }

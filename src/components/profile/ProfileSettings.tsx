@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuth as useClerkAuth } from "@clerk/react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Save, Bell, Shield, Trash2 } from "lucide-react";
@@ -15,6 +16,7 @@ import DataDeletionRequest from "@/components/legal/DataDeletionRequest";
 
 const ProfileSettings = () => {
   const { user } = useAuth();
+  const { getToken } = useClerkAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -94,26 +96,41 @@ const ProfileSettings = () => {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
 
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file);
+      // Upload to Vercel Blob via the server-side API
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', 'avatars');
 
-      if (uploadError) throw uploadError;
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({ error: uploadRes.statusText }));
+        throw new Error((err as { error?: string }).error ?? uploadRes.statusText);
+      }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ avatar_url: publicUrl })
-        .eq("id", user.id);
+      const { url: publicUrl } = await uploadRes.json() as { url: string };
 
-      if (updateError) throw updateError;
+      // Persist the new avatar URL in Neon via the profiles API
+      const patchRes = await fetch('/api/profiles/me', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ avatar_url: publicUrl }),
+      });
+
+      if (!patchRes.ok) {
+        const err = await patchRes.json().catch(() => ({ error: patchRes.statusText }));
+        throw new Error((err as { error?: string }).error ?? patchRes.statusText);
+      }
 
       setProfile({ ...profile, avatarUrl: publicUrl });
       toast({ title: "Avatar updated successfully" });

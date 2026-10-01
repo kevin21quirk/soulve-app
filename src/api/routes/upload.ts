@@ -14,13 +14,15 @@ const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
 // The DELETE ownership check relies on segments[1] === clerkUserId, which is
 // only safe when the folder is a single path segment (no '/').
 const ALLOWED_FOLDERS = new Set([
+  // Public — displayed directly in the browser
   'post-media',
   'campaign-images',
   'blog-images',
   'avatars',
   'banners',
+  'org-avatars',
+  'org-banners',
   'uploads',
-  'esg-documents',
 ]);
 
 // Vercel Blob URL hostname pattern — used to prevent del() being called on

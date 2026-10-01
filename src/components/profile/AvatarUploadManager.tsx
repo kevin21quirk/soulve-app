@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Loader2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@clerk/react";
 
 interface AvatarUploadManagerProps {
   currentAvatar: string;
@@ -23,6 +23,7 @@ const AvatarUploadManager = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { getToken } = useAuth();
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,43 +53,33 @@ const AvatarUploadManager = ({
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
 
-    // Upload to Supabase Storage
     await uploadAvatar(file);
   };
 
   const uploadAvatar = async (file: File) => {
     try {
       setUploading(true);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
 
-      // Create unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
 
-      // Upload file to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', 'avatars');
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error((err as { error?: string }).error ?? res.statusText);
       }
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const { url: publicUrl } = await res.json() as { url: string };
 
-      const publicUrl = urlData.publicUrl;
-
-      // Update profile with new avatar URL
       onAvatarUpdate(publicUrl);
 
       toast({
@@ -96,7 +87,6 @@ const AvatarUploadManager = ({
         description: "Your profile picture has been updated successfully",
       });
 
-      // Clean up preview
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);

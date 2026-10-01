@@ -1,6 +1,6 @@
 
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@clerk/react";
 import { MediaFile } from "./UserProfileTypes";
 
 interface ProfileBannerManagerProps {
@@ -10,28 +10,35 @@ interface ProfileBannerManagerProps {
 
 export const useProfileBannerManager = ({ setBannerFile, setEditData }: ProfileBannerManagerProps) => {
   const { toast } = useToast();
+  const { getToken } = useAuth();
 
-  const uploadBannerToStorage = async (file: File, userId: string): Promise<string | null> => {
+  /**
+   * Uploads a banner file to Vercel Blob via the server-side /api/upload endpoint.
+   * The `_userId` parameter is kept for call-site compatibility but is unused —
+   * the server derives identity from the Clerk bearer token.
+   */
+  const uploadBannerToStorage = async (file: File, _userId?: string): Promise<string | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}/${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('banners')
-        .upload(fileName, file, {
-          upsert: true
-        });
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
 
-      if (error) {
-        console.error('Storage upload error:', error);
-        throw error;
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', 'banners');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error((err as { error?: string }).error ?? res.statusText);
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('banners')
-        .getPublicUrl(data.path);
-
-      return publicUrl;
+      const { url } = await res.json() as { url: string };
+      return url;
     } catch (error) {
       console.error('Error uploading banner:', error);
       return null;
