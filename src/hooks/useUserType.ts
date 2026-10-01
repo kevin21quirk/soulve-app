@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export type UserType = 'individual' | 'charity' | 'business' | 'community_group' | 'religious_group' | 'other_organization';
@@ -12,53 +11,32 @@ export interface UserTypeData {
 }
 
 export const useUserType = () => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
 
   return useQuery({
     queryKey: ['user-type', user?.id],
     queryFn: async (): Promise<UserTypeData> => {
-      if (!user?.id) {
+      if (!user?.id || !api) {
         return { userType: 'individual', interests: [], skills: [], isOrganization: false };
       }
 
-      // First try to get from profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_type, interests, skills')
-        .eq('id', user.id)
-        .single();
+      // Profile user_type is set by the questionnaire save; interests/skills
+      // live on the profile row too.
+      const profile = await api.get<{
+        user_type?: string | null;
+        interests?: string[] | null;
+        skills?: string[] | null;
+      }>('/profiles/me');
 
-      if (profile?.user_type) {
-        const userType = (profile.user_type as UserType) || 'individual';
-        return {
-          userType,
-          interests: profile.interests || [],
-          skills: profile.skills || [],
-          isOrganization: ['charity', 'business', 'community_group', 'religious_group', 'other_organization'].includes(userType)
-        };
-      }
-
-      // Fallback to questionnaire_responses
-      const { data: questionnaire } = await supabase
-        .from('questionnaire_responses')
-        .select('user_type, response_data')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (questionnaire) {
-        const userType = (questionnaire.user_type as UserType) || 'individual';
-        const responseData = questionnaire.response_data as any || {};
-        return {
-          userType,
-          interests: responseData.interests || [],
-          skills: responseData.skills || [],
-          isOrganization: ['charity', 'business', 'community_group', 'religious_group', 'other_organization'].includes(userType)
-        };
-      }
-
-      return { userType: 'individual', interests: [], skills: [], isOrganization: false };
+      const userType = (profile.user_type as UserType) || 'individual';
+      return {
+        userType,
+        interests: profile.interests || [],
+        skills: profile.skills || [],
+        isOrganization: ['charity', 'business', 'community_group', 'religious_group', 'other_organization'].includes(userType)
+      };
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!api,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };

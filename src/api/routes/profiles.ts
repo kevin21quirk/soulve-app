@@ -68,6 +68,11 @@ profiles.post('/me/questionnaire', requireAuth, zValidator('json', questionnaire
     VALUES (${prof[0].id as string}::uuid, ${body.user_type}, ${JSON.stringify(body.response_data)}, ${body.motivation ?? null}, ${body.agree_to_terms})
     RETURNING id
   `;
+  // Mirror the questionnaire's declared user_type onto the profile row.
+  await sql`
+    UPDATE public.profiles SET user_type = ${body.user_type}, updated_at = now()
+    WHERE id = ${prof[0].id as string}::uuid
+  `;
   return c.json(rows[0], 201);
 });
 

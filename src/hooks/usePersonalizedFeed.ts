@@ -12,24 +12,24 @@ interface PersonalizedFeedOptions {
  * Hook to fetch personalized feed based on user interests and skills
  */
 export const usePersonalizedFeed = (options: PersonalizedFeedOptions = {}) => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
   const { enabled = true, organizationId } = options;
 
   return useQuery({
     queryKey: ['personalized-feed', user?.id, organizationId],
     queryFn: async (): Promise<SocialPost[]> => {
-      if (!user?.id) return [];
+      if (!user?.id || !api) return [];
 
-      // Get user's interests and skills from profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('interests, skills, location')
-        .eq('id', user.id)
-        .single();
+      // Get user's interests and skills from profile (Neon API)
+      const profile = await api.get<{
+        interests?: string[] | null;
+        skills?: string[] | null;
+        location?: string | null;
+      }>('/profiles/me');
 
-      const interests = profile?.interests || [];
-      const skills = profile?.skills || [];
-      const userLocation = profile?.location;
+      const interests = profile.interests || [];
+      const skills = profile.skills || [];
+      const userLocation = profile.location;
 
       // Fetch posts with filtering
       let postsQuery = supabase

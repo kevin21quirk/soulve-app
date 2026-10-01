@@ -1,5 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { RecommendationService } from './recommendationService';
 import type { ApiClient } from '@/lib/apiClient';
 
@@ -29,23 +28,3 @@ export const saveQuestionnaireResponse = async (api: ApiClient, data: Questionna
   }
 };
 
-export const getQuestionnaireResponse = async () => {
-  const { data: user } = await supabase.auth.getUser();
-  
-  if (!user.user) {
-    throw new Error('User not authenticated');
-  }
-
-  const { data, error } = await supabase
-    .from('questionnaire_responses')
-    .select('*')
-    .eq('user_id', user.user.id)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching questionnaire response:', error);
-    throw error;
-  }
-
-  return data;
-};
