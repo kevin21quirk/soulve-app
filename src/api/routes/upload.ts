@@ -51,6 +51,12 @@ const PRIVATE_FOLDERS = new Set([
 // local dev (auto). The library resolves auth automatically:
 //   1. VERCEL_OIDC_TOKEN + BLOB_STORE_ID  → OIDC  (Vercel prod/preview)
 //   2. process.env.BLOB_READ_WRITE_TOKEN  → token  (local dev fallback)
+//
+// Public vs private stores: the default connected store (soulve-storage) is
+// private-access and rejects access:'public' puts. Public assets therefore
+// go to a second, public-access store connected with env prefix PUBLIC_MEDIA
+// (PUBLIC_MEDIA_READ_WRITE_TOKEN). When unset we fall back to the default
+// store — which only works if that store is itself public.
 upload.post('/', requireAuth, async (c) => {
   const clerkUserId = c.get('clerkUserId');
   const formData = await c.req.formData();
@@ -80,12 +86,16 @@ upload.post('/', requireAuth, async (c) => {
 
   const safeName = blob.name.replace(/[^a-zA-Z0-9._-]/g, '_');
 
+  const publicStoreOpts = process.env.PUBLIC_MEDIA_READ_WRITE_TOKEN
+    ? { token: process.env.PUBLIC_MEDIA_READ_WRITE_TOKEN }
+    : {};
+
   if (!isPrivate) {
     // Public path — unchanged behaviour.
     // Pathname: folder/clerkUserId/timestamp-sanitisedName
     const pathname = `${folder}/${clerkUserId}/${Date.now()}-${safeName}`;
     try {
-      const result = await put(pathname, blob, { access: 'public' });
+      const result = await put(pathname, blob, { access: 'public', ...publicStoreOpts });
       return c.json({ url: result.url, pathname: result.pathname }, 201);
     } catch (err) {
       console.error('Blob put failed:', err);
@@ -206,8 +216,11 @@ upload.delete('/', requireAuth, async (c) => {
     return c.json({ error: 'Private documents must be deleted via /api/documents' }, 400);
   }
 
-  await del(url);
-  // No token option — library auto-detects OIDC or BLOB_READ_WRITE_TOKEN
+  await del(url, process.env.PUBLIC_MEDIA_READ_WRITE_TOKEN
+    ? { token: process.env.PUBLIC_MEDIA_READ_WRITE_TOKEN }
+    : {});
+  // Deletes reach here only for public blobs (private is refused above), so
+  // they must target the public store when it has a dedicated token.
 
   return c.json({ deleted: true });
 });

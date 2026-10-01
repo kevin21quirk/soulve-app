@@ -39,6 +39,15 @@ Vercel will have already created these in your project environment automatically
 | `BLOB_WEBHOOK_PUBLIC_KEY` | Vercel (auto) | Used to verify Blob webhook signatures |
 | `BLOB_READ_WRITE_TOKEN` | Vercel (auto, also needed for local dev) | Used in local development only; ignored on Vercel when OIDC is active |
 
+`soulve-storage` is a **private-access** store — it rejects `access:'public'` uploads.
+Public assets (avatars, post media, banners) require a second, **public-access** Blob
+store connected with env prefix `PUBLIC_MEDIA`:
+
+| Variable | Set by | Notes |
+|---|---|---|
+| `PUBLIC_MEDIA_STORE_ID` / `PUBLIC_MEDIA_WEBHOOK_PUBLIC_KEY` | Vercel (auto) | Injected on connect |
+| `PUBLIC_MEDIA_READ_WRITE_TOKEN` | Vercel (auto) | Routes public `put`/`del` calls to the public store |
+
 ---
 
 ## Optional / integrations
