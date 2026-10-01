@@ -4,7 +4,7 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/__clerk/(.*)", "destination": "/api/clerk/$1" },
+    { "source": "/__clerk/(.*)", "destination": "/api/clerk?__clerk_path=$1" },
     { "source": "/((?!api/|__clerk/).*)", "destination": "/index.html" }
   ]
 }
