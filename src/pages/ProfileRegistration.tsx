@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { saveQuestionnaireResponse } from "@/services/questionnaireService";
 import ProfileRegistrationHeader from "@/components/profile-registration/ProfileRegistrationHeader";
 import WelcomeStep from "@/components/profile-registration/steps/WelcomeStep";
@@ -13,6 +14,7 @@ import CompletionStep from "@/components/profile-registration/steps/CompletionSt
 const ProfileRegistration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingWaitlist, setIsCheckingWaitlist] = useState(true);
@@ -20,10 +22,9 @@ const ProfileRegistration = () => {
 
   // Check waitlist status on mount - only redirect if already completed questionnaire
   useEffect(() => {
+    if (authLoading) return;
     const checkWaitlistStatus = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
         if (!user) {
           navigate('/auth', { replace: true });
           return;
@@ -76,7 +77,7 @@ const ProfileRegistration = () => {
     };
 
     checkWaitlistStatus();
-  }, [navigate]);
+  }, [navigate, user, authLoading]);
 
   // Store questionnaire data across steps
   const [questionnaireData, setQuestionnaireData] = useState({
@@ -132,8 +133,6 @@ const ProfileRegistration = () => {
       });
 
       // Check waitlist status and user status after profile completion
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
         // Check if admin
         const { data: isAdminUser } = await supabase.rpc('is_admin', { 

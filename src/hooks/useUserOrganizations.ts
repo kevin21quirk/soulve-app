@@ -16,13 +16,15 @@ export const useUserOrganizations = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchUserOrganizations();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
   const fetchUserOrganizations = async () => {
-    if (!user) return;
+    if (!user?.id) return;
 
     try {
       setLoading(true);
