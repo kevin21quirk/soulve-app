@@ -3,13 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import SouLVELogo from "@/components/SouLVELogo";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const WaitlistPendingPage = () => {
-  const { user } = useAuth();
+  const { user, api, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -26,7 +25,7 @@ const WaitlistPendingPage = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
       localStorage.clear(); // Clear all cached data
       toast({
         title: "Signed out successfully",
@@ -45,15 +44,11 @@ const WaitlistPendingPage = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user) return;
-      
+      if (!user || !api) return;
+
       try {
-        const { data } = await supabase
-          .from('questionnaire_responses')
-          .select('user_type, motivation, response_data, created_at')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
+        const data = await api.get<{ created_at?: string }>('/profiles/me/questionnaire');
+
         if (data) {
           setUserProfile(data);
           setApplicationDate(new Date(data.created_at).toLocaleDateString('en-GB', {

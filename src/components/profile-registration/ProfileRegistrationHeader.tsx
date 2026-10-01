@@ -1,11 +1,12 @@
 
 import { ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import soulveLogoCrop from "@/assets/soulve-logo-crop.png";
 
 const ProfileRegistrationHeader = () => {
+  const { signOut } = useAuth();
   const handleBackToHome = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     window.location.href = '/';
   };
 

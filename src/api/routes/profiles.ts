@@ -76,6 +76,20 @@ profiles.post('/me/questionnaire', requireAuth, zValidator('json', questionnaire
   return c.json(rows[0], 201);
 });
 
+// GET /api/profiles/me/questionnaire — current user's questionnaire response
+profiles.get('/me/questionnaire', requireAuth, async (c) => {
+  const clerkUserId = c.get('clerkUserId');
+  const rows = await sql`
+    SELECT q.user_type, q.motivation, q.response_data, q.created_at
+    FROM public.questionnaire_responses q
+    JOIN public.profiles p ON p.id = q.user_id
+    WHERE p.clerk_user_id = ${clerkUserId}
+    LIMIT 1
+  `;
+  if (!rows.length) return c.json({ error: 'No questionnaire response' }, 404);
+  return c.json(rows[0]);
+});
+
 // GET /api/profiles/:id  — public profile by UUID
 profiles.get('/:id', async (c) => {
   const id = c.req.param('id');

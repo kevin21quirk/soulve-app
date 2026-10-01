@@ -129,11 +129,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    await clerkSignOut();
-    setAppUser(null);
-    setSession(null);
-    setOrganizationId(null);
-    setApi(null);
+    try {
+      await clerkSignOut({ redirectUrl: '/' });
+    } catch (err) {
+      console.error('[AuthContext] Clerk signOut failed, forcing reload:', err);
+      // Fall back to clearing local state + hard reload so no stale
+      // session UI lingers even if the FAPI session DELETE failed.
+      setAppUser(null);
+      setSession(null);
+      setOrganizationId(null);
+      setApi(null);
+      window.location.href = '/';
+    }
   }, [clerkSignOut]);
 
   return (
