@@ -24,11 +24,15 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { isBlobUrl } from "@/lib/blobUrl";
+import { toast } from "@/hooks/use-toast";
 import { LoadingState } from "@/components/ui/loading-state";
 import { EmptyESGState } from "@/components/ui/empty-esg-state";
 import { format } from "date-fns";
 
 const AdminESGReports = () => {
+  const { api } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
@@ -118,12 +122,36 @@ const AdminESGReports = () => {
 
   const handleDownload = async (report: any) => {
     if (report.pdf_url) {
-      const { data } = await supabase.storage
-        .from("esg-reports")
-        .createSignedUrl(report.pdf_url, 60);
-      
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, "_blank");
+      try {
+        if (isBlobUrl(report.pdf_url) && api) {
+          // Private Blob PDF — presigned via the documents endpoint
+          // (download_count is incremented server-side).
+          const res = await api.get<{ presignedUrl?: string; legacy?: boolean; path?: string }>(
+            `/documents/download?id=${report.id}&type=esg-report&field=pdf`
+          );
+          if (res.presignedUrl) {
+            window.open(res.presignedUrl, "_blank");
+            return;
+          }
+          if (res.legacy && res.path) {
+            const { data } = await supabase.storage
+              .from("esg-reports")
+              .createSignedUrl(res.path, 60);
+            if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+            return;
+          }
+          return;
+        }
+        // Legacy Supabase storage path/URL — existing signed-URL flow.
+        const { data } = await supabase.storage
+          .from("esg-reports")
+          .createSignedUrl(report.pdf_url, 60);
+
+        if (data?.signedUrl) {
+          window.open(data.signedUrl, "_blank");
+        }
+      } catch (err: any) {
+        toast({ title: "Download failed", description: err?.message, variant: "destructive" });
       }
     } else if (report.generated_content) {
       const blob = new Blob([report.generated_content], { type: "text/html" });

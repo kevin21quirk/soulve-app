@@ -1,4 +1,9 @@
-import { supabase } from '@/integrations/supabase/client';
+import type { ApiClient } from '@/lib/apiClient';
+
+// Contribution draft helpers — backed by POST /api/esg/contributions.
+// The server resolves the esg_data_requests → stakeholder_data_contributions
+// relationship; when a request row is not yet present in Neon the request id
+// is preserved in draft_data.request_id and data_request_id stays NULL.
 
 export interface ContributionDraft {
   request_id: string;
@@ -8,7 +13,7 @@ export interface ContributionDraft {
   bool_value?: boolean;
   unit?: string;
   notes?: string;
-  supporting_documents?: string[];
+  supporting_documents?: unknown[];
   draft_data?: any;
   contributor_user_id?: string;
 }
@@ -22,145 +27,54 @@ export interface SubmitContributionData {
   bool_value?: boolean;
   unit?: string;
   notes?: string;
-  supporting_documents?: string[];
+  supporting_documents?: unknown[];
 }
 
-// Save draft contribution
-export const saveDraft = async (contributionId: string, draftData: ContributionDraft) => {
-  const { data, error} = await supabase
-    .from('stakeholder_data_contributions')
-    .update({
-      draft_data: draftData as any,
-      last_saved_at: new Date().toISOString(),
-      contribution_status: 'draft'
-    })
-    .eq('id', contributionId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+// Create or update the caller's draft for a request (server-side upsert).
+// Returns the contribution row — its `id` is the parent for
+// esg-supporting-documents uploads (requestId is NOT the parent id).
+export const createDraft = async (
+  api: ApiClient,
+  requestId: string,
+  draftData: ContributionDraft,
+  contributorOrgId?: string,
+) => {
+  return api.post<any>('/esg/contributions', {
+    dataRequestId: requestId,
+    contributorOrgId,
+    draftData,
+  });
 };
 
-// Get draft by request ID
-export const getDraftByRequestId = async (requestId: string, userId: string) => {
-  const { data, error } = await supabase
-    .from('stakeholder_data_contributions')
-    .select('*')
-    .eq('data_request_id', requestId)
-    .eq('contributor_user_id', userId)
-    .eq('contribution_status', 'draft')
-    .single();
+// Save draft — the server upserts by requestId + caller, so passing the
+// request id here is correct (the previous Supabase version incorrectly
+// used it as the contribution id, which always missed).
+export const saveDraft = async (
+  api: ApiClient,
+  requestId: string,
+  draftData: ContributionDraft,
+) => createDraft(api, requestId, draftData);
 
-  if (error && error.code !== 'PGRST116') throw error; // Ignore "not found" errors
-  return data;
+// Caller-scoped draft lookup by request id.
+export const getDraftByRequestId = async (api: ApiClient, requestId: string) => {
+  return api.get<any | null>(`/esg/contributions/draft/${requestId}`);
 };
 
-// Submit contribution
-export const submitContribution = async (contributionData: SubmitContributionData) => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) throw new Error('User not authenticated');
-
-  // Check if draft exists
-  const existingDraft = await getDraftByRequestId(
-    contributionData.data_request_id,
-    user.user.id
-  );
-
-  if (existingDraft) {
-    // Update existing draft to submitted status
-    const { data, error } = await supabase
-      .from('stakeholder_data_contributions')
-      .update({
-        ...contributionData,
-        contributor_user_id: user.user.id,
-        contribution_status: 'submitted',
-        verification_status: 'pending',
-        submitted_at: new Date().toISOString(),
-        draft_data: null // Clear draft data on submission
-      })
-      .eq('id', existingDraft.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } else {
-    // Create new contribution
-    // First, get the ESG data entry
-    const { data: dataRequest } = await supabase
-      .from('esg_data_requests')
-      .select('indicator_id, organization_id')
-      .eq('id', contributionData.data_request_id)
-      .single();
-
-    if (!dataRequest) throw new Error('Data request not found');
-
-    // Create ESG data entry
-    const { data: esgData, error: esgError } = await supabase
-      .from('organization_esg_data')
-      .insert({
-        organization_id: dataRequest.organization_id,
-        indicator_id: dataRequest.indicator_id,
-        reporting_period: new Date().toISOString().split('T')[0],
-        value: typeof contributionData.value === 'number' ? contributionData.value : null,
-        text_value: typeof contributionData.value === 'string' ? contributionData.value : null,
-        unit: contributionData.unit,
-        data_source: 'stakeholder_contribution',
-        verification_status: 'unverified',
-        notes: contributionData.notes,
-        collected_by: user.user.id
-      })
-      .select()
-      .single();
-
-    if (esgError) throw esgError;
-
-    // Create contribution record
-    const { data, error } = await supabase
-      .from('stakeholder_data_contributions')
-      .insert({
-        data_request_id: contributionData.data_request_id,
-        esg_data_id: esgData.id,
-        contributor_user_id: user.user.id,
-        contributor_org_id: contributionData.contributor_org_id,
-        contribution_status: 'submitted',
-        verification_status: 'pending',
-        submitted_at: new Date().toISOString(),
-        supporting_documents: contributionData.supporting_documents || []
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
-};
-
-// Create initial draft (for auto-save)
-export const createDraft = async (requestId: string, draftData: ContributionDraft) => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) throw new Error('User not authenticated');
-
-  // Check if draft already exists
-  const existing = await getDraftByRequestId(requestId, user.user.id);
-  if (existing) {
-    return saveDraft(existing.id, draftData);
-  }
-
-  const { data, error } = await supabase
-    .from('stakeholder_data_contributions')
-    .insert({
-      data_request_id: requestId,
-      contributor_user_id: user.user.id,
-      draft_data: draftData as any,
-      contribution_status: 'draft',
-      verification_status: 'pending',
-      last_saved_at: new Date().toISOString()
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+// Submit a contribution — server-side mirrors the previous behaviour:
+// updates the existing draft to submitted, or creates the
+// organization_esg_data entry + contribution pair.
+export const submitContribution = async (
+  api: ApiClient,
+  contributionData: SubmitContributionData,
+) => {
+  return api.post<any>('/esg/contributions', {
+    dataRequestId: contributionData.data_request_id,
+    contributorOrgId: contributionData.contributor_org_id,
+    submit: {
+      value: contributionData.value,
+      unit: contributionData.unit ?? null,
+      notes: contributionData.notes ?? null,
+      supporting_documents: contributionData.supporting_documents ?? [],
+    },
+  });
 };

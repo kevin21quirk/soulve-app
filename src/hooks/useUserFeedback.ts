@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -23,26 +24,15 @@ interface UseUserFeedbackOptions {
 }
 
 export const useUserFeedback = (options?: UseUserFeedbackOptions) => {
+  const { api } = useAuth();
+
   const query = useQuery({
     queryKey: ['user-feedback', options?.status],
+    enabled: !!api,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      let query = supabase
-        .from('platform_feedback')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (options?.status) {
-        query = query.eq('status', options.status);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      return data as UserFeedback[];
+      if (!api) throw new Error('Not authenticated');
+      const qs = options?.status ? `?status=${options.status}` : '';
+      return api.get<UserFeedback[]>(`/feedback/mine${qs}`);
     },
   });
 

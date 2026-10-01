@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Shield, CheckCircle, XCircle, Eye, Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -22,7 +23,6 @@ interface VerificationWithDocuments {
   documents: {
     id: string;
     document_type: string;
-    file_path: string;
     file_name: string;
     uploaded_at: string;
   }[];
@@ -30,6 +30,7 @@ interface VerificationWithDocuments {
 
 export const IDVerificationReview = () => {
   const { toast } = useToast();
+  const { api } = useAuth();
   const [verifications, setVerifications] = useState<VerificationWithDocuments[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVerification, setSelectedVerification] = useState<VerificationWithDocuments | null>(null);
@@ -38,7 +39,7 @@ export const IDVerificationReview = () => {
 
   useEffect(() => {
     fetchPendingVerifications();
-  }, []);
+  }, [api]);
 
   // Real-time subscription for admin to see new verification requests
   useEffect(() => {
@@ -74,46 +75,13 @@ export const IDVerificationReview = () => {
   }, []);
 
   const fetchPendingVerifications = async () => {
+    if (!api) return;
     setLoading(true);
     try {
-      // Fetch pending ID verifications
-      const { data: verificationsData, error: verError } = await supabase
-        .from('user_verifications')
-        .select('*')
-        .eq('verification_type', 'government_id')
-        .order('created_at', { ascending: false });
-
-      if (verError) throw verError;
-
-      // Fetch associated documents and profile data for each verification
-      const verificationsWithDocs = await Promise.all(
-        (verificationsData || []).map(async (verification) => {
-          // Fetch documents
-          const { data: docs, error: docError } = await supabase
-            .from('verification_documents')
-            .select('*')
-            .eq('verification_id', verification.id)
-            .order('uploaded_at', { ascending: true });
-
-          if (docError) console.error('Error fetching docs:', docError);
-
-          // Fetch user profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, email')
-            .eq('id', verification.user_id)
-            .single();
-
-          return {
-            ...verification,
-            user_email: profile?.email || 'No email',
-            user_name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Unknown User',
-            documents: docs || []
-          };
-        })
+      const data = await api.get<VerificationWithDocuments[]>(
+        '/verifications?verification_type=government_id'
       );
-
-      setVerifications(verificationsWithDocs as any);
+      setVerifications(data || []);
     } catch (error: any) {
       console.error('Error fetching verifications:', error);
       toast({
@@ -126,22 +94,26 @@ export const IDVerificationReview = () => {
     }
   };
 
-  const viewDocument = async (filePath: string, docType: string) => {
+  const viewDocument = async (doc: { id: string; document_type: string }) => {
+    if (!api) return;
     try {
-      const { data, error } = await supabase.storage
-        .from('id-verifications')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+      const res = await api.get<{
+        presignedUrl?: string;
+        legacy?: boolean;
+        path?: string;
+      }>(`/documents/download?id=${doc.id}&type=id-doc`);
+      // Audit logging happens server-side (document_id = verification_documents.id).
 
-      if (error) throw error;
-
-      setViewingDocument({ url: data.signedUrl, type: docType });
-
-      // Log document access
-      await supabase.from('verification_document_audit').insert({
-        document_id: filePath,
-        accessed_by: (await supabase.auth.getUser()).data.user?.id,
-        action_type: 'view'
-      });
+      let url = res.presignedUrl;
+      // Legacy Supabase path — read-only fallback until Phase 2C.
+      if (!url && res.legacy && res.path) {
+        const { data } = await supabase.storage
+          .from('id-verifications')
+          .createSignedUrl(res.path, 3600);
+        url = data?.signedUrl;
+      }
+      if (!url) throw new Error('Could not resolve document URL');
+      setViewingDocument({ url, type: doc.document_type });
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -152,17 +124,9 @@ export const IDVerificationReview = () => {
   };
 
   const approveVerification = async (verificationId: string) => {
+    if (!api) return;
     try {
-      const { error } = await supabase
-        .from('user_verifications')
-        .update({
-          status: 'approved',
-          verified_at: new Date().toISOString(),
-          verified_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', verificationId);
-
-      if (error) throw error;
+      await api.patch(`/verifications/${verificationId}`, { status: 'approved' });
 
       toast({
         title: 'Verification Approved',
@@ -190,18 +154,12 @@ export const IDVerificationReview = () => {
       return;
     }
 
+    if (!api) return;
     try {
-      const { error } = await supabase
-        .from('user_verifications')
-        .update({
-          status: 'rejected',
-          notes: rejectionNotes,
-          verified_at: new Date().toISOString(),
-          verified_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', verificationId);
-
-      if (error) throw error;
+      await api.patch(`/verifications/${verificationId}`, {
+        status: 'rejected',
+        notes: rejectionNotes
+      });
 
       toast({
         title: 'Verification Rejected',
@@ -271,7 +229,7 @@ export const IDVerificationReview = () => {
                 key={doc.id}
                 size="sm"
                 variant="outline"
-                onClick={() => viewDocument(doc.file_path, doc.document_type)}
+                onClick={() => viewDocument(doc)}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 View {doc.document_type.replace('_', ' ')}

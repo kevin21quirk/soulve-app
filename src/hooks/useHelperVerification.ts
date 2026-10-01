@@ -12,7 +12,7 @@ import type {
 } from '@/types/helperVerification';
 
 export const useHelperVerification = () => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
   const { toast } = useToast();
   
   const [application, setApplication] = useState<HelperApplication | null>(null);
@@ -32,23 +32,23 @@ export const useHelperVerification = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user && api) {
       fetchAllData();
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, api]);
 
   const fetchAllData = async () => {
-    if (!user) return;
+    if (!user || !api) return;
 
     try {
       setLoading(true);
       const [app, modules, progresses, prog] = await Promise.all([
-        HelperVerificationService.getApplication(user.id),
+        HelperVerificationService.getApplication(api),
         HelperVerificationService.getTrainingModules(),
         HelperVerificationService.getTrainingProgress(user.id),
-        HelperVerificationService.calculateProgress(user.id)
+        HelperVerificationService.calculateProgress(api, user.id)
       ]);
 
       setApplication(app);
@@ -58,7 +58,7 @@ export const useHelperVerification = () => {
 
       if (app) {
         const [docs, refs] = await Promise.all([
-          HelperVerificationService.getDocuments(app.id),
+          HelperVerificationService.getDocuments(api, app.id),
           HelperVerificationService.getReferenceChecks(app.id)
         ]);
         setDocuments(docs);
@@ -77,7 +77,7 @@ export const useHelperVerification = () => {
   };
 
   const createApplication = async () => {
-    if (!user) {
+    if (!user || !api) {
       toast({
         title: "Authentication Required",
         description: "Please log in to start an application.",
@@ -87,7 +87,7 @@ export const useHelperVerification = () => {
     }
 
     try {
-      const newApp = await HelperVerificationService.createApplication(user.id);
+      const newApp = await HelperVerificationService.createApplication(api);
       setApplication(newApp);
       toast({
         title: "Application Started",
@@ -106,10 +106,11 @@ export const useHelperVerification = () => {
   };
 
   const updateApplication = async (updates: Partial<HelperApplication>) => {
-    if (!application) return null;
+    if (!application || !api) return null;
 
     try {
       const updated = await HelperVerificationService.updateApplication(
+        api,
         application.id,
         updates
       );
@@ -131,9 +132,9 @@ export const useHelperVerification = () => {
   };
 
   const submitApplication = async () => {
-    if (!application || !user) return false;
+    if (!application || !user || !api) return false;
 
-    const canSubmit = await HelperVerificationService.canSubmitApplication(user.id);
+    const canSubmit = await HelperVerificationService.canSubmitApplication(api);
     if (!canSubmit) {
       toast({
         title: "Incomplete Application",
@@ -144,7 +145,7 @@ export const useHelperVerification = () => {
     }
 
     try {
-      const submitted = await HelperVerificationService.submitApplication(application.id);
+      const submitted = await HelperVerificationService.submitApplication(api, application.id);
       setApplication(submitted);
       await fetchAllData();
       toast({
@@ -167,11 +168,11 @@ export const useHelperVerification = () => {
     file: File,
     documentType: VerificationDocument['document_type']
   ) => {
-    if (!application || !user) return null;
+    if (!application || !user || !api) return null;
 
     try {
       const doc = await HelperVerificationService.uploadDocument(
-        user.id,
+        api,
         application.id,
         file,
         documentType
@@ -195,8 +196,9 @@ export const useHelperVerification = () => {
   };
 
   const deleteDocument = async (documentId: string, filePath: string) => {
+    if (!api) return;
     try {
-      await HelperVerificationService.deleteDocument(documentId, filePath);
+      await HelperVerificationService.deleteDocument(api, documentId);
       setDocuments(prev => prev.filter(d => d.id !== documentId));
       await fetchAllData();
       toast({

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Upload } from "lucide-react";
 
 interface SubmitDataDialogProps {
@@ -31,24 +31,23 @@ export const SubmitDataDialog = ({
     evidence_url: '',
   });
 
+  const { api } = useAuth();
+
   const submitData = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from('stakeholder_data_contributions')
-        .insert([{
-          data_request_id: requestId,
-          draft_data: { value: data.value, notes: data.notes },
-          supporting_documents: data.evidence_url ? [data.evidence_url] : null,
-          contribution_status: 'pending_review',
-        }]);
-
-      if (error) throw error;
-
-      // Update request status
-      await supabase
-        .from('esg_data_requests')
-        .update({ status: 'submitted' })
-        .eq('id', requestId);
+      if (!api) throw new Error('Not authenticated');
+      // Server creates/updates the contribution and marks the request
+      // submitted when it exists in Neon. The evidence URL is stored as a
+      // legacy string entry alongside any {documentId, fileName} objects.
+      await api.post('/esg/contributions', {
+        dataRequestId: requestId,
+        draftData: { value: data.value, notes: data.notes },
+        submit: {
+          value: data.value,
+          notes: data.notes || null,
+          supporting_documents: data.evidence_url ? [data.evidence_url] : [],
+        },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['esg-data-requests'] });

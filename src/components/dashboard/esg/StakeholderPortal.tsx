@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +25,13 @@ import {
 } from "lucide-react";
 import { useESGDataRequests, useStakeholderContributions, useSubmitESGContribution, useESGAnnouncements, useESGInitiatives } from "@/services/esgService";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import InviteStakeholderModal from "./InviteStakeholderModal";
 import { useESGRealtimeUpdates } from "@/hooks/esg/useESGRealtimeUpdates";
 import DynamicDataForm from "./DynamicDataForm";
 import InitiativeContextCard from "./InitiativeContextCard";
-import { saveDraft, getDraftByRequestId } from "@/services/esgContributionService";
+import { saveDraft } from "@/services/esgContributionService";
 
 interface StakeholderGroup {
   id: string;
@@ -81,26 +82,21 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
   // Enable real-time updates
   useESGRealtimeUpdates({ organizationId, enabled: true });
   
-  // Get current user and check role
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  supabase.auth.getUser().then(async ({ data }) => {
-    if (data.user && !currentUser) {
-      setCurrentUser(data.user);
-      
-      // Check if user is org admin
-      const { data: membership } = await supabase
-        .from('organization_members')
-        .select('role')
-        .eq('organization_id', organizationId)
-        .eq('user_id', data.user.id)
-        .eq('is_active', true)
-        .maybeSingle();
-      
-      if (membership && ['admin', 'owner'].includes(membership.role)) {
-        setIsOrgAdmin(true);
-      }
-    }
-  });
+  // Get current user and check role — user.id is the Neon profile UUID.
+  const { user, api } = useAuth();
+  useEffect(() => {
+    if (!user || !api) return;
+    supabase
+      .from('organization_members')
+      .select('role')
+      .eq('organization_id', organizationId)
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle()
+      .then(({ data: membership }) => {
+        if (membership && membership.role === 'admin') setIsOrgAdmin(true);
+      });
+  }, [user, api, organizationId]);
 
   // TODO: Fetch real stakeholder groups from database
   // For now, using empty array until stakeholder group management is implemented
@@ -467,13 +463,17 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                             }}
                             requestId={request.id}
                             onSubmit={async (data) => {
+                              if (!user) return;
                               submitContribution.mutate({
                                 data_request_id: request.id,
-                                contributor_id: currentUser?.id,
+                                contributor_user_id: user.id,
                                 data_value: JSON.stringify(data.value),
                                 data_source: 'manual_entry',
                                 verification_status: 'pending',
-                                supporting_documents: data.files || []
+                                // DynamicDataForm emits supporting_documents
+                                // (not files) — {documentId, fileName} objects
+                                // or legacy URL strings.
+                                supporting_documents: data.supporting_documents || []
                               }, {
                                 onSuccess: () => {
                                   toast({ title: "Contribution submitted successfully" });
@@ -481,12 +481,11 @@ const StakeholderPortal = ({ organizationId }: StakeholderPortalProps) => {
                               });
                             }}
                             onSaveDraft={async (data) => {
-                              if (!currentUser) return;
-                              await saveDraft(request.id, {
+                              if (!user || !api) return;
+                              await saveDraft(api, request.id, {
                                 request_id: request.id,
                                 indicator_id: request.indicator_id,
-                                draft_data: data,
-                                contributor_user_id: currentUser.id
+                                ...data,
                               });
                               toast({ title: "Draft saved" });
                             }}

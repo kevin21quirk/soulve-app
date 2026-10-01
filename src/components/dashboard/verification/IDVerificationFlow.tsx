@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Camera, Shield, CheckCircle, AlertCircle, Eye, Scan } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@clerk/react";
+import { createApiClient } from "@/lib/apiClient";
 import { 
   detectFaceInImage, 
   compareFaces, 
@@ -23,6 +25,7 @@ interface IDVerificationFlowProps {
 
 const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) => {
   const { toast } = useToast();
+  const { getToken } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     documentType: '',
@@ -176,80 +179,53 @@ const IDVerificationFlow = ({ onComplete, onCancel }: IDVerificationFlowProps) =
 
     setUploading(true);
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { user } = (await supabase.auth.getUser()).data;
-      
-      if (!user) throw new Error('User not authenticated');
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      const api = createApiClient(async () => token);
 
-      // First create the verification record with face match data
-      const { data: verification, error: verificationError } = await supabase
-        .from('user_verifications')
-        .insert({
-          user_id: user.id,
-          verification_type: 'government_id',
-          face_match_score: faceData.matchScore,
-          liveness_check_passed: faceData.livenessResult?.passed || false,
-          face_embedding: faceData.selfieFaceResult?.embedding ? {
-            embedding: faceData.selfieFaceResult.embedding,
-            quality: faceData.selfieFaceResult.qualityScore
-          } : null,
-          verification_data: {
-            documentType: formData.documentType,
-            documentNumber: formData.documentNumber,
-            fullName: formData.fullName,
-            dateOfBirth: formData.dateOfBirth,
-            expiryDate: formData.expiryDate,
-            faceMatchScore: faceData.matchScore,
-            livenessCheckPassed: faceData.livenessResult?.passed
-          }
-        })
-        .select()
-        .single();
+      // First create the verification record (parent for the uploads)
+      const verification = await api.post<{ id: string }>('/verifications', {
+        verification_type: 'government_id',
+        face_match_score: faceData.matchScore,
+        liveness_check_passed: faceData.livenessResult?.passed || false,
+        face_embedding: faceData.selfieFaceResult?.embedding ? {
+          embedding: faceData.selfieFaceResult.embedding,
+          quality: faceData.selfieFaceResult.qualityScore
+        } : null,
+        verification_data: {
+          documentType: formData.documentType,
+          documentNumber: formData.documentNumber,
+          fullName: formData.fullName,
+          dateOfBirth: formData.dateOfBirth,
+          expiryDate: formData.expiryDate,
+          faceMatchScore: faceData.matchScore,
+          livenessCheckPassed: faceData.livenessResult?.passed
+        }
+      });
 
-      if (verificationError) throw verificationError;
-
-      // Upload files to storage
-      const uploadPromises = [
+      // Upload files — the server validates ownership of the verification
+      // record and writes each verification_documents row itself.
+      const uploads = [
         { file: formData.frontImage, type: 'id_front' },
         { file: formData.backImage, type: 'id_back' },
         { file: formData.selfieImage, type: 'selfie' }
-      ].map(async ({ file, type }) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${verification.id}/${type}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('id-verifications')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) throw uploadError;
-
-        // Record document in database with face detection results
+      ].map(({ file, type }) => {
         const faceDetected = type === 'id_front' ? faceData.idFaceResult?.detected :
                            type === 'selfie' ? faceData.selfieFaceResult?.detected : false;
         const faceQuality = type === 'id_front' ? faceData.idFaceResult?.qualityScore :
                           type === 'selfie' ? faceData.selfieFaceResult?.qualityScore : null;
-        
-        const { error: docError } = await supabase
-          .from('verification_documents')
-          .insert({
-            verification_id: verification.id,
-            user_id: user.id,
-            document_type: type,
-            file_path: fileName,
-            file_name: file.name,
-            file_size: file.size,
-            mime_type: file.type,
-            face_detected: faceDetected,
-            face_quality_score: faceQuality
-          });
 
-        if (docError) throw docError;
+        const form = new FormData();
+        form.append('file', file as File);
+        form.append('folder', 'id-verifications');
+        form.append('recordId', verification.id);
+        form.append('docType', type);
+        if (faceDetected) form.append('faceDetected', 'true');
+        if (faceQuality != null) form.append('faceQualityScore', String(faceQuality));
+        return api.upload<{ documentId: string }>('/upload', form);
       });
 
-      await Promise.all(uploadPromises);
+      await Promise.all(uploads);
 
       toast({
         title: "Verification submitted",

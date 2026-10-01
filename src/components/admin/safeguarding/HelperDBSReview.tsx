@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,20 +41,18 @@ export const HelperDBSReview = () => {
   const [checkLevel, setCheckLevel] = useState<string>('');
   const [rejectionReason, setRejectionReason] = useState('');
   const { toast } = useToast();
+  const { api } = useAuth();
 
   useEffect(() => {
     fetchDBSDocuments();
-  }, []);
+  }, [api]);
 
   const fetchDBSDocuments = async () => {
+    if (!api) return;
     try {
-      const { data, error } = await supabase
-        .from('safe_space_verification_documents')
-        .select('*')
-        .eq('document_type', 'dbs_certificate')
-        .order('uploaded_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await api.get<DBSDocument[]>(
+        '/helper-applications/documents?type=dbs_certificate'
+      );
       setDocuments(data || []);
     } catch (error) {
       console.error('Error fetching DBS documents:', error);
@@ -64,6 +63,34 @@ export const HelperDBSReview = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const viewDocument = async (doc: DBSDocument) => {
+    if (!api) return;
+    try {
+      const res = await api.get<{
+        presignedUrl?: string;
+        legacy?: boolean;
+        path?: string;
+      }>(`/documents/download?id=${doc.id}&type=helper-doc`);
+
+      let url = res.presignedUrl;
+      // Legacy Supabase path — read-only fallback until Phase 2C.
+      if (!url && res.legacy && res.path) {
+        const { data } = await supabase.storage
+          .from('helper-verification-docs')
+          .createSignedUrl(res.path, 3600);
+        url = data?.signedUrl;
+      }
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error fetching document URL:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load document',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -85,44 +112,16 @@ export const HelperDBSReview = () => {
       return;
     }
 
+    if (!api) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       const expiryDate = calculateExpiryDate(issueDate);
 
-      const { error } = await supabase
-        .from('safe_space_verification_documents')
-        .update({
-          verification_status: 'verified',
-          verified_by: user?.id,
-          verified_at: new Date().toISOString(),
-          dbs_certificate_number: certificateNumber,
-          dbs_issue_date: issueDate,
-          dbs_expiry_date: expiryDate,
-          dbs_check_level: checkLevel
-        })
-        .eq('id', selectedDoc.id);
-
-      if (error) throw error;
-
-      // Update helper DBS requirement status
-      const { error: helperError } = await supabase
-        .from('safe_space_helpers')
-        .update({ dbs_required: true })
-        .eq('user_id', selectedDoc.user_id);
-
-      if (helperError) console.error('Error updating helper:', helperError);
-
-      // Log to audit
-      await supabase.from('safe_space_audit_log').insert({
-        user_id: user?.id!,
-        action_type: 'dbs_certificate_approved',
-        resource_type: 'verification_document',
-        resource_id: selectedDoc.id,
-        details: {
-          certificate_number: certificateNumber,
-          check_level: checkLevel,
-          expiry_date: expiryDate
-        }
+      await api.patch(`/helper-applications/documents/${selectedDoc.id}`, {
+        verification_status: 'verified',
+        dbs_certificate_number: certificateNumber,
+        dbs_issue_date: issueDate,
+        dbs_expiry_date: expiryDate,
+        dbs_check_level: checkLevel
       });
 
       toast({
@@ -157,30 +156,11 @@ export const HelperDBSReview = () => {
       return;
     }
 
+    if (!api) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      const { error } = await supabase
-        .from('safe_space_verification_documents')
-        .update({
-          verification_status: 'rejected',
-          verified_by: user?.id,
-          verified_at: new Date().toISOString(),
-          rejection_reason: rejectionReason
-        })
-        .eq('id', selectedDoc.id);
-
-      if (error) throw error;
-
-      // Log to audit
-      await supabase.from('safe_space_audit_log').insert({
-        user_id: user?.id!,
-        action_type: 'dbs_certificate_rejected',
-        resource_type: 'verification_document',
-        resource_id: selectedDoc.id,
-        details: {
-          rejection_reason: rejectionReason
-        }
+      await api.patch(`/helper-applications/documents/${selectedDoc.id}`, {
+        verification_status: 'rejected',
+        rejection_reason: rejectionReason
       });
 
       toast({
@@ -296,10 +276,8 @@ export const HelperDBSReview = () => {
                 )}
 
                 <div className="flex gap-2">
-                  <Button variant="outline" asChild>
-                    <a href={doc.file_path} target="_blank" rel="noopener noreferrer">
-                      View Document
-                    </a>
+                  <Button variant="outline" onClick={() => viewDocument(doc)}>
+                    View Document
                   </Button>
                   {doc.verification_status === 'pending' && (
                     <>

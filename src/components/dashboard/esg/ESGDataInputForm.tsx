@@ -45,20 +45,10 @@ const ESGDataInputForm = ({ organizationId }: ESGDataInputFormProps) => {
     }
 
     try {
-      // Upload supporting documents first
-      const documentUrls: string[] = [];
-      for (const file of formData.supportingDocuments) {
-        const result = await uploadDocument.mutateAsync({ 
-          file, 
-          organizationId 
-        });
-        if (result.publicUrl) {
-          documentUrls.push(result.publicUrl);
-        }
-      }
-
-      // Create ESG data entry
-      await createESGData.mutateAsync({
+      // Create the ESG data entry first — it is the parent record for any
+      // supporting documents. The server then appends private_documents ids
+      // to organization_esg_data.supporting_documents on each upload.
+      const entry = await createESGData.mutateAsync({
         organization_id: organizationId,
         indicator_id: formData.indicator,
         reporting_period: format(formData.reportingPeriod, 'yyyy-MM-dd'),
@@ -67,9 +57,16 @@ const ESGDataInputForm = ({ organizationId }: ESGDataInputFormProps) => {
         unit: formData.unit || undefined,
         data_source: formData.dataSource,
         verification_status: formData.verificationStatus,
-        notes: formData.notes || undefined,
-        supporting_documents: documentUrls.length > 0 ? documentUrls : undefined
+        notes: formData.notes || undefined
       });
+
+      // Upload supporting documents against the real parent record id.
+      for (const file of formData.supportingDocuments) {
+        await uploadDocument.mutateAsync({
+          file,
+          recordId: entry.id
+        });
+      }
 
       // Reset form
       setFormData({

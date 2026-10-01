@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface FeedbackSubmission {
   feedback_type: 'bug' | 'feature_request' | 'ui_issue' | 'performance' | 'general';
@@ -29,86 +29,41 @@ const getBrowserInfo = (): BrowserInfo => {
   };
 };
 
-const uploadScreenshot = async (file: File, userId: string): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}/${Date.now()}.${fileExt}`;
-
-  const { data, error } = await supabase.storage
-    .from('feedback-screenshots')
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
-
-  if (error) throw error;
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('feedback-screenshots')
-    .getPublicUrl(data.path);
-
-  return publicUrl;
-};
-
-const awardFeedbackPoints = async (userId: string) => {
-  try {
-    const { error } = await supabase
-      .from('impact_activities')
-      .insert({
-        user_id: userId,
-        activity_type: 'platform_engagement',
-        points_earned: 10,
-        description: 'Provided platform feedback',
-        metadata: {
-          source: 'feedback_system',
-          timestamp: new Date().toISOString()
-        },
-        verified: true
-      });
-
-    if (error) {
-      console.error('Error awarding feedback points:', error);
-    }
-  } catch (err) {
-    console.error('Error awarding feedback points:', err);
-  }
-};
-
 export const useSubmitFeedback = () => {
   const queryClient = useQueryClient();
+  const { api } = useAuth();
 
   return useMutation({
     mutationFn: async (feedback: FeedbackSubmission) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!api) throw new Error('Not authenticated');
 
-      let screenshotUrl: string | undefined;
+      // 1. Create the feedback record first — it is the parent record that the
+      //    screenshot upload authorizes against.
+      const created = await api.post<{ id: string }>('/feedback', {
+        feedback_type: feedback.feedback_type,
+        title: feedback.title,
+        description: feedback.description,
+        page_url: window.location.href,
+        page_section: feedback.page_section ?? null,
+        browser_info: getBrowserInfo(),
+        priority: feedback.urgency || 'medium',
+      });
 
+      // 2. Upload the screenshot against the feedback record. If it fails the
+      //    feedback still exists (screenshot is optional).
       if (feedback.screenshot) {
-        screenshotUrl = await uploadScreenshot(feedback.screenshot, user.id);
+        try {
+          const form = new FormData();
+          form.append('file', feedback.screenshot);
+          form.append('folder', 'feedback-screenshots');
+          form.append('recordId', created.id);
+          await api.upload('/upload', form);
+        } catch (err) {
+          console.error('Screenshot upload failed — feedback kept without it:', err);
+        }
       }
 
-      const { data, error } = await supabase
-        .from('platform_feedback')
-        .insert([{
-          user_id: user.id,
-          feedback_type: feedback.feedback_type,
-          title: feedback.title,
-          description: feedback.description,
-          page_url: window.location.href,
-          page_section: feedback.page_section,
-          screenshot_url: screenshotUrl,
-          browser_info: getBrowserInfo() as any,
-          priority: feedback.urgency || 'medium',
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Award XP points for providing feedback
-      await awardFeedbackPoints(user.id);
-
-      return data;
+      return created;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['user-feedback'] });

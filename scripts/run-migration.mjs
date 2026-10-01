@@ -4,7 +4,9 @@ import { readFileSync } from 'fs';
 const DATABASE_URL = 'postgresql://neondb_owner:npg_psb3oVKHzgl2@ep-still-frog-zae224pk-pooler.c-2.eu-west-2.aws.neon.tech/neondb?sslmode=require';
 const db = neon(DATABASE_URL);
 
-const raw = readFileSync('./neon_schema.sql', 'utf-8');
+const migrationFile = process.argv[2] ?? './neon_schema.sql';
+const raw = readFileSync(migrationFile, 'utf-8');
+console.log(`Applying: ${migrationFile}`);
 
 // Extract SQL statements: strip comment-only lines, then split on
 // lines that start with a known SQL keyword (new statement boundary)

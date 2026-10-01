@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import type { ApiClient } from '@/lib/apiClient';
 import type {
   HelperApplication,
   TrainingModule,
@@ -12,72 +13,38 @@ import type {
 
 export class HelperVerificationService {
   /**
-   * Create a new helper application
+   * Create a new helper application (Neon-backed)
    */
-  static async createApplication(userId: string): Promise<HelperApplication | null> {
-    const { data, error } = await supabase
-      .from('safe_space_helper_applications')
-      .insert({
-        user_id: userId,
-        application_status: 'draft'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as unknown as HelperApplication;
+  static async createApplication(api: ApiClient): Promise<HelperApplication | null> {
+    return api.post<HelperApplication>('/helper-applications');
   }
 
   /**
-   * Get user's application
+   * Get caller's application (Neon-backed)
    */
-  static async getApplication(userId: string): Promise<HelperApplication | null> {
-    const { data, error } = await supabase
-      .from('safe_space_helper_applications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data as unknown as HelperApplication | null;
+  static async getApplication(api: ApiClient): Promise<HelperApplication | null> {
+    return api.get<HelperApplication | null>('/helper-applications/me');
   }
 
   /**
-   * Update application
+   * Update application (Neon-backed)
    */
   static async updateApplication(
+    api: ApiClient,
     applicationId: string,
     updates: Partial<HelperApplication>
   ): Promise<HelperApplication | null> {
-    const { data, error } = await supabase
-      .from('safe_space_helper_applications')
-      .update(updates as any)
-      .eq('id', applicationId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as unknown as HelperApplication;
+    return api.patch<HelperApplication>(`/helper-applications/${applicationId}`, updates);
   }
 
   /**
-   * Submit application for review
+   * Submit application for review (Neon-backed)
    */
-  static async submitApplication(applicationId: string): Promise<HelperApplication | null> {
-    const { data, error } = await supabase
-      .from('safe_space_helper_applications')
-      .update({
-        application_status: 'submitted',
-        submitted_at: new Date().toISOString()
-      })
-      .eq('id', applicationId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as unknown as HelperApplication;
+  static async submitApplication(
+    api: ApiClient,
+    applicationId: string
+  ): Promise<HelperApplication | null> {
+    return api.patch<HelperApplication>(`/helper-applications/${applicationId}`, { action: 'submit' });
   }
 
   /**
@@ -263,83 +230,77 @@ export class HelperVerificationService {
   }
 
   /**
-   * Upload verification document
+   * Upload verification document via /api/upload (Vercel Blob, private).
+   * The server validates ownership of the parent application and writes the
+   * safe_space_verification_documents row itself. Returns the document id.
    */
   static async uploadDocument(
-    userId: string,
+    api: ApiClient,
     applicationId: string,
     file: File,
     documentType: VerificationDocument['document_type']
   ): Promise<VerificationDocument | null> {
-    // Upload to storage
-    const filePath = `${userId}/${documentType}_${Date.now()}_${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('helper-verification-docs')
-      .upload(filePath, file);
+    const form = new FormData();
+    form.append('file', file);
+    form.append('folder', 'helper-verification-docs');
+    form.append('recordId', applicationId);
+    form.append('docType', documentType);
 
-    if (uploadError) throw uploadError;
+    const { documentId } = await api.upload<{ documentId: string }>('/upload', form);
 
-    // Create document record
-    const { data, error } = await supabase
-      .from('safe_space_verification_documents')
-      .insert({
-        user_id: userId,
-        application_id: applicationId,
-        document_type: documentType,
-        file_path: filePath,
-        file_name: file.name,
-        file_size: file.size,
-        mime_type: file.type,
-        verification_status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as VerificationDocument;
+    // The full row is refetched by the caller via getDocuments(); return a
+    // minimal shape for optimistic UI updates.
+    return {
+      id: documentId,
+      application_id: applicationId,
+      document_type: documentType,
+      file_name: file.name,
+      file_size: file.size,
+      mime_type: file.type,
+      verification_status: 'pending',
+    } as VerificationDocument;
   }
 
   /**
-   * Get user's documents
+   * Get documents for an application (Neon-backed)
    */
-  static async getDocuments(applicationId: string): Promise<VerificationDocument[]> {
-    const { data, error } = await supabase
-      .from('safe_space_verification_documents')
-      .select('*')
-      .eq('application_id', applicationId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data || []) as VerificationDocument[];
+  static async getDocuments(
+    api: ApiClient,
+    applicationId: string
+  ): Promise<VerificationDocument[]> {
+    return api.get<VerificationDocument[]>(`/helper-applications/${applicationId}/documents`);
   }
 
   /**
-   * Delete a document
+   * Delete a document via /api/documents (handles Blob deletion + row).
    */
-  static async deleteDocument(documentId: string, filePath: string): Promise<void> {
-    // Delete from storage
-    await supabase.storage
-      .from('helper-verification-docs')
-      .remove([filePath]);
-
-    // Delete record
-    const { error } = await supabase
-      .from('safe_space_verification_documents')
-      .delete()
-      .eq('id', documentId);
-
-    if (error) throw error;
+  static async deleteDocument(api: ApiClient, documentId: string): Promise<void> {
+    await api.del<{ deleted: boolean }>(`/documents/helper-doc/${documentId}`);
   }
 
   /**
-   * Get document download URL
+   * Get a document view URL. Blob-backed docs get a short-lived presigned URL
+   * from /api/documents/download; legacy Supabase file_paths keep using the
+   * existing signed-URL flow until the Phase 2C migration.
    */
-  static async getDocumentUrl(filePath: string): Promise<string> {
-    const { data } = await supabase.storage
-      .from('helper-verification-docs')
-      .createSignedUrl(filePath, 3600); // 1 hour expiry
+  static async getDocumentUrl(
+    api: ApiClient,
+    documentId: string,
+    filePath: string
+  ): Promise<string> {
+    const res = await api.get<{ presignedUrl?: string; legacy?: boolean; path?: string }>(
+      `/documents/download?id=${documentId}&type=helper-doc`
+    );
+    if (res.presignedUrl) return res.presignedUrl;
 
-    return data?.signedUrl || '';
+    // Legacy Supabase path — read-only fallback until Phase 2C.
+    if (res.legacy && res.path) {
+      const { data } = await supabase.storage
+        .from('helper-verification-docs')
+        .createSignedUrl(res.path, 3600);
+      return data?.signedUrl || '';
+    }
+    return '';
   }
 
   /**
@@ -382,8 +343,11 @@ export class HelperVerificationService {
   /**
    * Calculate overall application progress
    */
-  static async calculateProgress(userId: string): Promise<ApplicationProgress> {
-    const application = await this.getApplication(userId);
+  static async calculateProgress(
+    api: ApiClient,
+    userId: string
+  ): Promise<ApplicationProgress> {
+    const application = await this.getApplication(api);
     
     if (!application) {
       return {
@@ -397,7 +361,7 @@ export class HelperVerificationService {
       };
     }
 
-    const documents = await this.getDocuments(application.id);
+    const documents = await this.getDocuments(api, application.id);
     const trainingProgress = await this.getTrainingProgress(userId);
     const modules = await this.getTrainingModules();
     const references = await this.getReferenceChecks(application.id);
@@ -446,8 +410,8 @@ export class HelperVerificationService {
   /**
    * Check if user can submit application
    */
-  static async canSubmitApplication(userId: string): Promise<boolean> {
-    const application = await this.getApplication(userId);
+  static async canSubmitApplication(api: ApiClient): Promise<boolean> {
+    const application = await this.getApplication(api);
     if (!application) return false;
 
     // Check required fields (minimum character requirement removed)

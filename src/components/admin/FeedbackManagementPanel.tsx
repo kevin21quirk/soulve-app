@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Bug, Sparkles, Palette, Zap, MessageSquare, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
 import {
@@ -58,6 +59,32 @@ const priorityColors = {
   critical: "bg-red-500",
 };
 
+// Renders a feedback screenshot. Blob-backed files need a presigned URL from
+// /api/documents/download; legacy Supabase public URLs render directly.
+const FeedbackScreenshot = ({ feedbackId, screenshotUrl }: { feedbackId: string; screenshotUrl: string }) => {
+  const { api } = useAuth();
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!api) return;
+    api.get<{ presignedUrl?: string; legacy?: boolean; path?: string }>(
+      `/documents/download?id=${feedbackId}&type=feedback`
+    ).then((res) => {
+      // Legacy rows hold a full public Supabase URL in screenshot_url.
+      setSrc(res.presignedUrl ?? res.path ?? screenshotUrl);
+    }).catch(() => setSrc(null));
+  }, [api, feedbackId, screenshotUrl]);
+
+  if (!src) return <p className="text-sm text-muted-foreground mt-2">Screenshot unavailable</p>;
+  return (
+    <img
+      src={src}
+      alt="Feedback screenshot"
+      className="mt-2 rounded-lg border max-h-64 object-contain"
+    />
+  );
+};
+
 export const FeedbackManagementPanel = () => {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
   const [filterStatus, setFilterStatus] = useState<Feedback['status'] | 'all'>("all");
@@ -67,39 +94,27 @@ export const FeedbackManagementPanel = () => {
   const [newPriority, setNewPriority] = useState<Feedback['priority']>("medium");
   
   const queryClient = useQueryClient();
+  const { api } = useAuth();
 
   const { data: feedbackList, isLoading } = useQuery({
     queryKey: ['admin-feedback', filterStatus, filterType],
+    enabled: !!api,
     queryFn: async () => {
-      let query = supabase
-        .from('platform_feedback')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
-      }
-      if (filterType !== 'all') {
-        query = query.eq('feedback_type', filterType);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as Feedback[];
+      const params = new URLSearchParams();
+      if (filterStatus !== 'all') params.set('status', filterStatus);
+      if (filterType !== 'all') params.set('feedback_type', filterType);
+      const qs = params.toString();
+      return api!.get<Feedback[]>(`/feedback${qs ? `?${qs}` : ''}`);
     },
   });
 
   const updateFeedbackMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Feedback> }) => {
-      const { error } = await supabase
-        .from('platform_feedback')
-        .update({
-          ...updates,
-          resolved_at: updates.status === 'resolved' ? new Date().toISOString() : null,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+      await api!.patch(`/feedback/${id}`, {
+        status: updates.status,
+        priority: updates.priority,
+        admin_notes: updates.admin_notes,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-feedback'] });
@@ -315,10 +330,9 @@ export const FeedbackManagementPanel = () => {
                 {selectedFeedback.screenshot_url && (
                   <div>
                     <Label>Screenshot</Label>
-                    <img
-                      src={selectedFeedback.screenshot_url}
-                      alt="Feedback screenshot"
-                      className="mt-2 rounded-lg border max-h-64 object-contain"
+                    <FeedbackScreenshot
+                      feedbackId={selectedFeedback.id}
+                      screenshotUrl={selectedFeedback.screenshot_url}
                     />
                   </div>
                 )}

@@ -15,13 +15,63 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, XCircle, AlertCircle, Clock, FileText, User } from "lucide-react";
 import { useStakeholderContributions } from "@/services/esgService";
 import { useVerifyContribution } from "@/hooks/esg/useVerifyContribution";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { isBlobUrl } from "@/lib/blobUrl";
+import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+
+// supporting_documents may contain {documentId, fileName} objects (new),
+// legacy URL strings, or legacy Supabase storage paths.
+async function openContributionDocument(api: any, entry: any) {
+  try {
+    if (entry && typeof entry === 'object' && entry.documentId) {
+      const res = await api.get<{ presignedUrl?: string; legacy?: boolean; path?: string }>(
+        `/documents/download?id=${entry.documentId}&type=esg-doc`
+      );
+      if (res.presignedUrl) {
+        window.open(res.presignedUrl, '_blank');
+      } else if (res.legacy && res.path) {
+        const { data } = await supabase.storage
+          .from('esg-supporting-documents')
+          .createSignedUrl(res.path, 3600);
+        if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+      }
+      return;
+    }
+    if (typeof entry === 'string') {
+      if (isBlobUrl(entry)) {
+        // Private Blob URL embedded directly — cannot be presigned without
+        // a private_documents row; only reachable for pre-migration data.
+        toast({ title: "Document unavailable", description: "This document has not been migrated yet.", variant: "destructive" });
+        return;
+      }
+      if (entry.startsWith('http')) {
+        window.open(entry, '_blank');
+      } else {
+        const { data } = await supabase.storage
+          .from('esg-supporting-documents')
+          .createSignedUrl(entry, 3600);
+        if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+      }
+    }
+  } catch (err: any) {
+    toast({ title: "Could not open document", description: err?.message, variant: "destructive" });
+  }
+}
+
+function docLabel(entry: any): string {
+  if (entry && typeof entry === 'object' && entry.fileName) return String(entry.fileName);
+  if (typeof entry === 'string') return entry.split('/').pop() ?? 'document';
+  return 'document';
+}
 
 interface DataVerificationPanelProps {
   organizationId: string;
 }
 
 const DataVerificationPanel = ({ organizationId }: DataVerificationPanelProps) => {
+  const { api } = useAuth();
   const { data: contributions, isLoading } = useStakeholderContributions(organizationId);
   const verifyMutation = useVerifyContribution(organizationId);
   
@@ -97,9 +147,21 @@ const DataVerificationPanel = ({ organizationId }: DataVerificationPanelProps) =
         <div className="text-sm">
           <span className="font-medium">Value:</span> {contribution.data_value || 'N/A'}
         </div>
-        {contribution.supporting_documents && (
+        {contribution.supporting_documents && contribution.supporting_documents.length > 0 && (
           <div className="text-sm">
-            <span className="font-medium">Documents:</span> {contribution.supporting_documents.length} files
+            <span className="font-medium">Documents:</span>{' '}
+            <span className="inline-flex flex-wrap gap-1">
+              {contribution.supporting_documents.map((doc: any, i: number) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="text-primary underline text-sm"
+                  onClick={() => openContributionDocument(api, doc)}
+                >
+                  {docLabel(doc)}
+                </button>
+              ))}
+            </span>
           </div>
         )}
         <div className="text-xs text-muted-foreground">

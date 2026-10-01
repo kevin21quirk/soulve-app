@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -10,7 +10,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Upload, X, Save, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { createDraft } from "@/services/esgContributionService";
 import { toast } from "@/hooks/use-toast";
 
 interface DynamicDataFormProps {
@@ -37,15 +38,35 @@ const DynamicDataForm = ({
   onSaveDraft,
   isSubmitting
 }: DynamicDataFormProps) => {
+  const { api } = useAuth();
   const [value, setValue] = useState<any>(existingData?.value || '');
   const [date, setDate] = useState<Date | undefined>(existingData?.date_value);
   const [boolValue, setBoolValue] = useState<boolean>(existingData?.bool_value || false);
   const [files, setFiles] = useState<File[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>(existingData?.supporting_documents || []);
+  // New entries are {documentId, fileName} objects; legacy URL strings from
+  // existing drafts remain valid and are displayed/read as-is.
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{ documentId: string; fileName: string } | string>>(
+    existingData?.supporting_documents || []
+  );
   const [unit, setUnit] = useState(existingData?.unit || indicator.unit || '');
   const [notes, setNotes] = useState(existingData?.notes || '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDraft, setIsDraft] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  // The contribution is the document parent — resolved lazily on first
+  // upload via the existing draft workflow (requestId is NOT the parent id).
+  const contributionIdRef = useRef<string | null>(null);
+
+  const ensureContributionId = async (): Promise<string | null> => {
+    if (contributionIdRef.current) return contributionIdRef.current;
+    if (!api) return null;
+    const draft = await createDraft(api, requestId, {
+      request_id: requestId,
+      indicator_id: indicator.id,
+    });
+    contributionIdRef.current = draft?.id ?? null;
+    return contributionIdRef.current;
+  };
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
@@ -69,38 +90,48 @@ const DynamicDataForm = ({
   }, [value, date, boolValue, unit, notes, uploadedFiles, onSaveDraft]);
 
   const handleFileUpload = async (selectedFiles: FileList | null) => {
-    if (!selectedFiles) return;
+    if (!selectedFiles || !api) return;
 
     const fileArray = Array.from(selectedFiles);
     setFiles(prev => [...prev, ...fileArray]);
 
-    // Upload to Supabase storage
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return;
-
-    const uploadPromises = fileArray.map(async (file) => {
-      const filePath = `${user.user!.id}/${requestId}/${file.name}`;
-      const { error } = await supabase.storage
-        .from('esg-supporting-documents')
-        .upload(filePath, file);
-
-      if (error) {
-        toast({ title: "Upload failed", description: error.message, variant: "destructive" });
-        return null;
+    setUploading(true);
+    try {
+      // Private uploads require the real parent contribution id — ensure a
+      // draft exists first (uses the existing draft upsert, not a new
+      // workflow).
+      const contributionId = await ensureContributionId();
+      if (!contributionId) {
+        toast({ title: "Upload failed", description: "Could not initialise a contribution draft.", variant: "destructive" });
+        return;
       }
 
-      const { data: urlData } = supabase.storage
-        .from('esg-supporting-documents')
-        .getPublicUrl(filePath);
+      const uploadPromises = fileArray.map(async (file) => {
+        try {
+          const form = new FormData();
+          form.append('file', file);
+          form.append('folder', 'esg-supporting-documents');
+          form.append('recordId', contributionId);
+          const res = await api.upload<{ documentId: string }>('/upload', form);
+          return { documentId: res.documentId, fileName: file.name };
+        } catch (err: any) {
+          toast({ title: "Upload failed", description: err?.message, variant: "destructive" });
+          return null;
+        }
+      });
 
-      return urlData.publicUrl;
-    });
-
-    const urls = (await Promise.all(uploadPromises)).filter(Boolean) as string[];
-    setUploadedFiles(prev => [...prev, ...urls]);
+      const docs = (await Promise.all(uploadPromises)).filter(Boolean) as { documentId: string; fileName: string }[];
+      setUploadedFiles(prev => [...prev, ...docs]);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const removeFile = (index: number) => {
+    const entry = uploadedFiles[index];
+    if (entry && typeof entry === 'object' && entry.documentId && api) {
+      api.del(`/documents/esg-doc/${entry.documentId}`).catch(() => {});
+    }
     setFiles(prev => prev.filter((_, i) => i !== index));
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
@@ -261,9 +292,11 @@ const DynamicDataForm = ({
             </div>
             {uploadedFiles.length > 0 && (
               <div className="space-y-2">
-                {uploadedFiles.map((url, index) => (
+                {uploadedFiles.map((f, index) => (
                   <div key={index} className="flex items-center justify-between p-2 border rounded">
-                    <span className="text-sm truncate">{url.split('/').pop()}</span>
+                    <span className="text-sm truncate">
+                      {typeof f === 'string' ? f.split('/').pop() : f.fileName}
+                    </span>
                     <Button variant="ghost" size="sm" onClick={() => removeFile(index)}>
                       <X className="h-4 w-4" />
                     </Button>
@@ -321,8 +354,8 @@ const DynamicDataForm = ({
       )}
 
       <div className="flex items-center gap-2">
-        <Button onClick={handleSubmit} disabled={isSubmitting} variant="gradient">
-          {isSubmitting ? "Submitting..." : "Submit Data"}
+        <Button onClick={handleSubmit} disabled={isSubmitting || uploading} variant="gradient">
+          {uploading ? "Uploading files..." : isSubmitting ? "Submitting..." : "Submit Data"}
         </Button>
         {onSaveDraft && (
           <Button variant="outline" onClick={() => onSaveDraft({ value, date_value: date, bool_value: boolValue, unit, notes })}>

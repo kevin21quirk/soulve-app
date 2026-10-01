@@ -34,6 +34,25 @@ async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
+// Multipart upload — must NOT set Content-Type (browser sets the boundary).
+async function apiUpload<T>(
+  path: string,
+  form: FormData,
+  getToken?: () => Promise<string | null>,
+): Promise<T> {
+  const token = getToken ? await getToken() : null;
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api${path}`, { method: 'POST', headers, body: form });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((err as { error?: string }).error ?? `API error ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 // ── Factory — call createApiClient(getToken) once per session ─────────────
 export function createApiClient(getToken: () => Promise<string | null>) {
   const get  = <T>(path: string, opts?: FetchOptions) =>
@@ -44,8 +63,10 @@ export function createApiClient(getToken: () => Promise<string | null>) {
     apiFetch<T>(path, { ...opts, method: 'PATCH', body }, getToken);
   const del  = <T>(path: string, opts?: FetchOptions) =>
     apiFetch<T>(path, { ...opts, method: 'DELETE' }, getToken);
+  const upload = <T>(path: string, form: FormData) =>
+    apiUpload<T>(path, form, getToken);
 
-  return { get, post, patch, del };
+  return { get, post, patch, del, upload };
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;

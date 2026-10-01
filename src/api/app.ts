@@ -10,6 +10,11 @@ import organizationsRouter from './routes/organizations';
 import messagesRouter from './routes/messages';
 import notificationsRouter from './routes/notifications';
 import uploadRouter from './routes/upload';
+import documentsRouter from './routes/documents';
+import helperApplicationsRouter from './routes/helperApplications';
+import verificationsRouter from './routes/verifications';
+import feedbackRouter from './routes/feedback';
+import esgRouter from './routes/esg';
 
 const app = new Hono().basePath('/api');
 
@@ -35,6 +40,11 @@ app.route('/organizations', organizationsRouter);
 app.route('/messages', messagesRouter);
 app.route('/notifications', notificationsRouter);
 app.route('/upload', uploadRouter);
+app.route('/documents', documentsRouter);
+app.route('/helper-applications', helperApplicationsRouter);
+app.route('/verifications', verificationsRouter);
+app.route('/feedback', feedbackRouter);
+app.route('/esg', esgRouter);
 
 // Health check
 app.get('/health', (c) => c.json({ ok: true, ts: new Date().toISOString() }));

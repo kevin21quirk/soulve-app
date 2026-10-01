@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { QUERY_KEYS } from "./queryKeys";
 import { toast } from "@/hooks/use-toast";
 
@@ -246,30 +247,32 @@ export const useStakeholderEngagement = (organizationId: string) => {
 
 export const useCreateESGData = () => {
   const queryClient = useQueryClient();
+  const { api } = useAuth();
   return useMutation({
     mutationFn: async (esgData: any) => {
-      const { data, error } = await supabase.from('organization_esg_data').insert(esgData).select().single();
-      if (error) throw error;
-      return data;
+      if (!api) throw new Error('Not authenticated');
+      return api.post('/esg/data-entries', esgData);
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ESG_QUERY_KEYS.ORGANIZATION_ESG_DATA(data.organization_id) });
       toast({ title: "ESG Data Created", description: "Data saved successfully." });
     },
   });
 };
 
+// Upload a private ESG supporting document. recordId must be the parent
+// organization_esg_data UUID — the server validates org membership from it.
+// Returns { documentId } — the Blob URL never reaches the client.
 export const useUploadESGDocument = () => {
+  const { api } = useAuth();
   return useMutation({
-    mutationFn: async ({ file, organizationId }: { file: File; organizationId: string }) => {
-      const path = `${organizationId}/${Date.now()}-${file.name}`;
-      const { data, error } = await supabase.storage.from('esg-documents').upload(path, file);
-      if (error) throw error;
-      
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage.from('esg-documents').getPublicUrl(path);
-      
-      return { ...data, publicUrl };
+    mutationFn: async ({ file, recordId }: { file: File; recordId: string }) => {
+      if (!api) throw new Error('Not authenticated');
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', 'esg-documents');
+      form.append('recordId', recordId);
+      return api.upload<{ documentId: string }>('/upload', form);
     },
   });
 };
@@ -328,15 +331,18 @@ export const useStakeholderContributions = (organizationId: string) => {
 
 export const useSubmitESGContribution = () => {
   const queryClient = useQueryClient();
+  const { api } = useAuth();
   return useMutation({
     mutationFn: async (contributionData: any) => {
-      const { data, error } = await supabase
-        .from('stakeholder_data_contributions')
-        .insert(contributionData)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      if (!api) throw new Error('Not authenticated');
+      return api.post('/esg/contributions', {
+        dataRequestId: contributionData.data_request_id ?? null,
+        submit: {
+          value: contributionData.data_value,
+          notes: contributionData.notes ?? null,
+          supporting_documents: contributionData.supporting_documents ?? [],
+        },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['esg', 'contributions'] });
