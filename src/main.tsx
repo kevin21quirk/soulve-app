@@ -11,6 +11,9 @@ import App from './App.tsx'
 import './index.css'
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
+// Required for production Clerk on a *.vercel.app domain (no CNAME possible):
+// /__clerk/* is proxied to the Clerk Frontend API by api/clerk/[...path].ts.
+const CLERK_PROXY_URL = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
 
 // Initialize Sentry for error tracking
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
@@ -69,7 +72,7 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} proxyUrl={CLERK_PROXY_URL}>
     <HelmetProvider>
       <HashRouter>
         <QueryClientProvider client={queryClient}>
