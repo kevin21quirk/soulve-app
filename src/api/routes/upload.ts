@@ -84,8 +84,16 @@ upload.post('/', requireAuth, async (c) => {
     // Public path — unchanged behaviour.
     // Pathname: folder/clerkUserId/timestamp-sanitisedName
     const pathname = `${folder}/${clerkUserId}/${Date.now()}-${safeName}`;
-    const result = await put(pathname, blob, { access: 'public' });
-    return c.json({ url: result.url, pathname: result.pathname }, 201);
+    try {
+      const result = await put(pathname, blob, { access: 'public' });
+      return c.json({ url: result.url, pathname: result.pathname }, 201);
+    } catch (err) {
+      console.error('Blob put failed:', err);
+      return c.json({
+        error: 'Upload storage failed',
+        detail: err instanceof Error ? err.message : String(err),
+      }, 502);
+    }
   }
 
   // ── Private path ──────────────────────────────────────────────────────

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface ProfileLocation {
@@ -11,7 +10,7 @@ export interface ProfileLocation {
 }
 
 export const useProfileLocation = () => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
   const { toast } = useToast();
   const [profileLocation, setProfileLocation] = useState<ProfileLocation>({
     latitude: null,
@@ -25,28 +24,25 @@ export const useProfileLocation = () => {
   // Fetch profile location on mount
   useEffect(() => {
     const fetchProfileLocation = async () => {
-      if (!user?.id) {
+      if (!user?.id || !api) {
         setLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('latitude, longitude, location, location_sharing_enabled')
-          .eq('id', user.id)
-          .single();
+        const data = await api.get<{
+          latitude?: number | null;
+          longitude?: number | null;
+          location?: string | null;
+          location_sharing_enabled?: boolean | null;
+        }>('/profiles/me');
 
-        if (error) {
-          console.error('Error fetching profile location:', error);
-        } else if (data) {
-          setProfileLocation({
-            latitude: data.latitude,
-            longitude: data.longitude,
-            locationName: data.location,
-            locationSharingEnabled: data.location_sharing_enabled || false,
-          });
-        }
+        setProfileLocation({
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
+          locationName: data.location ?? null,
+          locationSharingEnabled: data.location_sharing_enabled || false,
+        });
       } catch (err) {
         console.error('Exception fetching profile location:', err);
       } finally {
@@ -55,7 +51,7 @@ export const useProfileLocation = () => {
     };
 
     fetchProfileLocation();
-  }, [user?.id]);
+  }, [user?.id, api]);
 
   // Update profile location
   const updateProfileLocation = async (
@@ -64,30 +60,17 @@ export const useProfileLocation = () => {
     locationName: string,
     enableSharing: boolean = true
   ): Promise<boolean> => {
-    if (!user?.id) return false;
+    if (!user?.id || !api) return false;
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          latitude,
-          longitude,
-          location: locationName,
-          location_sharing_enabled: enableSharing,
-          location_updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating profile location:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to save location. Please try again.',
-          variant: 'destructive',
-        });
-        return false;
-      }
+      await api.patch('/profiles/me', {
+        latitude,
+        longitude,
+        location: locationName,
+        location_sharing_enabled: enableSharing,
+        location_updated_at: new Date().toISOString(),
+      });
 
       setProfileLocation({
         latitude,
@@ -104,6 +87,11 @@ export const useProfileLocation = () => {
       return true;
     } catch (err) {
       console.error('Exception updating profile location:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to save location. Please try again.',
+        variant: 'destructive',
+      });
       return false;
     } finally {
       setSaving(false);
@@ -112,24 +100,16 @@ export const useProfileLocation = () => {
 
   // Clear profile location
   const clearProfileLocation = async (): Promise<boolean> => {
-    if (!user?.id) return false;
+    if (!user?.id || !api) return false;
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          latitude: null,
-          longitude: null,
-          location: null,
-          location_sharing_enabled: false,
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error clearing profile location:', error);
-        return false;
-      }
+      await api.patch('/profiles/me', {
+        latitude: null,
+        longitude: null,
+        location: null,
+        location_sharing_enabled: false,
+      });
 
       setProfileLocation({
         latitude: null,

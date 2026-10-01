@@ -103,6 +103,10 @@ const updateSchema = z.object({
   banner_url:   z.string().url().optional().nullable(),
   banner_type:  z.string().optional().nullable(),
   user_type:    z.enum(['individual', 'organisation', 'business', 'admin']).optional(),
+  latitude:     z.number().optional().nullable(),
+  longitude:    z.number().optional().nullable(),
+  location_sharing_enabled: z.boolean().optional(),
+  location_updated_at: z.string().optional().nullable(),
 });
 
 // PATCH /api/profiles/me  — update current user's profile
@@ -133,6 +137,10 @@ profiles.patch('/me', requireAuth, zValidator('json', updateSchema), async (c) =
   addField('banner_url',  body.banner_url);
   addField('banner_type', body.banner_type);
   addField('user_type',   body.user_type);
+  addField('latitude',    body.latitude);
+  addField('longitude',   body.longitude);
+  addField('location_sharing_enabled', body.location_sharing_enabled);
+  addField('location_updated_at', body.location_updated_at);
 
   if (!sets.length) return c.json({ error: 'No fields to update' }, 400);
 
