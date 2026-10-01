@@ -14,7 +14,7 @@ import CompletionStep from "@/components/profile-registration/steps/CompletionSt
 const ProfileRegistration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, api, loading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingWaitlist, setIsCheckingWaitlist] = useState(true);
@@ -30,41 +30,22 @@ const ProfileRegistration = () => {
           return;
         }
 
-        // Check if user is admin - admins can always access this page for testing
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
+        if (!api) {
+          setIsCheckingWaitlist(false);
+          return;
+        }
+        const me = await api.get<{ is_admin?: boolean; onboarding_completed?: boolean; waitlist_status?: string | null }>('/profiles/me');
 
-        if (isAdminUser) {
+        if (me.is_admin) {
           // Admin can access the page - skip all other checks
           setIsCheckingWaitlist(false);
           return;
         }
 
-        // Check if user already completed questionnaire
-        const { data: questionnaireData } = await supabase
-          .from('questionnaire_responses')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle();
-
-        if (questionnaireData) {
+        if (me.onboarding_completed) {
           // User already completed onboarding - check where to redirect them
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('waitlist_status')
-            .eq('id', user.id)
-            .maybeSingle();
-
-          // Default to 'pending' if status is null/undefined to ensure waitlist enforcement
-          const waitlistStatus = profileData?.waitlist_status || 'pending';
-
-          if (waitlistStatus === 'approved') {
-            navigate('/dashboard', { replace: true });
-          } else {
-            navigate('/waitlist', { replace: true });
-          }
+          const waitlistStatus = me.waitlist_status || 'pending';
+          navigate(waitlistStatus === 'approved' ? '/dashboard' : '/waitlist', { replace: true });
           return;
         }
 
@@ -116,8 +97,9 @@ const ProfileRegistration = () => {
         ...finalStepData
       };
 
-      // Save to Supabase
-      await saveQuestionnaireResponse({
+      // Save via the Neon-backed API
+      if (!api) throw new Error('Not authenticated');
+      await saveQuestionnaireResponse(api, {
         user_type: completeData.userType,
         response_data: {
           motivation: completeData.motivation,
@@ -133,13 +115,10 @@ const ProfileRegistration = () => {
       });
 
       // Check waitlist status and user status after profile completion
-      if (user) {
-        // Check if admin
-        const { data: isAdminUser } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
+      if (user && api) {
+        const me = await api.get<{ is_admin?: boolean; waitlist_status?: string | null }>('/profiles/me');
 
-        if (isAdminUser) {
+        if (me.is_admin) {
           toast({
             title: "Welcome to SouLVE! 🎉",
             description: "Your profile has been successfully created. Let's start building community together!",
@@ -148,15 +127,8 @@ const ProfileRegistration = () => {
           return;
         }
 
-        // Check waitlist status for non-admin users
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('waitlist_status')
-          .eq('id', user.id)
-          .maybeSingle();
-
         // Default to 'pending' if status is null/undefined to ensure waitlist enforcement
-        const waitlistStatus = profileData?.waitlist_status || 'pending';
+        const waitlistStatus = me.waitlist_status || 'pending';
 
         if (waitlistStatus === 'approved') {
           toast({

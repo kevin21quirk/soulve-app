@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { saveQuestionnaireResponse } from "@/services/questionnaireService";
+import { useAuth } from "@/contexts/AuthContext";
 import MobileOnboardingHeader from "./MobileOnboardingHeader";
 import MobileWelcomeStep from "./MobileWelcomeStep";
 import MobilePersonalInfoStep from "./MobilePersonalInfoStep";
@@ -15,6 +16,7 @@ const MobileOnboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = 4;
 
+  const { api } = useAuth();
   const [onboardingData, setOnboardingData] = useState({
     userType: "individual", // Store user type from step 1
     motivation: "",
@@ -49,7 +51,8 @@ const MobileOnboarding = () => {
         ...finalStepData
       };
 
-      await saveQuestionnaireResponse({
+      if (!api) throw new Error('Not authenticated');
+      await saveQuestionnaireResponse(api, {
         user_type: completeData.userType,
         response_data: {
           motivation: completeData.motivation,

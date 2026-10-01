@@ -38,7 +38,37 @@ profiles.get('/me', requireAuth, async (c) => {
   }
 
   if (!rows.length) return c.json({ error: 'Profile not found' }, 404);
-  return c.json(rows[0]);
+
+  const profile = rows[0] as Record<string, unknown>;
+  const adminRows = await sql`SELECT public.is_admin(${profile.id as string}::uuid) AS ok`;
+  const onboardingRows = await sql`
+    SELECT EXISTS (SELECT 1 FROM public.questionnaire_responses WHERE user_id = ${profile.id as string}::uuid) AS done
+  `;
+  return c.json({
+    ...profile,
+    is_admin: adminRows[0]?.ok === true,
+    onboarding_completed: onboardingRows[0]?.done === true,
+  });
+});
+
+// POST /api/profiles/me/questionnaire — save onboarding questionnaire response
+const questionnaireSchema = z.object({
+  user_type: z.string(),
+  response_data: z.any(),
+  motivation: z.string().optional(),
+  agree_to_terms: z.boolean(),
+});
+profiles.post('/me/questionnaire', requireAuth, zValidator('json', questionnaireSchema), async (c) => {
+  const clerkUserId = c.get('clerkUserId');
+  const body = c.req.valid('json');
+  const prof = await sql`SELECT id FROM public.profiles WHERE clerk_user_id = ${clerkUserId} LIMIT 1`;
+  if (!prof.length) return c.json({ error: 'Profile not found' }, 404);
+  const rows = await sql`
+    INSERT INTO public.questionnaire_responses (user_id, user_type, response_data, motivation, agree_to_terms)
+    VALUES (${prof[0].id as string}::uuid, ${body.user_type}, ${JSON.stringify(body.response_data)}, ${body.motivation ?? null}, ${body.agree_to_terms})
+    RETURNING id
+  `;
+  return c.json(rows[0], 201);
 });
 
 // GET /api/profiles/:id  — public profile by UUID
