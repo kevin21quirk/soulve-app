@@ -15,13 +15,14 @@ import { sql } from '../db.js';
 export interface Caller {
   clerkUserId: string;
   profileId: string; // Neon profiles.id
+  email: string | null;
   isPlatformAdmin: boolean;
 }
 
 /** Resolve a Clerk user id to the Neon profile + platform admin flag. */
 export async function resolveCaller(clerkUserId: string): Promise<Caller | null> {
   const profiles = await sql`
-    SELECT id FROM public.profiles WHERE clerk_user_id = ${clerkUserId} LIMIT 1
+    SELECT id, email FROM public.profiles WHERE clerk_user_id = ${clerkUserId} LIMIT 1
   `;
   if (!profiles.length) return null;
   const profileId = String(profiles[0].id);
@@ -29,6 +30,7 @@ export async function resolveCaller(clerkUserId: string): Promise<Caller | null>
   return {
     clerkUserId,
     profileId,
+    email: (profiles[0].email as string | null) ?? null,
     isPlatformAdmin: adminRows[0]?.ok === true,
   };
 }

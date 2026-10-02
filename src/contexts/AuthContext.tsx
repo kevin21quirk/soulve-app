@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useUser, useAuth as useClerkAuth, useClerk } from '@clerk/react';
 import { createApiClient, type ApiClient } from '@/lib/apiClient';
-import { setSupabaseAuthShim, registerSupabaseSignOut } from '@/integrations/supabase/client';
+import { setSupabaseAuthShim, registerSupabaseSignOut, registerSupabaseTokenGetter } from '@/integrations/supabase/client';
 
 // ── Shape compatible with existing consumers ──────────────────────────────
 // `user.id` is the Neon profile UUID (not the Clerk ID)
@@ -61,6 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!clerkLoaded) return;
+
+    // Fresh Clerk token for the REST-compat fetch on every request
+    registerSupabaseTokenGetter(async () => (isSignedIn ? getToken() : null));
 
     if (!isSignedIn || !clerkUser) {
       setAppUser(null);

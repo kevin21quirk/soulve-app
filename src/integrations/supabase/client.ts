@@ -6,10 +6,35 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://btwuqhrkhbblszuipumg.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_lPZSDy9TO63MMVlrT6IxpQ_CVinox2l";
 
+// ── Neon data plane ──────────────────────────────────────────────────────
+// All PostgREST traffic (`/rest/v1/*`) is intercepted and routed to our own
+// API (/api/rest/v1/*) which runs the query against Neon under the ported
+// RLS policies. The Clerk JWT (kept in shimToken below) replaces the
+// Supabase session token.
+let shimToken: string | null = null;
+let tokenGetter: (() => Promise<string | null>) | null = null;
+
+const neonFetch: typeof fetch = async (input, init) => {
+  const url = typeof input === 'string' ? input : input.url;
+  const restIdx = url.indexOf('/rest/v1/');
+  if (restIdx === -1) return fetch(input, init);
+  const path = url.slice(restIdx + '/rest/v1'.length);
+  const headers = new Headers(init?.headers);
+  const token = (await tokenGetter?.().catch(() => null)) ?? shimToken;
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  return fetch(`/api/rest${path}`, { ...init, headers });
+};
+
+export function registerSupabaseTokenGetter(fn: () => Promise<string | null>) {
+  tokenGetter = fn;
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  global: { fetch: neonFetch },
+});
 
 // ── Clerk bridge ─────────────────────────────────────────────────────────
 // The app authenticates with Clerk, not Supabase. Without this shim,
@@ -31,7 +56,6 @@ interface ShimUser {
 }
 
 let shimUser: ShimUser | null = null;
-let shimToken: string | null = null;
 let signOutHandler: (() => Promise<unknown>) | null = null;
 
 type AuthListener = (event: string, session: unknown) => void;

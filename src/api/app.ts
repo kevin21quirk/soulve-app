@@ -15,6 +15,7 @@ import helperApplicationsRouter from './routes/helperApplications.js';
 import verificationsRouter from './routes/verifications.js';
 import feedbackRouter from './routes/feedback.js';
 import esgRouter from './routes/esg.js';
+import restRouter from './routes/rest.js';
 
 const app = new Hono().basePath('/api');
 
@@ -45,6 +46,9 @@ app.route('/helper-applications', helperApplicationsRouter);
 app.route('/verifications', verificationsRouter);
 app.route('/feedback', feedbackRouter);
 app.route('/esg', esgRouter);
+// PostgREST-compatible layer — replaces supabase.from()/rpc() calls; runs
+// against Neon under the ported RLS policies.
+app.route('/rest', restRouter);
 
 // Health check
 app.get('/health', (c) => c.json({ ok: true, ts: new Date().toISOString() }));
