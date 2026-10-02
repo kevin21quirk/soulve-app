@@ -158,7 +158,9 @@ function castType(udt: string): string {
     json: 'json', jsonb: 'jsonb', text: 'text', varchar: 'text', bpchar: 'text',
     inet: 'inet', interval: 'interval', bytea: 'bytea',
   };
-  return map[udt] ?? 'text';
+  if (map[udt]) return map[udt];
+  // enums/domains: udt_name is the type name — cast to it directly
+  return IDENT_RE.test(udt) ? `"${udt}"` : 'text';
 }
 
 // ── Filter parsing ────────────────────────────────────────────────────────
