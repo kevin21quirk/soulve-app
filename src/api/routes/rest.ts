@@ -201,9 +201,9 @@ function buildCond(table: string, key: string, raw: string, ctx: Ctx, alias = ''
   if (logic && raw.startsWith('(') && raw.endsWith(')')) {
     const inner = raw.slice(1, -1);
     const parts = splitTopLevel(inner).map((c) => {
-      const m = c.match(/^([a-zA-Z0-9_.]+)\.(not\.)?(.+)$/);
+      const m = c.match(/^([a-zA-Z0-9_]+)\.((?:not\.)?[\s\S]+)$/);
       if (!m) throw pgrstError(400, `Cannot parse filter: ${c}`);
-      return buildCond(table, m[1], (m[2] ?? '') + m[3], ctx, alias);
+      return buildCond(table, m[1], m[2], ctx, alias);
     });
     return `(${parts.join(logic[1] === 'or' ? ' OR ' : ' AND ')})`;
   }

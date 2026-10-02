@@ -22,7 +22,7 @@ const neonFetch: typeof fetch = async (input, init) => {
   const headers = new Headers(init?.headers);
   const token = (await tokenGetter?.().catch(() => null)) ?? shimToken;
   if (token) headers.set('Authorization', `Bearer ${token}`);
-  return fetch(`/api/rest${path}`, { ...init, headers });
+  return fetch(`/api/rest/v1${path}`, { ...init, headers });
 };
 
 export function registerSupabaseTokenGetter(fn: () => Promise<string | null>) {
