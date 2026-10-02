@@ -588,7 +588,7 @@ rest.patch('/v1/:table', async (c) => {
       const where = buildWhere(table, url.searchParams, ctx);
       const wantReturn = prefers(headers, 'return') !== 'minimal';
       const res = await q(
-        `UPDATE ${ident(table)} SET ${sets.join(', ')} ${where}${wantReturn ? ' RETURNING *' : ''}`,
+        `UPDATE ${ident(table)} t SET ${sets.join(', ')} ${where}${wantReturn ? ' RETURNING t.*' : ''}`,
         ctx.params,
       );
       if (!wantReturn) return c.body(null, 204);
@@ -612,7 +612,7 @@ rest.delete('/v1/:table', async (c) => {
       const where = buildWhere(table, url.searchParams, ctx);
       const wantReturn = prefers(c.req.raw.headers, 'return') === 'representation';
       const res = await q(
-        `DELETE FROM ${ident(table)} ${where}${wantReturn ? ' RETURNING *' : ''}`,
+        `DELETE FROM ${ident(table)} t ${where}${wantReturn ? ' RETURNING t.*' : ''}`,
         ctx.params,
       );
       if (!wantReturn) return c.body(null, 204);
